@@ -1592,6 +1592,35 @@ function getActiveVehicleSpeed(car)
 end
 
 -- ÑËÅÆÅÍÈÅ ÇÀ ÎÐÓÆÈÅÌ
+local engine_debug_done = false
+function isCarEngineOn(car)
+    if not has_memory then
+        if not engine_debug_done then
+            sampAddChatMessage("[Helper] ENGINE DEBUG: no memory module", 0xFF0000)
+            engine_debug_done = true
+        end
+        return true
+    end
+    local carPtr = getCarPointer(car)
+    if not carPtr or carPtr == 0 then
+        if not engine_debug_done then
+            sampAddChatMessage("[Helper] ENGINE DEBUG: carPtr=nil/0", 0xFF0000)
+            engine_debug_done = true
+        end
+        return true
+    end
+    -- Try multiple offsets to find the right one
+    local val_428 = memory.read(carPtr + 0x428, 1, true) or -1
+    local val_461 = memory.read(carPtr + 0x461, 1, true) or -1
+    local val_462 = memory.read(carPtr + 0x462, 1, true) or -1
+    if not engine_debug_done then
+        sampAddChatMessage("[Helper] ENGINE DEBUG: carPtr=" .. tostring(carPtr) .. " 0x428=" .. tostring(val_428) .. " 0x461=" .. tostring(val_461) .. " 0x462=" .. tostring(val_462), 0x00FFFF)
+        engine_debug_done = true
+    end
+    -- Use 0x428 for now
+    return val_428 ~= 0
+end
+
 function cruiseControlWorker()
     local cruise_speed = 0
     local c_pressed = false
@@ -1607,7 +1636,7 @@ function cruiseControlWorker()
     local last_applied_speed = 0
     local last_speed_for_crash = 0
     local crash_cooldown = 0
-    local ramp_step = 2
+    local ramp_step = 3
     local ramp_active = false
     while true do
         if isCharInAnyCar(PLAYER_PED) then
@@ -1675,7 +1704,10 @@ function cruiseControlWorker()
                             gas_on = false
                         end
 
-                        if last_speed_for_crash > 10 and current_speed < last_speed_for_crash * 0.6 then
+                        -- Engine check: if engine is OFF, turbo does nothing
+                        if not isCarEngineOn(car) then
+                            wait(100)
+                        elseif last_speed_for_crash > 10 and current_speed < last_speed_for_crash * 0.6 then
                             crash_cooldown = 150
                             ramp_active = false
                             ramp_step = 2
@@ -1684,43 +1716,25 @@ function cruiseControlWorker()
 
                         if crash_cooldown > 0 then
                             crash_cooldown = crash_cooldown - 1
+                            if crash_cooldown == 0 then
+                                ramp_active = false
+                                ramp_step = 3
+                            end
                             wait(20)
                         else
-                            local _, _, cur_z = getCarCoordinates(car)
-                            cur_z = cur_z or 0
-                            local z_delta = 0
-                            if z_check_time > 0 and (now - z_check_time) > 0.05 then
-                                z_delta = math.abs(cur_z - last_z)
-                                last_z = cur_z
-                                z_check_time = now
-                            else
-                                last_z = cur_z
-                                z_check_time = now
-                            end
-                            local cur_heading = getCarHeading(car)
-                            local h_delta = 0
-                            if last_heading_time > 0 and (now - last_heading_time) > 0.05 then
-                                h_delta = math.abs(cur_heading - last_heading)
-                                if h_delta > 180 then h_delta = 360 - h_delta end
-                                last_heading = cur_heading
-                                last_heading_time = now
-                            else
-                                last_heading = cur_heading
-                                last_heading_time = now
-                            end
-
+                            -- Only check: not in air + has speed + below target
+                            -- z_delta/h_delta removed - they blocked resume after crash
                             if not ramp_active then
                                 ramp_active = true
-                                ramp_step = 2
+                                ramp_step = 3
                             end
 
                             local can_apply = not in_air
-                                           and z_delta < 1.5
-                                           and h_delta < 20
                                            and current_speed
                                            and current_speed < cruise_speed
                             if can_apply then
-                                ramp_step = math.min(ramp_step + 1, 15)
+                                -- Smooth ramp: start +3, grow +1 every frame, max +20
+                                ramp_step = math.min(ramp_step + 1, 20)
                                 local new_speed = current_speed + ramp_step
                                 setCarForwardSpeed(car, new_speed)
                                 last_applied_speed = new_speed
