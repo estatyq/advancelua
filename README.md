@@ -1,110 +1,110 @@
 # Universal Helper Platform v0.8
 
-Universal game helper for **GTA San Andreas — SA-MP** (Advance RP servers).  
-Built on **MoonLoader** (Lua) with **mimgui** GUI, **SAMP.Lua** events, and **SAMPFUNCS**.
+Универсальный игровой помощник для **GTA San Andreas — SA-MP** (сервера Advance RP).  
+Построен на **MoonLoader** (Lua) с GUI **mimgui**, событиями **SAMP.Lua** и **SAMPFUNCS**.
 
 ---
 
-## Features
+## Возможности
 
-### Cruise Control
-- **Normal mode** — simulates gas pedal with hysteresis (smooth, reliable)
-- **Turbo mode** — speedhack via `setCarForwardSpeed` with safety:
-  - Crash detection (speed drop > 40% → 3s pause)
-  - Smooth ramp-up (+3 → +20 per frame)
-  - Engine state check (won't accelerate with engine off)
-  - In-air detection (won't apply mid-jump)
-- **Controls:** `C` = toggle, `W` = +5, `S` = -5
+### Круиз-контроль
+- **Обычный режим** — симулирует педаль газа с гистерезисом (плавно, надёжно)
+- **Турбо-режим** — спидхак через `setCarForwardSpeed` с защитой:
+  - Детекция удара (падение скорости > 40% → пауза 3 сек)
+  - Плавный разгон (+3 → +20 за кадр)
+  - Проверка двигателя (не разгоняет при заглушенном двигателе)
+  - Проверка в воздухе (не применяет в полёте)
+- **Управление:** `C` = вкл/выкл, `W` = +5, `S` = -5
 
-### Strobe Lights (19 modes)
-- Memory-based headlight control via `CDamageManager`
-- Modes: flashing, alternating, running, sirens, SOS, garland, mayak, patrol, etc.
-- **Controls:** `J` = toggle on/off, `N` = next mode
+### Стробоскопы (19 режимов)
+- Управление фарами через память (`CDamageManager`)
+- Режимы: мигающие, попеременные, бегущие, сирены, SOS, гирлянда, маяк, патруль и др.
+- **Управление:** `J` = вкл/выкл, `N` = следующий режим
 
-### Keybinds System
-- Bind any key to any chat command
-- Defaults: `L` = `/lock`, `K` = `/e`
-- Add/edit/remove via UI
-- Saved to `helper_settings.json`
-- Won't trigger while typing in chat or dialog open
+### Система биндов клавиш
+- Привязка любой клавиши к любой команде чата
+- По умолчанию: `L` = `/lock`, `K` = `/e`
+- Добавление/редактирование/удаление через интерфейс
+- Сохранение в `helper_settings.json`
+- Не срабатывает при открытом чате или диалоге
 
-### Auto-Call & Database
-- Tracks players from chat, stores nick + phone number
-- Auto-call online players from DB
-- Configurable delay and max calls per session
+### Авто-звонки и база данных
+- Отслеживает игроков из чата, сохраняет ник + телефон
+- Авто-звонок онлайн-игрокам из БД
+- Настраиваемая задержка и максимум звонков за сессию
 
-### Auto-Advertisement
-- Automatically posts ads with configurable delay
+### Авто-реклама
+- Автоматическая публикация рекламы с настраиваемой задержкой
 
-### MM Editor (Skins)
-- Change player skin by model ID (0–311)
+### MM Editor (Скины)
+- Смена скина игрока по ID модели (0–311)
 
-### Auto-RP
-- Automated RP actions (weapons, healing) based on faction
+### Авто-РП
+- Автоматизированные RP-действия (оружие, лечение) по фракции
 
-### Faction Scanner
-- Detects faction from dialog, sets skin automatically
+### Сканер фракций
+- Определяет фракцию из диалога, автоматически ставит скин
 
-### Commands Guide
-- Built-in reference for Advance RP commands by category
-
----
-
-## Installation
-
-1. Install **MoonLoader v0.26+**
-2. Install required libraries: `mimgui`, `ffi`, `encoding`, `json`, `lib.samp.events`, `memory`, `bit`
-3. Copy `helper_core.lua` to `GTA San Andreas/moonloader/`
-4. Launch game, press **F11** or type `/helper` to open menu
+### Справочник команд
+- Встроенный справочник по командам Advance RP по категориям
 
 ---
 
-## Hotkeys
+## Установка
 
-| Key | Action |
-|-----|--------|
-| `F11` | Open/close main menu |
-| `C` | Toggle cruise control (in vehicle) |
-| `W` / `S` | Increase / decrease cruise target speed |
-| `J` | Toggle strobe lights (in vehicle) |
-| `N` | Next strobe mode (in vehicle) |
-| `L` | `/lock` (lock/unlock vehicle) |
-| `K` | `/e` (engine on/off) |
-
-All hotkeys are disabled while typing in chat or when a dialog is open.
+1. Установите **MoonLoader v0.26+**
+2. Установите библиотеки: `mimgui`, `ffi`, `encoding`, `json`, `lib.samp.events`, `memory`, `bit`
+3. Скопируйте `helper_core.lua` в `GTA San Andreas/moonloader/`
+4. Запустите игру, нажмите **F11** или введите `/helper` для открытия меню
 
 ---
 
-## Configuration
+## Горячие клавиши
 
-Settings are saved to `moonloader/config/helper_settings.json`:
-- Module enable/disable states
-- Strobe mode and speed
-- Cruise turbo mode toggle
-- Custom keybinds
+| Клавиша | Действие |
+|---------|----------|
+| `F11` | Открыть/закрыть главное меню |
+| `C` | Вкл/выкл круиз-контроль (в транспорте) |
+| `W` / `S` | Увеличить / уменьшить целевую скорость круиза |
+| `J` | Вкл/выкл стробоскопы (в транспорте) |
+| `N` | Следующий режим стробоскопов (в транспорте) |
+| `L` | `/lock` (закрыть/открыть машину) |
+| `K` | `/e` (завести/заглушить двигатель) |
+
+Все горячие клавиши отключены при открытом чате или диалоге.
 
 ---
 
-## Requirements
+## Настройки
+
+Настройки сохраняются в `moonloader/config/helper_settings.json`:
+- Включение/выключение модулей
+- Режим и скорость стробоскопов
+- Турбо-режим круиз-контроля
+- Пользовательские бинды клавиш
+
+---
+
+## Требования
 
 - GTA San Andreas v1.0
-- SA-MP client
+- Клиент SA-MP
 - MoonLoader v0.26+
-- Libraries: mimgui, sampfuncs, memory, bit, encoding, json
+- Библиотеки: mimgui, sampfuncs, memory, bit, encoding, json
 
 ---
 
-## Version History
+## История версий
 
-- **v0.8** (27.06.2026) — Turbo cruise redesign, keybinds system, strobe mode key, engine check, debug cleanup
-- **v0.7** — Initial SAMP.Lua integration, faction scanner, auto-call DB
+- **v0.8** (27.06.2026) — Переделка турбо-круиза, система биндов, клавиша режимов стробоскопов, проверка двигателя, очистка дебага
+- **v0.7** — Интеграция SAMP.Lua, сканер фракций, авто-звонки по БД
 
 ---
 
-## License
+## Лицензия
 
-Personal use. See repository for details.
+Для личного использования.
 
-## Links
+## Ссылки
 
-- [Repository](https://github.com/estatyq/advancelua)
+- [Репозиторий](https://github.com/estatyq/advancelua)
