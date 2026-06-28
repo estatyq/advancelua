@@ -3808,6 +3808,11 @@ formatted = formatted:gsub("%s+", " ")
 formatted = formatted:gsub("^%s+", "")
 formatted = formatted:gsub("%s+$", "")
 
+-- Add FT (Full Tuning) suffix for cars
+if is_car then
+formatted = formatted .. " FT"
+end
+
 -- Punctuation and price formatting
 local fl = formatted:lower()
 
