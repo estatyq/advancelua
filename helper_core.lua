@@ -5428,7 +5428,7 @@ imgui.OnFrame(
 
         imgui.SameLine()
 
-        if imgui.Button(u8"Отклонить (ПРО)", imgui.ImVec2(160, 30)) then
+        if imgui.Button(u8"Отклонить (ПРО)", imgui.ImVec2(160, 30)) or imgui.GetIO().KeysDown[0x1B] then
             if ae_dialog_id >= 0 then
                 local tag = u8:decode(ffi.string(mm_tag))
                 local reject_text = "ПРО"
