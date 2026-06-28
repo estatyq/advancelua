@@ -1171,7 +1171,7 @@ function sampev.onSendChat(message)
         local cmd = message:match("^/(%w+)")
         if cmd then
             -- /call <number>
-            if cmd == "call" and rp_phone_enabled[0] then
+            if (cmd == "call" or cmd == "c") and rp_phone_enabled[0] then
                 local arg = message:match("^/call%s+(.+)")
                 if arg and arg ~= "" then
                     lua_thread.create(function()
@@ -1230,14 +1230,15 @@ end
 
 -- Обработчик сообщений сервера (SAMP events)
 function sampev.onServerMessage(color, text)
+    -- Ищем в оригинальном CP1251 тексте
+    local sender, phone = text:match("Отправил%s+([A-Za-z0-9_]+)%[%d+%]%s+%(тел%.%s*(%d+)%)")
+    if not sender or not phone then
+        sender, phone = text:match("([A-Za-z0-9_]+)%[%d+%]%s+%(тел%.%s*(%d+)%)")
+    end
+    if not sender or not phone then
+        sender, phone = text:match("([A-Za-z0-9_]+).-%(тел%.%s*(%d+)%)")
+    end
     local text_utf8 = u8:encode(text, encoding.default)
-    local sender, phone = text_utf8:match(u8"Отправил%s+([A-Za-z0-9_]+)%[%d+%]%s+%(тел%.%s*(%d+)%)")
-    if not sender or not phone then
-        sender, phone = text_utf8:match("([A-Za-z0-9_]+)%[%d+%]%s+%(тел%.%s*(%d+)%)")
-    end
-    if not sender or not phone then
-        sender, phone = text_utf8:match("([A-Za-z0-9_]+).-%(тел%.%s*(%d+)%)")
-    end
 
     if sender and phone then
         local result, my_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
@@ -1288,11 +1289,12 @@ processed_chat_count = 0
 end
 
 -- Парсинг
-local text_utf8 = u8:encode(text, encoding.default)
-local sender, phone = text_utf8:match("Отправитель:%s*([A-Za-z0-9_]+).-[Тт]ел%s*:%s*(%d+)")
+-- Ищем в оригинальном CP1251 тексте
+local sender, phone = text:match("Отправитель:%s*([A-Za-z0-9_]+).-[Тт]ел%s*:%s*(%d+)")
 if not sender or not phone then
-sender, phone = text_utf8:match("([A-Za-z0-9_]+)%s*%.%s*[Тт]ел%s*:%s*(%d+)")
+sender, phone = text:match("([A-Za-z0-9_]+)%s*%.%s*[Тт]ел%s*:%s*(%d+)")
 end
+local text_utf8 = u8:encode(text, encoding.default)
 
 if sender and phone then
 player_db[sender] = {
@@ -1322,11 +1324,12 @@ local current_dialog_id = sampGetCurrentDialogId()
 if current_dialog_id ~= last_active_dialog_id then
 last_active_dialog_id = current_dialog_id
 
-local text_utf8 = u8:encode(text, encoding.default)
-local sender, phone = text_utf8:match("Отправитель:%s*([A-Za-z0-9_]+).-[Тт]ел%s*:%s*(%d+)")
+-- Ищем в оригинальном CP1251 тексте
+local sender, phone = text:match("Отправитель:%s*([A-Za-z0-9_]+).-[Тт]ел%s*:%s*(%d+)")
 if not sender or not phone then
-sender, phone = text_utf8:match("([A-Za-z0-9_]+)%s*%.%s*[Тт]ел%s*:%s*(%d+)")
+sender, phone = text:match("([A-Za-z0-9_]+)%s*%.%s*[Тт]ел%s*:%s*(%d+)")
 end
+local text_utf8 = u8:encode(text, encoding.default)
 
 if sender and phone then
 local result, my_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
@@ -1930,7 +1933,7 @@ call_current_phone = target.phone
 sampAddChatMessage(u8:decode("[Helper] Обзвон: Звоним " .. target.nick .. " (Тел: " .. target.phone .. ") [" .. (called_count+1) .. "/" .. limit .. "]"), 0xFFFF00)
 
 -- Вызов /call отыграется автоматически, так как мы зарегистрировали команду call
-sampSendChat("/call " .. target.phone)
+sampSendChat("/c " .. target.phone)
 
 last_called[target.nick] = os.time()
 called_count = called_count + 1
