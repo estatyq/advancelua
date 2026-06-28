@@ -3377,6 +3377,7 @@ local mm_rules = {
 {abbreviation = "закрытия", replacement = "закрытие"},
 {abbreviation = "переезд", replacement = "переезд"},
 {abbreviation = "переезда", replacement = "переезд"},
+{abbreviation = "фт", replacement = "FT"},
 }
 
 -- Переменные для модуля "Авто-отыгровки (Auto-RP)"
