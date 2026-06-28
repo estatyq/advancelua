@@ -58,6 +58,7 @@ local ae_dialog_id = -1
 local ae_original_text = ""
 local ae_formatted_text = ""
 local ae_input_buf = imgui.new.char[1024]("")
+local ae_focus = false
 local test_input = imgui.new.char[128]("")
 local test_output = ""
 local mm_rules = {
@@ -4665,6 +4666,7 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
             ae_formatted_text = u8:encode(formatted, encoding.default)
             imgui.StrCopy(ae_input_buf, u8:encode(formatted, encoding.default))
             ae_active[0] = true
+            ae_focus = true
             return false
         end
     end
@@ -5409,7 +5411,9 @@ imgui.OnFrame(
 
         imgui.Text(u8"Редактировать:")
         imgui.PushItemWidth(-1)
+        if ae_focus then imgui.SetKeyboardFocusHere(0) end
         local ae_enter = imgui.InputText("##ae_input", ae_input_buf, ffi.sizeof(ae_input_buf), imgui.InputTextFlags.EnterReturnsTrue)
+        ae_focus = false
         imgui.PopItemWidth()
 
         imgui.Spacing()
