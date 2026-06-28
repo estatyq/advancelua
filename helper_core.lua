@@ -3783,19 +3783,48 @@ formatted = formatted:gsub("%s+", " ")
 formatted = formatted:gsub("^%s+", "")
 formatted = formatted:gsub("%s+$", "")
 
--- Auto-add price if selling/buying but no price specified
-local has_price = false
+-- Punctuation and price formatting
 local fl = formatted:lower()
-if fl:find("дог") or fl:find("торг") or fl:find("обмен") or fl:find("бартер") or fl:find("дешев") or fl:find("дЄшев") or fl:find("недорого") or fl:find("%$") or fl:find("кк") or fl:find("млн") or fl:find("миллиард") or fl:find("млрд") or fl:find("миллион") then
+
+-- Check if has price
+local has_price = false
+if fl:find("%$") or fl:find("дог") or fl:find("торг") or fl:find("обмен") or fl:find("бартер") or fl:find("бесплатн") then
 has_price = true
 end
+
+-- Check if is ad (buying/selling)
 local is_ad = false
 if fl:find("продам") or fl:find("куплю") or fl:find("обмен€ю") or fl:find("прод") or fl:find("куп") then
 is_ad = true
 end
+
+-- Add period before "бюджет" / "цена" / "тел" if missing
+formatted = formatted:gsub("%s+(\u0431юджет)", ". %1")
+formatted = formatted:gsub("%s+(÷ена)", ". %1")
+formatted = formatted:gsub("%s+(тел)", ". %1")
+formatted = formatted:gsub("%s+(«вон)", ". %1")
+formatted = formatted:gsub("%s+(ќбмен)", ". %1")
+
+-- Fix double periods
+formatted = formatted:gsub("%.+%.", ".")
+formatted = formatted:gsub("%. %.", ". ")
+
+-- Capitalize after period
+formatted = formatted:gsub("%. (.)", function(c) return ". " .. cp1251_upper(c) end)
+
+-- Auto-add price if selling/buying but no price specified
 if is_ad and not has_price then
 formatted = formatted .. ". ÷ена: договорна€"
 end
+
+-- Ensure ends with period if no punctuation at end
+if #formatted > 0 and not formatted:sub(-1):match("[%.,%!%?]") then
+formatted = formatted .. "."
+end
+
+-- Fix ". ." -> "."
+formatted = formatted:gsub("%. %.", ".")
+formatted = formatted:gsub("%s+$", "")
 
 -- Add server tag prefix (use detected tag if found, otherwise configured tag)
 local tag = detected_tag or u8:decode(ffi.string(mm_tag))
