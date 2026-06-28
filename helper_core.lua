@@ -22,6 +22,7 @@ local ffi = require 'ffi'
 local sampev = require 'lib.samp.events'
 local encoding = require 'encoding'
 local json = require 'json'
+local memory = require 'memory'
 encoding.default = 'CP1251'
 local u8 = encoding.UTF8
 
@@ -41,10 +42,11 @@ local server_names = {u8"Advance RP", u8"Diamond RP", u8"Arizona RP", u8"Evolve 
 -- Переменные для модуля "Сбор и обзвон"
 local call_active = false
 local call_delay = imgui.new.int(7000)
-local max_calls_session = imgui.new.int(3)
+local max_calls_session = imgui.new.int(50)
 local call_current_nick = ""
 local call_current_phone = ""
 local last_called = {}
+local call_cooldown_hours = imgui.new.int(1)  -- don't re-call same person for N hours
 
 -- Переменные для модуля "MM Editor" (СМИ Редактор)
 local mm_auto_format = imgui.new.bool(true)
@@ -277,6 +279,16 @@ if parsed.time_hour ~= nil then time_hour[0] = parsed.time_hour end
 if parsed.aad_delay ~= nil then aad_delay[0] = parsed.aad_delay end
 if parsed.aad_templates ~= nil then aad_templates = parsed.aad_templates end
 if parsed.aad_history ~= nil then aad_history = parsed.aad_history end
+if parsed.last_called ~= nil then last_called = parsed.last_called end
+if parsed.call_cooldown_hours ~= nil then call_cooldown_hours[0] = parsed.call_cooldown_hours end
+-- Restore module enabled states
+if parsed.module_states and modules then
+for _, mod in ipairs(modules) do
+if parsed.module_states[mod.id] ~= nil then
+mod.enabled = parsed.module_states[mod.id]
+end
+end
+end
 
 -- Миграция: конвертируем старые CP1251 шаблоны/историю в UTF-8
 local function needsUtf8Convert(s)
@@ -326,6 +338,18 @@ end
 
 -- Сохранение настроек
 local function saveSettings()
+-- Save module enabled states
+local module_states = {}
+if modules then
+for _, mod in ipairs(modules) do
+module_states[mod.id] = mod.enabled
+end
+end
+-- Save keybinds
+local kb = {}
+for _, bind in ipairs(keybinds) do
+table.insert(kb, {key = bind.key, command = bind.command, enabled = bind.enabled, name = bind.name})
+end
 local settings = {
 current_server = current_server_idx[0],
 rp_weapons = rp_weapons_enabled[0],
@@ -343,19 +367,16 @@ time_locked = time_locked[0],
 time_hour = time_hour[0],
 aad_delay = aad_delay[0],
 aad_templates = aad_templates,
-aad_history = aad_history
+aad_history = aad_history,
+last_called = last_called,
+call_cooldown_hours = call_cooldown_hours[0],
+keybinds = kb,
+module_states = module_states
 }
 local file = io.open(settings_path, "w")
 if file then
 file:write(json.encode(settings))
 file:close()
-    -- Save keybinds
-    local kb = {}
-    for _, bind in ipairs(keybinds) do
-        table.insert(kb, {key = bind.key, command = bind.command, enabled = bind.enabled, name = bind.name})
-    end
-    settings.keybinds = kb
-
 end
 end
 
@@ -494,7 +515,34 @@ imgui.Text(u8"Настройки обзвона:")
 imgui.PushItemWidth(150)
 imgui.SliderInt(u8"Задержка вызова (мс)", call_delay, 2000, 15000)
 imgui.InputInt(u8"Лимит звонков за сессию", max_calls_session)
+imgui.InputInt(u8"Не звонить человека (часов)", call_cooldown_hours, 0, 24)
 imgui.PopItemWidth()
+
+imgui.Spacing()
+imgui.Separator()
+imgui.Spacing()
+
+local called_recently = 0
+for nick, t in pairs(last_called) do
+if os.time() - t < call_cooldown_hours[0] * 3600 then called_recently = called_recently + 1 end
+end
+imgui.TextColored(imgui.ImVec4(0.7, 0.7, 1, 1), u8"Прогресс:")
+imgui.BulletText(u8"Позвонили за время кулдауна: " .. called_recently)
+
+imgui.Spacing()
+if imgui.Button(u8"Сбросить историю звонков") then
+last_called = {}
+saveSettings()
+sampAddChatMessage("[Helper] История звонков сброшена", 0x00FF00)
+end
+imgui.SameLine()
+if imgui.Button(u8"Очистить БД") then
+player_db = {}
+last_called = {}
+saveDatabase()
+saveSettings()
+sampAddChatMessage("[Helper] БА очищена", 0x00FF00)
+end
 
 imgui.Spacing()
 imgui.Separator()
@@ -719,6 +767,7 @@ onToggle = function(state) end
 },
 {
 id = "auto_rp",
+enabled = true,
 name = u8" Авто-Отыгровки",
 description = u8"Скрипт автоматически отыгрывает через команды /me и /do стандартные игровые действия в чат (доставание оружия, звонки по телефону, маски, аптечки).",
 enabled = false,
@@ -934,7 +983,8 @@ while not isSampAvailable() do wait(100) end
 -- Загружаем базы и настройки
 loadDatabases()
 
-sampAddChatMessage(u8:decode("Helper Core v0.8 (27.06.2026) загружен. Открыть меню: {00FF00}F11{FFFFFF} или {00FF00}/helper"), 0xFFFFFF)
+sampAddChatMessage("Helper Core v0.8 (27.06.2026) загружен. Меню: F11", 0x00FF00)
+sampAddChatMessage("Стробы: J=вкл/выкл, N=режим | Круиз: C, W/S=скорость | Бинды: L=/lock, K=/e", 0xFFFFFF)
 
 -- Регистрируем команду открытия меню
 sampRegisterChatCommand("helper", function()
@@ -972,57 +1022,7 @@ end
 end)
 
 -- РЕГИСТРАЦИЯ КОМАНД ДЛЯ АВТО-ОТЫГРОВОК
-sampRegisterChatCommand("call", function(arg)
-lua_thread.create(function()
-if isModuleEnabled("auto_rp") and rp_phone_enabled[0] and arg ~= "" then
-sampSendChat(u8:decode("/me достал мобильный телефон и набрал номер " .. arg))
-wait(100)
-end
-sampSendChat("/call " .. arg)
-end)
-end)
-
-local function handleHangup()
-lua_thread.create(function()
-if isModuleEnabled("auto_rp") and rp_phone_enabled[0] then
-sampSendChat("/me нажал кнопку сброса и убрал телефон в карман")
-wait(100)
-end
-sampSendChat("/h")
-end)
-end
-sampRegisterChatCommand("h", handleHangup)
-sampRegisterChatCommand("hangup", handleHangup)
-
-sampRegisterChatCommand("mask", function()
-lua_thread.create(function()
-if isModuleEnabled("auto_rp") and rp_mask_enabled[0] then
-sampSendChat("/me достал из кармана черную маску и натянул ее на лицо")
-wait(100)
-end
-sampSendChat("/mask")
-end)
-end)
-
-sampRegisterChatCommand("healme", function()
-lua_thread.create(function()
-if isModuleEnabled("auto_rp") and rp_heal_enabled[0] then
-sampSendChat("/me открыл походную аптечку, достал бинт и перевязал рану")
-wait(100)
-end
-sampSendChat("/healme")
-end)
-end)
-
-sampRegisterChatCommand("drugs", function(arg)
-lua_thread.create(function()
-if isModuleEnabled("auto_rp") and rp_heal_enabled[0] then
-sampSendChat("/me достал конфету из кармана и съел её")
-wait(100)
-end
-sampSendChat("/drugs " .. arg)
-end)
-end)
+-- RP отыгровки теперь через sampev.onSendChat (см. ниже)
 
 -- Запуск потоков
 lua_thread.create(factionScannerWorker)
@@ -1046,14 +1046,12 @@ end
 
 -- Клавиша J для стробоскопов в машине
 if wasKeyPressed(0x4A) and isCharInAnyCar(PLAYER_PED) and not sampIsChatInputActive() and not sampIsDialogActive() then -- J
-if isModuleEnabled("vehicle_visuals") then
 strobe_enabled[0] = not strobe_enabled[0]
 strobe_active = strobe_enabled[0]
 if strobe_active then
 lua_thread.create(strobeWorker)
 end
 sampAddChatMessage(u8:decode("[Helper] Стробоскопы: " .. (strobe_enabled[0] and "{00FF00}ВКЛ{FFFFFF} (выкл - J)" or "{FF0000}ВЫКЛ")), 0xFFFFFF)
-end
 end
 
 -- Клавиша N для смены режима стробоскопов (только если включены и в машине)
@@ -1164,12 +1162,79 @@ sendAdCommand = function(text)
     end
 end
 
+-- Перехват команд для авто-РП отыгровок
+-- Добавляет /me перед серверными командами
+function sampev.onSendChat(message)
+    if isModuleEnabled("auto_rp") then
+        local cmd = message:match("^/(%w+)")
+        if cmd then
+            -- /call <number>
+            if cmd == "call" and rp_phone_enabled[0] then
+                local arg = message:match("^/call%s+(.+)")
+                if arg and arg ~= "" then
+                    lua_thread.create(function()
+                        sampSendChat(u8:decode("/me достал мобильный телефон и набрал номер " .. arg))
+                        wait(100)
+                    end)
+                end
+            -- /h or /hangup
+            elseif (cmd == "h" or cmd == "hangup") and rp_phone_enabled[0] then
+                lua_thread.create(function()
+                    sampSendChat(u8:decode("/me закрыл телефон и убрал его в карман"))
+                    wait(100)
+                end)
+            -- /mask
+            elseif cmd == "mask" and rp_mask_enabled[0] then
+                lua_thread.create(function()
+                    sampSendChat(u8:decode("/me надел на лицо маску и скрыл свое лицо"))
+                    wait(100)
+                end)
+            -- /healme
+            elseif cmd == "healme" and rp_heal_enabled[0] then
+                lua_thread.create(function()
+                    sampSendChat(u8:decode("/me достал аптечку, открыл ее и применил"))
+                    wait(100)
+                end)
+            -- /drugs
+            elseif cmd == "drugs" and rp_heal_enabled[0] then
+                lua_thread.create(function()
+                    sampSendChat(u8:decode("/me достал шприц и сделал укол"))
+                    wait(100)
+                end)
+            -- /e (engine)
+            elseif cmd == "e" and rp_weapons_enabled[0] then
+                lua_thread.create(function()
+                    sampSendChat(u8:decode("/me завел двигатель"))
+                    wait(100)
+                end)
+            end
+        end
+    end
+    return true  -- let the message go to server
+end
+
+-- Блокируем серверную синхронизацию времени и погоды
+function sampev.onSetPlayerTime(hour, minute)
+    if time_locked[0] then
+        return false  -- блокируем сервер, не меняем время
+    end
+end
+
+function sampev.onSetWeather(weatherId)
+    if weather_locked[0] then
+        return false  -- блокируем сервер, не меняем погоду
+    end
+end
+
 -- Обработчик сообщений сервера (SAMP events)
 function sampev.onServerMessage(color, text)
     local text_utf8 = u8:encode(text, encoding.default)
-    local sender, phone = text_utf8:match(u8"Отправитель:%s+([A-Za-z0-9_]+).-%(Тел%.%s*(%d+)%)")
+    local sender, phone = text_utf8:match(u8"Отправил%s+([A-Za-z0-9_]+)%[%d+%]%s+%(тел%.%s*(%d+)%)")
     if not sender or not phone then
-        sender, phone = text_utf8:match(u8"([A-Za-z0-9_]+).-%(Тел%.%s*(%d+)%)")
+        sender, phone = text_utf8:match("([A-Za-z0-9_]+)%[%d+%]%s+%(тел%.%s*(%d+)%)")
+    end
+    if not sender or not phone then
+        sender, phone = text_utf8:match("([A-Za-z0-9_]+).-%(тел%.%s*(%d+)%)")
     end
 
     if sender and phone then
@@ -1374,25 +1439,35 @@ end
 
 -- РАБОТА С ПОГОДОЙ И ВРЕМЕНЕМ
 function environmentWorker()
-local last_weather = -1
+while memory == nil do wait(500) end
+local last_w = -1
+local last_t = -1
 while true do
-wait(200)
-if isModuleEnabled("vehicle_visuals") then
--- Погода: меняем только при изменении ID
+wait(0)  -- every frame, no delay
+-- Погода: пишем напрямую в память
 if weather_locked[0] then
 local w = weather_id[0]
-if w ~= last_weather then
-last_weather = w
+if w ~= last_w then
+last_w = w
 pcall(forceWeatherNow, w)
 end
+-- Поддерживаем каждый кадр
+pcall(memory.write, 0xC81320, w, 1, false)
 else
-last_weather = -1
+last_w = -1
 end
--- Время: пишем КАЖДЫЙ кадр (200мс) - иначе игра прокручивает время
+-- Время: пишем напрямую + сбрасываем таймер
 if time_locked[0] then
 local h = time_hour[0]
-pcall(setTimeOfDay, h, 0)
+if h ~= last_t then
+last_t = h
 end
+-- Час + минуты + секунды + таймер
+pcall(memory.write, 0xB70153, h, 1, false)
+pcall(memory.write, 0xB70152, 0, 1, false)
+pcall(memory.write, 0xB70158, 0, 4, false)
+else
+last_t = -1
 end
 end
 end
@@ -1846,17 +1921,18 @@ for _, target in ipairs(online_list) do
 if not call_active or called_count >= limit then break end
 
 local last_time = last_called[target.nick] or 0
-if os.time() - last_time > 300 then
+if os.time() - last_time > call_cooldown_hours[0] * 3600 then
 call_current_nick = target.nick
 call_current_phone = target.phone
 
-sampAddChatMessage(u8:decode("[Helper] Обзвон: Звоним " .. target.nick .. " (Тел: " .. target.phone .. ")"), 0xFFFF00)
+sampAddChatMessage(u8:decode("[Helper] Обзвон: Звоним " .. target.nick .. " (Тел: " .. target.phone .. ") [" .. (called_count+1) .. "/" .. limit .. "]"), 0xFFFF00)
 
 -- Вызов /call отыграется автоматически, так как мы зарегистрировали команду call
 sampSendChat("/call " .. target.phone)
 
 last_called[target.nick] = os.time()
 called_count = called_count + 1
+saveSettings()
 
 local timeLeft = call_delay[0]
 while timeLeft > 0 and call_active do
