@@ -3215,7 +3215,6 @@ local mm_rules = {
 {abbreviation = "арп", replacement = "ARP"},
 {abbreviation = "адванс", replacement = "Advance RP"},
 {abbreviation = "адванса", replacement = "Advance RP"},
-{abbreviation = "про", replacement = "PRO"},
 {abbreviation = "пр", replacement = "PRO"},
 {abbreviation = "нонрп", replacement = "non-RP"},
 {abbreviation = "нонрп", replacement = "non-RP"},
@@ -5417,9 +5416,14 @@ imgui.OnFrame(
 
         imgui.SameLine()
 
-        if imgui.Button(u8"Отмена", imgui.ImVec2(120, 30)) then
+        if imgui.Button(u8"Отклонить (ПРО)", imgui.ImVec2(160, 30)) then
             if ae_dialog_id >= 0 then
-                sampSendDialogResponse(ae_dialog_id, 0, -1, "")
+                local tag = u8:decode(ffi.string(mm_tag))
+                local reject_text = "ПРО"
+                if tag and tag ~= "" then
+                    reject_text = tag .. " | ПРО"
+                end
+                sampSendDialogResponse(ae_dialog_id, 1, -1, reject_text)
             end
             ae_active[0] = false
         end
