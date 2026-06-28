@@ -2870,7 +2870,6 @@ local mm_rules = {
 {abbreviation = "шкафа", replacement = "шкаф"},
 {abbreviation = "шкафы", replacement = "шкафы"},
 {abbreviation = "шкафов", replacement = "шкафы"},
-{abbreviation = "купе", replacement = "шкаф-купе"},
 {abbreviation = "гардероб", replacement = "гардероб"},
 {abbreviation = "гардероба", replacement = "гардероб"},
 {abbreviation = "вешалка", replacement = "вешалку"},
