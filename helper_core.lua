@@ -3744,6 +3744,14 @@ break
 end
 end
 
+-- Convert numbers with slang: 50kk -> 50.000.000$, 5mln -> 5.000.000$, 1kkk -> 1.000.000.000$
+formatted = formatted:gsub("(%d+)%s*[êk][êk]", "%1.000.000$")
+formatted = formatted:gsub("(%d+)%s*[êk][êk][êk]", "%1.000.000.000$")
+formatted = formatted:gsub("(%d+)%s*[ìm][ël][ín]", "%1.000.000$")
+formatted = formatted:gsub("(%d+)%s*[ìm][ël][ðp][äd]", "%1.000.000.000$")
+formatted = formatted:gsub("(%d+)%s*[ìm][èi][ël][ël][èi][àa][ðp][äd]", "%1.000.000.000$")
+formatted = formatted:gsub("(%d+)%s*[ìm][èi][ël][ël][èi][îo][ín]", "%1.000.000$")
+
 -- Apply replacement rules
 for _, rule in ipairs(mm_rules) do
 local abbr = rule.abbreviation
