@@ -52,18 +52,837 @@ local call_cooldown_hours = imgui.new.int(1)  -- don't re-call same person for N
 local mm_auto_format = imgui.new.bool(true)
 local mm_auto_send = imgui.new.bool(false)
 local mm_send_delay = imgui.new.int(3000)
+local mm_tag = imgui.new.char[8]("LV")
+local ae_active = imgui.new.bool(false)
+local ae_dialog_id = -1
+local ae_original_text = ""
+local ae_formatted_text = ""
+local ae_input_buf = imgui.new.char[1024]("")
 local test_input = imgui.new.char[128]("")
 local test_output = ""
 local mm_rules = {
+-- Машины
 {abbreviation = "булка", replacement = "а/м марки \"Bullet\""},
+{abbreviation = "булку", replacement = "а/м марки \"Bullet\""},
+{abbreviation = "булки", replacement = "а/м марки \"Bullet\""},
+{abbreviation = "булке", replacement = "а/м марки \"Bullet\""},
+{abbreviation = "булкой", replacement = "а/м марки \"Bullet\""},
 {abbreviation = "инф", replacement = "а/м марки \"Infernus\""},
+{abbreviation = "инфу", replacement = "а/м марки \"Infernus\""},
+{abbreviation = "инфе", replacement = "а/м марки \"Infernus\""},
+{abbreviation = "инфы", replacement = "а/м марки \"Infernus\""},
+{abbreviation = "инфом", replacement = "а/м марки \"Infernus\""},
 {abbreviation = "туризмо", replacement = "а/м марки \"Turismo\""},
+{abbreviation = "турик", replacement = "а/м марки \"Turismo\""},
+{abbreviation = "турика", replacement = "а/м марки \"Turismo\""},
+{abbreviation = "турику", replacement = "а/м марки \"Turismo\""},
+{abbreviation = "турике", replacement = "а/м марки \"Turismo\""},
+{abbreviation = "банши", replacement = "а/м марки \"Banshee\""},
+{abbreviation = "баншу", replacement = "а/м марки \"Banshee\""},
+{abbreviation = "банше", replacement = "а/м марки \"Banshee\""},
+{abbreviation = "баншей", replacement = "а/м марки \"Banshee\""},
+{abbreviation = "чито", replacement = "а/м марки \"Cheetah\""},
+{abbreviation = "читу", replacement = "а/м марки \"Cheetah\""},
+{abbreviation = "чите", replacement = "а/м марки \"Cheetah\""},
+{abbreviation = "супергт", replacement = "а/м марки \"Super GT\""},
+{abbreviation = "супергта", replacement = "а/м марки \"Super GT\""},
+{abbreviation = "супергту", replacement = "а/м марки \"Super GT\""},
+{abbreviation = "стингер", replacement = "а/м марки \"Stinger\""},
+{abbreviation = "стингера", replacement = "а/м марки \"Stinger\""},
+{abbreviation = "стингеру", replacement = "а/м марки \"Stinger\""},
+{abbreviation = "комета", replacement = "а/м марки \"Comet\""},
+{abbreviation = "комету", replacement = "а/м марки \"Comet\""},
+{abbreviation = "кометы", replacement = "а/м марки \"Comet\""},
+{abbreviation = "комете", replacement = "а/м марки \"Comet\""},
+{abbreviation = "феникс", replacement = "а/м марки \"Phoenix\""},
+{abbreviation = "феникса", replacement = "а/м марки \"Phoenix\""},
+{abbreviation = "фениксу", replacement = "а/м марки \"Phoenix\""},
+{abbreviation = "чампион", replacement = "а/м марки \"Champion\""},
+{abbreviation = "чампиона", replacement = "а/м марки \"Champion\""},
+{abbreviation = "чампиону", replacement = "а/м марки \"Champion\""},
+{abbreviation = "альфа", replacement = "а/м марки \"Alpha\""},
+{abbreviation = "альфу", replacement = "а/м марки \"Alpha\""},
+{abbreviation = "альфы", replacement = "а/м марки \"Alpha\""},
 {abbreviation = "кловер", replacement = "а/м марки \"Clover\""},
-{abbreviation = "лс", replacement = "г. Los Santos"},
-{abbreviation = "сф", replacement = "г. San Fierro"},
-{abbreviation = "лв", replacement = "г. Las Venturas"},
+{abbreviation = "кловера", replacement = "а/м марки \"Clover\""},
+{abbreviation = "кловеру", replacement = "а/м марки \"Clover\""},
+{abbreviation = "кловеры", replacement = "а/м марки \"Clover\""},
+{abbreviation = "сабре", replacement = "а/м марки \"Sabre\""},
+{abbreviation = "сабра", replacement = "а/м марки \"Sabre\""},
+{abbreviation = "сабру", replacement = "а/м марки \"Sabre\""},
+{abbreviation = "сабры", replacement = "а/м марки \"Sabre\""},
+{abbreviation = "вуду", replacement = "а/м марки \"Voodoo\""},
+{abbreviation = "вуды", replacement = "а/м марки \"Voodoo\""},
+{abbreviation = "сламван", replacement = "а/м марки \"Slamvan\""},
+{abbreviation = "сламвана", replacement = "а/м марки \"Slamvan\""},
+{abbreviation = "сламвану", replacement = "а/м марки \"Slamvan\""},
+{abbreviation = "ремингтон", replacement = "а/м марки \"Remington\""},
+{abbreviation = "ремингтона", replacement = "а/м марки \"Remington\""},
+{abbreviation = "ремингтону", replacement = "а/м марки \"Remington\""},
+{abbreviation = "бравура", replacement = "а/м марки \"Bravura\""},
+{abbreviation = "бравуру", replacement = "а/м марки \"Bravura\""},
+{abbreviation = "бравуры", replacement = "а/м марки \"Bravura\""},
+{abbreviation = "блейд", replacement = "а/м марки \"Blade\""},
+{abbreviation = "блейда", replacement = "а/м марки \"Blade\""},
+{abbreviation = "блейду", replacement = "а/м марки \"Blade\""},
+{abbreviation = "тампла", replacement = "а/м марки \"Tampa\""},
+{abbreviation = "тамплу", replacement = "а/м марки \"Tampa\""},
+{abbreviation = "торнадо", replacement = "а/м марки \"Tornado\""},
+{abbreviation = "торнадоа", replacement = "а/м марки \"Tornado\""},
+{abbreviation = "торнадоу", replacement = "а/м марки \"Tornado\""},
+{abbreviation = "султан", replacement = "а/м марки \"Sultan\""},
+{abbreviation = "султана", replacement = "а/м марки \"Sultan\""},
+{abbreviation = "султану", replacement = "а/м марки \"Sultan\""},
+{abbreviation = "султаны", replacement = "а/м марки \"Sultan\""},
+{abbreviation = "султане", replacement = "а/м марки \"Sultan\""},
+{abbreviation = "султаном", replacement = "а/м марки \"Sultan\""},
+{abbreviation = "сультан", replacement = "а/м марки \"Sultan\""},
+{abbreviation = "сультана", replacement = "а/м марки \"Sultan\""},
+{abbreviation = "сультану", replacement = "а/м марки \"Sultan\""},
+{abbreviation = "сультаны", replacement = "а/м марки \"Sultan\""},
+{abbreviation = "елегию", replacement = "а/м марки \"Elegy\""},
+{abbreviation = "еледжи", replacement = "а/м марки \"Elegy\""},
+{abbreviation = "елеги", replacement = "а/м марки \"Elegy\""},
+{abbreviation = "елегия", replacement = "а/м марки \"Elegy\""},
+{abbreviation = "елеге", replacement = "а/м марки \"Elegy\""},
+{abbreviation = "флеш", replacement = "а/м марки \"Flash\""},
+{abbreviation = "флеша", replacement = "а/м марки \"Flash\""},
+{abbreviation = "флешу", replacement = "а/м марки \"Flash\""},
+{abbreviation = "джестер", replacement = "а/м марки \"Jester\""},
+{abbreviation = "джестера", replacement = "а/м марки \"Jester\""},
+{abbreviation = "джестеру", replacement = "а/м марки \"Jester\""},
+{abbreviation = "стратум", replacement = "а/м марки \"Stratum\""},
+{abbreviation = "стратума", replacement = "а/м марки \"Stratum\""},
+{abbreviation = "стратуму", replacement = "а/м марки \"Stratum\""},
+{abbreviation = "уран", replacement = "а/м марки \"Uranus\""},
+{abbreviation = "урана", replacement = "а/м марки \"Uranus\""},
+{abbreviation = "урану", replacement = "а/м марки \"Uranus\""},
+{abbreviation = "ураны", replacement = "а/м марки \"Uranus\""},
+{abbreviation = "салат", replacement = "а/м марки \"Sultan RS\""},
+{abbreviation = "салата", replacement = "а/м марки \"Sultan RS\""},
+{abbreviation = "салату", replacement = "а/м марки \"Sultan RS\""},
+{abbreviation = "стрикер", replacement = "а/м марки \"Sultan RS\""},
+{abbreviation = "стрикера", replacement = "а/м марки \"Sultan RS\""},
+{abbreviation = "адреналин", replacement = "а/м марки \"Sultan RS\""},
+{abbreviation = "адреналина", replacement = "а/м марки \"Sultan RS\""},
+{abbreviation = "пикап", replacement = "а/м марки \"Picador\""},
+{abbreviation = "пикапа", replacement = "а/м марки \"Picador\""},
+{abbreviation = "пикапу", replacement = "а/м марки \"Picador\""},
+{abbreviation = "соляр", replacement = "а/м марки \"Solair\""},
+{abbreviation = "соляра", replacement = "а/м марки \"Solair\""},
+{abbreviation = "соляру", replacement = "а/м марки \"Solair\""},
+{abbreviation = "винсаг", replacement = "а/м марки \"Windsor\""},
+{abbreviation = "винсага", replacement = "а/м марки \"Windsor\""},
+{abbreviation = "винсагу", replacement = "а/м марки \"Windsor\""},
+{abbreviation = "шафтер", replacement = "а/м марки \"Stafford\""},
+{abbreviation = "шафтера", replacement = "а/м марки \"Stafford\""},
+{abbreviation = "шафтеру", replacement = "а/м марки \"Stafford\""},
+{abbreviation = "хантер", replacement = "а/м марки \"Huntley\""},
+{abbreviation = "хантера", replacement = "а/м марки \"Huntley\""},
+{abbreviation = "хантеру", replacement = "а/м марки \"Huntley\""},
+{abbreviation = "ранчер", replacement = "а/м марки \"Rancher\""},
+{abbreviation = "ранчера", replacement = "а/м марки \"Rancher\""},
+{abbreviation = "ранчеру", replacement = "а/м марки \"Rancher\""},
+{abbreviation = "ранчо", replacement = "а/м марки \"Rancher\""},
+{abbreviation = "ранчоа", replacement = "а/м марки \"Rancher\""},
+{abbreviation = "йосемити", replacement = "а/м марки \"Yosemite\""},
+{abbreviation = "йосемитиа", replacement = "а/м марки \"Yosemite\""},
+{abbreviation = "бобкэт", replacement = "а/м марки \"Bobcat\""},
+{abbreviation = "бобкэта", replacement = "а/м марки \"Bobcat\""},
+{abbreviation = "бобкэту", replacement = "а/м марки \"Bobcat\""},
+{abbreviation = "премьер", replacement = "а/м марки \"Premier\""},
+{abbreviation = "премьера", replacement = "а/м марки \"Premier\""},
+{abbreviation = "премьеру", replacement = "а/м марки \"Premier\""},
+{abbreviation = "стретч", replacement = "а/м марки \"Stretch\""},
+{abbreviation = "стретча", replacement = "а/м марки \"Stretch\""},
+{abbreviation = "стретчу", replacement = "а/м марки \"Stretch\""},
+{abbreviation = "адмирал", replacement = "а/м марки \"Admiral\""},
+{abbreviation = "адмирала", replacement = "а/м марки \"Admiral\""},
+{abbreviation = "адмиралу", replacement = "а/м марки \"Admiral\""},
+{abbreviation = "вашингтон", replacement = "а/м марки \"Washington\""},
+{abbreviation = "вашингтона", replacement = "а/м марки \"Washington\""},
+{abbreviation = "вашингтону", replacement = "а/м марки \"Washington\""},
+{abbreviation = "винвуд", replacement = "а/м марки \"Willard\""},
+{abbreviation = "винвуда", replacement = "а/м марки \"Willard\""},
+{abbreviation = "эмперор", replacement = "а/м марки \"Emperor\""},
+{abbreviation = "эмперора", replacement = "а/м марки \"Emperor\""},
+{abbreviation = "эмперору", replacement = "а/м марки \"Emperor\""},
+{abbreviation = "элеганс", replacement = "а/м марки \"Elegant\""},
+{abbreviation = "элеганса", replacement = "а/м марки \"Elegant\""},
+{abbreviation = "элегансу", replacement = "а/м марки \"Elegant\""},
+{abbreviation = "глендейл", replacement = "а/м марки \"Glendale\""},
+{abbreviation = "глендейла", replacement = "а/м марки \"Glendale\""},
+{abbreviation = "глендейлу", replacement = "а/м марки \"Glendale\""},
+{abbreviation = "манана", replacement = "а/м марки \"Manana\""},
+{abbreviation = "манану", replacement = "а/м марки \"Manana\""},
+{abbreviation = "мананы", replacement = "а/м марки \"Manana\""},
+{abbreviation = "манане", replacement = "а/м марки \"Manana\""},
+{abbreviation = "блиста", replacement = "а/м марки \"Blista\""},
+{abbreviation = "блисту", replacement = "а/м марки \"Blista\""},
+{abbreviation = "блисты", replacement = "а/м марки \"Blista\""},
+{abbreviation = "фортун", replacement = "а/м марки \"Fortune\""},
+{abbreviation = "фортуна", replacement = "а/м марки \"Fortune\""},
+{abbreviation = "фортуну", replacement = "а/м марки \"Fortune\""},
+{abbreviation = "сентинел", replacement = "а/м марки \"Sentinel\""},
+{abbreviation = "сентинела", replacement = "а/м марки \"Sentinel\""},
+{abbreviation = "сентинелу", replacement = "а/м марки \"Sentinel\""},
+{abbreviation = "букер", replacement = "а/м марки \"Buccaneer\""},
+{abbreviation = "букера", replacement = "а/м марки \"Buccaneer\""},
+{abbreviation = "букеру", replacement = "а/м марки \"Buccaneer\""},
+{abbreviation = "хёрмит", replacement = "а/м марки \"Hermes\""},
+{abbreviation = "хёрмита", replacement = "а/м марки \"Hermes\""},
+{abbreviation = "хёрмиту", replacement = "а/м марки \"Hermes\""},
+{abbreviation = "маджестик", replacement = "а/м марки \"Majestic\""},
+{abbreviation = "маджестика", replacement = "а/м марки \"Majestic\""},
+{abbreviation = "невада", replacement = "а/м марки \"Nevada\""},
+{abbreviation = "неваду", replacement = "а/м марки \"Nevada\""},
+{abbreviation = "невады", replacement = "а/м марки \"Nevada\""},
+{abbreviation = "примо", replacement = "а/м марки \"Primo\""},
+{abbreviation = "примоа", replacement = "а/м марки \"Primo\""},
+{abbreviation = "хоткнайф", replacement = "а/м марки \"Hotknife\""},
+{abbreviation = "хоткнайфа", replacement = "а/м марки \"Hotknife\""},
+{abbreviation = "хоткнайфу", replacement = "а/м марки \"Hotknife\""},
+{abbreviation = "дюна", replacement = "а/м марки \"Dune\""},
+{abbreviation = "дюну", replacement = "а/м марки \"Dune\""},
+{abbreviation = "дюны", replacement = "а/м марки \"Dune\""},
+{abbreviation = "дюне", replacement = "а/м марки \"Dune\""},
+{abbreviation = "монстр", replacement = "а/м марки \"Monster\""},
+{abbreviation = "монстра", replacement = "а/м марки \"Monster\""},
+{abbreviation = "монстру", replacement = "а/м марки \"Monster\""},
+{abbreviation = "монстры", replacement = "а/м марки \"Monster\""},
+{abbreviation = "бандито", replacement = "а/м марки \"Bandito\""},
+{abbreviation = "бандита", replacement = "а/м марки \"Bandito\""},
+{abbreviation = "бандиту", replacement = "а/м марки \"Bandito\""},
+{abbreviation = "кальцо", replacement = "а/м марки \"Calcium\""},
+{abbreviation = "кальцию", replacement = "а/м марки \"Calcium\""},
+{abbreviation = "кальция", replacement = "а/м марки \"Calcium\""},
+{abbreviation = "патриот", replacement = "а/м марки \"Patriot\""},
+{abbreviation = "патриота", replacement = "а/м марки \"Patriot\""},
+{abbreviation = "патриоту", replacement = "а/м марки \"Patriot\""},
+{abbreviation = "хотринг", replacement = "а/м марки \"Hotring\""},
+{abbreviation = "хотринга", replacement = "а/м марки \"Hotring\""},
+{abbreviation = "хотрингу", replacement = "а/м марки \"Hotring\""},
+{abbreviation = "хотрингер", replacement = "а/м марки \"Hotring\""},
+{abbreviation = "хотрингера", replacement = "а/м марки \"Hotring\""},
+{abbreviation = "багги", replacement = "а/м марки \"Bandito\""},
+{abbreviation = "баггиа", replacement = "а/м марки \"Bandito\""},
+{abbreviation = "крэйг", replacement = "а/м марки \"Crane\""},
+{abbreviation = "крэйга", replacement = "а/м марки \"Crane\""},
+{abbreviation = "инфернус", replacement = "а/м марки \"Infernus\""},
+{abbreviation = "инфернуса", replacement = "а/м марки \"Infernus\""},
+{abbreviation = "инфернусу", replacement = "а/м марки \"Infernus\""},
+{abbreviation = "буллет", replacement = "а/м марки \"Bullet\""},
+{abbreviation = "буллета", replacement = "а/м марки \"Bullet\""},
+{abbreviation = "буллету", replacement = "а/м марки \"Bullet\""},
+{abbreviation = "турисмо", replacement = "а/м марки \"Turismo\""},
+{abbreviation = "турисмоа", replacement = "а/м марки \"Turismo\""},
+{abbreviation = "ковбой", replacement = "а/м марки \"Clover\""},
+{abbreviation = "ковбоя", replacement = "а/м марки \"Clover\""},
+{abbreviation = "сэлбрайт", replacement = "а/м марки \"Sultan\""},
+{abbreviation = "сэлбрайта", replacement = "а/м марки \"Sultan\""},
+{abbreviation = "тампико", replacement = "а/м марки \"Tampa\""},
+{abbreviation = "фортуне", replacement = "а/м марки \"Fortune\""},
+{abbreviation = "фортунеа", replacement = "а/м марки \"Fortune\""},
+{abbreviation = "элегант", replacement = "а/м марки \"Elegant\""},
+{abbreviation = "элеганта", replacement = "а/м марки \"Elegant\""},
+{abbreviation = "октан", replacement = "а/м марки \"Uranus\""},
+{abbreviation = "октана", replacement = "а/м марки \"Uranus\""},
+{abbreviation = "октану", replacement = "а/м марки \"Uranus\""},
+{abbreviation = "зр350", replacement = "а/м марки \"ZR-350\""},
+{abbreviation = "зр350а", replacement = "а/м марки \"ZR-350\""},
+{abbreviation = "зр", replacement = "а/м марки \"ZR-350\""},
+{abbreviation = "зра", replacement = "а/м марки \"ZR-350\""},
+{abbreviation = "файрберд", replacement = "а/м марки \"Phoenix\""},
+{abbreviation = "файрберда", replacement = "а/м марки \"Phoenix\""},
+{abbreviation = "чирок", replacement = "а/м марки \"Cheetah\""},
+{abbreviation = "чирока", replacement = "а/м марки \"Cheetah\""},
+{abbreviation = "банка", replacement = "а/м марки \"Banshee\""},
+{abbreviation = "банку", replacement = "а/м марки \"Banshee\""},
+{abbreviation = "шевроле", replacement = "а/м марки \"Chevrolet\""},
+{abbreviation = "шевролеа", replacement = "а/м марки \"Chevrolet\""},
+{abbreviation = "ламбо", replacement = "а/м марки \"Lamborghini\""},
+{abbreviation = "ламбу", replacement = "а/м марки \"Lamborghini\""},
+{abbreviation = "бмв", replacement = "а/м марки \"BMW\""},
+{abbreviation = "бмву", replacement = "а/м марки \"BMW\""},
+{abbreviation = "мерс", replacement = "а/м марки \"Mercedes\""},
+{abbreviation = "мерса", replacement = "а/м марки \"Mercedes\""},
+{abbreviation = "мерсу", replacement = "а/м марки \"Mercedes\""},
+{abbreviation = "тойота", replacement = "а/м марки \"Toyota\""},
+{abbreviation = "тойоту", replacement = "а/м марки \"Toyota\""},
+{abbreviation = "тойоты", replacement = "а/м марки \"Toyota\""},
+{abbreviation = "ауди", replacement = "а/м марки \"Audi\""},
+{abbreviation = "аудиа", replacement = "а/м марки \"Audi\""},
+{abbreviation = "порше", replacement = "а/м марки \"Porsche\""},
+{abbreviation = "поршеа", replacement = "а/м марки \"Porsche\""},
+{abbreviation = "феррари", replacement = "а/м марки \"Ferrari\""},
+{abbreviation = "феррариа", replacement = "а/м марки \"Ferrari\""},
+{abbreviation = "лексус", replacement = "а/м марки \"Lexus\""},
+{abbreviation = "лексуса", replacement = "а/м марки \"Lexus\""},
+{abbreviation = "хонда", replacement = "а/м марки \"Honda\""},
+{abbreviation = "хонду", replacement = "а/м марки \"Honda\""},
+{abbreviation = "хонды", replacement = "а/м марки \"Honda\""},
+{abbreviation = "ниссан", replacement = "а/м марки \"Nissan\""},
+{abbreviation = "ниссана", replacement = "а/м марки \"Nissan\""},
+{abbreviation = "мазда", replacement = "а/м марки \"Mazda\""},
+{abbreviation = "мазду", replacement = "а/м марки \"Mazda\""},
+{abbreviation = "мазды", replacement = "а/м марки \"Mazda\""},
+{abbreviation = "субару", replacement = "а/м марки \"Subaru\""},
+{abbreviation = "субаруа", replacement = "а/м марки \"Subaru\""},
+{abbreviation = "митсубиси", replacement = "а/м марки \"Mitsubishi\""},
+{abbreviation = "крайслер", replacement = "а/м марки \"Chrysler\""},
+{abbreviation = "крайслера", replacement = "а/м марки \"Chrysler\""},
+{abbreviation = "форд", replacement = "а/м марки \"Ford\""},
+{abbreviation = "форда", replacement = "а/м марки \"Ford\""},
+{abbreviation = "форду", replacement = "а/м марки \"Ford\""},
+{abbreviation = "вольво", replacement = "а/м марки \"Volvo\""},
+{abbreviation = "бьюик", replacement = "а/м марки \"Buick\""},
+{abbreviation = "бьюика", replacement = "а/м марки \"Buick\""},
+{abbreviation = "кадиллак", replacement = "а/м марки \"Cadillac\""},
+{abbreviation = "кадиллака", replacement = "а/м марки \"Cadillac\""},
+{abbreviation = "понтиак", replacement = "а/м марки \"Pontiac\""},
+{abbreviation = "понтиака", replacement = "а/м марки \"Pontiac\""},
+{abbreviation = "додж", replacement = "а/м марки \"Dodge\""},
+{abbreviation = "доджа", replacement = "а/м марки \"Dodge\""},
+{abbreviation = "доджу", replacement = "а/м марки \"Dodge\""},
+{abbreviation = "ягуар", replacement = "а/м марки \"Jaguar\""},
+{abbreviation = "ягуара", replacement = "а/м марки \"Jaguar\""},
+{abbreviation = "бентли", replacement = "а/м марки \"Bentley\""},
+{abbreviation = "бентлиа", replacement = "а/м марки \"Bentley\""},
+{abbreviation = "роллсройс", replacement = "а/м марки \"Rolls-Royce\""},
+{abbreviation = "мазерати", replacement = "а/м марки \"Maserati\""},
+{abbreviation = "астонмартин", replacement = "а/м марки \"Aston Martin\""},
+{abbreviation = "бугатти", replacement = "а/м марки \"Bugatti\""},
+{abbreviation = "тачку", replacement = "а/м"},
+{abbreviation = "тачка", replacement = "а/м"},
+{abbreviation = "тачки", replacement = "а/м"},
+{abbreviation = "тачке", replacement = "а/м"},
+{abbreviation = "таз", replacement = "а/м"},
+{abbreviation = "таза", replacement = "а/м"},
+{abbreviation = "тазу", replacement = "а/м"},
+{abbreviation = "машину", replacement = "а/м"},
+{abbreviation = "машина", replacement = "а/м"},
+{abbreviation = "машины", replacement = "а/м"},
+{abbreviation = "машине", replacement = "а/м"},
+{abbreviation = "авто", replacement = "а/м"},
+{abbreviation = "автоа", replacement = "а/м"},
+{abbreviation = "лодка", replacement = "лодку"},
+{abbreviation = "лодку", replacement = "лодку"},
+{abbreviation = "лодки", replacement = "лодку"},
+{abbreviation = "лодке", replacement = "лодку"},
+{abbreviation = "яхта", replacement = "яхту"},
+{abbreviation = "яхту", replacement = "яхту"},
+{abbreviation = "яхты", replacement = "яхту"},
+{abbreviation = "яхте", replacement = "яхту"},
+{abbreviation = "самолет", replacement = "самолёт"},
+{abbreviation = "самолёт", replacement = "самолёт"},
+{abbreviation = "самолёта", replacement = "самолёт"},
+{abbreviation = "вертолет", replacement = "вертолёт"},
+{abbreviation = "вертолёт", replacement = "вертолёт"},
+{abbreviation = "вертолёта", replacement = "вертолёт"},
+-- Мото
+{abbreviation = "нрг", replacement = "мото марки \"NRG-500\""},
+{abbreviation = "нргу", replacement = "мото марки \"NRG-500\""},
+{abbreviation = "нрга", replacement = "мото марки \"NRG-500\""},
+{abbreviation = "нрге", replacement = "мото марки \"NRG-500\""},
+{abbreviation = "нрги", replacement = "мото марки \"NRG-500\""},
+{abbreviation = "фрей", replacement = "мото марки \"Freeway\""},
+{abbreviation = "фрея", replacement = "мото марки \"Freeway\""},
+{abbreviation = "фрею", replacement = "мото марки \"Freeway\""},
+{abbreviation = "вейб", replacement = "мото марки \"Wayfarer\""},
+{abbreviation = "вейба", replacement = "мото марки \"Wayfarer\""},
+{abbreviation = "вейбу", replacement = "мото марки \"Wayfarer\""},
+{abbreviation = "санч", replacement = "мото марки \"Sanchez\""},
+{abbreviation = "санчез", replacement = "мото марки \"Sanchez\""},
+{abbreviation = "санча", replacement = "мото марки \"Sanchez\""},
+{abbreviation = "санчу", replacement = "мото марки \"Sanchez\""},
+{abbreviation = "пжж", replacement = "мото марки \"PCJ-600\""},
+{abbreviation = "пжжа", replacement = "мото марки \"PCJ-600\""},
+{abbreviation = "пжжу", replacement = "мото марки \"PCJ-600\""},
+{abbreviation = "фцз", replacement = "мото марки \"FCR-900\""},
+{abbreviation = "фцза", replacement = "мото марки \"FCR-900\""},
+{abbreviation = "фцзу", replacement = "мото марки \"FCR-900\""},
+{abbreviation = "фаггио", replacement = "мото марки \"Faggio\""},
+{abbreviation = "фагио", replacement = "мото марки \"Faggio\""},
+{abbreviation = "фаггиу", replacement = "мото марки \"Faggio\""},
+{abbreviation = "бф", replacement = "мото марки \"BF-400\""},
+{abbreviation = "бфа", replacement = "мото марки \"BF-400\""},
+{abbreviation = "эндюро", replacement = "мото марки \"Enduro\""},
+{abbreviation = "эндюра", replacement = "мото марки \"Enduro\""},
+{abbreviation = "ангел", replacement = "мото марки \"Angel\""},
+{abbreviation = "ангела", replacement = "мото марки \"Angel\""},
+-- Велосипеды
+{abbreviation = "бмх", replacement = "велосипед марки \"BMX\""},
+{abbreviation = "бмха", replacement = "велосипед марки \"BMX\""},
+{abbreviation = "бмху", replacement = "велосипед марки \"BMX\""},
+{abbreviation = "байк", replacement = "велосипед марки \"BMX\""},
+{abbreviation = "байка", replacement = "велосипед марки \"BMX\""},
+{abbreviation = "байку", replacement = "велосипед марки \"BMX\""},
+{abbreviation = "велик", replacement = "велосипед"},
+{abbreviation = "велика", replacement = "велосипед"},
+{abbreviation = "велику", replacement = "велосипед"},
+{abbreviation = "велосипед", replacement = "велосипед"},
+{abbreviation = "велосипеда", replacement = "велосипед"},
+-- Города
+{abbreviation = "лс", replacement = "Los Santos"},
+{abbreviation = "лос сантос", replacement = "Los Santos"},
+{abbreviation = "сф", replacement = "San Fierro"},
+{abbreviation = "санфиеро", replacement = "San Fierro"},
+{abbreviation = "сан фиерро", replacement = "San Fierro"},
+{abbreviation = "лв", replacement = "Las Venturas"},
+{abbreviation = "las venturas", replacement = "Las Venturas"},
+{abbreviation = "lv", replacement = "Las Venturas"},
+{abbreviation = "штат", replacement = "штат"},
+{abbreviation = "штата", replacement = "штат"},
+-- Районы
+{abbreviation = "гетто", replacement = "East Los Santos"},
+{abbreviation = "геттоа", replacement = "East Los Santos"},
+{abbreviation = "ждлс", replacement = "East Los Santos"},
+{abbreviation = "жёлс", replacement = "East Los Santos"},
+{abbreviation = "гантон", replacement = "Ganton"},
+{abbreviation = "гантона", replacement = "Ganton"},
+{abbreviation = "гантону", replacement = "Ganton"},
+{abbreviation = "идл", replacement = "Idlewood"},
+{abbreviation = "идлвуд", replacement = "Idlewood"},
+{abbreviation = "джеф", replacement = "Jefferson"},
+{abbreviation = "джеферсон", replacement = "Jefferson"},
+{abbreviation = "глен", replacement = "Glen Park"},
+{abbreviation = "глена", replacement = "Glen Park"},
+{abbreviation = "верон", replacement = "Verona Beach"},
+{abbreviation = "верона", replacement = "Verona Beach"},
+{abbreviation = "верону", replacement = "Verona Beach"},
+{abbreviation = "вилл", replacement = "Willowfield"},
+{abbreviation = "виллоу", replacement = "Willowfield"},
+{abbreviation = "элкорона", replacement = "El Corona"},
+{abbreviation = "элтех", replacement = "El Corona"},
+{abbreviation = "элтек", replacement = "El Corona"},
+{abbreviation = "комфтон", replacement = "Commerce"},
+{abbreviation = "коммерс", replacement = "Commerce"},
+{abbreviation = "маркет", replacement = "Market"},
+{abbreviation = "маркета", replacement = "Market"},
+{abbreviation = "шром", replacement = "Chinatown"},
+{abbreviation = "пальмино", replacement = "Palomino Creek"},
+{abbreviation = "палминас", replacement = "Palomino Creek"},
+{abbreviation = "монтгомери", replacement = "Montgomery"},
+{abbreviation = "монтгомеря", replacement = "Montgomery"},
+{abbreviation = "диллимор", replacement = "Dillimore"},
+{abbreviation = "диллимора", replacement = "Dillimore"},
+{abbreviation = "блюбери", replacement = "Blueberry"},
+{abbreviation = "бляберри", replacement = "Blueberry"},
+{abbreviation = "чайнатаун", replacement = "Chinatown SF"},
+{abbreviation = "дохерти", replacement = "Doherty"},
+{abbreviation = "кингс", replacement = "Kings"},
+{abbreviation = "кингса", replacement = "Kings"},
+{abbreviation = "парадизо", replacement = "Paradiso"},
+{abbreviation = "стрип", replacement = "The Strip"},
+{abbreviation = "стрипа", replacement = "The Strip"},
+{abbreviation = "рокшор", replacement = "Rockshore"},
+{abbreviation = "рокшора", replacement = "Rockshore"},
+{abbreviation = "пилон", replacement = "Pilgrim"},
+{abbreviation = "пилона", replacement = "Pilgrim"},
+{abbreviation = "авалон", replacement = "Avalon"},
+{abbreviation = "авалона", replacement = "Avalon"},
+{abbreviation = "драгон", replacement = "Dragons Dojo"},
+{abbreviation = "драгона", replacement = "Dragons Dojo"},
+-- Районы (деревни/посёлки/округа)
+{abbreviation = "флинт", replacement = "Flint County"},
+{abbreviation = "флинта", replacement = "Flint County"},
+{abbreviation = "флинт кантри", replacement = "Flint County"},
+{abbreviation = "флинт кантриа", replacement = "Flint County"},
+{abbreviation = "пк", replacement = "Palomino Creek"},
+{abbreviation = "палмино", replacement = "Palomino Creek"},
+{abbreviation = "палминас", replacement = "Palomino Creek"},
+{abbreviation = "паломино", replacement = "Palomino Creek"},
+{abbreviation = "паломино крик", replacement = "Palomino Creek"},
+{abbreviation = "монтгомери", replacement = "Montgomery"},
+{abbreviation = "монтгомеря", replacement = "Montgomery"},
+{abbreviation = "диллимор", replacement = "Dillimore"},
+{abbreviation = "диллимора", replacement = "Dillimore"},
+{abbreviation = "блюбери", replacement = "Blueberry"},
+{abbreviation = "бляберри", replacement = "Blueberry"},
+{abbreviation = "блюберри", replacement = "Blueberry"},
+{abbreviation = "ель куебрадос", replacement = "El Quebrados"},
+{abbreviation = "ель куебрадос", replacement = "El Quebrados"},
+{abbreviation = "куебрадос", replacement = "El Quebrados"},
+{abbreviation = "форт карсон", replacement = "Fort Carson"},
+{abbreviation = "форт карсона", replacement = "Fort Carson"},
+{abbreviation = "форт", replacement = "Fort Carson"},
+{abbreviation = "карсон", replacement = "Fort Carson"},
+{abbreviation = "тиера робада", replacement = "Tierra Robada"},
+{abbreviation = "тиера", replacement = "Tierra Robada"},
+{abbreviation = "робада", replacement = "Tierra Robada"},
+{abbreviation = "ангел пайн", replacement = "Angel Pine"},
+{abbreviation = "ангел пайн", replacement = "Angel Pine"},
+{abbreviation = "ангел", replacement = "Angel Pine"},
+{abbreviation = "норт рок", replacement = "North Rock"},
+{abbreviation = "норт", replacement = "North Rock"},
+{abbreviation = "эшберри", replacement = "Ashberry"},
+{abbreviation = "эшберри", replacement = "Ashberry"},
+{abbreviation = "хилтоп", replacement = "Hilltop"},
+{abbreviation = "хилтопа", replacement = "Hilltop"},
+{abbreviation = "валле", replacement = "Valle Ocultado"},
+{abbreviation = "валле оклудадо", replacement = "Valle Ocultado"},
+{abbreviation = "оклудадо", replacement = "Valle Ocultado"},
+{abbreviation = "арко дель оесте", replacement = "Arco del Oeste"},
+{abbreviation = "арко", replacement = "Arco del Oeste"},
+{abbreviation = "бейсайд", replacement = "Bayside"},
+{abbreviation = "бейсайд", replacement = "Bayside"},
+{abbreviation = "бэйсайд", replacement = "Bayside"},
+{abbreviation = "эл кебрадос", replacement = "El Quebrados"},
+{abbreviation = "эль кебрадос", replacement = "El Quebrados"},
+{abbreviation = "грин палмс", replacement = "Green Palms"},
+{abbreviation = "грин", replacement = "Green Palms"},
+{abbreviation = "палмс", replacement = "Green Palms"},
+{abbreviation = "юнион станция", replacement = "Union Station"},
+{abbreviation = "юнион", replacement = "Union Station"},
+{abbreviation = "крик", replacement = "Palomino Creek"},
+{abbreviation = "кантри", replacement = "Flint County"},
+{abbreviation = "вайтвуд", replacement = "Whitewood"},
+{abbreviation = "вайтвуд бич", replacement = "Whitewood Beach"},
+{abbreviation = "вайтвуда", replacement = "Whitewood"},
+{abbreviation = "прайм", replacement = "Prickle Pine"},
+{abbreviation = "прикл пайн", replacement = "Prickle Pine"},
+{abbreviation = "прикл", replacement = "Prickle Pine"},
+{abbreviation = "рокшор", replacement = "Rockshore"},
+{abbreviation = "рокшор вест", replacement = "Rockshore West"},
+{abbreviation = "рокшора", replacement = "Rockshore"},
+{abbreviation = "стрип", replacement = "The Strip"},
+{abbreviation = "стрипа", replacement = "The Strip"},
+{abbreviation = "олд вегас", replacement = "Old Venturas"},
+{abbreviation = "олдвегас", replacement = "Old Venturas"},
+{abbreviation = "нью вегас", replacement = "New Venturas"},
+{abbreviation = "ньювегас", replacement = "New Venturas"},
+{abbreviation = "каменный сад", replacement = "Rockshore"},
+{abbreviation = "каменная", replacement = "Rockshore"},
+{abbreviation = "пилбокс", replacement = "Pilbox"},
+{abbreviation = "пилбокса", replacement = "Pilbox"},
+{abbreviation = "ройал", replacement = "Royal Casino"},
+{abbreviation = "ройала", replacement = "Royal Casino"},
+{abbreviation = "калигула", replacement = "Caligulas Palace"},
+{abbreviation = "калигулы", replacement = "Caligulas Palace"},
+{abbreviation = "пират", replacement = "Pirates in Mens Pants"},
+{abbreviation = "пирата", replacement = "Pirates in Mens Pants"},
+{abbreviation = "визаж", replacement = "Visage"},
+{abbreviation = "визажа", replacement = "Visage"},
+
+-- Недвижимость
+{abbreviation = "дом", replacement = "жилье (дом, квартиру, особняк, времянку)"},
+{abbreviation = "дома", replacement = "жилье (дом, квартиру, особняк, времянку)"},
+{abbreviation = "дому", replacement = "жилье (дом, квартиру, особняк, времянку)"},
+{abbreviation = "кв", replacement = "квартиру"},
+{abbreviation = "квартира", replacement = "квартиру"},
+{abbreviation = "квартиру", replacement = "квартиру"},
+{abbreviation = "квартиры", replacement = "квартиру"},
+{abbreviation = "особняк", replacement = "особняк"},
+{abbreviation = "особняка", replacement = "особняк"},
+{abbreviation = "особняку", replacement = "особняк"},
+{abbreviation = "виллу", replacement = "виллу"},
+{abbreviation = "вилла", replacement = "виллу"},
+{abbreviation = "виллы", replacement = "виллу"},
+{abbreviation = "биз", replacement = "бизнес"},
+{abbreviation = "бизик", replacement = "бизнес"},
+{abbreviation = "бизнес", replacement = "бизнес"},
+{abbreviation = "бизнеса", replacement = "бизнес"},
+{abbreviation = "бизнесу", replacement = "бизнес"},
+{abbreviation = "завод", replacement = "производство"},
+{abbreviation = "завода", replacement = "производство"},
+{abbreviation = "заводу", replacement = "производство"},
+{abbreviation = "фабрика", replacement = "производство"},
+{abbreviation = "фабрику", replacement = "производство"},
+{abbreviation = "фабрики", replacement = "производство"},
+{abbreviation = "фактория", replacement = "производство"},
+{abbreviation = "факторию", replacement = "производство"},
+{abbreviation = "заправка", replacement = "АЗС"},
+{abbreviation = "азс", replacement = "АЗС"},
+{abbreviation = "заправку", replacement = "АЗС"},
+{abbreviation = "бензоль", replacement = "АЗС"},
+{abbreviation = "отель", replacement = "отель"},
+{abbreviation = "мотель", replacement = "отель"},
+{abbreviation = "отеля", replacement = "отель"},
+{abbreviation = "мотеля", replacement = "отель"},
+{abbreviation = "маг", replacement = "магазин"},
+{abbreviation = "магазин", replacement = "магазин"},
+{abbreviation = "магазина", replacement = "магазин"},
+{abbreviation = "хатка", replacement = "магазин"},
+{abbreviation = "хатку", replacement = "магазин"},
+{abbreviation = "хатки", replacement = "магазин"},
+{abbreviation = "барах", replacement = "барах"},
+{abbreviation = "бараху", replacement = "барах"},
+{abbreviation = "барахи", replacement = "барах"},
+{abbreviation = "барахе", replacement = "барах"},
+{abbreviation = "клуб", replacement = "клуб"},
+{abbreviation = "клуба", replacement = "клуб"},
+{abbreviation = "клубу", replacement = "клуб"},
+{abbreviation = "казино", replacement = "казино"},
+{abbreviation = "казик", replacement = "казино"},
+{abbreviation = "казика", replacement = "казино"},
+{abbreviation = "казику", replacement = "казино"},
+{abbreviation = "качалка", replacement = "тренажёрный зал"},
+{abbreviation = "качалку", replacement = "тренажёрный зал"},
+{abbreviation = "качалки", replacement = "тренажёрный зал"},
+{abbreviation = "качалке", replacement = "тренажёрный зал"},
+{abbreviation = "спортзал", replacement = "тренажёрный зал"},
+{abbreviation = "спортзала", replacement = "тренажёрный зал"},
+{abbreviation = "зал", replacement = "тренажёрный зал"},
+{abbreviation = "закусочная", replacement = "закусочную"},
+{abbreviation = "закусочную", replacement = "закусочную"},
+{abbreviation = "столовая", replacement = "столовую"},
+{abbreviation = "столовую", replacement = "столовую"},
+{abbreviation = "бар", replacement = "бар"},
+{abbreviation = "бара", replacement = "бар"},
+{abbreviation = "бару", replacement = "бар"},
+{abbreviation = "ресторан", replacement = "ресторан"},
+{abbreviation = "ресторана", replacement = "ресторан"},
+{abbreviation = "кафе", replacement = "кафе"},
+{abbreviation = "аптека", replacement = "аптеку"},
+{abbreviation = "аптеку", replacement = "аптеку"},
+{abbreviation = "аптеки", replacement = "аптеку"},
+{abbreviation = "склад", replacement = "склад"},
+{abbreviation = "склада", replacement = "склад"},
+{abbreviation = "складу", replacement = "склад"},
+{abbreviation = "ангар", replacement = "ангар"},
+{abbreviation = "ангара", replacement = "ангар"},
+{abbreviation = "причал", replacement = "причал"},
+{abbreviation = "причала", replacement = "причал"},
+{abbreviation = "ферма", replacement = "ферму"},
+{abbreviation = "ферму", replacement = "ферму"},
+{abbreviation = "фермы", replacement = "ферму"},
+{abbreviation = "шахта", replacement = "шахту"},
+{abbreviation = "шахту", replacement = "шахту"},
+{abbreviation = "шахты", replacement = "шахту"},
+{abbreviation = "лесопилка", replacement = "лесопилку"},
+{abbreviation = "лесопилку", replacement = "лесопилку"},
+{abbreviation = "порт", replacement = "порт"},
+{abbreviation = "порта", replacement = "порт"},
+{abbreviation = "порту", replacement = "порт"},
+{abbreviation = "верфь", replacement = "верфь"},
+{abbreviation = "верфи", replacement = "верфь"},
+{abbreviation = "хранилище", replacement = "хранилище"},
+{abbreviation = "хранилища", replacement = "хранилище"},
+{abbreviation = "электростанция", replacement = "электростанцию"},
+{abbreviation = "электростанцию", replacement = "электростанцию"},
+{abbreviation = "мэрия", replacement = "мэрию"},
+{abbreviation = "мэрию", replacement = "мэрию"},
+{abbreviation = "мэрии", replacement = "мэрию"},
+{abbreviation = "мэрие", replacement = "мэрию"},
+{abbreviation = "мерия", replacement = "мэрию"},
+{abbreviation = "мерию", replacement = "мэрию"},
+{abbreviation = "полиция", replacement = "полицию"},
+{abbreviation = "полицию", replacement = "полицию"},
+{abbreviation = "полиции", replacement = "полицию"},
+{abbreviation = "больница", replacement = "больницу"},
+{abbreviation = "больницу", replacement = "больницу"},
+{abbreviation = "больницы", replacement = "больницу"},
+{abbreviation = "школа", replacement = "школу"},
+{abbreviation = "школу", replacement = "школу"},
+{abbreviation = "школы", replacement = "школу"},
+{abbreviation = "церковь", replacement = "церковь"},
+{abbreviation = "церкви", replacement = "церковь"},
+{abbreviation = "банк", replacement = "банк"},
+{abbreviation = "банка", replacement = "банк"},
+{abbreviation = "банку", replacement = "банк"},
+{abbreviation = "стадион", replacement = "стадион"},
+{abbreviation = "стадиона", replacement = "стадион"},
+{abbreviation = "стадиону", replacement = "стадион"},
+-- Предметы
+{abbreviation = "сим", replacement = "SIM-card"},
+{abbreviation = "симка", replacement = "SIM-card"},
+{abbreviation = "симку", replacement = "SIM-card"},
+{abbreviation = "симки", replacement = "SIM-card"},
+{abbreviation = "тел", replacement = "телефон"},
+{abbreviation = "телефон", replacement = "телефон"},
+{abbreviation = "телефона", replacement = "телефон"},
+{abbreviation = "номер", replacement = "тел. номер"},
+{abbreviation = "номера", replacement = "тел. номер"},
+{abbreviation = "одежду", replacement = "одежду"},
+{abbreviation = "одежда", replacement = "одежду"},
+{abbreviation = "одежды", replacement = "одежду"},
+{abbreviation = "одежду", replacement = "одежду"},
+{abbreviation = "скин", replacement = "одежду"},
+{abbreviation = "скина", replacement = "одежду"},
+{abbreviation = "скину", replacement = "одежду"},
+{abbreviation = "аксессуар", replacement = "аксессуар"},
+{abbreviation = "аксесуар", replacement = "аксессуар"},
+{abbreviation = "аксессуара", replacement = "аксессуар"},
+{abbreviation = "меч", replacement = "аксессуар \"Меч\""},
+{abbreviation = "меча", replacement = "аксессуар \"Меч\""},
+{abbreviation = "рюкзак", replacement = "аксессуар \"Рюкзак\""},
+{abbreviation = "рюкзака", replacement = "аксессуар \"Рюкзак\""},
+{abbreviation = "часы", replacement = "аксессуар \"Часы\""},
+{abbreviation = "очки", replacement = "аксессуар \"Очки\""},
+{abbreviation = "шляпу", replacement = "аксессуар \"Шляпа\""},
+{abbreviation = "шляпа", replacement = "аксессуар \"Шляпа\""},
+{abbreviation = "маску", replacement = "аксессуар \"Маска\""},
+{abbreviation = "маска", replacement = "аксессуар \"Маска\""},
+{abbreviation = "парашют", replacement = "аксессуар \"Парашют\""},
+{abbreviation = "парашюты", replacement = "аксессуар \"Парашют\""},
+{abbreviation = "бинты", replacement = "аптечку"},
+{abbreviation = "бинтов", replacement = "аптечку"},
+{abbreviation = "аптечка", replacement = "аптечку"},
+{abbreviation = "аптечку", replacement = "аптечку"},
+{abbreviation = "аптеки", replacement = "аптечку"},
+{abbreviation = "еда", replacement = "еду"},
+{abbreviation = "еду", replacement = "еду"},
+{abbreviation = "еды", replacement = "еду"},
+{abbreviation = "вода", replacement = "воду"},
+{abbreviation = "воду", replacement = "воду"},
+{abbreviation = "воды", replacement = "воду"},
+{abbreviation = "бронежилет", replacement = "бронежилет"},
+{abbreviation = "бронежилета", replacement = "бронежилет"},
+{abbreviation = "бинокль", replacement = "бинокль"},
+{abbreviation = "бинокля", replacement = "бинокль"},
+{abbreviation = "фонарик", replacement = "фонарик"},
+{abbreviation = "фонарика", replacement = "фонарик"},
+{abbreviation = "радио", replacement = "радио"},
+{abbreviation = "радиоа", replacement = "радио"},
+{abbreviation = "гитара", replacement = "гитару"},
+{abbreviation = "гитару", replacement = "гитару"},
+{abbreviation = "гитары", replacement = "гитару"},
+{abbreviation = "мяч", replacement = "мяч"},
+{abbreviation = "мяча", replacement = "мяч"},
+{abbreviation = "удочка", replacement = "удочку"},
+{abbreviation = "удочку", replacement = "удочку"},
+{abbreviation = "удочки", replacement = "удочку"},
+-- Оружие
+{abbreviation = "дигл", replacement = "оружие \"Desert Eagle\""},
+{abbreviation = "дигла", replacement = "оружие \"Desert Eagle\""},
+{abbreviation = "диглу", replacement = "оружие \"Desert Eagle\""},
+{abbreviation = "шотган", replacement = "оружие \"Shotgun\""},
+{abbreviation = "шотгана", replacement = "оружие \"Shotgun\""},
+{abbreviation = "дробовик", replacement = "оружие \"Shotgun\""},
+{abbreviation = "м4", replacement = "оружие \"M4\""},
+{abbreviation = "м4а1", replacement = "оружие \"M4\""},
+{abbreviation = "ак", replacement = "оружие \"AK-47\""},
+{abbreviation = "ака", replacement = "оружие \"AK-47\""},
+{abbreviation = "смг", replacement = "оружие \"SMG\""},
+{abbreviation = "смга", replacement = "оружие \"SMG\""},
+{abbreviation = "узи", replacement = "оружие \"Uzi\""},
+{abbreviation = "узиа", replacement = "оружие \"Uzi\""},
+{abbreviation = "тэк", replacement = "оружие \"TEC-9\""},
+{abbreviation = "тека", replacement = "оружие \"TEC-9\""},
+{abbreviation = "снайпа", replacement = "оружие \"Sniper Rifle\""},
+{abbreviation = "снайпу", replacement = "оружие \"Sniper Rifle\""},
+{abbreviation = "снайперка", replacement = "оружие \"Sniper Rifle\""},
+{abbreviation = "снайперку", replacement = "оружие \"Sniper Rifle\""},
+{abbreviation = "нож", replacement = "оружие \"Knife\""},
+{abbreviation = "ножа", replacement = "оружие \"Knife\""},
+{abbreviation = "биту", replacement = "оружие \"Baseball Bat\""},
+{abbreviation = "бита", replacement = "оружие \"Baseball Bat\""},
+{abbreviation = "катана", replacement = "оружие \"Katana\""},
+{abbreviation = "катану", replacement = "оружие \"Katana\""},
+{abbreviation = "гранату", replacement = "оружие \"Grenade\""},
+{abbreviation = "граната", replacement = "оружие \"Grenade\""},
+{abbreviation = "тазер", replacement = "оружие \"Taser\""},
+{abbreviation = "тазера", replacement = "оружие \"Taser\""},
+{abbreviation = "пистолет", replacement = "оружие \"Pistol\""},
+{abbreviation = "пистолета", replacement = "оружие \"Pistol\""},
+{abbreviation = "револьвер", replacement = "оружие \"Desert Eagle\""},
+{abbreviation = "револьвера", replacement = "оружие \"Desert Eagle\""},
+-- Деньги
 {abbreviation = "кк", replacement = ".000.000$"},
-{abbreviation = "дог", replacement = "Цена: договорная"}
+{abbreviation = "млн", replacement = ".000.000$"},
+{abbreviation = "ккк", replacement = ".000.000$"},
+{abbreviation = "миллиард", replacement = ".000.000.000$"},
+{abbreviation = "млрд", replacement = ".000.000.000$"},
+{abbreviation = "миллиарда", replacement = ".000.000.000$"},
+{abbreviation = "миллион", replacement = ".000.000$"},
+{abbreviation = "миллиона", replacement = ".000.000$"},
+-- Цена
+{abbreviation = "дог", replacement = "Цена: договорная"},
+{abbreviation = "договор", replacement = "Цена: договорная"},
+{abbreviation = "торг", replacement = "Цена: договорная"},
+{abbreviation = "обмен", replacement = "обмен"},
+{abbreviation = "бартер", replacement = "обмен"},
+{abbreviation = "дешево", replacement = "по низкой цене"},
+{abbreviation = "дёшево", replacement = "по низкой цене"},
+{abbreviation = "недорого", replacement = "по низкой цене"},
+-- Услуги
+{abbreviation = "услуг", replacement = "услуги"},
+{abbreviation = "услуги", replacement = "услуги"},
+{abbreviation = "перевозк", replacement = "перевозки"},
+{abbreviation = "перевозки", replacement = "перевозки"},
+{abbreviation = "доставка", replacement = "доставка"},
+{abbreviation = "доставку", replacement = "доставка"},
+{abbreviation = "такси", replacement = "такси"},
+{abbreviation = "эвакуатор", replacement = "эвакуатор"},
+{abbreviation = "эвакуатора", replacement = "эвакуатор"},
+{abbreviation = "ремонт", replacement = "ремонт"},
+{abbreviation = "ремонта", replacement = "ремонт"},
+{abbreviation = "тюнинг", replacement = "тюнинг"},
+{abbreviation = "тюнинга", replacement = "тюнинг"},
+{abbreviation = "покраска", replacement = "покраска"},
+{abbreviation = "покраску", replacement = "покраска"},
+{abbreviation = "охрана", replacement = "охрана"},
+{abbreviation = "охрану", replacement = "охрана"},
+-- Семья
+{abbreviation = "семья", replacement = "семья"},
+{abbreviation = "семью", replacement = "семья"},
+{abbreviation = "семьи", replacement = "семья"},
+{abbreviation = "родственников", replacement = "родственников"},
+{abbreviation = "родня", replacement = "родственников"},
+{abbreviation = "родню", replacement = "родственников"},
+-- Лицензии
+{abbreviation = "права", replacement = "вод. права"},
+{abbreviation = "прав", replacement = "вод. права"},
+{abbreviation = "лицензия", replacement = "лицензия"},
+{abbreviation = "лицензию", replacement = "лицензия"},
+{abbreviation = "лицензии", replacement = "лицензия"},
+{abbreviation = "лиц", replacement = "лицензия"},
+{abbreviation = "медкарта", replacement = "мед. карта"},
+{abbreviation = "медкарту", replacement = "мед. карта"},
+-- Работа/Организации
+{abbreviation = "сми", replacement = "СМИ"},
+{abbreviation = "смиа", replacement = "СМИ"},
+{abbreviation = "собеседование", replacement = "собеседование"},
+{abbreviation = "собеседованиеа", replacement = "собеседование"},
+{abbreviation = "мэрия", replacement = "мэрию"},
+{abbreviation = "мэрию", replacement = "мэрию"},
+{abbreviation = "мэрии", replacement = "мэрию"},
+{abbreviation = "полиция", replacement = "полицию"},
+{abbreviation = "полицию", replacement = "полицию"},
+{abbreviation = "полиции", replacement = "полицию"},
+{abbreviation = "фбр", replacement = "ФБР"},
+{abbreviation = "фбра", replacement = "ФБР"},
+{abbreviation = "мчс", replacement = "МЧС"},
+{abbreviation = "мчса", replacement = "МЧС"},
+{abbreviation = "армия", replacement = "армию"},
+{abbreviation = "армию", replacement = "армию"},
+{abbreviation = "армии", replacement = "армию"},
+{abbreviation = "больница", replacement = "больницу"},
+{abbreviation = "больницу", replacement = "больницу"},
+{abbreviation = "больницы", replacement = "больницу"},
+{abbreviation = "школа", replacement = "школу"},
+{abbreviation = "школу", replacement = "школу"},
+{abbreviation = "школы", replacement = "школу"},
+{abbreviation = "инструктор", replacement = "инструктора"},
+{abbreviation = "инструктора", replacement = "инструктора"},
+{abbreviation = "работа", replacement = "работу"},
+{abbreviation = "работу", replacement = "работу"},
+{abbreviation = "работы", replacement = "работу"},
+{abbreviation = "вакансия", replacement = "вакансию"},
+{abbreviation = "вакансию", replacement = "вакансию"},
+{abbreviation = "вакансии", replacement = "вакансию"},
+{abbreviation = "набор", replacement = "набор"},
+{abbreviation = "набора", replacement = "набор"},
+{abbreviation = "собеседование", replacement = "собеседование"},
+{abbreviation = "собеседования", replacement = "собеседование"},
+-- Транспорт
+{abbreviation = "поезд", replacement = "поезд"},
+{abbreviation = "поезда", replacement = "поезд"},
+{abbreviation = "поезду", replacement = "поезд"},
+{abbreviation = "автобус", replacement = "автобус"},
+{abbreviation = "автобуса", replacement = "автобус"},
+{abbreviation = "автобусу", replacement = "автобус"},
+{abbreviation = "трамвай", replacement = "трамвай"},
+{abbreviation = "трамвая", replacement = "трамвай"},
+{abbreviation = "трамваю", replacement = "трамвай"},
+{abbreviation = "грузовик", replacement = "грузовик"},
+{abbreviation = "грузовика", replacement = "грузовик"},
+{abbreviation = "грузовику", replacement = "грузовик"},
+{abbreviation = "фура", replacement = "грузовик"},
+{abbreviation = "фуру", replacement = "грузовик"},
+{abbreviation = "фуры", replacement = "грузовик"},
+{abbreviation = "тягач", replacement = "тягач"},
+{abbreviation = "тягача", replacement = "тягач"},
 }
 
 -- Переменные для модуля "Авто-отыгровки (Auto-RP)"
@@ -125,9 +944,10 @@ local selected_faction = imgui.new.int(0)
 
 -- Forward declarations (функции определяются позже, но используются в модулях)
 local isModuleEnabled
+local saved_module_states
+local modules
 local factionScannerWorker
 local chatScannerWorker
-local dialogScannerWorker
 local sendAdCommand
 
 
@@ -280,6 +1100,7 @@ if parsed.rp_heal ~= nil then rp_heal_enabled[0] = parsed.rp_heal end
 if parsed.mm_auto_format ~= nil then mm_auto_format[0] = parsed.mm_auto_format end
 if parsed.mm_auto_send ~= nil then mm_auto_send[0] = parsed.mm_auto_send end
 if parsed.mm_send_delay ~= nil then mm_send_delay[0] = parsed.mm_send_delay end
+if parsed.mm_tag ~= nil then imgui.StrCopy(mm_tag, u8:encode(parsed.mm_tag, encoding.default)) end
 if parsed.strobe_speed ~= nil then strobe_speed[0] = parsed.strobe_speed end
 if parsed.strobe_mode ~= nil then strobe_mode[0] = parsed.strobe_mode end
 if parsed.weather_locked ~= nil then weather_locked[0] = parsed.weather_locked end
@@ -293,15 +1114,7 @@ if parsed.aad_templates ~= nil then aad_templates = parsed.aad_templates end
 if parsed.aad_history ~= nil then aad_history = parsed.aad_history end
 if parsed.last_called ~= nil then last_called = parsed.last_called end
 if parsed.call_cooldown_hours ~= nil then call_cooldown_hours[0] = parsed.call_cooldown_hours end
--- Restore module enabled states
-if parsed.module_states and modules then
-for _, mod in ipairs(modules) do
-if parsed.module_states[mod.id] ~= nil then
-mod.enabled = parsed.module_states[mod.id]
-end
-end
-end
-
+if parsed.module_states then saved_module_states = parsed.module_states end
 -- Миграция: конвертируем старые CP1251 шаблоны/историю в UTF-8
 local function needsUtf8Convert(s)
     if type(s) ~= "string" then return false end
@@ -371,6 +1184,7 @@ rp_heal = rp_heal_enabled[0],
 mm_auto_format = mm_auto_format[0],
 mm_auto_send = mm_auto_send[0],
 mm_send_delay = mm_send_delay[0],
+mm_tag = u8:decode(ffi.string(mm_tag)),
 strobe_speed = strobe_speed[0],
 strobe_mode = strobe_mode[0],
 weather_locked = weather_locked[0],
@@ -415,8 +1229,12 @@ local function formatAdText(text)
 local formatted = text
 local lower = formatted:lower()
 
+-- Strip SAMP color codes
+formatted = formatted:gsub("{%x+}", "")
+
+-- Detect car keywords (to skip city removal for cars)
 local is_car = false
-local car_keywords = {"булка", "буллет", "bullet", "инф", "инфернус", "infernus", "туризмо", "turismo", "тур", "кловер", "clover", "мото", "машина", "а/м", "м/ц"}
+local car_keywords = {"булк", "инф", "туризм", "турик", "кловер", "хоткнайф", "дюн", "сультан", "султан", "елег", "банш", "чито", "феникс", "тахом", "премьер", "стретч", "бравур", "сабре", "вуду", "сламван", "ремингтон", "флеш", "джестер", "стратум", "уран", "блист", "баффал", "зомби", "ламбо", "бмв", "мерс", "тойот", "монстр", "бандит", "комет", "стингер", "супергт", "манан", "пикап", "соляр", "винсаг", "шафтер", "альпин", "беггал", "кальц", "салат", "стрикер", "адреналин", "нрг", "фрей", "вейб", "санч", "пжж", "фцз", "фаггио", "фагио", "бмх", "эндюро", "мото", "машин", "а/м", "м/ц", "тачк", "таз", "байк", "велосипед", "велик"}
 for _, word in ipairs(car_keywords) do
 if lower:find(word) then
 is_car = true
@@ -424,51 +1242,76 @@ break
 end
 end
 
-if is_car then
-formatted = formatted:gsub("%f[%a][Вв]%s+[Лл][Сс]%f[%A]", "")
-formatted = formatted:gsub("%f[%a][Вв]%s+[Сс][Фф]%f[%A]", "")
-formatted = formatted:gsub("%f[%a][Вв]%s+[Лл][Вв]%f[%A]", "")
-formatted = formatted:gsub("%f[%a][Лл][Сс]%f[%A]", "")
-formatted = formatted:gsub("%f[%a][Сс][Фф]%f[%A]", "")
-formatted = formatted:gsub("%f[%a][Лл][Вв]%f[%A]", "")
-end
-
-local tag = ""
-if lower:find("продам") or lower:find("прод") then
-tag = "[Продам] "
-elseif lower:find("куплю") or lower:find("куп") then
-tag = "[Куплю] "
-elseif lower:find("услуг") or lower:find("ищу") then
-tag = "[Услуги] "
-end
-
+-- Apply replacement rules
 for _, rule in ipairs(mm_rules) do
-local skip_rule = false
-if is_car and (rule.abbreviation == "лс" or rule.abbreviation == "сф" or rule.abbreviation == "лв") then
-skip_rule = true
+local abbr = rule.abbreviation
+local stem = abbr
+if abbr:len() > 3 then stem = abbr:sub(1, -2) end
+local pattern
+if abbr:len() <= 2 then
+pattern = "([%s%,%.])" .. abbr .. "([%s%,%.])"
+else
+pattern = "([%s%,%.])" .. stem .. "[^%s%,%.]*([%s%,%.])"
 end
-
-if not skip_rule then
-local pattern = "([%s%,%.])" .. rule.abbreviation .. "([%s%,%.])"
 formatted = (" " .. formatted .. " "):gsub(pattern, function(left, right)
 return left .. rule.replacement .. right
 end)
 formatted = formatted:sub(2, -2)
-if formatted:lower() == rule.abbreviation then
+if abbr:len() <= 2 then
+if formatted:lower() == abbr then
+formatted = rule.replacement
+end
+else
+if formatted:lower():match("^" .. stem) then
 formatted = rule.replacement
 end
 end
 end
 
-if tag ~= "" and not formatted:find("^%[") then
-formatted = tag .. formatted
-end
-
+-- Clean up whitespace
 formatted = formatted:gsub("%s+", " ")
+formatted = formatted:gsub("^%s+", "")
 formatted = formatted:gsub("%s+$", "")
 
+-- Auto-add price if selling/buying but no price specified
+local has_price = false
+local fl = formatted:lower()
+if fl:find("дог") or fl:find("торг") or fl:find("обмен") or fl:find("бартер") or fl:find("дешев") or fl:find("дёшев") or fl:find("недорого") or fl:find("%$") or fl:find("кк") or fl:find("млн") or fl:find("миллиард") or fl:find("млрд") or fl:find("миллион") then
+has_price = true
+end
+local is_ad = false
+if fl:find("продам") or fl:find("куплю") or fl:find("обменяю") or fl:find("прод") or fl:find("куп") then
+is_ad = true
+end
+if is_ad and not has_price then
+formatted = formatted .. ". Цена: договорная"
+end
+
+-- Add server tag prefix
+local tag = u8:decode(ffi.string(mm_tag))
+if tag and tag ~= "" then
+formatted = tag .. " | " .. formatted
+end
+
+-- Capitalize first letter of actual text (after "TAG | ")
+-- Lua :upper() only handles ASCII, so we manually handle CP1251 Cyrillic
+local function cp1251_upper(ch)
+local b = ch:byte()
+if b >= 97 and b <= 122 then return string.char(b - 32) end
+if b >= 224 and b <= 255 then return string.char(b - 32) end
+if b == 184 then return string.char(168) end
+return ch
+end
+local pipe_pos = formatted:find(" | ")
+if pipe_pos then
+local after_pipe = pipe_pos + 3
+if after_pipe <= #formatted then
+formatted = formatted:sub(1, after_pipe - 1) .. cp1251_upper(formatted:sub(after_pipe, after_pipe)) .. formatted:sub(after_pipe + 1)
+end
+else
 if #formatted > 0 then
-formatted = formatted:sub(1, 1):upper() .. formatted:sub(2)
+formatted = cp1251_upper(formatted:sub(1, 1)) .. formatted:sub(2)
+end
 end
 
 return formatted
@@ -507,7 +1350,7 @@ return online_list
 end
 
 -- СПИСОК МОДУЛЕЙ
-local modules = {
+modules = {
 {
 id = "autocall_db",
 name = u8" Сбор и Обзвон",
@@ -720,6 +1563,14 @@ name = u8" MM Editor (СМИ)",
 description = u8"Помощник для сотрудников радиоцентра (СМИ). Автоматически заменяет сокращения при редактировании объявлений с учетом правил ПРО (город пишется для домов/бизнесов, но стирается для автомобилей).",
 enabled = false,
 drawSettings = function()
+imgui.Text(u8"Тег объявления:")
+imgui.SameLine()
+imgui.PushItemWidth(60)
+if imgui.InputText("##mm_tag", mm_tag, ffi.sizeof(mm_tag)) then saveSettings() end
+imgui.PopItemWidth()
+imgui.SameLine()
+imgui.TextColored(imgui.ImVec4(0.5, 0.5, 0.5, 1), u8"Например: LV, LS, SF, TV")
+imgui.Spacing()
 if imgui.Checkbox(u8"Авто-форматирование при открытии редактора", mm_auto_format) then saveSettings() end
 if imgui.Checkbox(u8"Авто-отправка объявлений (Auto-Edit)", mm_auto_send) then saveSettings() end
 
@@ -999,6 +1850,15 @@ while not isSampAvailable() do wait(100) end
 -- Загружаем базы и настройки
 loadDatabases()
 
+-- Restore module enabled states from saved settings
+if saved_module_states then
+for _, mod in ipairs(modules) do
+if saved_module_states[mod.id] ~= nil then
+mod.enabled = saved_module_states[mod.id]
+end
+end
+end
+
 sampAddChatMessage("Helper Core v0.9 (28.06.2026) загружен. Меню: F11", 0x00FF00)
 sampAddChatMessage("Стробы: J=вкл/выкл, N=режим | Круиз: C, W/S=скорость | Бинды: L=/lock, K=/e", 0xFFFFFF)
 
@@ -1050,7 +1910,6 @@ lua_thread.create(environmentWorker)
 lua_thread.create(chatScannerWorker)
 
 -- Поток отслеживания диалоговых окон (альтернатива onShowDialog без SAMP.Lua)
-lua_thread.create(dialogScannerWorker)
 
 while true do
 wait(0)
@@ -1280,6 +2139,27 @@ function sampev.onServerMessage(color, text)
     end
 end
 
+function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
+    if not isModuleEnabled("mm_editor") or not mm_auto_format[0] then
+        return
+    end
+    -- text is CP1251 from SAMP, patterns are CP1251 in this file
+    if title:find("публикац") or title:find("объявлен") or text:find("Текст:") then
+        local original = text:match("Текст:(.-)Введите") or text:match("Текст:%s*(.+)") or ""
+        original = original:gsub("{%x+}", "")
+        original = original:gsub("^%s+", ""):gsub("%s+$", "")
+        if original ~= "" then
+            local formatted = formatAdText(original)
+            ae_dialog_id = dialogId
+            ae_original_text = u8:encode(original, encoding.default)
+            ae_formatted_text = u8:encode(formatted, encoding.default)
+            imgui.StrCopy(ae_input_buf, u8:encode(formatted, encoding.default))
+            ae_active[0] = true
+            return false
+        end
+    end
+end
+
 function chatScannerWorker()
 local processed_chat = {}
 local processed_chat_count = 0
@@ -1326,108 +2206,6 @@ end
 end
 
 -- ПОТОК ОТСЛЕЖИВАНИЯ ДИАЛОГОВЫХ ОКON (без SAMP.Lua)
-function dialogScannerWorker()
-local last_active_dialog_id = -1
-
-while true do
-wait(50) -- Проверка каждые 50 мс
-
-if isModuleEnabled("mm_editor") and mm_auto_format[0] and isSampAvailable() then
-if sampIsDialogActive() then
-local current_dialog_id = sampGetCurrentDialogId()
-if current_dialog_id ~= last_active_dialog_id then
-last_active_dialog_id = current_dialog_id
-
--- Ищем в оригинальном CP1251 тексте
-local sender, phone = text:match("Отправитель:%s*([A-Za-z0-9_]+).-[Тт]ел%s*:%s*(%d+)")
-if not sender or not phone then
-sender, phone = text:match("([A-Za-z0-9_]+)%s*%.%s*[Тт]ел%s*:%s*(%d+)")
-end
-local text_utf8 = u8:encode(text, encoding.default)
-
-if sender and phone then
-local result, my_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
-local my_name = result and sampGetPlayerNickname(my_id) or ""
-
-if sender == my_name then
--- Наше объявление вышло на сервере
-if aad_active and aad_text ~= "" then
-lua_thread.create(function()
-sampAddChatMessage(u8:decode("[Helper] Ваше объявление опубликовано. Следующая автоподача через " .. (aad_delay[0]/1000) .. " сек..."), 0x00FFFF)
-wait(aad_delay[0])
-if aad_active and aad_text ~= "" then
-sampSendChat("/ad " .. aad_text)
-end
-end)
-end
-else
--- Чужое объявление, собираем в базу данных
-if isModuleEnabled("autocall_db") then
-player_db[sender] = {
-phone = phone,
-time = os.date("%Y-%m-%d %H:%M:%S"),
-ad = text_utf8:match("Объявление:%s*(.-)%s*Отправитель:") or ""
-}
-saveDatabase()
-sampAddChatMessage(u8:decode("[Helper DB] Добавлен контакт: " .. sender .. " (Тел: " .. phone .. ")"), 0x00FF90)
-end
-end
-end
-end
-end
-end
-end
-end
-
--- ПОТОК ОТСЛЕЖИВАНИЯ ДИАЛОГОВЫХ ОКON (без SAMP.Lua)
-function dialogScannerWorker()
-local last_active_dialog_id = -1
-
-while true do
-wait(50) -- Проверка каждые 50 мс
-
-if isModuleEnabled("mm_editor") and mm_auto_format[0] and isSampAvailable() then
-if sampIsDialogActive() then
-local current_dialog_id = sampGetCurrentDialogId()
-if current_dialog_id ~= last_active_dialog_id then
-last_active_dialog_id = current_dialog_id
-
-local title = sampGetDialogCaption()
-local title_utf8 = u8:encode(title, encoding.default)
-local text = sampGetDialogText()
-local text_utf8 = u8:encode(text, encoding.default)
-
--- Проверяем, наш ли это диалог редактирования
-if title_utf8:find("Редактирование") or text_utf8:find("Текст объявления:") then
-local original_ad = text_utf8:match("подал объявление:%s*\n%s*(.+)") 
-or text_utf8:match("Текст:%s*(.+)") 
-or text_utf8
-
-if original_ad and original_ad ~= "" then
-local formatted = formatAdText(original_ad)
-
-if mm_auto_send[0] then
-lua_thread.create(function()
-wait(mm_send_delay[0]) 
-sampSendDialogResponse(current_dialog_id, 1, 0, u8:decode(formatted))
-end)
-else
-lua_thread.create(function()
-wait(100)
-sampSetCurrentDialogInputText(u8:decode(formatted))
-end)
-end
-end
-end
-end
-else
-last_active_dialog_id = -1
-end
-end
-end
-end
-
--- ПРИМЕНЕНИЕ ЛОКАЛЬНОГО СКИНА
 function applyLocalSkin(skinId)
 lua_thread.create(function()
 if skinId >= 0 and skinId <= 311 and skinId ~= 74 then
@@ -2097,4 +2875,54 @@ end
 
 -- Подгружаем библиотеки для работы с буфером ввода ImGui (FFI)
 local ffi = require 'ffi'
+
+-- AutoEdit ImGui Window
+imgui.OnFrame(
+    function() return ae_active[0] end,
+    function()
+        local display = imgui.GetIO().DisplaySize
+        imgui.SetNextWindowSize(imgui.ImVec2(600, 280), imgui.Cond.FirstUseEver)
+        imgui.SetNextWindowPos(imgui.ImVec2(display.x / 2, display.y / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
+        imgui.Begin(u8"AutoEdit - Редактор объявления", nil, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
+
+        imgui.Text(u8"Оригинальный текст:")
+        imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.7, 0.7, 0.7, 1))
+        imgui.TextWrapped(ae_original_text)
+        imgui.PopStyleColor()
+        imgui.Separator()
+
+        imgui.Text(u8"Отформатированный результат:")
+        imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.0, 0.8, 0.5, 1))
+        imgui.TextWrapped(ae_formatted_text)
+        imgui.PopStyleColor()
+        imgui.Separator()
+
+        imgui.Text(u8"Редактировать:")
+        imgui.PushItemWidth(-1)
+        local ae_enter = imgui.InputText("##ae_input", ae_input_buf, ffi.sizeof(ae_input_buf), imgui.InputTextFlags.EnterReturnsTrue)
+        imgui.PopItemWidth()
+
+        imgui.Spacing()
+
+        if ae_enter or imgui.Button(u8"Отправить##send", imgui.ImVec2(120, 30)) then
+            if ae_dialog_id >= 0 then
+                local input_text = u8:decode(ffi.string(ae_input_buf))
+                sampSendDialogResponse(ae_dialog_id, 1, -1, input_text)
+            end
+            ae_active[0] = false
+        end
+
+        imgui.SameLine()
+
+        if imgui.Button(u8"Отмена", imgui.ImVec2(120, 30)) then
+            if ae_dialog_id >= 0 then
+                sampSendDialogResponse(ae_dialog_id, 0, -1, "")
+            end
+            ae_active[0] = false
+        end
+
+        imgui.End()
+    end
+)
+
 
