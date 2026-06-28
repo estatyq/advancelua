@@ -5488,12 +5488,7 @@ imgui.OnFrame(
 
         if imgui.Button(u8"Îòêëîíèòü (ÏÐÎ)", imgui.ImVec2(160, 30)) or imgui.GetIO().KeysDown[0x1B] then
             if ae_dialog_id >= 0 then
-                local tag = u8:decode(ffi.string(mm_tag))
-                local reject_text = "ÏÐÎ"
-                if tag and tag ~= "" then
-                    reject_text = tag .. " | ÏÐÎ"
-                end
-                sampSendDialogResponse(ae_dialog_id, 1, -1, reject_text)
+                sampSendDialogResponse(ae_dialog_id, 0, -1, "")
             end
             ae_active[0] = false
         end
