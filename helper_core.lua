@@ -3778,6 +3778,31 @@ end
 end
 end
 
+-- Auto-add location for "kuplyu" if no location mentioned
+local has_location = false
+local loc_words = {"Los Santos", "San Fierro", "Las Venturas", "East", "Ganton", "Idlewood", "Jefferson", "Glen", "Willowfield", "El Corona", "Commerce", "Market", "Verona", "Chinatown", "Palomino", "Montgomery", "Dillimore", "Blueberry", "Flint", "Fort Carson", "Tierra", "Angel", "Bayside", "North Rock", "Valle", "Arco", "Green Palms", "Union", "Strip", "Rockshore", "Pilgrim", "Avalon", "Prickle", "Whitewood", "Pilbox", "Doherty", "Kings", "Paradiso", "Queens", "Hashbury", "Garcia", "Santa Flora", "Foster", "Venturas", "штат", "город", "район"}
+for _, word in ipairs(loc_words) do
+if formatted:lower():find(word:lower()) then
+has_location = true
+break
+end
+end
+local is_buy = false
+if lower:find("куплю") or lower:find("куплю") then
+is_buy = true
+end
+if is_buy and not has_location then
+-- Insert "v lyuboy tochke shtata" after the verb+item, before budget/price
+formatted = formatted:gsub(
+"(куплю%s+[^%.%d]+)%s+(бюджет|цена|тел|звон|обмен|$)",
+"%1 в любой точке штата. %2"
+)
+-- If no budget/price keyword, append before end
+if not formatted:find("в любой точке") then
+formatted = formatted:gsub("^(Куплю%s+.+)$", "%1 в любой точке штата")
+end
+end
+
 -- Clean up whitespace
 formatted = formatted:gsub("%s+", " ")
 formatted = formatted:gsub("^%s+", "")
@@ -3815,23 +3840,6 @@ formatted = formatted:gsub("%. (.)", function(c) return ". " .. cp1251_upper(c) 
 -- Auto-add price if selling/buying but no price specified
 if is_ad and not has_price then
 formatted = formatted .. ". Цена: договорная"
-end
-
--- Auto-add location for "kuplyu" if no location mentioned
-local has_location = false
-local loc_words = {"Los Santos", "San Fierro", "Las Venturas", "East Los Santos", "Ganton", "Idlewood", "Jefferson", "Glen Park", "Willowfield", "El Corona", "Commerce", "Market", "Verona Beach", "Chinatown", "Palomino Creek", "Montgomery", "Dillimore", "Blueberry", "Flint County", "Fort Carson", "Tierra Robada", "Angel Pine", "Bayside", "North Rock", "Valle Ocultado", "Arco del Oeste", "Green Palms", "Union Station", "The Strip", "Rockshore", "Pilgrim", "Avalon", "Prickle Pine", "Whitewood", "Pilbox", "Doherty", "Kings", "Paradiso", "Queens", "Hashbury", "Garcia", "Santa Flora", "Foster Valley", "Old Venturas", "New Venturas", "штат", "город", "район", "локац"}
-for _, word in ipairs(loc_words) do
-if formatted:lower():find(word:lower()) then
-has_location = true
-break
-end
-end
-local is_buy = false
-if fl:find("куплю") or fl:find("куплю") then
-is_buy = true
-end
-if is_buy and not has_location then
-formatted = formatted .. " в любой точке штата"
 end
 
 -- Ensure ends with period if no punctuation at end
