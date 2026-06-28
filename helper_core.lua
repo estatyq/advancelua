@@ -3808,6 +3808,10 @@ formatted = formatted:gsub("%s+", " ")
 formatted = formatted:gsub("^%s+", "")
 formatted = formatted:gsub("%s+$", "")
 
+-- Add "Цена: " before dollar amounts if not already present
+formatted = formatted:gsub("([%s%.])(%d+%.%d+%$)", "%1Цена: %2")
+formatted = formatted:gsub("^(%d+%.%d+%$)", "Цена: %1")
+
 -- Punctuation and price formatting
 local fl = formatted:lower()
 
