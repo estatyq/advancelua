@@ -1,6 +1,6 @@
 # Инструкция по эксплуатации
 
-Полное руководство по установке, настройке и использованию Universal Helper Platform v0.8.
+Полное руководство по установке, настройке и использованию Universal Helper Platform v0.9.
 
 ---
 
@@ -87,8 +87,10 @@ MoonLoader — это загрузчик Lua-скриптов для GTA SA.
 ## Шаг 5. Установка скрипта
 
 1. Скачайте файл `helper_core.lua` из этого репозитория:
-   - https://github.com/estatyq/advancelua — кнопка **Code → Download ZIP**
+   - **Прямая ссылка:** https://github.com/estatyq/advancelua/raw/main/helper_core.lua
+   - Или кнопка **Code → Download ZIP** на https://github.com/estatyq/advancelua
    - Или клонируйте: `git clone https://github.com/estatyq/advancelua.git`
+   - **Нужен только один файл — `helper_core.lua`** (остальные файлы в репо — документация)
 2. Скопируйте `helper_core.lua` в папку `moonloader/`:
    ```
    GTA San Andreas/
