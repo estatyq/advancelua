@@ -765,8 +765,8 @@ local mm_rules = {
 {abbreviation = "ножа", replacement = "оружие \"Knife\""},
 {abbreviation = "биту", replacement = "оружие \"Baseball Bat\""},
 {abbreviation = "бита", replacement = "оружие \"Baseball Bat\""},
-{abbreviation = "катана", replacement = "оружие \"Katana\""},
-{abbreviation = "катану", replacement = "оружие \"Katana\""},
+{abbreviation = "катана", replacement = "аксессуар \"Katana\""},
+{abbreviation = "катану", replacement = "аксессуар \"Katana\""},
 {abbreviation = "гранату", replacement = "оружие \"Grenade\""},
 {abbreviation = "граната", replacement = "оружие \"Grenade\""},
 {abbreviation = "тазер", replacement = "оружие \"Taser\""},
@@ -1237,8 +1237,8 @@ local mm_rules = {
 {abbreviation = "биту", replacement = "оружие \"Baseball Bat\""},
 {abbreviation = "пистолет", replacement = "оружие \"Pistol\""},
 {abbreviation = "револьвер", replacement = "оружие \"Desert Eagle\""},
-{abbreviation = "катана", replacement = "оружие \"Katana\""},
-{abbreviation = "катану", replacement = "оружие \"Katana\""},
+{abbreviation = "катана", replacement = "аксессуар \"Katana\""},
+{abbreviation = "катану", replacement = "аксессуар \"Katana\""},
 {abbreviation = "гранату", replacement = "оружие \"Grenade\""},
 {abbreviation = "тазер", replacement = "оружие \"Taser\""},
 {abbreviation = "кк", replacement = ".000.000$"},
@@ -3809,7 +3809,8 @@ formatted = formatted:gsub("^%s+", "")
 formatted = formatted:gsub("%s+$", "")
 
 -- Add "Цена: " before dollar amounts if not already present
-formatted = formatted:gsub("([%s%.])(%d+%.%d+%$)", "%1Цена: %2")
+-- Only match full number+dollar at word boundary, not partial
+formatted = formatted:gsub("([%s])(%d+%.%d+%$)", "%1Цена: %2")
 formatted = formatted:gsub("^(%d+%.%d+%$)", "Цена: %1")
 
 -- Punctuation and price formatting
