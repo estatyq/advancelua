@@ -3727,6 +3727,14 @@ local lower = formatted:lower()
 -- Strip SAMP color codes
 formatted = formatted:gsub("{%x+}", "")
 
+-- Detect and extract existing tag prefix (LV |, LS |, SF |, TV |, MM |, etc.)
+local detected_tag = nil
+local tag_match = formatted:match("^%s*([A-Za-z%A-Z%d]+)%s*|%s*")
+if tag_match then
+detected_tag = tag_match:gsub("%s+", "")
+formatted = formatted:gsub("^%s*[A-Za-z%A-Z%d]+%s*|%s*", "")
+end
+
 -- Detect car keywords (to skip city removal for cars)
 local is_car = false
 local car_keywords = {"булк", "инф", "туризм", "турик", "кловер", "хоткнайф", "дюн", "сультан", "султан", "елег", "банш", "чито", "феникс", "тахом", "премьер", "стретч", "бравур", "сабре", "вуду", "сламван", "ремингтон", "флеш", "джестер", "стратум", "уран", "блист", "баффал", "зомби", "ламбо", "бмв", "мерс", "тойот", "монстр", "бандит", "комет", "стингер", "супергт", "манан", "пикап", "соляр", "винсаг", "шафтер", "альпин", "беггал", "кальц", "салат", "стрикер", "адреналин", "нрг", "фрей", "вейб", "санч", "пжж", "фцз", "фаггио", "фагио", "бмх", "эндюро", "мото", "машин", "а/м", "м/ц", "тачк", "таз", "байк", "велосипед", "велик"}
@@ -3782,8 +3790,8 @@ if is_ad and not has_price then
 formatted = formatted .. ". Цена: договорная"
 end
 
--- Add server tag prefix
-local tag = u8:decode(ffi.string(mm_tag))
+-- Add server tag prefix (use detected tag if found, otherwise configured tag)
+local tag = detected_tag or u8:decode(ffi.string(mm_tag))
 if tag and tag ~= "" then
 formatted = tag .. " | " .. formatted
 end
