@@ -462,14 +462,16 @@ end
 
 -- Проверка онлайна (Встроенными методами)
 local function isPlayerOnline(nickname)
-local result, id = sampGetPlayerIdByNickname(nickname)
-if result and id then
--- Проверяем, что не мы сами
-local myid = -1
-local self_result, self_id = sampGetPlayerIdByNickname(sampGetPlayerNickname(sampGetPlayerIdByCharHandle(PLAYER_PED)))
-if self_result then myid = self_id end
-if id == myid then return false end
-return true, id
+if not isSampAvailable() then return false end
+local _, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
+for i = 0, sampGetMaxPlayerId() do
+if sampIsPlayerConnected(i) then
+local nick = sampGetPlayerNickname(i)
+if nick == nickname then
+if i == myid then return false end
+return true, i
+end
+end
 end
 return false
 end
