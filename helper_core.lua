@@ -3817,6 +3817,23 @@ if is_ad and not has_price then
 formatted = formatted .. ". Цена: договорная"
 end
 
+-- Auto-add location for "kuplyu" if no location mentioned
+local has_location = false
+local loc_words = {"Los Santos", "San Fierro", "Las Venturas", "East Los Santos", "Ganton", "Idlewood", "Jefferson", "Glen Park", "Willowfield", "El Corona", "Commerce", "Market", "Verona Beach", "Chinatown", "Palomino Creek", "Montgomery", "Dillimore", "Blueberry", "Flint County", "Fort Carson", "Tierra Robada", "Angel Pine", "Bayside", "North Rock", "Valle Ocultado", "Arco del Oeste", "Green Palms", "Union Station", "The Strip", "Rockshore", "Pilgrim", "Avalon", "Prickle Pine", "Whitewood", "Pilbox", "Doherty", "Kings", "Paradiso", "Queens", "Hashbury", "Garcia", "Santa Flora", "Foster Valley", "Old Venturas", "New Venturas", "штат", "город", "район", "локац"}
+for _, word in ipairs(loc_words) do
+if formatted:lower():find(word:lower()) then
+has_location = true
+break
+end
+end
+local is_buy = false
+if fl:find("куплю") or fl:find("куплю") then
+is_buy = true
+end
+if is_buy and not has_location then
+formatted = formatted .. " в любой точке штата"
+end
+
 -- Ensure ends with period if no punctuation at end
 if #formatted > 0 and not formatted:sub(-1):match("[%.,%!%?]") then
 formatted = formatted .. "."
