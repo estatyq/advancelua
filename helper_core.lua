@@ -221,6 +221,16 @@ cmds = {
 
 -- Загрузка баз
 local function loadDatabases()
+-- Auto-resume AAD if it was active before reload
+if aad_active and aad_text ~= "" then
+lua_thread.create(function()
+wait(3000)  -- wait for SAMP to be ready
+if aad_active and aad_text ~= "" then
+sampAddChatMessage("[Helper] Авто-реклама возобновлена", 0x00FF00)
+sendAdCommand(aad_text)
+end
+end)
+end
 if not doesDirectoryExist(getWorkingDirectory() .. "/config") then
 createDirectory(getWorkingDirectory() .. "/config")
     -- Load keybinds
@@ -277,6 +287,8 @@ if parsed.weather_id ~= nil then weather_id[0] = parsed.weather_id end
 if parsed.time_locked ~= nil then time_locked[0] = parsed.time_locked end
 if parsed.time_hour ~= nil then time_hour[0] = parsed.time_hour end
 if parsed.aad_delay ~= nil then aad_delay[0] = parsed.aad_delay end
+if parsed.aad_active ~= nil then aad_active = parsed.aad_active end
+if parsed.aad_text ~= nil then aad_text = parsed.aad_text end
 if parsed.aad_templates ~= nil then aad_templates = parsed.aad_templates end
 if parsed.aad_history ~= nil then aad_history = parsed.aad_history end
 if parsed.last_called ~= nil then last_called = parsed.last_called end
@@ -366,6 +378,8 @@ weather_id = weather_id[0],
 time_locked = time_locked[0],
 time_hour = time_hour[0],
 aad_delay = aad_delay[0],
+aad_active = aad_active,
+aad_text = aad_text,
 aad_templates = aad_templates,
 aad_history = aad_history,
 last_called = last_called,
