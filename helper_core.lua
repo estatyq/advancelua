@@ -3828,7 +3828,7 @@ is_ad = true
 end
 
 -- Add period before "бюджет" / "цена" / "тел" if missing
-formatted = formatted:gsub("%s+(\u0431юджет)", ". %1")
+formatted = formatted:gsub("%s+(бюджет)", ". %1")
 formatted = formatted:gsub("%s+(Цена)", ". %1")
 formatted = formatted:gsub("%s+(тел)", ". %1")
 formatted = formatted:gsub("%s+(Звон)", ". %1")
