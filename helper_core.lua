@@ -3816,19 +3816,19 @@ formatted = formatted:gsub("^(%d+%.%d+%$)", "÷ена: %1")
 -- Punctuation and price formatting
 local fl = formatted:lower()
 
--- Check if has price
+-- Check if has price already
 local has_price = false
-if fl:find("%$") or fl:find("дог") or fl:find("торг") or fl:find("обмен") or fl:find("бартер") or fl:find("бесплатн") then
+if fl:find("%$") or fl:find("цена") or fl:find("дог") or fl:find("торг") or fl:find("обмен") or fl:find("бартер") or fl:find("бесплатн") or fl:find("бюджет") then
 has_price = true
 end
 
--- Check if is ad (buying/selling)
+-- Check if is ad (exact word match, not substring)
 local is_ad = false
-if fl:find("продам") or fl:find("куплю") or fl:find("обмен€ю") or fl:find("прод") or fl:find("куп") then
+if fl:find("^[пѕ]родам") or fl:find("^[к ]уплю") or fl:find("^[оќ]бмен€ю") or fl:find("^семь€") or fl:find("^ищу") or fl:find("^сдаю") or fl:find("^сниму") or fl:find("^предлагаю") or fl:find("^распродаю") or fl:find("^закуп") or fl:find("^скуп") then
 is_ad = true
 end
 
--- Add period before "бюджет" / "цена" / "тел" if missing
+-- Add period before keywords if missing
 formatted = formatted:gsub("%s+(бюджет)", ". %1")
 formatted = formatted:gsub("%s+(÷ена)", ". %1")
 formatted = formatted:gsub("%s+(тел)", ". %1")
@@ -3842,12 +3842,12 @@ formatted = formatted:gsub("%. %.", ". ")
 -- Capitalize after period
 formatted = formatted:gsub("%. (.)", function(c) return ". " .. cp1251_upper(c) end)
 
--- Auto-add price if selling/buying but no price specified
+-- Auto-add price if ad but no price specified
 if is_ad and not has_price then
 formatted = formatted .. ". ÷ена: договорна€"
 end
 
--- Ensure ends with period if no punctuation at end
+-- Ensure ends with period
 if #formatted > 0 and not formatted:sub(-1):match("[%.,%!%?]") then
 formatted = formatted .. "."
 end
