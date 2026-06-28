@@ -82,6 +82,24 @@ MoonLoader — это загрузчик Lua-скриптов для GTA SA.
 2. **SAMP.Lua**: скачайте ZIP с GitHub, распакуйте, скопируйте папку `samp/` в `moonloader/lib/`
 3. **SAMPFUNCS**: установите как CLEO-плагин — скопируйте `sampfuncs.asi` и `sampfuncs.ini` в папку с игрой (рядом с `gta_sa.exe`)
 
+> **Важно:** `memory`, `bit`, `encoding`, `json`, `ffi` устанавливать **не нужно** — они входят в MoonLoader и LuaJIT. Просто установите MoonLoader (Шаг 2) и эти библиотеки будут доступны автоматически.
+
+**Структура папок после установки всех библиотек:**
+```
+GTA San Andreas/
+├── gta_sa.exe
+├── sampfuncs.asi          ← SAMPFUNCS (рядом с игрой)
+├── sampfuncs.ini
+└── moonloader/
+    ├── moonloader.dll
+    └── lib/
+        ├── mimgui.dll     ← mimgui
+        ├── mimgui/        ← папка из mimgui
+        │   └── ...
+        └── samp/          ← SAMP.Lua
+            └── events.lua
+```
+
 ---
 
 ## Шаг 5. Установка скрипта
