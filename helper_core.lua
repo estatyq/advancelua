@@ -5493,7 +5493,7 @@ imgui.OnFrame(
                 if tag and tag ~= "" then
                     reject_text = tag .. " | опн"
                 end
-                sampSendDialogResponse(ae_dialog_id, 1, -1, reject_text)
+                sampSendDialogResponse(ae_dialog_id, 0, -1, reject_text)
             end
             ae_active[0] = false
         end
