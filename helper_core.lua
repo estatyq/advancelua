@@ -983,7 +983,7 @@ while not isSampAvailable() do wait(100) end
 -- Загружаем базы и настройки
 loadDatabases()
 
-sampAddChatMessage("Helper Core v0.8 (27.06.2026) загружен. Меню: F11", 0x00FF00)
+sampAddChatMessage("Helper Core v0.9 (28.06.2026) загружен. Меню: F11", 0x00FF00)
 sampAddChatMessage("Стробы: J=вкл/выкл, N=режим | Круиз: C, W/S=скорость | Бинды: L=/lock, K=/e", 0xFFFFFF)
 
 -- Регистрируем команду открытия меню
@@ -1990,7 +1990,7 @@ imgui.OnFrame(
 function() return show_main_window[0] end,
 function(player)
 imgui.SetNextWindowSize(imgui.ImVec2(820, 560), imgui.Cond.FirstUseEver)
-imgui.Begin(u8"Universal Helper Platform v0.8 (27.06.2026)", show_main_window, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
+imgui.Begin(u8"Universal Helper Platform v0.9 (28.06.2026)", show_main_window, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
 
 -- Верхняя панель: Переключатель серверов
 imgui.Text(u8"Выбор текущего сервера:")
