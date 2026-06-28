@@ -5494,7 +5494,7 @@ imgui.OnFrame(
                     reject_text = tag .. " | опн"
                 end
                 imgui.StrCopy(ae_input_buf, u8:encode(reject_text, encoding.default))
-                sampSendDialogResponse(ae_dialog_id, 1, -1, reject_text)
+                sampSendDialogResponse(ae_dialog_id, 0, -1, reject_text)
             end
             ae_active[0] = false
         end
