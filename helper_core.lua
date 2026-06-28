@@ -3788,7 +3788,7 @@ break
 end
 end
 local is_buy = false
-if lower:find("куплю") or lower:find("куплю") then
+if lower:find("^[к ]уплю") then
 is_buy = true
 end
 if is_buy and not has_location then
@@ -3816,15 +3816,15 @@ formatted = formatted:gsub("^(%d+%.%d+%$)", "÷ена: %1")
 -- Punctuation and price formatting
 local fl = formatted:lower()
 
--- Check if has price already
+-- Check if has price already (use formatted text after replacements)
 local has_price = false
 if fl:find("%$") or fl:find("цена") or fl:find("дог") or fl:find("торг") or fl:find("обмен") or fl:find("бартер") or fl:find("бесплатн") or fl:find("бюджет") then
 has_price = true
 end
 
--- Check if is ad (exact word match, not substring)
+-- Check if is ad using ORIGINAL text (before replacements)
 local is_ad = false
-if fl:find("^[пѕ]родам") or fl:find("^[к ]уплю") or fl:find("^[оќ]бмен€ю") or fl:find("^семь€") or fl:find("^ищу") or fl:find("^сдаю") or fl:find("^сниму") or fl:find("^предлагаю") or fl:find("^распродаю") or fl:find("^закуп") or fl:find("^скуп") then
+if lower:find("^[пѕ]родам") or lower:find("^[к ]уплю") or lower:find("^[оќ]бмен€ю") or lower:find("^семь€") or lower:find("^ищу") or lower:find("^сдаю") or lower:find("^сниму") or lower:find("^предлагаю") or lower:find("^распродаю") or lower:find("^закуп") or lower:find("^скуп") then
 is_ad = true
 end
 
