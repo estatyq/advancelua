@@ -4032,6 +4032,7 @@ local rp_cur_tegs = 1
 local rp_sum_tegs = 0
 local rp_thread = nil
 local rp_reading_stats = false
+local rp_stats_step = "idle"
 local rp_stats_text = ""
 local rp_show_window = imgui.new.bool(false)
 local rp_show_edit = imgui.new.bool(false)
@@ -4225,13 +4226,32 @@ local function playerLogin()
     if rp_reading_stats then return end
     rp_reading_stats = true
     rp_stats_text = ""
+    rp_stats_step = "waiting"  -- waiting -> menu -> stats -> done
 
     lua_thread.create(function()
         wait(500)
-        sampSendChat("/mn")
+        -- Сначала пробуем /stats напрямую (быстрее)
+        sampSendChat("/stats")
 
-        local timer = os.time() + 15
-        while rp_reading_stats and os.time() < timer do wait(100) end
+        local timer = os.time() + 3
+        while rp_stats_step == "waiting" and os.time() < timer do wait(100) end
+
+        -- Если /stats не открыл статистику — пробуем через /mn
+        if rp_stats_step == "waiting" then
+            sampSendChat("/mn")
+            timer = os.time() + 5
+            while rp_stats_step == "waiting" and os.time() < timer do wait(100) end
+        end
+
+        -- Если открылось меню — ждём пока пройдём через него к статистике
+        if rp_stats_step == "menu" then
+            timer = os.time() + 5
+            while rp_stats_step ~= "done" and os.time() < timer do wait(100) end
+        end
+
+        -- Ждём получения текста статистики
+        timer = os.time() + 5
+        while rp_stats_step == "stats" and os.time() < timer do wait(100) end
 
         if rp_stats_text ~= "" then
             local _, pid = sampGetPlayerIdByCharHandle(PLAYER_PED)
@@ -4259,8 +4279,11 @@ local function playerLogin()
         else
             sampAddChatMessage("[Helper] Не удалось прочитать статистику. Попробуйте /rplogin", 0xFF0000)
         end
+        rp_reading_stats = false
+        rp_stats_step = "done"
     end)
 end
+
 
 local function stopRp()
     if rp_thread then
@@ -4558,6 +4581,10 @@ local function cmdEfir()
         return
     end
     efir_active = true
+    efir_stats.start_time = os.time()
+    efir_stats.sms = 0
+    efir_stats.calls = 0
+    efir_stats.lines = 0
     playRp(efir_start_text, false)
     sampAddChatMessage("[Helper] Эфир начат. /endefir для завершения.", 0x00FF00)
 end
@@ -4569,6 +4596,10 @@ local function cmdEndEfir()
     end
     playRp(efir_end_text, false)
     efir_active = false
+    efir_stats.start_time = 0
+    efir_stats.sms = 0
+    efir_stats.calls = 0
+    efir_stats.lines = 0
     sampAddChatMessage("[Helper] Эфир завершён.", 0x00FF00)
 end
 
@@ -5269,7 +5300,7 @@ end
 end
 end
 
-sampAddChatMessage("Helper Core v0.9 (28.06.2026) загружен. Меню: F11", 0x00FF00)
+sampAddChatMessage("Helper Core v1.0 (29.06.2026) загружен. Меню: F11", 0x00FF00)
 sampAddChatMessage("Стробы: J=вкл/выкл, N=режим | Круиз: C, W/S=скорость | Бинды: L=/lock, K=/e", 0xFFFFFF)
 
 -- Регистрируем команду открытия меню
@@ -5598,7 +5629,6 @@ function sampev.onServerMessage(color, text)
             sampAddChatMessage("[Helper DB] Новый контакт: " .. sender .. " (Тел: " .. phone .. ")", 0x00FF90)
         end
     end
-end
     -- АВТО-ОТЫГРОВКИ ОТ СОБЫТИЙ СЕРВЕРА (модуль auto_rp)
     if isModuleEnabled("auto_rp") then
         local lower = text:lower()
@@ -5675,15 +5705,47 @@ end
         -- Подсчёт строк эфира (сообщения с /t или /u)
         efir_stats.lines = efir_stats.lines + 1
     end
+end
 
 
 function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
-    -- Перехват статистики для playerLogin (РП-движок)
-    if rp_reading_stats and (title:find("Статистика") or title:find("статистика")) then
-        rp_stats_text = text
-        rp_reading_stats = false
-        sampSendDialogResponse(dialogId, 1, -1, -1)
-        return false
+-- Перехват статистики для playerLogin (РП-движок)
+    if rp_reading_stats then
+        -- Диалог статистики — читаем и закрываем
+        if title:find("Статистика") or title:find("статистика") then
+            rp_stats_text = text
+            rp_stats_step = "done"
+            sampSendDialogResponse(dialogId, 1, -1, -1)
+            return false
+        end
+        -- Главное меню — нажимаем кнопку "Статистика" (обычно listitem 0 или 1)
+        if title:find("Меню") or title:find("меню") or title:find("Главное") then
+            rp_stats_step = "menu"
+            -- Ищем пункт "Статистика" в тексте диалога
+            local stats_item = -1
+            local idx = 0
+            for line in string.gmatch(text, "[^\n]+") do
+                if line:find("Статистика") or line:find("статистика") or line:find("Стат") then
+                    stats_item = idx
+                    break
+                end
+                idx = idx + 1
+            end
+            if stats_item >= 0 then
+                sampSendDialogResponse(dialogId, 1, stats_item, -1)
+            else
+                -- Если не нашли — нажимаем пункт 0 (обычно статистика первая)
+                sampSendDialogResponse(dialogId, 1, 0, -1)
+            end
+            rp_stats_step = "stats"
+            return false
+        end
+        -- Диалог лицензий — переходим дальше (на некоторых серверах статистика через лицензии)
+        if title:find("Лицензии") or title:find("лицензии") or title:find("Документы") then
+            sampSendDialogResponse(dialogId, 1, 0, -1)
+            rp_stats_step = "stats"
+            return false
+        end
     end
     -- Перехват /find: поиск сотрудников
     if title:find("Поиск") or title:find("поиск") or title:find("Сотрудники") then
@@ -6358,7 +6420,7 @@ imgui.OnFrame(
 function() return show_main_window[0] end,
 function(player)
 imgui.SetNextWindowSize(imgui.ImVec2(820, 560), imgui.Cond.FirstUseEver)
-imgui.Begin(u8"Universal Helper Platform v0.9 (28.06.2026)", show_main_window, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
+imgui.Begin(u8"Universal Helper Platform v1.0 (29.06.2026)", show_main_window, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
 
 -- Верхняя панель: Переключатель серверов
 imgui.Text(u8"Выбор текущего сервера:")
