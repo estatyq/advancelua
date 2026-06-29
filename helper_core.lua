@@ -4837,9 +4837,10 @@ description = u8"Автоматически отправляет объявления с заданным интервалом. Подд
 enabled = false,
 drawSettings = function()
     static_aad_buf = static_aad_buf or imgui.new.char[128](u8:encode(aad_text))
-    local aad_active_bool = imgui.new.bool(aad_active)
-    if imgui.Checkbox(u8"Активировать авто-объявления##checkbox_aad", aad_active_bool) then
-        aad_active = aad_active_bool[0]
+static_aad_active = static_aad_active or imgui.new.bool(false)
+    static_aad_active[0] = aad_active
+    if imgui.Checkbox(u8"Активировать авто-объявления##checkbox_aad", static_aad_active) then
+        aad_active = static_aad_active[0]
         if aad_active then
             aad_text = u8:decode(ffi.string(static_aad_buf))
             sendAdCommand(aad_text)
@@ -5121,7 +5122,7 @@ drawSettings = function()
 imgui.Text(u8"Текущие бинды:")
 imgui.Spacing()
 for i, bind in ipairs(keybinds) do
-local en = imgui.new.bool(bind.enabled)
+static_bind_en = static_bind_en or imgui.new.bool(false); static_bind_en[0] = bind.enabled; local en = static_bind_en
 if imgui.Checkbox("##en" .. i, en) then
 bind.enabled = en[0]
 saveSettings()
@@ -6511,12 +6512,13 @@ imgui.Separator()
 imgui.Spacing()
 
 if active_module.id ~= "commands_guide" then
-local state_bool = imgui.new.bool(active_module.enabled)
-if imgui.Checkbox(u8"Активировать модуль", state_bool) then
-active_module.enabled = state_bool[0]
+static_module_enabled = static_module_enabled or imgui.new.bool(false)
+static_module_enabled[0] = active_module.enabled
+if imgui.Checkbox(u8"Активировать модуль", static_module_enabled) then
+active_module.enabled = static_module_enabled[0]
 saveSettings()
 if active_module.onToggle then
-active_module.onToggle(state_bool[0])
+active_module.onToggle(static_module_enabled[0])
 end
 end
 imgui.Spacing()
