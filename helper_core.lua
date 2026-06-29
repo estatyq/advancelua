@@ -4794,7 +4794,7 @@ imgui.Spacing()
 
 if call_active then
 imgui.TextColored(imgui.ImVec4(0, 1, 0, 1), u8"Статус: Идет обзвон...")
-imgui.Text(u8"Звоним: " .. u8(call_current_nick) .. " (" .. call_current_phone .. ")")
+imgui.Text(u8"Звоним: " .. u8:encode(call_current_nick) .. " (" .. call_current_phone .. ")")
 if imgui.Button(u8"Остановить обзвон") then call_active = false end
 else
 imgui.TextColored(imgui.ImVec4(1, 0.5, 0, 1), u8"Статус: Ожидание")
@@ -4816,10 +4816,10 @@ imgui.Text(u8"Последние собранные объявления:")
 imgui.BeginChild("db_list", imgui.ImVec2(0, 150), true)
 for nick, data in pairs(player_db) do
 local is_on = isPlayerOnline(nick) and u8" [ОНЛАЙН]" or ""
-imgui.TextColored(is_on ~= "" and imgui.ImVec4(0, 1, 0, 1) or imgui.ImVec4(0.7, 0.7, 0.7, 1), u8(nick) .. " | Тел: " .. data.phone .. is_on)
+imgui.TextColored(is_on ~= "" and imgui.ImVec4(0, 1, 0, 1) or imgui.ImVec4(0.7, 0.7, 0.7, 1), u8:encode(nick) .. " | Тел: " .. data.phone .. is_on)
 if data.ad and data.ad ~= "" then
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
-imgui.TextWrapped("-> " .. u8(data.ad))
+imgui.TextWrapped("-> " .. u8:encode(data.ad))
 imgui.PopStyleColor()
 end
 imgui.Separator()
@@ -4836,7 +4836,7 @@ name = u8" Авто-Объявления",
 description = u8"Автоматически отправляет объявления с заданным интервалом. Поддерживает шаблоны и историю.",
 enabled = false,
 drawSettings = function()
-    static_aad_buf = static_aad_buf or imgui.new.char[128](u8(aad_text))
+    static_aad_buf = static_aad_buf or imgui.new.char[128](u8:encode(aad_text))
     local aad_active_bool = imgui.new.bool(aad_active)
     if imgui.Checkbox(u8"Активировать авто-объявления##checkbox_aad", aad_active_bool) then
         aad_active = aad_active_bool[0]
@@ -4990,7 +4990,7 @@ imgui.Spacing()
 imgui.Text(u8"Правила замены сокращений (База):")
 imgui.BeginChild("rules_list", imgui.ImVec2(0, 110), true)
 for idx, rule in ipairs(mm_rules) do
-imgui.Text(u8(rule.abbreviation) .. " -> " .. u8(rule.replacement))  -- CP1251 -> UTF-8
+imgui.Text(u8:encode(rule.abbreviation) .. " -> " .. u8:encode(rule.replacement))  -- CP1251 -> UTF-8
 imgui.SameLine(350)
 if imgui.Button(u8"Удалить##" .. idx) then
 table.remove(mm_rules, idx)
@@ -5236,10 +5236,10 @@ if imgui.Button(u8"Открыть редактор отыгровок", imgui.ImVec2(220, 30)) then rp_s
 imgui.SameLine()
 if imgui.Button(u8"Загрузить статистику", imgui.ImVec2(150, 30)) then playerLogin() end
 imgui.Spacing()
-imgui.TextColored(imgui.ImVec4(0.5, 0.8, 0.5, 1), u8"Игрок: " .. u8(user.fullName))
-imgui.TextColored(imgui.ImVec4(0.5, 0.8, 0.5, 1), u8"Должность: " .. u8(user.rangName))
-imgui.TextColored(imgui.ImVec4(0.5, 0.8, 0.5, 1), u8"Подразделение: " .. u8(user.podr))
-imgui.TextColored(imgui.ImVec4(0.5, 0.8, 0.5, 1), u8"Телефон: " .. u8(user.phone))
+imgui.TextColored(imgui.ImVec4(0.5, 0.8, 0.5, 1), u8"Игрок: " .. u8:encode(user.fullName))
+imgui.TextColored(imgui.ImVec4(0.5, 0.8, 0.5, 1), u8"Должность: " .. u8:encode(user.rangName))
+imgui.TextColored(imgui.ImVec4(0.5, 0.8, 0.5, 1), u8"Подразделение: " .. u8:encode(user.podr))
+imgui.TextColored(imgui.ImVec4(0.5, 0.8, 0.5, 1), u8"Телефон: " .. u8:encode(user.phone))
 imgui.Spacing()
 imgui.Separator()
 imgui.TextColored(imgui.ImVec4(0.8, 0.7, 0.3, 1), u8"Команды:")
@@ -6543,7 +6543,7 @@ imgui.OnFrame(
         local display = imgui.GetIO().DisplaySize
         imgui.SetNextWindowPos(imgui.ImVec2(display.x / 2, display.y / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
         imgui.SetNextWindowSize(imgui.ImVec2(500, 400), imgui.Cond.FirstUseEver)
-        imgui.Begin(u8"РП-отыгровки (цель: " .. u8(userTarget.name) .. ")", rp_show_window, imgui.WindowFlags.NoCollapse)
+        imgui.Begin(u8"РП-отыгровки (цель: " .. u8:encode(userTarget.name) .. ")", rp_show_window, imgui.WindowFlags.NoCollapse)
 
         local chapters = {u8"Общие", u8"Мои отыгровки", u8"Для цели"}
         imgui.Text(u8"Глава:")
@@ -6561,7 +6561,7 @@ imgui.OnFrame(
         imgui.BeginChild("##rp_list", imgui.ImVec2(0, 250), true)
         if #list > 0 then
             for i, rp in ipairs(list) do
-                local name = (rp.name and rp.name ~= "") and u8(rp.name) or u8"(без названия)"
+                local name = (rp.name and rp.name ~= "") and u8:encode(rp.name) or u8"(без названия)"
                 if imgui.Selectable(name, rp_settings.selected == i) then
                     rp_settings.selected = i
                 end
@@ -6625,11 +6625,11 @@ imgui.OnFrame(
 
         imgui.BeginChild("##rp_edit_list", imgui.ImVec2(200, 350), true)
         for i, rp in ipairs(list) do
-            local name = (rp.name and rp.name ~= "") and u8(rp.name) or u8"(без названия #" .. i .. ")"
+            local name = (rp.name and rp.name ~= "") and u8:encode(rp.name) or u8"(без названия #" .. i .. ")"
             if imgui.Selectable(name, rp_edit_index == i) then
                 rp_edit_index = i
-                imgui.StrCopy(rp_settings.temp.name, u8(rp.name or ""))
-                imgui.StrCopy(rp_settings.temp.text, u8(rp.text or ""))
+                imgui.StrCopy(rp_settings.temp.name, u8:encode(rp.name or ""))
+                imgui.StrCopy(rp_settings.temp.text, u8:encode(rp.text or ""))
             end
         end
         imgui.EndChild()
@@ -6708,7 +6708,7 @@ imgui.OnFrame(
         elseif rp_settings.window.type == 2 then
             imgui.Text(u8"Выберите вариант:")
             for i, item in ipairs(rp_settings.window.list) do
-                if imgui.Button(u8(item), imgui.ImVec2(-1, 0)) then
+                if imgui.Button(u8:encode(item), imgui.ImVec2(-1, 0)) then
                     rp_settings.window.select = i
                     rp_settings.window.is = 2
                 end
@@ -6750,13 +6750,13 @@ imgui.OnFrame(
                     find_selected = i
                 end
                 imgui.NextColumn()
-                imgui.Text(u8(p.nick))
+                imgui.Text(u8:encode(p.nick))
                 imgui.NextColumn()
                 imgui.Text(tostring(p.id))
                 imgui.NextColumn()
                 imgui.Text(tostring(p.rang))
                 imgui.NextColumn()
-                imgui.Text(u8(p.podr))
+                imgui.Text(u8:encode(p.podr))
                 imgui.NextColumn()
             end
             imgui.Columns(1)
@@ -6806,9 +6806,9 @@ imgui.OnFrame(
         imgui.BeginChild("##bl_list", imgui.ImVec2(0, 280), true)
         for nick, data in pairs(blacklist_data) do
             imgui.PushIDStr("bl_" .. nick)
-            imgui.Text(u8(nick))
+            imgui.Text(u8:encode(nick))
             imgui.SameLine(200)
-            imgui.TextColored(imgui.ImVec4(0.7, 0.7, 0.7, 1), u8(data.reason or ""))
+            imgui.TextColored(imgui.ImVec4(0.7, 0.7, 0.7, 1), u8:encode(data.reason or ""))
             imgui.SameLine(350)
             if imgui.Button(u8"X") then
                 removeBlacklistNick(nick)
@@ -6945,7 +6945,7 @@ imgui.OnFrame(
             imgui.Separator()
             imgui.Text(u8"Последние объявления:")
             for i, h in ipairs(ad_history) do
-                if imgui.Button(u8(h:sub(1, 60) .. (h:len() > 60 and "..." or "")), imgui.ImVec2(-1, 0)) then
+                if imgui.Button(u8:encode(h:sub(1, 60) .. (h:len() > 60 and "..." or "")), imgui.ImVec2(-1, 0)) then
                     imgui.StrCopy(ae_input_buf, u8:encode(h, encoding.default))
                 end
             end
