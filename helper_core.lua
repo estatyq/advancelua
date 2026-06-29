@@ -5179,6 +5179,8 @@ saveSettings()
 end
 end
 imgui.PopItemWidth()
+imgui.PopItemWidth()
+imgui.PopItemWidth()
 imgui.Spacing()
 imgui.TextColored(imgui.ImVec4(0.7, 0.7, 0.7, 1), u8"‘ормат команды: /lock, /e, /me открыл дверь и т.д.")
 end,
