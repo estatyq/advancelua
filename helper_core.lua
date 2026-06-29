@@ -139,6 +139,7 @@ local ae_formatted_text = ""
 local ae_input_buf = imgui.new.char[1024]("")
 local ae_focus = false
 local ae_ignore_enter = 0  -- grace period frames to ignore stale Enter from chat command
+local ae_enter_was_down = false  -- track Enter key release before allowing send
 local ad_history = {}
 local ad_history_path = getFolderPath(0x1C) .. "\\helper_ad_history.json"
 local ae_show_history = imgui.new.bool(false)
@@ -3972,6 +3973,462 @@ end
 return online_list
 end
 
+-- ===== РП-ДВИЖОК: КАСТОМНЫЕ ОТЫГРОВКИ =====
+
+-- Данные игрока (заполняются playerLogin)
+local user = {
+    nick = "", fullName = "", name = "", family = "",
+    rang = 0, rangName = "", podr = "", podrNum = 0,
+    phone = "", id = -1, isWork = false
+}
+
+-- Данные цели (для /mmact)
+local userTarget = { id = -1, nick = "", name = "" }
+
+-- Настройки РП-отыгровок
+local rp_settings = {
+    active = imgui.new.bool(false),
+    wait = false,
+    selected = 1,
+    setList = imgui.new.int(0),
+    -- Главы: [1]=общие, [2]=мои, [3]=для цели
+    set = { [1] = {}, [2] = {}, [3] = {} },
+    -- Окно ввода/выбора
+    window = {
+        type = 0, list = {},
+        buf = imgui.new.char[256](""),
+        select = 0, is = -1,
+    },
+    -- Редактирование
+    temp = {
+        name = imgui.new.char[64](""),
+        text = imgui.new.char[16384](""),
+        cmd = imgui.new.char[32](""),
+    },
+}
+
+-- Теги для отыгровок
+local rp_tegs = {
+    {   -- Общие теги
+        {'<time>', function() return os.date('%X', os.time()) end},
+        {'<date>', function() return os.date('%d.%m.%Y', os.time()) end},
+        {'<myFio>', function() return user.fullName end},
+        {'<myName>', function() return user.name end},
+        {'<myNick>', function() return user.nick end},
+        {'<myRang>', function() return user.rangName end},
+        {'<myPodr>', function() return user.podr end},
+        {'<myId>', function() local _, id = sampGetPlayerIdByCharHandle(PLAYER_PED); return tostring(id) end},
+        {'<myPhone>', function() return user.phone end},
+    },
+    {   -- Теги цели (/mmact)
+        {'<tFio>', function() return userTarget.name end},
+        {'<tName>', function() return (userTarget.nick):match('(.-)_') or userTarget.name end},
+        {'<tNick>', function() return userTarget.nick end},
+        {'<tId>', function() return tostring(userTarget.id) end},
+    },
+}
+
+local rp_cur_tegs = 1
+local rp_sum_tegs = 0
+local rp_thread = nil
+local rp_reading_stats = false
+local rp_stats_text = ""
+local rp_show_window = imgui.new.bool(false)
+local rp_show_edit = imgui.new.bool(false)
+local rp_edit_chapter = 1
+local rp_edit_index = 0
+local rp_path = getFolderPath(0x1C) .. "\\helper_rp_settings.json"
+
+local function setCurTeg(chapter)
+    if chapter == 2 then
+        rp_sum_tegs = #rp_tegs[1]
+        rp_cur_tegs = 1
+    else
+        rp_sum_tegs = #rp_tegs[1] + #rp_tegs[2]
+        rp_cur_tegs = 2
+    end
+end
+
+local function saveRpSettings()
+    local file = io.open(rp_path, "w")
+    if file then
+        file:write(json.encode(rp_settings.set))
+        file:close()
+    end
+end
+
+
+local function initDefaultRp()
+    if rp_settings.set[1] and #rp_settings.set[1] > 0 then return end
+
+    -- Глава 1: Общие отыгровки
+    rp_settings.set[1] = {
+        {
+            name = "Достать телефон",
+            text = "/me достал мобильный телефон из кармана\n<800>\n/do Телефон в руке"
+        },
+        {
+            name = "Убрать телефон",
+            text = "/me убрал мобильный телефон в карман\n<500>\n/do Телефон в кармане"
+        },
+        {
+            name = "Позвонить",
+            text = "/me достал мобильный телефон из кармана\n<800>\n/me набрал номер на экране телефона\n<500>\n/do Слышны гудки вызова"
+        },
+        {
+            name = "Ответить на звонок",
+            text = "/me достал мобильный телефон из кармана\n<600>\n/me принял входящий вызов\n<400>\n/do Телефон прижат к уху"
+        },
+        {
+            name = "Сбросить звонок",
+            text = "/me нажал кнопку сброса вызова на телефоне\n<400>\n/me убрал мобильный телефон в карман"
+        },
+        {
+            name = "Закурить",
+            text = "/me достал пачку сигарет из кармана\n<600>\n/me вытащил сигарету из пачки\n<400>\n/me убрал пачку обратно в карман\n<400>\n/me поднёс зажигалку к сигарете\n<500>\n/do Сигарета зажжена, дым идёт"
+        },
+        {
+            name = "Затушить сигарету",
+            text = "/me бросил сигарету на землю\n<400>\n/me затушил сигарету ногой\n<300>\n/do Сигарета потушена"
+        },
+        {
+            name = "Напиться воды",
+            text = "/me достал бутылку воды\n<500>\n/me открутил крышку бутылки\n<400>\n/me сделал несколько глотков воды\n<600>\n/me закрутил крышку обратно\n<400>\n/do Бутылка убрана"
+        },
+        {
+            name = "Аптечка",
+            text = "/me достал аптечку из рюкзака\n<800>\n/me открыл аптечку\n<500>\n/me обработал рану антисептиком\n<800>\n/me наложил повязку\n<600>\n/me убрал аптечку в рюкзак\n<400>\n/do Рана обработана"
+        },
+        {
+            name = "Достать Deagle",
+            text = "/me резким движением достал Desert Eagle из кобуры\n<500>\n/do Desert Eagle в руке, патрон в патроннике"
+        },
+        {
+            name = "Достать M4",
+            text = "/me снял M4 с плеча\n<400>\n/me передёрнул затвор\n<300>\n/do M4 в руках, готова к стрельбе"
+        },
+        {
+            name = "Достать Shotgun",
+            text = "/me достал дробовик из-за спины\n<500>\n/me проверил патрон в патроннике\n<400>\n/do Дробовик в руке, заряжен"
+        },
+        {
+            name = "Достать нож",
+            text = "/me вытащил нож из ножен\n<400>\n/do Нож в руке, лезвие блестит"
+        },
+        {
+            name = "Убрать оружие",
+            text = "/me осмотрел оружие\n<400>\n/me убрал оружие в кобуру\n<500>\n/do Оружие в кобуре"
+        },
+        {
+            name = "Надеть маску",
+            text = "/me достал маску из кармана\n<500>\n/me натянул маску на лицо\n<400>\n/do Лицо скрыто маской"
+        },
+        {
+            name = "Снять маску",
+            text = "/me снял маску с лица\n<400>\n/me убрал маску в карман\n<300>\n/do Лицо открыто"
+        },
+        {
+            name = "Показать паспорт",
+            text = "/me достал паспорт из внутреннего кармана\n<500>\n/me открыл паспорт на нужной странице\n<400>\n/me показал паспорт\n<800>\n/do Паспорт открыт, фото и данные видны"
+        },
+        {
+            name = "Показать медкарту",
+            text = "/me достал медицинскую карту из папки\n<500>\n/me раскрыл медкарту\n<400>\n/me показал медкарту\n<800>\n/do Медкарта раскрыта"
+        },
+        {
+            name = "Показать лицензии",
+            text = "/me достал папку с лицензиями\n<500>\n/me открыл папку\n<400>\n/me показал лицензии\n<800>\n/do Лицензии видны"
+        },
+        {
+            name = "Осмотреться",
+            text = "/me осмотрелся по сторонам\n<800>\n/do Внимательно изучает окружение"
+        },
+        {
+            name = "Достать рацию",
+            text = "/me снял рацию с пояса\n<400>\n/me нажал кнопку вызова\n<300>\n/do Рация в руке, канал активен"
+        },
+        {
+            name = "Убрать рацию",
+            text = "/me отпустил кнопку вызова\n<300>\n/me повесил рацию на пояс\n<400>\n/do Рация на поясе"
+        },
+    }
+
+    -- Глава 2: Мои отыгровки (пустые — пользователь заполняет сам)
+    rp_settings.set[2] = {}
+
+    -- Глава 3: Для цели (/mmact)
+    rp_settings.set[3] = {
+        {
+            name = "Проверка документов",
+            text = "/me обратился к гражданину\n<500>\nr:{Здравствуйте}{Добрый день}r, я <myRang> <myPodr>.\n<800>\n/me предъявил удостоверение\n<600>\n/do Удостоверение в руке\n<1000>\nПрошу предъявить документы.\n<0>\n/me убрал удостоверение\n<400>\n/do Ожидание ответа"
+        },
+        {
+            name = "Досмотр личности",
+            text = "/me подошёл к <tFio>\n<500>\n/me положил руку на плечо\n<400>\nr:{Стойте}{Остановитесь}r, необходимо пройти досмотр.\n<1000>\n/me достал рацию с пояса\n<400>\n/me передал данные по рации\n<800>\n/do Рация издаёт щелчок\n<600>\n/me убрал рацию на пояс"
+        },
+        {
+            name = "Обыск",
+            text = "/me подошёл к <tFio> сзади\n<500>\n/me зафиксировал руки задержанного\n<400>\n/do Руки зафиксированы\n<600>\n/me провёл ощупывание карманов\n<800>\n/me проверил внутренние карманы\n<600>\n/me осмотрел поясницу\n<500>\n/do Обыск завершён"
+        },
+        {
+            name = "Задержание",
+            text = "/me резким движением заломил руку <tFio>\n<500>\n/do Рука заломлена за спину\n<400>\n/me достал наручники с пояса\n<300>\n/me надел наручники на запястья\n<500>\n/do Наручники надеты, руки зафиксированы\n<400>\nВы задержаны. Следуйте за мной."
+        },
+        {
+            name = "Посадить в машину",
+            text = "/me открыл заднюю дверь патрульной машины\n<500>\n/me надавил на голову <tFio>, усаживая в салон\n<600>\n/do Задержанный в салоне\n<400>\n/me закрыл дверь машины\n<300>\n/do Дверь закрыта"
+        },
+        {
+            name = "Высадить из машины",
+            text = "/me открыл дверь машины\n<400>\n/me взял <tFio> за руку\n<400>\n/me помог выйти из салона\n<500>\n/do Задержанный на улице"
+        },
+        {
+            name = "Штраф",
+            text = "/me подошёл к <tFio>\n<400>\n/me достал блокнот с квитанциями\n<500>\n/me заполнил квитанцию\n<800>\n/me оторвал квитанцию от блокнота\n<400>\n/me протянул квитанцию\n<600>\n/do Квитанция передана"
+        },
+        {
+            name = "Медосмотр",
+            text = "/me подошёл к <tFio>\n<400>\n/me достал стетоскоп\n<500>\n/me приложил стетоскоп к груди\n<800>\n/do Слушает сердцебиение\n<600>\n/me убрал стетоскоп\n<400>\n/me достал тонометр\n<500>\n/me измерил давление\n<800>\n/do Давление измерено"
+        },
+        {
+            name = "Лечение",
+            text = "/me достал аптечку\n<500>\n/me открыл аптечку\n<400>\n/me достал бинт\n<300>\n/me обработал рану <tFio>\n<800>\n/me наложил повязку\n<600>\n/do Рана обработана, повязка наложена\n<400>\n/me убрал аптечку"
+        },
+        {
+            name = "Допрос",
+            text = "/me сел напротив <tFio>\n<500>\n/me достал блокнот и ручку\n<400>\n/do Блокнот раскрыт\n<600>\nr:{Расскажите}{Объясните}r, что произошло.\n<0>\n/me записал показания в блокнот\n<800>\n/do Ручка скрипит по бумаге"
+        },
+        {
+            name = "Приветствие цели",
+            text = "/me подошёл к <tFio>\n<400>\nr:{Здравствуйте}{Приветствую}{Добрый день}r.\n<800>\n/do Лёгкий кивок головой"
+        },
+        {
+            name = "Рукопожатие",
+            text = "/me протянул руку <tFio>\n<500>\n/me пожал руку\n<400>\n/do Крепкое рукопожатие"
+        },
+    }
+
+    saveRpSettings()
+end
+
+local function loadRpSettings()
+    local file = io.open(rp_path, "r")
+    if file then
+        local content = file:read("*a")
+        file:close()
+        local ok, parsed = pcall(json.decode, content)
+        if ok and parsed then
+            for k, v in pairs(parsed) do
+                rp_settings.set[tonumber(k)] = v
+            end
+        end
+    end
+    -- Если файл пустой или нет — загружаем дефолтные отыгровки
+    initDefaultRp()
+end
+
+-- playerLogin: авто-определение фракции/ранга/подразделения
+local function playerLogin()
+    if rp_reading_stats then return end
+    rp_reading_stats = true
+    rp_stats_text = ""
+
+    lua_thread.create(function()
+        wait(500)
+        sampSendChat("/mn")
+
+        local timer = os.time() + 15
+        while rp_reading_stats and os.time() < timer do wait(100) end
+
+        if rp_stats_text ~= "" then
+            local _, pid = sampGetPlayerIdByCharHandle(PLAYER_PED)
+            user.nick = sampGetPlayerNickname(pid)
+            user.rang = tonumber(rp_stats_text:match("Ранг:%s*{.-}(%d+)") or "0")
+            user.podr = rp_stats_text:match("Подразделение:%s*{.-}(.-)\n") or ""
+            user.rangName = rp_stats_text:match("Должность:%s*{.-}(.-)\n") or ""
+            user.phone = rp_stats_text:match("Телефон:%s*{.-}(%d+)") or ""
+
+            user.fullName = (user.nick):gsub('_', ' ')
+            user.name = (user.fullName):match('(.-) .-') or user.fullName
+            user.family = (user.fullName):match('.- (.-)') or ""
+            user.isWork = not rp_stats_text:find("Уволен")
+
+            local pl = user.podr:lower()
+            if pl:find("полиц") or pl:find("пд") then user.podrNum = 1
+            elseif pl:find("фсб") or pl:find("фсин") then user.podrNum = 2
+            elseif pl:find("мчс") or pl:find("больниц") or pl:find("мед") then user.podrNum = 3
+            elseif pl:find("арм") or pl:find("мо") then user.podrNum = 4
+            elseif pl:find("фбр") then user.podrNum = 5
+            else user.podrNum = 0 end
+
+            user.id = pid
+            sampAddChatMessage("[Helper] РП-данные загружены: " .. user.fullName .. " | " .. user.rangName .. " | " .. user.podr, 0x00FF00)
+        else
+            sampAddChatMessage("[Helper] Не удалось прочитать статистику. Попробуйте /rplogin", 0xFF0000)
+        end
+    end)
+end
+
+local function stopRp()
+    if rp_thread then
+        local status = rp_thread:status()
+        if status ~= "dead" then
+            rp_thread:terminate()
+            sampAddChatMessage("[Helper] Отыгровка остановлена", 0xFFAA00)
+        end
+    end
+    rp_settings.active[0] = false
+    rp_settings.wait = false
+    rp_settings.window.is = -1
+end
+
+local function playRp(text, test)
+    if rp_settings.active[0] then
+        sampAddChatMessage("[Helper] Отыгровка уже выполняется. /mmstop для остановки", 0xFF0000)
+        return
+    end
+    rp_settings.active[0] = true
+
+    rp_thread = lua_thread.create(function()
+        local chapter = rp_settings.setList[0] + 1
+        setCurTeg(chapter)
+        local typeTeg = rp_cur_tegs
+
+        text = text .. '\n'
+
+        -- Рандомизация r:{...}{...}:r
+        for line in string.gmatch(text, 'r:(.-):r') do
+            local randText = {}
+            for rand in string.gmatch(line, '{(.-)}') do
+                randText[#randText + 1] = rand
+            end
+            if #randText > 0 then
+                local id = math.random(1, #randText)
+                text = text:gsub('r:' .. line .. ':r', randText[id], 1)
+            end
+        end
+
+        -- Замена тегов
+        for i = 1, rp_sum_tegs do
+            if rp_tegs[1][i] then
+                local textTeg = test and (rp_tegs[1][i][1] .. ":OK") or rp_tegs[1][i][2]()
+                text = text:gsub(rp_tegs[1][i][1], textTeg)
+            else
+                local id = i - #rp_tegs[1]
+                if rp_tegs[typeTeg][id] then
+                    local textTeg = test and (rp_tegs[typeTeg][id][1] .. ":OK") or rp_tegs[typeTeg][id][2]()
+                    text = text:gsub(rp_tegs[typeTeg][id][1], textTeg)
+                end
+            end
+        end
+
+        if test then
+            sampAddChatMessage("[Helper] Тест отыгровки. Теги заменены на <тег>:OK", 0x00FF00)
+        end
+
+        -- Построчная обработка
+        for line in string.gmatch(text, '(.-)\n') do
+            if line == '' then goto skip end
+            if not rp_settings.active[0] then break end
+
+            -- Пауза <N>
+            if line:find('^<%d+>') then
+                local time = tonumber(line:match('<(%d+)>'))
+                if time == 0 then
+                    rp_settings.wait = true
+                    sampAddChatMessage("[Helper] Пауза. /mmnext - продолжить, /mmstop - остановить", 0xFFAA00)
+                    while rp_settings.wait and rp_settings.active[0] do wait(0) end
+                else
+                    wait(time)
+                end
+                goto skip
+            end
+
+            -- Окно ввода #input:
+            if line:find('^#input:') then
+                rp_settings.window.type = 1
+                rp_settings.window.is = 1
+                rp_settings.window.select = 0
+                imgui.StrCopy(rp_settings.window.buf, '')
+                while rp_settings.window.is == 1 and rp_settings.active[0] do wait(0) end
+                goto skip
+            end
+
+            -- Окно выбора #list: {a}{b}{c}
+            if line:find('^#list:') then
+                rp_settings.window.type = 2
+                rp_settings.window.is = 1
+                rp_settings.window.select = 0
+                rp_settings.window.list = {}
+                for item in string.gmatch(line, '{(.-)}') do
+                    rp_settings.window.list[#rp_settings.window.list + 1] = item
+                end
+                while rp_settings.window.is == 1 and rp_settings.active[0] do wait(0) end
+                goto skip
+            end
+
+            -- Закрыть окно #close:
+            if line:find('^#close:') then
+                rp_settings.window.is = -1
+                goto skip
+            end
+
+            -- Подстановка {w}
+            if rp_settings.window.is == 2 and line:find('{w}') then
+                if rp_settings.window.type == 1 then
+                    local bufText = u8:decode(ffi.string(rp_settings.window.buf))
+                    line = line:gsub('{w}', bufText)
+                elseif rp_settings.window.type == 2 then
+                    line = line:gsub('{w}', rp_settings.window.list[rp_settings.window.select] or "")
+                end
+            end
+
+            -- Отправка строки
+            if test then
+                sampAddChatMessage("[TEST] " .. line, 0x00FFAA)
+            else
+                sampSendChat(line)
+                wait(500)
+            end
+
+            ::skip::
+        end
+
+        rp_settings.active[0] = false
+        rp_settings.window.is = -1
+        if not test then
+            sampAddChatMessage("[Helper] Отыгровка завершена", 0x00FF00)
+        end
+    end)
+end
+
+-- /mmact [id] — выбор цели для отыгровки
+local function cmdAct(text)
+    local id = tonumber(text:match('(%d+)'))
+    if not id then
+        sampAddChatMessage("[Helper] Используйте: /mmact [id]", 0xFFAA00)
+        return
+    end
+    local res, handle = sampGetCharHandleBySampPlayerId(id)
+    if not res then
+        sampAddChatMessage("[Helper] Игрок не найден", 0xFF0000)
+        return
+    end
+    local x1, y1 = getCharCoordinates(PLAYER_PED)
+    local x2, y2 = getCharCoordinates(handle)
+    if math.sqrt((x1-x2)^2 + (y1-y2)^2) > 5 then
+        sampAddChatMessage("[Helper] Игрок слишком далеко. Подойдите ближе.", 0xFF0000)
+        return
+    end
+    userTarget.id = id
+    userTarget.nick = sampGetPlayerNickname(id)
+    userTarget.name = userTarget.nick:gsub('_', ' ')
+    rp_show_window[0] = true
+    sampAddChatMessage("[Helper] Цель: " .. userTarget.name .. " [ID:" .. id .. "]", 0x00FF00)
+end
+
+-- ===== КОНЕЦ РП-ДВИЖКА =====
+
 -- СПИСОК МОДУЛЕЙ
 modules = {
 {
@@ -4463,6 +4920,32 @@ end
 imgui.EndChild()
 end,
 onToggle = function(state) end
+},
+{
+id = "rp_engine",
+name = u8" РП-Движок (Отыгровки)",
+description = u8"Кастомные РП-отыгровки с поддержкой тегов, пауз, рандома и интерактивных окон. Команды: /mmact [id], /mmnext, /mmstop, /rpeditor, /rptest, /rplogin.",
+enabled = true,
+drawSettings = function()
+if imgui.Button(u8"Открыть редактор отыгровок", imgui.ImVec2(220, 30)) then rp_show_edit[0] = true end
+imgui.SameLine()
+if imgui.Button(u8"Загрузить статистику", imgui.ImVec2(150, 30)) then playerLogin() end
+imgui.Spacing()
+imgui.TextColored(imgui.ImVec4(0.5, 0.8, 0.5, 1), u8"Игрок: " .. u8(user.fullName))
+imgui.TextColored(imgui.ImVec4(0.5, 0.8, 0.5, 1), u8"Должность: " .. u8(user.rangName))
+imgui.TextColored(imgui.ImVec4(0.5, 0.8, 0.5, 1), u8"Подразделение: " .. u8(user.podr))
+imgui.TextColored(imgui.ImVec4(0.5, 0.8, 0.5, 1), u8"Телефон: " .. u8(user.phone))
+imgui.Spacing()
+imgui.Separator()
+imgui.TextColored(imgui.ImVec4(0.8, 0.7, 0.3, 1), u8"Команды:")
+imgui.BulletText(u8"/mmact [id] — выбрать цель и открыть отыгровки")
+imgui.BulletText(u8"/mmnext — продолжить отыгровку после паузы <0>")
+imgui.BulletText(u8"/mmstop — остановить отыгровку")
+imgui.BulletText(u8"/rpeditor — открыть редактор отыгровок")
+imgui.BulletText(u8"/rptest — тест выбранной отыгровки")
+imgui.BulletText(u8"/rplogin — загрузить статистику игрока")
+end,
+onToggle = function(state) end
 }
 }
 
@@ -4523,6 +5006,21 @@ end)
 -- РЕГИСТРАЦИЯ КОМАНД ДЛЯ АВТО-ОТЫГРОВОК
 -- RP отыгровки теперь через sampev.onSendChat (см. ниже)
 
+-- РП-ДВИЖОК: кастомные отыгровки
+loadRpSettings()
+sampRegisterChatCommand('rplogin', function() playerLogin() end)
+sampRegisterChatCommand('mmact', cmdAct)
+sampRegisterChatCommand('mmnext', function() rp_settings.wait = false end)
+sampRegisterChatCommand('mmstop', stopRp)
+sampRegisterChatCommand('rpeditor', function() rp_show_edit[0] = not rp_show_edit[0] end)
+sampRegisterChatCommand('rptest', function()
+  local chapter = rp_settings.setList[0] + 1
+  local sel = rp_settings.selected
+  if rp_settings.set[chapter] and rp_settings.set[chapter][sel] then
+    playRp(rp_settings.set[chapter][sel].text, true)
+  end
+end)
+
 -- Запуск потоков
 lua_thread.create(factionScannerWorker)
 lua_thread.create(weaponTrackWorker)
@@ -4531,6 +5029,9 @@ lua_thread.create(environmentWorker)
 
 -- Поток считывания чата (альтернатива onServerMessage без SAMP.Lua)
 lua_thread.create(chatScannerWorker)
+
+-- Авто-загрузка РП-данных через 3 сек после старта
+lua_thread.create(function() wait(3000) playerLogin() end)
 
 -- Поток отслеживания диалоговых окон (альтернатива onShowDialog без SAMP.Lua)
 
@@ -4763,6 +5264,13 @@ function sampev.onServerMessage(color, text)
 end
 
 function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
+    -- Перехват статистики для playerLogin (РП-движок)
+    if rp_reading_stats and (title:find("Статистика") or title:find("статистика")) then
+        rp_stats_text = text
+        rp_reading_stats = false
+        sampSendDialogResponse(dialogId, 1, -1, -1)
+        return false
+    end
     if not isModuleEnabled("mm_editor") or not mm_auto_format[0] then
         return
     end
@@ -4780,6 +5288,7 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
             ae_active[0] = true
             ae_focus = true
             ae_ignore_enter = 30  -- ignore stale Enter from /edit chat command (~0.5s)
+            ae_enter_was_down = true  -- Enter was just pressed (for /edit), wait for release
             return false
         end
     end
@@ -5498,6 +6007,189 @@ imgui.End()
 end
 )
 
+
+-- РП-ДВИЖОК: Окно выбора отыгровки (для /mmact)
+imgui.OnFrame(
+    function() return rp_show_window[0] end,
+    function()
+        local display = imgui.GetIO().DisplaySize
+        imgui.SetNextWindowPos(imgui.ImVec2(display.x / 2, display.y / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
+        imgui.SetNextWindowSize(imgui.ImVec2(500, 400), imgui.Cond.FirstUseEver)
+        imgui.Begin(u8"РП-отыгровки (цель: " .. u8(userTarget.name) .. ")", rp_show_window, imgui.WindowFlags.NoCollapse)
+
+        local chapters = {u8"Общие", u8"Мои отыгровки", u8"Для цели"}
+        imgui.Text(u8"Глава:")
+        imgui.SameLine()
+        imgui.PushItemWidth(200)
+        if imgui.ComboStr("##rp_chapter", rp_settings.setList, table.concat(chapters, "\0") .. "\0") then
+            rp_settings.selected = 1
+        end
+        imgui.PopItemWidth()
+        imgui.Separator()
+
+        local chapter = rp_settings.setList[0] + 1
+        local list = rp_settings.set[chapter] or {}
+
+        imgui.BeginChild("##rp_list", imgui.ImVec2(0, 250), true)
+        if #list > 0 then
+            for i, rp in ipairs(list) do
+                local name = (rp.name and rp.name ~= "") and u8(rp.name) or u8"(без названия)"
+                if imgui.Selectable(name, rp_settings.selected == i) then
+                    rp_settings.selected = i
+                end
+            end
+        else
+            imgui.TextColored(imgui.ImVec4(0.5, 0.5, 0.5, 1), u8"Нет отыгровок. Откройте /rpeditor для создания.")
+        end
+        imgui.EndChild()
+
+        if #list > 0 and rp_settings.selected <= #list then
+            if imgui.Button(u8"Запустить", imgui.ImVec2(120, 30)) then
+                playRp(list[rp_settings.selected].text, false)
+                rp_show_window[0] = false
+            end
+            imgui.SameLine()
+            if imgui.Button(u8"Тест", imgui.ImVec2(80, 30)) then
+                playRp(list[rp_settings.selected].text, true)
+            end
+            imgui.SameLine()
+        end
+        if imgui.Button(u8"Закрыть", imgui.ImVec2(80, 30)) then
+            rp_show_window[0] = false
+        end
+        imgui.End()
+    end
+)
+
+-- РП-ДВИЖОК: Окно редактора отыгровок (/rpeditor)
+imgui.OnFrame(
+    function() return rp_show_edit[0] end,
+    function()
+        local display = imgui.GetIO().DisplaySize
+        imgui.SetNextWindowPos(imgui.ImVec2(display.x / 2, display.y / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
+        imgui.SetNextWindowSize(imgui.ImVec2(700, 550), imgui.Cond.FirstUseEver)
+        imgui.Begin(u8"РП-Редактор отыгровок", rp_show_edit, imgui.WindowFlags.NoCollapse)
+
+        local chapters = {u8"Общие", u8"Мои отыгровки", u8"Для цели"}
+        imgui.Text(u8"Глава:")
+        imgui.SameLine()
+        imgui.PushItemWidth(200)
+        if imgui.ComboStr("##rp_edit_chapter", rp_settings.setList, table.concat(chapters, "\0") .. "\0") then
+            rp_edit_index = 0
+            rp_settings.selected = 1
+        end
+        imgui.PopItemWidth()
+        imgui.SameLine()
+        if imgui.Button(u8"+ Добавить") then
+            local chapter = rp_settings.setList[0] + 1
+            if not rp_settings.set[chapter] then rp_settings.set[chapter] = {} end
+            table.insert(rp_settings.set[chapter], {name = "", text = ""})
+            rp_edit_index = #rp_settings.set[chapter]
+            imgui.StrCopy(rp_settings.temp.name, "")
+            imgui.StrCopy(rp_settings.temp.text, "")
+            saveRpSettings()
+        end
+
+        imgui.Separator()
+
+        local chapter = rp_settings.setList[0] + 1
+        local list = rp_settings.set[chapter] or {}
+
+        imgui.BeginChild("##rp_edit_list", imgui.ImVec2(200, 350), true)
+        for i, rp in ipairs(list) do
+            local name = (rp.name and rp.name ~= "") and u8(rp.name) or u8"(без названия #" .. i .. ")"
+            if imgui.Selectable(name, rp_edit_index == i) then
+                rp_edit_index = i
+                imgui.StrCopy(rp_settings.temp.name, u8(rp.name or ""))
+                imgui.StrCopy(rp_settings.temp.text, u8(rp.text or ""))
+            end
+        end
+        imgui.EndChild()
+
+        imgui.SameLine()
+        imgui.BeginChild("##rp_edit_form", imgui.ImVec2(0, 350), true)
+        if rp_edit_index > 0 and list[rp_edit_index] then
+            imgui.Text(u8"Название:")
+            imgui.PushItemWidth(-1)
+            imgui.InputText("##rp_name", rp_settings.temp.name, 64)
+            imgui.PopItemWidth()
+
+            imgui.Text(u8"Текст отыгровки:")
+            imgui.PushItemWidth(-1)
+            imgui.InputTextMultiline("##rp_text", rp_settings.temp.text, 16384, imgui.ImVec2(0, 200))
+            imgui.PopItemWidth()
+
+            imgui.TextColored(imgui.ImVec4(0.5, 0.8, 0.5, 1), u8"Теги: <myFio> <myName> <myRang> <myPodr> <myId> <myPhone> <time> <date>")
+            imgui.TextColored(imgui.ImVec4(0.5, 0.8, 0.5, 1), u8"Цель: <tFio> <tName> <tNick> <tId>")
+            imgui.TextColored(imgui.ImVec4(0.8, 0.7, 0.3, 1), u8"Пауза: <1000> (мс) или <0> (до /mmnext)")
+            imgui.TextColored(imgui.ImVec4(0.8, 0.7, 0.3, 1), u8"Рандом: r:{вариант1}{вариант2}:r")
+            imgui.TextColored(imgui.ImVec4(0.8, 0.7, 0.3, 1), u8"Ввод: #input: | Выбор: #list: {a}{b} | Подстановка: {w}")
+
+            if imgui.Button(u8"Сохранить", imgui.ImVec2(100, 30)) then
+                list[rp_edit_index].name = u8:decode(ffi.string(rp_settings.temp.name))
+                list[rp_edit_index].text = u8:decode(ffi.string(rp_settings.temp.text))
+                saveRpSettings()
+                sampAddChatMessage("[Helper] Отыгровка сохранена", 0x00FF00)
+            end
+            imgui.SameLine()
+            if imgui.Button(u8"Удалить", imgui.ImVec2(100, 30)) then
+                table.remove(list, rp_edit_index)
+                rp_edit_index = 0
+                imgui.StrCopy(rp_settings.temp.name, "")
+                imgui.StrCopy(rp_settings.temp.text, "")
+                saveRpSettings()
+            end
+            imgui.SameLine()
+            if imgui.Button(u8"Тест", imgui.ImVec2(80, 30)) then
+                local testText = u8:decode(ffi.string(rp_settings.temp.text))
+                playRp(testText, true)
+            end
+        else
+            imgui.TextColored(imgui.ImVec4(0.5, 0.5, 0.5, 1), u8"Выберите отыгровку слева или нажмите '+ Добавить'")
+        end
+        imgui.EndChild()
+
+        imgui.Separator()
+        if imgui.Button(u8"Закрыть", imgui.ImVec2(100, 30)) then
+            rp_show_edit[0] = false
+        end
+        imgui.End()
+    end
+)
+
+-- РП-ДВИЖОК: Окно ввода/выбора (для #input: и #list:)
+imgui.OnFrame(
+    function() return rp_settings.window.is == 1 end,
+    function()
+        local display = imgui.GetIO().DisplaySize
+        imgui.SetNextWindowPos(imgui.ImVec2(display.x / 2, display.y / 2), imgui.Cond.Always, imgui.ImVec2(0.5, 0.5))
+        imgui.SetNextWindowSize(imgui.ImVec2(400, 150), imgui.Cond.Always)
+        imgui.Begin(u8"РП-Ввод", nil, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
+
+        if rp_settings.window.type == 1 then
+            imgui.Text(u8"Введите текст:")
+            imgui.PushItemWidth(-1)
+            if imgui.InputText("##rp_input_w", rp_settings.window.buf, 256, imgui.InputTextFlags.EnterReturnsTrue) then
+                rp_settings.window.is = 2
+            end
+            imgui.PopItemWidth()
+            imgui.SameLine()
+            if imgui.Button(u8"OK", imgui.ImVec2(80, 30)) then
+                rp_settings.window.is = 2
+            end
+        elseif rp_settings.window.type == 2 then
+            imgui.Text(u8"Выберите вариант:")
+            for i, item in ipairs(rp_settings.window.list) do
+                if imgui.Button(u8(item), imgui.ImVec2(-1, 0)) then
+                    rp_settings.window.select = i
+                    rp_settings.window.is = 2
+                end
+            end
+        end
+        imgui.End()
+    end
+)
+
 -- Подгружаем библиотеки для работы с буфером ввода ImGui (FFI)
 local ffi = require 'ffi'
 
@@ -5529,11 +6221,19 @@ imgui.OnFrame(
         ae_focus = false
         imgui.PopItemWidth()
 
-        -- Grace period: ignore Enter for first frames after opening to avoid
-        -- stale Enter key (from sending /edit in chat) immediately publishing the ad
+        -- Grace period: ignore Enter until the key is released after opening.
+        -- The Enter key from sending /edit in chat may still be held down.
         if ae_ignore_enter > 0 then
             ae_ignore_enter = ae_ignore_enter - 1
             ae_enter = false
+        end
+        -- Also track Enter key state: don't send until Enter was released at least once
+        local enter_key_down = imgui.GetIO().KeysDown[0x0D]
+        if ae_enter_was_down then
+            if not enter_key_down then
+                ae_enter_was_down = false  -- Enter released, now allow future presses
+            end
+            ae_enter = false  -- still holding or just released, ignore
         end
 
         imgui.Spacing()
