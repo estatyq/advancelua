@@ -3941,6 +3941,34 @@ formatted = cp1251_upper(formatted:sub(1, 1)) .. formatted:sub(2)
 end
 end
 
+-- SAMP ad character limit: trim if too long
+local MAX_AD_LEN = 250
+if #formatted > MAX_AD_LEN then
+    -- Try removing auto-added suffixes first
+    formatted = formatted:gsub(string.char(0x2E) .. string.char(0x20) .. string.char(0xD6,0xE5,0xED,0xE0,0x20,0xE4,0xEE,0xE3,0xEE,0xE2,0xEE,0xF0,0xED,0xE0,0xFF) .. "$", "")
+    formatted = formatted:gsub(string.char(0x20,0xE2,0x20,0xEB,0xFE,0xE1,0xEE,0xE9,0x20,0xF2,0xEE,0xF7,0xEA,0xE5,0x20,0xF8,0xF2,0xE0,0xF2,0xE0) .. string.char(0x2E,0x3F), "")
+    -- If still too long, hard truncate at last space before limit
+    if #formatted > MAX_AD_LEN then
+        local tag_part = ""
+        local body = formatted
+        local pipe_pos = formatted:find(" | ")
+        if pipe_pos then
+            tag_part = formatted:sub(1, pipe_pos + 2)
+            body = formatted:sub(pipe_pos + 3)
+        end
+        local max_body = MAX_AD_LEN - #tag_part
+        if #body > max_body then
+            local cut = body:sub(1, max_body)
+            local last_space = cut:match(".*%s%S*$")
+            if last_space and #last_space < max_body then
+                body = body:sub(1, #last_space - 1)
+            else
+                body = cut
+            end
+            formatted = tag_part .. body
+        end
+    end
+end
 return formatted
 end
 
