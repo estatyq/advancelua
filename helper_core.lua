@@ -5906,9 +5906,7 @@ while memory == nil do wait(500) end
 local last_w = -1
 local last_t = -1
 while true do
-wait(0)  -- every frame to prevent weather flicker
-local ok, err = pcall(function()
--- Weather: lock and force
+wait(0)
 if weather_locked[0] then
 local w = weather_id[0]
 if w ~= last_w then
@@ -5919,7 +5917,6 @@ pcall(memory.write, 0xC81320, w, 1, false)
 else
 last_w = -1
 end
--- Time: lock hours + zero minutes/seconds
 if time_locked[0] then
 local h = time_hour[0]
 if h ~= last_t then
@@ -5930,10 +5927,6 @@ pcall(memory.write, 0xB70152, 0, 1, false)
 pcall(memory.write, 0xB70158, 0, 4, false)
 else
 last_t = -1
-end
-end)
-if not ok then
-wait(500)  -- back off on error
 end
 end
 end
