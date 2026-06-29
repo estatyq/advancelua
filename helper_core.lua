@@ -22,6 +22,7 @@ local imgui = require 'mimgui'
 local ffi = require 'ffi'
 local sampev = require 'lib.samp.events'
 local encoding = require 'encoding'
+local WINDOW_TITLE = u8"Universal Helper Platform " .. SCRIPT_VERSION
 local json = nil
 local ok_json = pcall(function() json = require 'json' end)
 if not ok_json or not json then
@@ -6421,7 +6422,7 @@ imgui.OnFrame(
 function() return show_main_window[0] end,
 function(player)
 imgui.SetNextWindowSize(imgui.ImVec2(820, 560), imgui.Cond.FirstUseEver)
-imgui.Begin(u8"Universal Helper Platform " .. SCRIPT_VERSION, show_main_window, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
+imgui.Begin(WINDOW_TITLE, show_main_window, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
 
 -- Верхняя панель: Переключатель серверов
 imgui.Text(u8"Выбор текущего сервера:")
