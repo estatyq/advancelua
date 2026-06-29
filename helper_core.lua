@@ -4429,6 +4429,255 @@ end
 
 -- ===== КОНЕЦ РП-ДВИЖКА =====
 
+
+-- ===== СМИ-ФУНКЦИИ =====
+
+-- Анаграммы: список слов для радио/ТВ игр
+local anag_words = {
+    [1] = {"приветствие", "радиовещание", "интервью", "репортаж", "новости", "корреспондент", "студия", "микрофон", "эфир", "слушатель"},
+    [2] = {"телефон", "звонок", "абонент", "сообщение", "связь", "оператор", "мобильный", "вызов", "голос", "ответ"},
+    [3] = {"газета", "статья", "редактор", "публикация", "заголовок", "журналист", "пресса", "выпуск", "колонка", "обзор"},
+}
+
+local anag_active = false
+local anag_current_word = ""
+local anag_current_result = ""
+
+local function createAnagram(word, separator, firstLetter)
+    local sep = separator or "."
+    local letters = {}
+    for i = 1, #word do
+        letters[i] = word:sub(i, i)
+    end
+    -- Перемешивание
+    for i = 1, #letters do
+        local j = math.random(#letters)
+        letters[i], letters[j] = letters[j], letters[i]
+    end
+    if firstLetter and #letters > 0 then
+        letters[1] = letters[1]:upper()
+    end
+    return table.concat(letters, sep)
+end
+
+local function startAnagram(type_num)
+    type_num = tonumber(type_num) or 1
+    if type_num < 1 or type_num > 3 then
+        sampAddChatMessage("[Helper] Использование: /anag [1-3] (1=слова, 2=телефон, 3=газета)", 0xFFAA00)
+        return
+    end
+    local words = anag_words[type_num]
+    if not words or #words == 0 then
+        sampAddChatMessage("[Helper] Нет слов для анаграммы типа " .. type_num, 0xFF0000)
+        return
+    end
+    local word = words[math.random(1, #words)]
+    local anagram = createAnagram(word, ".", true)
+    anag_current_word = word
+    anag_current_result = anagram
+    anag_active = true
+
+    -- Вставляем в чат
+    sampSetChatInputEnabled(true)
+    local prefix = ""
+    if user.podr and user.podr:lower():find("радио") then
+        prefix = "/t "
+    elseif user.podr and user.podr:lower():find("центр") then
+        prefix = "/u "
+    end
+    sampSetChatInputText(prefix .. anagram)
+    sampAddChatMessage("[Helper] Анаграмма: " .. anagram .. " (слово: " .. word .. ")", 0x00FF00)
+end
+
+-- tvlift: лифт в ТВ-башне
+local tvlift_active = false
+local function cmdTvlift(floor_str)
+    local floor = tonumber(floor_str)
+    if not floor then
+        sampAddChatMessage("[Helper] Использование: /tvlf [этаж 1-21]", 0xFFAA00)
+        return
+    end
+    -- Проверка позиции (ТВ-башня в SF)
+    local x, y, z = getCharCoordinates(PLAYER_PED)
+    -- Зона ТВ-башни: примерно 1839, -1264, 13
+    if not isCharInArea3d(PLAYER_PED, 1839.5557, -1264.6527, 13.4299, 1765.8602, -1319.9817, 134.1671, false) then
+        sampAddChatMessage("[Helper] Вы должны находиться рядом с лифтом ТВ-башни.", 0xFF0000)
+        return
+    end
+    if floor < 1 or floor > 21 then
+        sampAddChatMessage("[Helper] Этаж должен быть от 1 до 21.", 0xFF0000)
+        return
+    end
+    local sex = user.name and user.name:sub(-1):lower() == "а" and "ла" or "л"
+    sampSendChat("/me нажа" .. sex .. " на кнопку лифта, выбрав " .. floor .. " этаж")
+    tvlift_active = true
+    sampSendChat("/tvlift")
+end
+
+-- uninvite: увольнение с РП-отыгровкой
+local function cmdUninvite(arg)
+    local id, reason = arg:match("^(%d+)%s+(.*)")
+    if not id then
+        sampAddChatMessage("[Helper] Использование: /uninv [id] [причина]", 0xFFAA00)
+        return
+    end
+    id = tonumber(id)
+    if not sampIsPlayerConnected(id) then
+        sampAddChatMessage("[Helper] Игрок не подключен к серверу.", 0xFF0000)
+        return
+    end
+    local nick = sampGetPlayerNickname(id)
+    local name = nick:gsub('_', ' ')
+
+    lua_thread.create(function()
+        -- РП-отыгровка увольнения
+        sampSendChat("/me достал папку с личными делами сотрудников")
+        wait(800)
+        sampSendChat("/me открыл папку и нашёл дело " .. name)
+        wait(800)
+        sampSendChat("/do Папка раскрыта на нужной странице")
+        wait(600)
+        sampSendChat("/me выписал заявление на увольнение")
+        wait(800)
+        sampSendChat("/me поставил подпись и печать на заявлении")
+        wait(600)
+        sampSendChat("/me убрал папку в шкаф")
+        wait(500)
+        -- Сообщение в рацию
+        if user.podr and user.podr ~= "" then
+            sampSendChat("/r Сотрудник " .. name .. " уволен. Причина: " .. reason)
+            wait(300)
+        end
+        -- Само увольнение
+        sampSendChat("/uninvite " .. id .. " " .. reason)
+        sampAddChatMessage("[Helper] Увольнение " .. name .. " выполнено. Причина: " .. reason, 0x00FF00)
+    end)
+end
+
+-- Эфир: авто-отыгровка начала/конца эфира
+local efir_active = false
+local efir_start_text = "/me надел наушники и настроил микрофон\n<800>\n/do Микрофон включён, наушники надеты\n<500>\n/efir"
+local efir_end_text = "/me снял наушники\n<500>\n/do Наушники сняты, микрофон выключен\n<400>\n/efir"
+
+local function cmdEfir()
+    if efir_active then
+        sampAddChatMessage("[Helper] Эфир уже активен. Используйте /mmstop для остановки.", 0xFFAA00)
+        return
+    end
+    efir_active = true
+    playRp(efir_start_text, false)
+    sampAddChatMessage("[Helper] Эфир начат. /endefir для завершения.", 0x00FF00)
+end
+
+local function cmdEndEfir()
+    if not efir_active then
+        sampAddChatMessage("[Helper] Эфир не активен.", 0xFFAA00)
+        return
+    end
+    playRp(efir_end_text, false)
+    efir_active = false
+    sampAddChatMessage("[Helper] Эфир завершён.", 0x00FF00)
+end
+
+-- /find: поиск сотрудников с парсингом диалога
+local find_list = {}
+local find_selected = 0
+local find_show = imgui.new.bool(false)
+
+local function cmdFind()
+    sampSendChat("/find")
+    sampAddChatMessage("[Helper] Ожидание диалога поиска сотрудников...", 0x00FF00)
+end
+
+-- Чёрный список СМИ
+local blacklist_data = {}
+local blacklist_show = imgui.new.bool(false)
+local blacklist_url = ""
+
+local function loadBlacklist()
+    local path = getFolderPath(0x1C) .. "\\helper_blacklist.json"
+    local file = io.open(path, "r")
+    if file then
+        local content = file:read("*a")
+        file:close()
+        local ok, parsed = pcall(json.decode, content)
+        if ok and parsed and type(parsed) == "table" then
+            blacklist_data = parsed
+        end
+    end
+end
+
+local function saveBlacklist()
+    local path = getFolderPath(0x1C) .. "\\helper_blacklist.json"
+    local file = io.open(path, "w")
+    if file then
+        file:write(json.encode(blacklist_data))
+        file:close()
+    end
+end
+
+local function addBlacklistNick(nick, reason)
+    nick = nick:lower()
+    blacklist_data[nick] = { reason = reason or "", added = os.date("%d.%m.%Y") }
+    saveBlacklist()
+    sampAddChatMessage("[Helper] " .. nick .. " добавлен в чёрный список", 0x00FF00)
+end
+
+local function removeBlacklistNick(nick)
+    nick = nick:lower()
+    if blacklist_data[nick] then
+        blacklist_data[nick] = nil
+        saveBlacklist()
+        sampAddChatMessage("[Helper] " .. nick .. " удалён из чёрного списка", 0x00FF00)
+    else
+        sampAddChatMessage("[Helper] " .. nick .. " не найден в чёрном списке", 0xFFAA00)
+    end
+end
+
+local function checkBlacklistNick(nick)
+    return blacklist_data[nick:lower()] ~= nil
+end
+
+-- Эфир-статистика
+local efir_stats = { sms = 0, calls = 0, lines = 0, start_time = 0 }
+
+local function cmdEfirStats()
+    if efir_stats.start_time == 0 then
+        sampAddChatMessage("[Helper] Эфир ещё не начат. /mmefir для старта.", 0xFFAA00)
+        return
+    end
+    local elapsed = os.time() - efir_stats.start_time
+    local mins = math.floor(elapsed / 60)
+    local secs = elapsed % 60
+    sampAddChatMessage(string.format("[Helper] Эфир-статистика: %dм %dс | SMS: %d | Звонки: %d | Строк: %d",
+        mins, secs, efir_stats.sms, efir_stats.calls, efir_stats.lines), 0x00FFCC)
+end
+
+-- Авто-ответ на звонки в эфире
+local auto_answer_enabled = imgui.new.bool(false)
+local auto_answer_text = imgui.new.char[256]("")
+
+local function cmdAutoAnswer(arg)
+    if arg and arg ~= "" then
+        imgui.StrCopy(auto_answer_text, u8:encode(arg, encoding.default))
+        auto_answer_enabled[0] = not auto_answer_enabled[0]
+        if auto_answer_enabled[0] then
+            sampAddChatMessage("[Helper] Авто-ответ включён: " .. arg, 0x00FF00)
+        else
+            sampAddChatMessage("[Helper] Авто-ответ выключен", 0xFFAA00)
+        end
+    else
+        auto_answer_enabled[0] = not auto_answer_enabled[0]
+        if auto_answer_enabled[0] then
+            local txt = u8:decode(ffi.string(auto_answer_text))
+            sampAddChatMessage("[Helper] Авто-ответ включён: " .. txt, 0x00FF00)
+        else
+            sampAddChatMessage("[Helper] Авто-ответ выключен", 0xFFAA00)
+        end
+    end
+end
+
+-- ===== КОНЕЦ СМИ-ФУНКЦИЙ =====
 -- СПИСОК МОДУЛЕЙ
 modules = {
 {
@@ -4946,7 +5195,69 @@ imgui.BulletText(u8"/rptest — тест выбранной отыгровки")
 imgui.BulletText(u8"/rplogin — загрузить статистику игрока")
 end,
 onToggle = function(state) end
+},
+{
+id = "smi_tools",
+name = u8" СМИ-Инструменты",
+description = u8"Анаграммы, эфир, чёрный список, поиск сотрудников, лифт ТВ-башни, авто-ответ. Команды: /anag, /mmefir, /endefir, /find, /tvlf, /uninv, /autoans, /bladd, /bldel, /blcheck, /bllist, /efirstats.",
+enabled = false,
+drawSettings = function()
+imgui.TextColored(imgui.ImVec4(0, 1, 0.7, 1), u8"Эфир:")
+if imgui.Button(u8"Начать эфир", imgui.ImVec2(120, 30)) then cmdEfir() end
+imgui.SameLine()
+if imgui.Button(u8"Завершить эфир", imgui.ImVec2(120, 30)) then cmdEndEfir() end
+imgui.SameLine()
+if imgui.Button(u8"Статистика", imgui.ImVec2(100, 30)) then cmdEfirStats() end
+
+imgui.Spacing()
+imgui.TextColored(imgui.ImVec4(0, 1, 0.7, 1), u8"Авто-ответ на звонки:")
+if imgui.Checkbox(u8"Включить авто-ответ", auto_answer_enabled) then end
+imgui.PushItemWidth(300)
+imgui.InputText(u8"##autoans_text", auto_answer_text, 256)
+imgui.PopItemWidth()
+imgui.TextColored(imgui.ImVec4(0.5, 0.5, 0.5, 1), u8"-> Текст будет отправлен в /t при входящем звонке во время эфира")
+
+imgui.Spacing()
+imgui.Separator()
+imgui.Spacing()
+
+imgui.TextColored(imgui.ImVec4(0, 1, 0.7, 1), u8"Анаграммы:")
+if imgui.Button(u8"Слова (1)", imgui.ImVec2(90, 25)) then startAnagram(1) end
+imgui.SameLine()
+if imgui.Button(u8"Телефон (2)", imgui.ImVec2(100, 25)) then startAnagram(2) end
+imgui.SameLine()
+if imgui.Button(u8"Газета (3)", imgui.ImVec2(90, 25)) then startAnagram(3) end
+
+imgui.Spacing()
+imgui.Separator()
+imgui.Spacing()
+
+imgui.TextColored(imgui.ImVec4(0, 1, 0.7, 1), u8"Чёрный список:")
+if imgui.Button(u8"Открыть список", imgui.ImVec2(120, 30)) then blacklist_show[0] = true end
+imgui.SameLine()
+if imgui.Button(u8"Поиск сотрудников", imgui.ImVec2(150, 30)) then cmdFind() end
+
+imgui.Spacing()
+imgui.Separator()
+imgui.Spacing()
+
+imgui.TextColored(imgui.ImVec4(0.8, 0.7, 0.3, 1), u8"Команды:")
+imgui.BulletText(u8"/anag [1-3] — анаграмма для радио/ТВ игр")
+imgui.BulletText(u8"/mmefir — начать эфир (авто-РП)")
+imgui.BulletText(u8"/endefir — завершить эфир (авто-РП)")
+imgui.BulletText(u8"/efirstats — статистика эфира")
+imgui.BulletText(u8"/find — поиск сотрудников")
+imgui.BulletText(u8"/tvlf [этаж] — лифт ТВ-башни")
+imgui.BulletText(u8"/uninv [id] [причина] — увольнение с РП")
+imgui.BulletText(u8"/autoans [текст] — авто-ответ на звонки")
+imgui.BulletText(u8"/bladd [ник] [причина] — добавить в ЧС")
+imgui.BulletText(u8"/bldel [ник] — удалить из ЧС")
+imgui.BulletText(u8"/blcheck [ник] — проверить ник в ЧС")
+imgui.BulletText(u8"/bllist — показать весь ЧС")
+end,
+onToggle = function(state) end
 }
+
 }
 
 -- ГЛАВНАЯ ФУНКЦИЯ (Точка входа)
@@ -5019,6 +5330,39 @@ sampRegisterChatCommand('rptest', function()
   if rp_settings.set[chapter] and rp_settings.set[chapter][sel] then
     playRp(rp_settings.set[chapter][sel].text, true)
   end
+end)
+
+-- СМИ-ФУНКЦИИ: регистрация команд
+loadBlacklist()
+sampRegisterChatCommand('anag', function(arg) startAnagram(arg) end)
+sampRegisterChatCommand('tvlf', cmdTvlift)
+sampRegisterChatCommand('uninv', cmdUninvite)
+sampRegisterChatCommand('mmefir', cmdEfir)
+sampRegisterChatCommand('endefir', cmdEndEfir)
+sampRegisterChatCommand('find', cmdFind)
+sampRegisterChatCommand('efirstats', cmdEfirStats)
+sampRegisterChatCommand('autoans', cmdAutoAnswer)
+sampRegisterChatCommand('bladd', function(arg)
+  local nick, reason = arg:match('^(%S+)%s*(.*)')
+  if nick then addBlacklistNick(nick, reason) else sampAddChatMessage('[Helper] /bladd [ник] [причина]', 0xFFAA00) end
+end)
+sampRegisterChatCommand('bldel', function(arg)
+  if arg and arg ~= '' then removeBlacklistNick(arg) else sampAddChatMessage('[Helper] /bldel [ник]', 0xFFAA00) end
+end)
+sampRegisterChatCommand('blcheck', function(arg)
+  if arg and arg ~= '' then
+    if checkBlacklistNick(arg) then sampAddChatMessage('[Helper] ' .. arg .. ' В чёрном списке!', 0xFF0000)
+    else sampAddChatMessage('[Helper] ' .. arg .. ' не в чёрном списке', 0x00FF00) end
+  else sampAddChatMessage('[Helper] /blcheck [ник]', 0xFFAA00) end
+end)
+sampRegisterChatCommand('bllist', function()
+  local count = 0
+  for nick, data in pairs(blacklist_data) do
+    count = count + 1
+    sampAddChatMessage('  ' .. nick .. ' — ' .. (data.reason or 'нет причины') .. ' (' .. (data.added or '?') .. ')', 0xCECECE)
+  end
+  if count == 0 then sampAddChatMessage('[Helper] Чёрный список пуст', 0xFFAA00)
+  else sampAddChatMessage('[Helper] Всего в ЧС: ' .. count, 0x00FF00) end
 end)
 
 -- Запуск потоков
@@ -5262,6 +5606,28 @@ function sampev.onServerMessage(color, text)
         end
     end
 end
+    -- Эфир-статистика: подсчёт SMS, звонков, строк эфира
+    if efir_active then
+        if text:find("SMS") or text:find("смс") or text:find("СМС") then
+            efir_stats.sms = efir_stats.sms + 1
+        end
+        if text:find("звон") or text:find("Звон") or text:find("вызов") or text:find("Вызов") then
+            efir_stats.calls = efir_stats.calls + 1
+            -- Авто-ответ на звонок
+            if auto_answer_enabled[0] then
+                local answer = u8:decode(ffi.string(auto_answer_text))
+                if answer ~= "" then
+                    lua_thread.create(function()
+                        wait(500)
+                        sampSendChat("/t " .. answer)
+                    end)
+                end
+            end
+        end
+        -- Подсчёт строк эфира (сообщения с /t или /u)
+        efir_stats.lines = efir_stats.lines + 1
+    end
+
 
 function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
     -- Перехват статистики для playerLogin (РП-движок)
@@ -5271,6 +5637,29 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
         sampSendDialogResponse(dialogId, 1, -1, -1)
         return false
     end
+    -- Перехват /find: поиск сотрудников
+    if title:find("Поиск") or title:find("поиск") or title:find("Сотрудники") then
+        find_list = {}
+        local i = 0
+        for line in string.gmatch(text, "[^\n]+") do
+            local nick, id, rang, podr, phone = line:match("(%d+)%..-(.-)%[(%d+)%].-(%d+)%s*ранг%s*(.-)%s+(%d+)")
+            if nick then
+                i = i + 1
+                find_list[i] = {
+                    nick = nick:gsub("^%s+",""):gsub("%s+$",""),
+                    id = tonumber(id),
+                    rang = tonumber(rang),
+                    podr = podr or "",
+                    phone = phone or ""
+                }
+            end
+        end
+        find_selected = 0
+        find_show[0] = true
+        sampAddChatMessage("[Helper] Найдено сотрудников: " .. #find_list, 0x00FF00)
+        return false
+    end
+
     if not isModuleEnabled("mm_editor") or not mm_auto_format[0] then
         return
     end
@@ -6185,6 +6574,115 @@ imgui.OnFrame(
                     rp_settings.window.is = 2
                 end
             end
+        end
+        imgui.End()
+    end
+)
+
+
+-- СМИ: Окно /find (список найденных сотрудников)
+imgui.OnFrame(
+    function() return find_show[0] end,
+    function()
+        local display = imgui.GetIO().DisplaySize
+        imgui.SetNextWindowPos(imgui.ImVec2(display.x / 2, display.y / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
+        imgui.SetNextWindowSize(imgui.ImVec2(600, 400), imgui.Cond.FirstUseEver)
+        imgui.Begin(u8"Поиск сотрудников (/find)", find_show, imgui.WindowFlags.NoCollapse)
+
+        if #find_list > 0 then
+            imgui.Columns(5, nil, false)
+            imgui.SetColumnWidth(0, 30)
+            imgui.CenterColumnText(u8"№")
+            imgui.NextColumn()
+            imgui.CenterColumnText(u8"Ник")
+            imgui.NextColumn()
+            imgui.SetColumnWidth(0, 50)
+            imgui.CenterColumnText(u8"ID")
+            imgui.NextColumn()
+            imgui.SetColumnWidth(0, 50)
+            imgui.CenterColumnText(u8"Ранг")
+            imgui.NextColumn()
+            imgui.CenterColumnText(u8"Подразделение")
+            imgui.NextColumn()
+            imgui.Separator()
+
+            for i, p in ipairs(find_list) do
+                if imgui.Selectable(tostring(i), find_selected == i, imgui.SelectableFlags.SpanAllColumns) then
+                    find_selected = i
+                end
+                imgui.NextColumn()
+                imgui.Text(u8(p.nick))
+                imgui.NextColumn()
+                imgui.Text(tostring(p.id))
+                imgui.NextColumn()
+                imgui.Text(tostring(p.rang))
+                imgui.NextColumn()
+                imgui.Text(u8(p.podr))
+                imgui.NextColumn()
+            end
+            imgui.Columns(1)
+        else
+            imgui.TextColored(imgui.ImVec4(0.5, 0.5, 0.5, 1), u8"Список пуст. Используйте /find")
+        end
+
+        imgui.Separator()
+        if find_selected > 0 and find_list[find_selected] then
+            local p = find_list[find_selected]
+            if imgui.Button(u8"Позвонить", imgui.ImVec2(100, 30)) then
+                sampSendChat("/call " .. p.phone)
+            end
+            imgui.SameLine()
+            if imgui.Button(u8"В ЧС", imgui.ImVec2(80, 30)) then
+                addBlacklistNick(p.nick, "из /find")
+            end
+            imgui.SameLine()
+            if imgui.Button(u8"mmact", imgui.ImVec2(80, 30)) then
+                cmdAct(tostring(p.id))
+            end
+        end
+        imgui.SameLine()
+        if imgui.Button(u8"Закрыть", imgui.ImVec2(80, 30)) then
+            find_show[0] = false
+        end
+        imgui.End()
+    end
+)
+
+-- СМИ: Окно чёрного списка
+imgui.OnFrame(
+    function() return blacklist_show[0] end,
+    function()
+        local display = imgui.GetIO().DisplaySize
+        imgui.SetNextWindowPos(imgui.ImVec2(display.x / 2, display.y / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
+        imgui.SetNextWindowSize(imgui.ImVec2(500, 400), imgui.Cond.FirstUseEver)
+        imgui.Begin(u8"Чёрный список СМИ", blacklist_show, imgui.WindowFlags.NoCollapse)
+
+        local count = 0
+        for nick, data in pairs(blacklist_data) do
+            count = count + 1
+        end
+        imgui.Text(u8"Всего в списке: " .. count)
+        imgui.Separator()
+
+        imgui.BeginChild("##bl_list", imgui.ImVec2(0, 280), true)
+        for nick, data in pairs(blacklist_data) do
+            imgui.PushIDStr("bl_" .. nick)
+            imgui.Text(u8(nick))
+            imgui.SameLine(200)
+            imgui.TextColored(imgui.ImVec4(0.7, 0.7, 0.7, 1), u8(data.reason or ""))
+            imgui.SameLine(350)
+            if imgui.Button(u8"X") then
+                removeBlacklistNick(nick)
+                imgui.PopID()
+                break
+            end
+            imgui.PopID()
+            imgui.Separator()
+        end
+        imgui.EndChild()
+
+        if imgui.Button(u8"Закрыть", imgui.ImVec2(100, 30)) then
+            blacklist_show[0] = false
         end
         imgui.End()
     end
