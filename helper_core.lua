@@ -6862,6 +6862,24 @@ imgui.OnFrame(
         if imgui.Button(u8:encode(string.char(0xCE,0xF0,0xE8,0xE3,0xE8,0xED,0xE0,0xEB)), imgui.ImVec2(100, 30)) then
             if ae_dialog_id >= 0 then
                 local orig_text = u8:decode(ae_original_text)
+                -- Strip existing tag prefix, add current tag
+                orig_text = orig_text:gsub("^%s*[A-Za-z%A-Z%d]+%s*|%s*", "")
+                local tag = u8:decode(ffi.string(mm_tag))
+                if tag and tag ~= "" then
+                    orig_text = tag .. " | " .. orig_text
+                end
+                -- Capitalize first letter after tag
+                local pipe_pos = orig_text:find(" | ")
+                if pipe_pos then
+                    local after_pipe = pipe_pos + 3
+                    if after_pipe <= #orig_text then
+                        orig_text = orig_text:sub(1, after_pipe - 1) .. cp1251_upper(orig_text:sub(after_pipe, after_pipe)) .. orig_text:sub(after_pipe + 1)
+                    end
+                else
+                    if #orig_text > 0 then
+                        orig_text = cp1251_upper(orig_text:sub(1, 1)) .. orig_text:sub(2)
+                    end
+                end
                 addAdToHistory(orig_text)
                 sampSendDialogResponse(ae_dialog_id, 1, -1, orig_text)
             end
