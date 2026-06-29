@@ -17,6 +17,7 @@ Universal Game Helper Core for SAMP (MoonLoader / Lua)
 3. Открыть меню: клавиша F11 или команда /helper.
 ]]
 
+local SCRIPT_VERSION = 'v1.0 (29.06.2026)'
 local imgui = require 'mimgui'
 local ffi = require 'ffi'
 local sampev = require 'lib.samp.events'
@@ -5300,7 +5301,7 @@ end
 end
 end
 
-sampAddChatMessage("Helper Core v1.0 (29.06.2026) загружен. Меню: F11", 0x00FF00)
+sampAddChatMessage("Helper Core " .. SCRIPT_VERSION .. " загружен. Меню: F11", 0x00FF00)
 sampAddChatMessage("Стробы: J=вкл/выкл, N=режим | Круиз: C, W/S=скорость | Бинды: L=/lock, K=/e", 0xFFFFFF)
 
 -- Регистрируем команду открытия меню
@@ -6420,7 +6421,7 @@ imgui.OnFrame(
 function() return show_main_window[0] end,
 function(player)
 imgui.SetNextWindowSize(imgui.ImVec2(820, 560), imgui.Cond.FirstUseEver)
-imgui.Begin(u8"Universal Helper Platform v1.0 (29.06.2026)", show_main_window, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
+imgui.Begin(u8"Universal Helper Platform " .. SCRIPT_VERSION, show_main_window, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
 
 -- Верхняя панель: Переключатель серверов
 imgui.Text(u8"Выбор текущего сервера:")
