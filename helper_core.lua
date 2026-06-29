@@ -106,6 +106,7 @@ local memory = require 'memory'
 encoding.default = 'CP1251'
 local u8 = encoding.UTF8
 local WINDOW_TITLE = u8:encode("Universal Helper Platform " .. SCRIPT_VERSION)
+local ORIG_BTN_TEXT = u8:encode(string.char(0xCE,0xF0,0xE8,0xE3,0xE8,0xED,0xE0,0xEB))
 
 -- Инициализируем переменные для GUI
 local show_main_window = imgui.new.bool(false)
@@ -6896,7 +6897,7 @@ imgui.OnFrame(
 
         imgui.SameLine()
 
-        if imgui.Button(u8:encode(string.char(0xCE,0xF0,0xE8,0xE3,0xE8,0xED,0xE0,0xEB)), imgui.ImVec2(100, 30)) then
+        if imgui.Button(ORIG_BTN_TEXT, imgui.ImVec2(100, 30)) then
             if ae_dialog_id >= 0 then
                 local orig_text = u8:decode(ae_original_text)
                 -- Strip existing tag prefix, add current tag
