@@ -3727,7 +3727,10 @@ formatted = formatted:gsub("(%d+)%s*[ìm][èi][ël][ël][èi][àa][ðp][äd]", "%1.000.0
 formatted = formatted:gsub("(%d+)%s*[ìm][èi][ël][ël][èi][îo][ín]", "%1.000.000$")
 
 -- Apply replacement rules
+local _rule_count = 0
 for _, rule in ipairs(mm_rules) do
+_rule_count = _rule_count + 1
+if _rule_count > 200 then break end
 local abbr = rule.abbreviation
 local stem = abbr
 if abbr:len() > 3 then stem = abbr:sub(1, -2) end
@@ -5821,7 +5824,11 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
         original = original:gsub("{%x+}", "")
         original = original:gsub("^%s+", ""):gsub("%s+$", "")
         if original ~= "" then
-            local formatted = formatAdText(original)
+            local fmt_ok, formatted = pcall(formatAdText, original)
+            if not fmt_ok then
+                sampAddChatMessage("[Helper] formatAdText error: " .. tostring(formatted), 0xFF0000)
+                formatted = original
+            end
             ae_dialog_id = dialogId
             ae_original_text = u8:encode(original, encoding.default)
             ae_formatted_text = u8:encode(formatted, encoding.default)
