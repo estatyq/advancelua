@@ -3952,7 +3952,7 @@ end
 
 -- Add period before keywords if missing
 formatted = formatted:gsub("%s+(бюджет)", ". %1")
-formatted = formatted:gsub("%s+(Цена)", ". %1")
+formatted = formatted:gsub("%s+(Цена)", " %1")
 formatted = formatted:gsub("%s+(тел)", ". %1")
 formatted = formatted:gsub("%s+(Звон)", ". %1")
 formatted = formatted:gsub("%s+(Обмен)", ". %1")
@@ -3966,7 +3966,7 @@ formatted = formatted:gsub("%. (.)", function(c) return ". " .. cp1251_upper(c) 
 
 -- Auto-add price if ad but no price specified
 if is_ad and not has_price then
-formatted = formatted .. ". Цена: договорная"
+formatted = formatted .. " Цена: договорная"
 end
 
 -- Ensure ends with period
