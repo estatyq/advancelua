@@ -142,6 +142,7 @@ local ae_input_buf = imgui.new.char[1024]("")
 local ae_focus = false
 local ae_ignore_enter = 0  -- grace period frames to ignore stale Enter from chat command
 local ae_enter_was_down = false  -- track Enter key release before allowing send
+local ae_esc_was_down = false  -- track Esc key release before allowing reject
 local ad_history = {}
 local ad_history_path = getFolderPath(0x1C) .. "\\helper_ad_history.json"
 local ae_show_history = imgui.new.bool(false)
@@ -5790,6 +5791,7 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
             ae_focus = true
             ae_ignore_enter = 30  -- ignore stale Enter from /edit chat command (~0.5s)
             ae_enter_was_down = true  -- Enter was just pressed (for /edit), wait for release
+            ae_esc_was_down = true  -- Esc may be held from chat, wait for release
             return false
         end
     end
@@ -6845,6 +6847,13 @@ imgui.OnFrame(
             end
             ae_enter = false  -- still holding or just released, ignore
         end
+        -- Track Esc key: ignore until released after opening
+        local esc_key_down = imgui.GetIO().KeysDown[0x1B]
+        if ae_esc_was_down then
+            if not esc_key_down then
+                ae_esc_was_down = false
+            end
+        end
 
         imgui.Spacing()
 
@@ -6887,7 +6896,7 @@ imgui.OnFrame(
         end
         imgui.SameLine()
 
-        if imgui.Button(u8"Отклонить (ПРО)", imgui.ImVec2(160, 30)) or imgui.GetIO().KeysDown[0x1B] then
+        if imgui.Button(u8"Отклонить (ПРО)", imgui.ImVec2(160, 30)) or (not ae_esc_was_down and imgui.GetIO().KeysDown[0x1B]) then
             if ae_dialog_id >= 0 then
                 local tag = u8:decode(ffi.string(mm_tag))
                 local reject_text = "ПРО"
