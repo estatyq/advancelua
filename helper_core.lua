@@ -3951,7 +3951,7 @@ end
 
 -- Auto-add price if buy/sell but no price (NOT for trade/obmen)
 if (is_buy or is_sell) and not has_price then
-formatted = formatted .. " Цена договорная"
+formatted = formatted .. ". Цена договорная"
 end
 
 -- Fix double periods and spaces
