@@ -3954,11 +3954,6 @@ if (is_buy or is_sell) and not has_price then
 formatted = formatted .. " Цена договорная"
 end
 
--- Ensure ends with period
-if #formatted > 0 and not formatted:sub(-1):match("[%.,%!%?]") then
-formatted = formatted .. "."
-end
-
 -- Fix double periods and spaces
 formatted = formatted:gsub("%.+%.", ".")
 formatted = formatted:gsub("%. %.", ".")
