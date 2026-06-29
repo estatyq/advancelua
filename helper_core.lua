@@ -4990,14 +4990,21 @@ imgui.Spacing()
 
 imgui.Text(u8"Правила замены сокращений (База):")
 imgui.BeginChild("rules_list", imgui.ImVec2(0, 110), true)
+local max_display = 50
+local shown = 0
 for idx, rule in ipairs(mm_rules) do
+if shown >= max_display then break end
+shown = shown + 1
 imgui.Text(u8:encode(rule.abbreviation) .. " -> " .. u8:encode(rule.replacement))  -- CP1251 -> UTF-8
 imgui.SameLine(350)
-if imgui.Button(u8"Удалить##" .. idx) then
+if imgui.Button("X##" .. idx) then
 table.remove(mm_rules, idx)
 saveRules()
 end
 imgui.Separator()
+end
+if #mm_rules > max_display then
+imgui.TextColored(imgui.ImVec4(1, 0.8, 0, 1), u8" : " .. #mm_rules .. ".  " .. max_display .. ".")
 end
 imgui.EndChild()
 
@@ -6529,7 +6536,8 @@ imgui.Spacing()
 end
 
 if active_module.drawSettings then
-active_module.drawSettings()
+local ok, err = pcall(active_module.drawSettings)
+if not ok then imgui.TextColored(imgui.ImVec4(1,0,0,1), "drawSettings ERROR: " .. tostring(err)) end
 end
 else
 imgui.Text(u8"Выберите модуль слева.")
