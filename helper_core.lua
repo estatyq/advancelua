@@ -5906,7 +5906,7 @@ while memory == nil do wait(500) end
 local last_w = -1
 local last_t = -1
 while true do
-wait(50)  -- 20fps instead of every frame, reduces crash risk
+wait(0)  -- every frame to prevent weather flicker
 local ok, err = pcall(function()
 -- Weather: lock and force
 if weather_locked[0] then
