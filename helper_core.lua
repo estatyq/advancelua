@@ -3871,7 +3871,7 @@ end
 formatted = formatted:gsub("^%s+", ""):gsub("%s+$", "")
 -- Auto-add location for "kuplyu" if no location mentioned
 local has_location = false
-local loc_words = {"Los Santos", "San Fierro", "Las Venturas", "East", "Ganton", "Idlewood", "Jefferson", "Glen", "Willowfield", "El Corona", "Commerce", "Market", "Verona", "Chinatown", "Palomino", "Montgomery", "Dillimore", "Blueberry", "Flint", "Fort Carson", "Tierra", "Angel", "Bayside", "North Rock", "Valle", "Arco", "Green Palms", "Union", "Strip", "Rockshore", "Pilgrim", "Avalon", "Prickle", "Whitewood", "Pilbox", "Doherty", "Kings", "Paradiso", "Queens", "Hashbury", "Garcia", "Santa Flora", "Foster", "Venturas", "штат", "город", "район", "районе", "района"}
+local loc_words = {"Los Santos", "San Fierro", "Las Venturas", "East", "Ganton", "Idlewood", "Jefferson", "Glen", "Willowfield", "El Corona", "Commerce", "Market", "Verona", "Chinatown", "Palomino", "Montgomery", "Dillimore", "Blueberry", "Flint", "Fort Carson", "Tierra", "Angel", "Bayside", "North Rock", "Valle", "Arco", "Green Palms", "Union", "Strip", "Rockshore", "Pilgrim", "Avalon", "Prickle", "Whitewood", "Pilbox", "Doherty", "Kings", "Paradiso", "Queens", "Hashbury", "Garcia", "Santa Flora", "Foster", "Venturas", "штат", "город", "район", "районе", "района", "гетто"}
 for _, word in ipairs(loc_words) do
 if formatted:lower():find(word:lower()) then
 has_location = true
