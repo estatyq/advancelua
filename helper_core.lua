@@ -22,7 +22,6 @@ local imgui = require 'mimgui'
 local ffi = require 'ffi'
 local sampev = require 'lib.samp.events'
 local encoding = require 'encoding'
-local WINDOW_TITLE = u8"Universal Helper Platform " .. SCRIPT_VERSION
 local json = nil
 local ok_json = pcall(function() json = require 'json' end)
 if not ok_json or not json then
@@ -106,6 +105,7 @@ end
 local memory = require 'memory'
 encoding.default = 'CP1251'
 local u8 = encoding.UTF8
+local WINDOW_TITLE = u8:encode("Universal Helper Platform " .. SCRIPT_VERSION)
 
 -- Инициализируем переменные для GUI
 local show_main_window = imgui.new.bool(false)
