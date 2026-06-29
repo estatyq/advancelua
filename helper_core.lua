@@ -5906,31 +5906,34 @@ while memory == nil do wait(500) end
 local last_w = -1
 local last_t = -1
 while true do
-wait(0)  -- every frame, no delay
--- Погода: пишем напрямую в память
+wait(50)  -- 20fps instead of every frame, reduces crash risk
+local ok, err = pcall(function()
+-- Weather: lock and force
 if weather_locked[0] then
 local w = weather_id[0]
 if w ~= last_w then
 last_w = w
 pcall(forceWeatherNow, w)
 end
--- Поддерживаем каждый кадр
 pcall(memory.write, 0xC81320, w, 1, false)
 else
 last_w = -1
 end
--- Время: пишем напрямую + сбрасываем таймер
+-- Time: lock hours + zero minutes/seconds
 if time_locked[0] then
 local h = time_hour[0]
 if h ~= last_t then
 last_t = h
 end
--- Час + минуты + секунды + таймер
 pcall(memory.write, 0xB70153, h, 1, false)
 pcall(memory.write, 0xB70152, 0, 1, false)
 pcall(memory.write, 0xB70158, 0, 4, false)
 else
 last_t = -1
+end
+end)
+if not ok then
+wait(500)  -- back off on error
 end
 end
 end
