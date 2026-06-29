@@ -898,9 +898,9 @@ local mm_rules = {
 {abbreviation = "миллион", replacement = ".000.000$"},
 {abbreviation = "миллиона", replacement = ".000.000$"},
 -- Цена
-{abbreviation = "дог", replacement = "Цена: договорная"},
-{abbreviation = "договор", replacement = "Цена: договорная"},
-{abbreviation = "торг", replacement = "Цена: договорная"},
+{abbreviation = "дог", replacement = "Цена договорная"},
+{abbreviation = "договор", replacement = "Цена договорная"},
+{abbreviation = "торг", replacement = "Цена договорная"},
 {abbreviation = "обмен", replacement = "обмен"},
 {abbreviation = "бартер", replacement = "обмен"},
 {abbreviation = "дешево", replacement = "по низкой цене"},
@@ -1359,9 +1359,9 @@ local mm_rules = {
 {abbreviation = "ккк", replacement = ".000.000$"},
 {abbreviation = "миллиард", replacement = ".000.000.000$"},
 {abbreviation = "млрд", replacement = ".000.000.000$"},
-{abbreviation = "дог", replacement = "Цена: договорная"},
-{abbreviation = "договор", replacement = "Цена: договорная"},
-{abbreviation = "торг", replacement = "Цена: договорная"},
+{abbreviation = "дог", replacement = "Цена договорная"},
+{abbreviation = "договор", replacement = "Цена договорная"},
+{abbreviation = "торг", replacement = "Цена договорная"},
 {abbreviation = "обмен", replacement = "обмен"},
 {abbreviation = "бартер", replacement = "обмен"},
 {abbreviation = "сми", replacement = "СМИ"},
@@ -3939,8 +3939,8 @@ formatted = formatted:gsub("%s+$", "")
 formatted = formatted:gsub("%s+(бюджет)", ". %1")
 
 -- Add "Цена: " before dollar amounts if not already present
-formatted = formatted:gsub("([%s])(%d+%.%d+%$)", "%1Цена: %2")
-formatted = formatted:gsub("^(%d+%.%d+%$)", "Цена: %1")
+formatted = formatted:gsub("([%s])(%d+%.%d+%$)", "%1Цена %2")
+formatted = formatted:gsub("^(%d+%.%d+%$)", "Цена %1")
 
 -- Check if has price already
 local fl = formatted:lower()
@@ -3951,7 +3951,7 @@ end
 
 -- Auto-add price if buy/sell but no price (NOT for trade/obmen)
 if (is_buy or is_sell) and not has_price then
-formatted = formatted .. " Цена: договорная"
+formatted = formatted .. " Цена договорная"
 end
 
 -- Ensure ends with period
