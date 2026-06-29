@@ -3905,26 +3905,28 @@ end
 
 -- Auto-add location for "kuplyu" if no location mentioned
 local has_location = false
-local loc_words = {"Los Santos", "San Fierro", "Las Venturas", "East", "Ganton", "Idlewood", "Jefferson", "Glen", "Willowfield", "El Corona", "Commerce", "Market", "Verona", "Chinatown", "Palomino", "Montgomery", "Dillimore", "Blueberry", "Flint", "Fort Carson", "Tierra", "Angel", "Bayside", "North Rock", "Valle", "Arco", "Green Palms", "Union", "Strip", "Rockshore", "Pilgrim", "Avalon", "Prickle", "Whitewood", "Pilbox", "Doherty", "Kings", "Paradiso", "Queens", "Hashbury", "Garcia", "Santa Flora", "Foster", "Venturas", "штат", "город", "район"}
+local loc_words = {"Los Santos", "San Fierro", "Las Venturas", "East", "Ganton", "Idlewood", "Jefferson", "Glen", "Willowfield", "El Corona", "Commerce", "Market", "Verona", "Chinatown", "Palomino", "Montgomery", "Dillimore", "Blueberry", "Flint", "Fort Carson", "Tierra", "Angel", "Bayside", "North Rock", "Valle", "Arco", "Green Palms", "Union", "Strip", "Rockshore", "Pilgrim", "Avalon", "Prickle", "Whitewood", "Pilbox", "Doherty", "Kings", "Paradiso", "Queens", "Hashbury", "Garcia", "Santa Flora", "Foster", "Venturas", "штат", "город", "район", "районе", "района"}
 for _, word in ipairs(loc_words) do
 if formatted:lower():find(word:lower()) then
 has_location = true
 break
 end
 end
-local is_buy = false
-if lower:find("^[к ]уплю") then
-is_buy = true
-end
+
+-- Detect action type from original text
+local is_buy = lower:find("^куплю") ~= nil
+local is_sell = lower:find("^продам") ~= nil
+local is_trade = lower:find("^обмен€ю") ~= nil
+local is_ad = is_buy or is_sell or is_trade or lower:find("^распродаю") ~= nil or lower:find("^скуп") ~= nil or lower:find("^закуп") ~= nil
+
+-- Add location for "kuplyu" without location
 if is_buy and not has_location then
--- Insert "v lyuboy tochke shtata" after the verb+item, before budget/price
-formatted = formatted:gsub(
-"(куплю%s+[^%.%d]+)%s+(бюджет|цена|тел|звон|обмен|$)",
-"%1 в любой точке штата. %2"
-)
--- If no budget/price keyword, append before end
-if not formatted:find("в любой точке") then
-formatted = formatted:gsub("^( уплю%s+.+)$", "%1 в любой точке штата")
+formatted = formatted:gsub("^( уплю%s+[^%.%d]+)%s*$", "%1 в любой точке штата")
+if not formatted:lower():find("в любой точке") then
+formatted = formatted:gsub("^( уплю%s+[^%.%d]+)(%s+бюджет.*)", "%1 в любой точке штата.%2")
+end
+if not formatted:lower():find("в любой точке") then
+formatted = formatted .. " в любой точке штата"
 end
 end
 
@@ -3933,42 +3935,22 @@ formatted = formatted:gsub("%s+", " ")
 formatted = formatted:gsub("^%s+", "")
 formatted = formatted:gsub("%s+$", "")
 
+-- Add period before бюджет
+formatted = formatted:gsub("%s+(бюджет)", ". %1")
+
 -- Add "÷ена: " before dollar amounts if not already present
--- Only match full number+dollar at word boundary, not partial
 formatted = formatted:gsub("([%s])(%d+%.%d+%$)", "%1÷ена: %2")
 formatted = formatted:gsub("^(%d+%.%d+%$)", "÷ена: %1")
 
--- Punctuation and price formatting
+-- Check if has price already
 local fl = formatted:lower()
-
--- Check if has price already (use formatted text after replacements)
 local has_price = false
 if fl:find("%$") or fl:find("цена") or fl:find("дог") or fl:find("торг") or fl:find("обмен") or fl:find("бартер") or fl:find("бесплатн") or fl:find("бюджет") then
 has_price = true
 end
 
--- Check if is ad using ORIGINAL text (before replacements)
-local is_ad = false
-if lower:find("^[пѕ]родам") or lower:find("^[к ]уплю") or lower:find("^[оќ]бмен€ю") or lower:find("^семь€") or lower:find("^ищу") or lower:find("^сдаю") or lower:find("^сниму") or lower:find("^предлагаю") or lower:find("^распродаю") or lower:find("^закуп") or lower:find("^скуп") then
-is_ad = true
-end
-
--- Add period before keywords if missing
-formatted = formatted:gsub("%s+(бюджет)", ". %1")
-formatted = formatted:gsub("%s+(÷ена)", " %1")
-formatted = formatted:gsub("%s+(тел)", ". %1")
-formatted = formatted:gsub("%s+(«вон)", ". %1")
-formatted = formatted:gsub("%s+(ќбмен)", ". %1")
-
--- Fix double periods
-formatted = formatted:gsub("%.+%.", ".")
-formatted = formatted:gsub("%. %.", ". ")
-
--- Capitalize after period
-formatted = formatted:gsub("%. (.)", function(c) return ". " .. cp1251_upper(c) end)
-
--- Auto-add price if ad but no price specified
-if is_ad and not has_price then
+-- Auto-add price if buy/sell but no price (NOT for trade/obmen)
+if (is_buy or is_sell) and not has_price then
 formatted = formatted .. " ÷ена: договорна€"
 end
 
@@ -3977,18 +3959,19 @@ if #formatted > 0 and not formatted:sub(-1):match("[%.,%!%?]") then
 formatted = formatted .. "."
 end
 
--- Fix ". ." -> "."
+-- Fix double periods and spaces
+formatted = formatted:gsub("%.+%.", ".")
 formatted = formatted:gsub("%. %.", ".")
 formatted = formatted:gsub("%s+$", "")
+formatted = formatted:gsub("%s+%.", ".")
 
--- Add server tag prefix (use detected tag if found, otherwise configured tag)
+-- Add server tag prefix
 local tag = detected_tag or u8:decode(ffi.string(mm_tag))
 if tag and tag ~= "" then
 formatted = tag .. " | " .. formatted
 end
 
--- Capitalize first letter of actual text (after "TAG | ")
--- Lua :upper() only handles ASCII, so we manually handle CP1251 Cyrillic
+-- Capitalize first letter after "TAG | "
 local pipe_pos = formatted:find(" | ")
 if pipe_pos then
 local after_pipe = pipe_pos + 3
