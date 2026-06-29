@@ -6859,6 +6859,16 @@ imgui.OnFrame(
 
         imgui.SameLine()
 
+        if imgui.Button(u8:encode(string.char(0xCE,0xF0,0xE8,0xE3,0xE8,0xED,0xE0,0xEB)), imgui.ImVec2(100, 30)) then
+            if ae_dialog_id >= 0 then
+                local orig_text = u8:decode(ae_original_text)
+                addAdToHistory(orig_text)
+                sampSendDialogResponse(ae_dialog_id, 1, -1, orig_text)
+            end
+            ae_active[0] = false
+        end
+        imgui.SameLine()
+
         if imgui.Button(u8"Отклонить (ПРО)", imgui.ImVec2(160, 30)) or imgui.GetIO().KeysDown[0x1B] then
             if ae_dialog_id >= 0 then
                 local tag = u8:decode(ffi.string(mm_tag))
