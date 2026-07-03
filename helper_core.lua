@@ -17,6 +17,12 @@ Universal Game Helper Core for SAMP (MoonLoader / Lua)
 3. Открыть меню: клавиша F11 или команда /helper.
 ]]
 
+script_name("Helper Core")
+script_author("Advance RP Helper")
+script_description("Universal Helper Platform for Advance RP")
+script_dependencies("SAMP.Lua", "mimgui")
+script_properties("work-in-pause")
+
 local SCRIPT_VERSION = 'v1.0 (29.06.2026)'
 local imgui = require 'mimgui'
 local ffi = require 'ffi'
@@ -3510,21 +3516,6 @@ end)
 end
 if not doesDirectoryExist(getWorkingDirectory() .. "/config") then
 createDirectory(getWorkingDirectory() .. "/config")
-    -- Load keybinds
-    if settings.keybinds then
-        keybinds = {}
-        for _, kb in ipairs(settings.keybinds) do
-            table.insert(keybinds, {key = kb.key, command = kb.command, enabled = kb.enabled, name = kb.name})
-        end
-        -- If empty, use defaults
-        if #keybinds == 0 then
-            keybinds = {
-                {key = 0x4C, command = "/lock",   enabled = true,  name = "Закрыть/открыть машину"},
-                {key = 0x4B, command = "/e",     enabled = true,  name = "Завести/заглушить двигатель"},
-            }
-        end
-    end
-
 end
 
 local file = io.open(db_path, "r")
@@ -3572,6 +3563,18 @@ if parsed.aad_history ~= nil then aad_history = parsed.aad_history end
 if parsed.last_called ~= nil then last_called = parsed.last_called end
 if parsed.call_cooldown_hours ~= nil then call_cooldown_hours[0] = parsed.call_cooldown_hours end
 if parsed.module_states then saved_module_states = parsed.module_states end
+if parsed.keybinds then
+keybinds = {}
+for _, kb in ipairs(parsed.keybinds) do
+table.insert(keybinds, {key = kb.key, command = kb.command, enabled = kb.enabled, name = kb.name})
+end
+if #keybinds == 0 then
+keybinds = {
+{key = 0x4C, command = "/lock", enabled = true, name = "Lock/Unlock"},
+{key = 0x4B, command = "/e", enabled = true, name = "Engine On/Off"}
+}
+end
+end
 -- Миграция: конвертируем старые CP1251 шаблоны/историю в UTF-8
 local function needsUtf8Convert(s)
     if type(s) ~= "string" then return false end
@@ -5334,7 +5337,8 @@ function main()
 while not isSampAvailable() do wait(100) end
 
 -- Загружаем базы и настройки
-loadDatabases()
+local db_ok, db_err = pcall(loadDatabases)
+if not db_ok then sampAddChatMessage("[Helper] loadDatabases error: " .. tostring(db_err), 0xFF0000) end
 
 -- Restore module enabled states from saved settings
 if saved_module_states then
@@ -5928,7 +5932,7 @@ if weather_locked[0] then
 local w = weather_id[0]
 if w ~= last_w then
 last_w = w
-pcall(forceWeatherNow, w)
+if type(forceWeatherNow) == "function" then pcall(forceWeatherNow, w) end
 end
 pcall(memory.write, 0xC81320, w, 1, false)
 else
