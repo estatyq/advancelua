@@ -108,7 +108,8 @@ end
 }
 print('[helper_core] json library not found, using built-in fallback')
 end
-local memory = require 'memory'
+local mem_ok, memory = pcall(require, 'memory')
+if not mem_ok then print('[helper_core] WARNING: memory library not available') memory = nil end
 encoding.default = 'CP1251'
 local u8 = encoding.UTF8
 local WINDOW_TITLE = u8:encode("Universal Helper Platform " .. SCRIPT_VERSION)
@@ -3982,7 +3983,8 @@ end
 -- Проверка онлайна (Встроенными методами)
 local function isPlayerOnline(nickname)
 if not isSampAvailable() then return false end
-local _, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
+local id_ok, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
+    if not id_ok then return false end
 for i = 0, sampGetMaxPlayerId() do
 if sampIsPlayerConnected(i) then
 local nick = sampGetPlayerNickname(i)
@@ -4292,7 +4294,8 @@ local function playerLogin()
         while rp_stats_step == "stats" and os.time() < timer do wait(100) end
 
         if rp_stats_text ~= "" then
-            local _, pid = sampGetPlayerIdByCharHandle(PLAYER_PED)
+            local id_ok2, pid = sampGetPlayerIdByCharHandle(PLAYER_PED)
+            if not id_ok2 then return end
             user.nick = sampGetPlayerNickname(pid)
             user.rang = tonumber(rp_stats_text:match("Ранг:%s*{.-}(%d+)") or "0")
             user.podr = rp_stats_text:match("Подразделение:%s*{.-}(.-)\n") or ""
@@ -4697,6 +4700,7 @@ local function removeBlacklistNick(nick)
 end
 
 local function checkBlacklistNick(nick)
+    if not nick then return false end
     return blacklist_data[nick:lower()] ~= nil
 end
 
@@ -4889,7 +4893,7 @@ static_aad_active = static_aad_active or imgui.new.bool(false)
             imgui.PushIDStr("tpl_" .. idx)
             if imgui.Button(u8"Выбрать") then
                 for i = 0, 127 do static_aad_buf[i] = 0 end
-                ffi.copy(static_aad_buf, tpl)
+                if #tpl < 127 then ffi.copy(static_aad_buf, tpl) end
                 aad_text = u8:decode(tpl)  -- UTF-8 -> CP1251 for sending
                 saveSettings()
             end
@@ -4924,7 +4928,7 @@ static_aad_active = static_aad_active or imgui.new.bool(false)
             imgui.PushIDStr("hist_" .. idx)
             if imgui.Button(u8"Выбрать") then
                 for i = 0, 127 do static_aad_buf[i] = 0 end
-                ffi.copy(static_aad_buf, hist)
+                if #hist < 127 then ffi.copy(static_aad_buf, hist) end
                 aad_text = u8:decode(hist)  -- UTF-8 -> CP1251 for sending
                 saveSettings()
             end
@@ -6061,7 +6065,7 @@ local function setLightState(car, leftOn, rightOn)
     if not leftOn then lightVal = bit.bor(lightVal, 0x02) end   -- bits 0-1 = 2 (front-left damaged)
     if not rightOn then lightVal = bit.bor(lightVal, 0x08) end  -- bits 2-3 = 2 (front-right damaged)
     -- Пишем обратно (4 байта, true = virtual protect)
-    memory.write(lightAddr, lightVal, 4, true)
+    pcall(memory.write, lightAddr, lightVal, 4, true)
 end
 
 -- Восстановить все фары (все целые = 0)
@@ -6073,7 +6077,7 @@ local function restoreAllLights(car)
             local lightVal = memory.read(lightAddr, 4, false) or 0
             -- Сбрасываем все 8 бит (4 фары * 2 бита)
             lightVal = bit.band(lightVal, 0xFFFFFF00)
-            memory.write(lightAddr, lightVal, 4, false)
+            pcall(memory.write, lightAddr, lightVal, 4, false)
             return
         end
     end
