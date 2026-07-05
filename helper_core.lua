@@ -23,7 +23,7 @@ script_description("Universal Helper Platform for Advance RP")
 script_dependencies("SAMP.Lua", "mimgui")
 script_properties("work-in-pause")
 
-local SCRIPT_VERSION = 'v1.2 (05.07.2026)'
+local SCRIPT_VERSION = 'v1.3 (05.07.2026)'
 local imgui = require 'mimgui'
 local ffi = require 'ffi'
 local sampev = require 'lib.samp.events'
@@ -5328,7 +5328,9 @@ imgui.Spacing()
 local active_cat = advance_commands[static_selected_cat[0]]
 imgui.BeginChild("commands_scroll", imgui.ImVec2(0, 180), true)
 for _, cmd in ipairs(active_cat.cmds) do
-imgui.TextColored(imgui.ImVec4(0, 0.9, 0.7, 1), cmd.name)
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0, 0.9, 0.7, 1))
+imgui.TextUnformatted(cmd.name)
+imgui.PopStyleColor()
 
 if imgui.IsItemHovered() then
 imgui.SetTooltip(u8"Двойной клик: скопировать в буфер")
@@ -5339,7 +5341,9 @@ end
 end
 
 imgui.SameLine(180)
-imgui.TextWrapped(cmd.desc)
+imgui.PushTextWrapPos(0)
+imgui.TextUnformatted(cmd.desc)
+imgui.PopTextWrapPos()
 imgui.Separator()
 end
 imgui.EndChild()
@@ -5356,10 +5360,12 @@ if imgui.Button(u8"Открыть редактор отыгровок", imgui.ImVec2(220, 30)) then rp_s
 imgui.SameLine()
 if imgui.Button(u8"Загрузить статистику", imgui.ImVec2(150, 30)) then playerLogin() end
 imgui.Spacing()
-imgui.TextColored(imgui.ImVec4(0.5, 0.8, 0.5, 1), u8"Игрок: " .. u8:encode(user.fullName))
-imgui.TextColored(imgui.ImVec4(0.5, 0.8, 0.5, 1), u8"Должность: " .. u8:encode(user.rangName))
-imgui.TextColored(imgui.ImVec4(0.5, 0.8, 0.5, 1), u8"Подразделение: " .. u8:encode(user.podr))
-imgui.TextColored(imgui.ImVec4(0.5, 0.8, 0.5, 1), u8"Телефон: " .. u8:encode(user.phone))
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.8, 0.5, 1))
+imgui.TextUnformatted(u8"Игрок: " .. u8:encode(user.fullName))
+imgui.TextUnformatted(u8"Должность: " .. u8:encode(user.rangName))
+imgui.TextUnformatted(u8"Подразделение: " .. u8:encode(user.podr))
+imgui.TextUnformatted(u8"Телефон: " .. u8:encode(user.phone))
+imgui.PopStyleColor()
 imgui.Spacing()
 imgui.Separator()
 imgui.TextColored(imgui.ImVec4(0.8, 0.7, 0.3, 1), u8"Команды:")
@@ -6624,12 +6630,14 @@ imgui.SameLine()
 imgui.BeginChild("content_panel", imgui.ImVec2(0, 0), true)
 local active_module = modules[active_module_idx]
 if active_module then
-imgui.Text(active_module.name)
+imgui.TextUnformatted(active_module.name)
 imgui.Separator()
 imgui.Spacing()
 
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.7, 0.7, 0.7, 1))
-imgui.TextWrapped(active_module.description)
+imgui.PushTextWrapPos(0)
+imgui.TextUnformatted(active_module.description)
+imgui.PopTextWrapPos()
 imgui.PopStyleColor()
 imgui.Spacing()
 imgui.Separator()
@@ -6652,7 +6660,11 @@ end
 
 if active_module.drawSettings then
 local ok, err = pcall(active_module.drawSettings)
-if not ok then imgui.TextColored(imgui.ImVec4(1,0,0,1), "drawSettings ERROR: " .. tostring(err)) end
+if not ok then
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(1,0,0,1))
+imgui.TextUnformatted("drawSettings ERROR: " .. tostring(err))
+imgui.PopStyleColor()
+end
 end
 else
 imgui.Text(u8"Выберите модуль слева.")
