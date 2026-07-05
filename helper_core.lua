@@ -5781,7 +5781,7 @@ if #player_db_queue > 0 then
             player_db[item.sender] = {
                 phone = item.phone,
                 time = os.date("%Y-%m-%d %H:%M:%S"),
-                ad = ""
+                ad = item.ad or ""
             }
         end
     end
@@ -6241,12 +6241,9 @@ end
 local text_utf8 = u8:encode(text, encoding.default)
 
 if sender and phone then
-player_db[sender] = {
-phone = phone,
-time = os.date("%Y-%m-%d %H:%M:%S"),
-ad = text_utf8:match("Объявление:%s*(.-)%s*Отправитель:") or ""
-}
-saveDatabase()
+local ad_text = text_utf8:match("Объявление:%s*(.-)%s*Отправитель:") or ""
+-- Queue the change instead of modifying player_db directly
+table.insert(player_db_queue, {sender = sender, phone = phone, ad = ad_text})
 sampAddChatMessage(u8:decode("[Helper DB] Добавлен контакт: " .. sender .. " (Тел: " .. phone .. ")"), 0x00FF90)
 end
 end
