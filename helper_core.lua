@@ -137,6 +137,8 @@ local call_current_nick = ""
 local call_current_phone = ""
 local last_called = {}
 local call_cooldown_hours = imgui.new.int(1)  -- don't re-call same person for N hours
+local call_no_repeat = imgui.new.bool(true)  -- skip anyone in call history regardless of cooldown
+local call_history_show = imgui.new.bool(false)  -- toggle call history view
 local online_list_cache = {}
 local online_list_cache_time = 0
 local online_nicks_cache = {}
@@ -3645,6 +3647,7 @@ if parsed.aad_templates ~= nil then aad_templates = parsed.aad_templates end
 if parsed.aad_history ~= nil then aad_history = parsed.aad_history end
 if parsed.last_called ~= nil then last_called = parsed.last_called end
 if parsed.call_cooldown_hours ~= nil then call_cooldown_hours[0] = parsed.call_cooldown_hours end
+if parsed.call_no_repeat ~= nil then call_no_repeat[0] = parsed.call_no_repeat end
 if parsed.module_states then saved_module_states = parsed.module_states end
 if parsed.keybinds then
 keybinds = {}
@@ -3741,6 +3744,7 @@ aad_templates = aad_templates,
 aad_history = aad_history,
 last_called = last_called,
 call_cooldown_hours = call_cooldown_hours[0],
+call_no_repeat = call_no_repeat[0],
 keybinds = kb,
 module_states = module_states
 }
@@ -4863,14 +4867,23 @@ imgui.SliderInt(u8"Задержка вызова (мс)", call_delay, 2000, 15000)
 imgui.InputInt(u8"Лимит звонков за сессию", max_calls_session)
 imgui.InputInt(u8"Не звонить человека (часов)", call_cooldown_hours, 0, 24)
 imgui.PopItemWidth()
+if imgui.Checkbox(u8"Не повторять звонки (история)", call_no_repeat) then saveSettings() end
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
+imgui.TextUnformatted(u8"Если включено — не звонит тем, кого уже звонил. Кулдаун игнорируется. Сброс — кнопка ниже.")
+imgui.PopStyleColor()
 
 imgui.Spacing()
 imgui.Separator()
 imgui.Spacing()
 
 local called_recently = 0
-for nick, t in pairs(last_called) do
-if os.time() - t < call_cooldown_hours[0] * 3600 then called_recently = called_recently + 1 end
+if call_no_repeat[0] then
+    called_recently = 0
+    for nick, t in pairs(last_called) do called_recently = called_recently + 1 end
+else
+    for nick, t in pairs(last_called) do
+    if os.time() - t < call_cooldown_hours[0] * 3600 then called_recently = called_recently + 1 end
+    end
 end
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.7, 0.7, 1, 1))
 imgui.TextUnformatted(u8"Прогресс:")
@@ -4944,6 +4957,43 @@ end
 imgui.Separator()
 end
 imgui.EndChild()
+
+imgui.Spacing()
+imgui.Separator()
+imgui.Spacing()
+
+if imgui.Button(u8"Показать историю звонков") then
+    call_history_show[0] = not call_history_show[0]
+end
+
+if call_history_show[0] then
+    imgui.Spacing()
+    local hist_count = 0
+    for _ in pairs(last_called) do hist_count = hist_count + 1 end
+    imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.7, 0.7, 1, 1))
+    imgui.TextUnformatted(u8"История звонков (" .. hist_count .. "):")
+    imgui.PopStyleColor()
+    imgui.BeginChild("call_history_list", imgui.ImVec2(0, 150), true)
+    if hist_count == 0 then
+        imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
+        imgui.TextUnformatted(u8"История пуста.")
+        imgui.PopStyleColor()
+    else
+        -- Sort by time (most recent first)
+        local sorted = {}
+        for nick, t in pairs(last_called) do
+            table.insert(sorted, {nick = nick, time = t})
+        end
+        table.sort(sorted, function(a, b) return a.time > b.time end)
+        for _, entry in ipairs(sorted) do
+            local phone = ""
+            if player_db[entry.nick] then phone = player_db[entry.nick].phone or "" end
+            local time_str = os.date("%d.%m %H:%M", entry.time)
+            imgui.TextUnformatted(u8:encode(entry.nick) .. " | " .. phone .. " | " .. time_str)
+        end
+    end
+    imgui.EndChild()
+end
 end,
 onToggle = function(state)
 if not state then call_active = false call_worker_running = false end
@@ -6691,7 +6741,15 @@ for _, target in ipairs(online_list) do
 if not call_active or called_count >= limit or not isSampAvailable() then break end
 
 local last_time = last_called[target.nick] or 0
-if os.time() - last_time > call_cooldown_hours[0] * 3600 then
+local can_call = false
+if call_no_repeat[0] then
+    -- Skip anyone already in call history
+    can_call = (last_time == 0)
+else
+    -- Use cooldown timer (0 hours = call everyone)
+    can_call = (os.time() - last_time > call_cooldown_hours[0] * 3600)
+end
+if can_call then
 call_current_nick = target.nick
 call_current_phone = target.phone
 
