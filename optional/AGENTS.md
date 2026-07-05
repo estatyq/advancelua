@@ -33,6 +33,7 @@
    - `helper_rp_settings.json` — отыгровки РП-движка
    - `helper_blacklist.json` — чёрный список СМИ
    - `helper_ad_history.json` — история объявлений
+   - `helper_edit_corrections.json` — предложения самообучения AutoEdit (правки пользователя до/после, кандидаты на новые правила mm_rules)
 6. **JSON-файлы конфигурации** хранятся в `getWorkingDirectory()/config/`:
    - `helper_db.json` — база контактов (обзвон)
    - `helper_mm_rules.json` — правила сокращений MM Editor

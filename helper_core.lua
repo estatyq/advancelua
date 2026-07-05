@@ -23,7 +23,7 @@ script_description("Universal Helper Platform for Advance RP")
 script_dependencies("SAMP.Lua", "mimgui")
 script_properties("work-in-pause")
 
-local SCRIPT_VERSION = 'v1.1 (05.07.2026)'
+local SCRIPT_VERSION = 'v1.2 (05.07.2026)'
 local imgui = require 'mimgui'
 local ffi = require 'ffi'
 local sampev = require 'lib.samp.events'
@@ -184,7 +184,59 @@ saveAdHistory()
 end
 end
 
+-- Самообучение: запоминаем правки пользователя в AutoEdit как кандидаты на новые правила
+local edit_corrections = {}
+local corrections_path = getFolderPath(0x1C) .. "\\helper_edit_corrections.json"
+
+local function loadCorrections()
+local file = io.open(corrections_path, "r")
+if file then
+local content = file:read("*a")
+file:close()
+local ok, parsed = pcall(json.decode, content)
+if ok and parsed then edit_corrections = parsed end
+end
+end
+
+local function saveCorrections()
+local file = io.open(corrections_path, "w")
+if file then
+file:write(json.encode(edit_corrections))
+file:close()
+end
+end
+
+-- Возвращает изменённый участок между двумя строками (общий префикс/суффикс отбрасываются)
+local function wordDiffMiddle(a, b)
+local aw, bw = {}, {}
+for w in a:gmatch("%S+") do table.insert(aw, w) end
+for w in b:gmatch("%S+") do table.insert(bw, w) end
+local i = 1
+while i <= #aw and i <= #bw and aw[i] == bw[i] do i = i + 1 end
+local ja, jb = #aw, #bw
+local j = 0
+while (ja - j) >= i and (jb - j) >= i and aw[ja - j] == bw[jb - j] do j = j + 1 end
+local a_mid = (i <= ja - j) and table.concat(aw, " ", i, ja - j) or ""
+local b_mid = (i <= jb - j) and table.concat(bw, " ", i, jb - j) or ""
+return a_mid, b_mid
+end
+
+-- Запоминает правку, если она короткая, непустая и ещё не записана
+local function recordEditCorrection(suggested, final_text)
+if suggested == final_text then return end
+local a_mid, b_mid = wordDiffMiddle(suggested, final_text)
+if a_mid == "" or b_mid == "" or a_mid == b_mid then return end
+if #a_mid > 30 or #b_mid > 100 then return end
+for _, c in ipairs(edit_corrections) do
+if c.abbr == a_mid and c.repl == b_mid then return end
+end
+table.insert(edit_corrections, 1, {abbr = a_mid, repl = b_mid})
+if #edit_corrections > 20 then table.remove(edit_corrections, #edit_corrections) end
+saveCorrections()
+end
+
 loadAdHistory()
+loadCorrections()
 local test_input = imgui.new.char[128]("")
 local test_output = ""
 local mm_rules = {
@@ -3887,10 +3939,12 @@ end
 local is_buy = lower:find("^куплю") ~= nil
 local is_sell = lower:find("^продам") ~= nil
 local is_trade = lower:find("^обменяю") ~= nil
-local is_ad = is_buy or is_sell or is_trade or lower:find("^распродаю") ~= nil or lower:find("^скуп") ~= nil or lower:find("^закуп") ~= nil
+local is_rent_out = lower:find("^сдам") ~= nil
+local is_rent_seek = lower:find("^сниму") ~= nil
+local is_ad = is_buy or is_sell or is_trade or is_rent_out or is_rent_seek or lower:find("^распродаю") ~= nil or lower:find("^скуп") ~= nil or lower:find("^закуп") ~= nil
 
 -- Add location for "kuplyu" without location
-if is_buy and not has_location then
+if (is_buy or is_rent_seek) and not has_location then
 formatted = formatted:gsub("^(Куплю%s+[^%.%d]+)%s*$", "%1 в любой точке штата")
 if not formatted:lower():find("в любой точке") then
 formatted = formatted:gsub("^(Куплю%s+[^%.%d]+)(%s+бюджет.*)", "%1 в любой точке штата.%2")
@@ -3920,7 +3974,7 @@ has_price = true
 end
 
 -- Auto-add price if buy/sell but no price (NOT for trade/obmen)
-if (is_buy or is_sell) and not has_price then
+if (is_buy or is_sell or is_rent_out or is_rent_seek) and not has_price then
 formatted = formatted .. ". Цена договорная"
 end
 
@@ -5048,6 +5102,35 @@ saveRules()
 static_new_abbr[0] = 0
 static_new_repl[0] = 0
 end
+end
+
+imgui.Spacing()
+imgui.Separator()
+imgui.Spacing()
+imgui.TextColored(imgui.ImVec4(0.3, 0.8, 1, 1), u8"Обучение (предложения из ваших правок в AutoEdit):")
+if #edit_corrections == 0 then
+imgui.TextColored(imgui.ImVec4(0.5, 0.5, 0.5, 1), u8"Пока нет предложений. Поправьте текст перед отправкой в окне AutoEdit - здесь появится предложение добавить правило.")
+else
+imgui.BeginChild("corrections_list", imgui.ImVec2(0, 90), true)
+for idx, corr in ipairs(edit_corrections) do
+imgui.PushIDStr("corr_" .. idx)
+imgui.TextUnformatted(u8:encode(corr.abbr) .. " -> " .. u8:encode(corr.repl))
+imgui.SameLine(320)
+if imgui.SmallButton(u8"Использовать") then
+imgui.StrCopy(static_new_abbr, u8:encode(corr.abbr, encoding.default))
+imgui.StrCopy(static_new_repl, u8:encode(corr.repl, encoding.default))
+end
+imgui.SameLine()
+if imgui.SmallButton(u8"X") then
+table.remove(edit_corrections, idx)
+saveCorrections()
+imgui.PopID()
+break
+end
+imgui.PopID()
+imgui.Separator()
+end
+imgui.EndChild()
 end
 end,
 onToggle = function(state) end
@@ -6908,6 +6991,20 @@ imgui.OnFrame(
         ae_focus = false
         imgui.PopItemWidth()
 
+        imgui.Spacing()
+        local function aeQuickInsert(phrase)
+            local cur = u8:decode(ffi.string(ae_input_buf))
+            cur = cur:gsub("%s+$", "")
+            if cur ~= "" and not cur:find("%.$") then cur = cur .. "." end
+            if cur ~= "" then cur = cur .. " " .. phrase else cur = phrase end
+            imgui.StrCopy(ae_input_buf, u8:encode(cur, encoding.default))
+        end
+        if imgui.SmallButton(u8"+ Цена договорная") then aeQuickInsert("Цена договорная") end
+        imgui.SameLine()
+        if imgui.SmallButton(u8"+ Доплата (моя)") then aeQuickInsert("Доплата с моей стороны") end
+        imgui.SameLine()
+        if imgui.SmallButton(u8"+ Доплата (ваша)") then aeQuickInsert("Доплата с вашей стороны") end
+
         -- Grace period: ignore Enter until the key is released after opening.
         -- The Enter key from sending /edit in chat may still be held down.
         if ae_ignore_enter > 0 then
@@ -6936,6 +7033,8 @@ imgui.OnFrame(
             if ae_dialog_id >= 0 then
                 local input_text = u8:decode(ffi.string(ae_input_buf))
                 addAdToHistory(input_text)
+                local fmt_ok2, suggested_cp1251 = pcall(u8.decode, u8, ae_formatted_text)
+                if fmt_ok2 then pcall(recordEditCorrection, suggested_cp1251, input_text) end
                 sampSendDialogResponse(ae_dialog_id, 1, -1, input_text)
             end
             ae_active[0] = false
