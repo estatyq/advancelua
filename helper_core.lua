@@ -4895,16 +4895,13 @@ imgui.TextUnformatted(u8"Позвонили за время кулдауна: " .. called_recently)
 imgui.Spacing()
 if imgui.Button(u8"Сбросить историю звонков") then
 last_called = {}
-saveSettings()
-sampAddChatMessage("[Helper] История звонков сброшена", 0x00FF00)
+lua_thread.create(function() saveSettings() sampAddChatMessage("[Helper] История звонков сброшена", 0x00FF00) end)
 end
 imgui.SameLine()
 if imgui.Button(u8"Очистить БД") then
 player_db = {}
 last_called = {}
-saveDatabase()
-saveSettings()
-sampAddChatMessage("[Helper] БА очищена", 0x00FF00)
+lua_thread.create(function() saveDatabase() saveSettings() sampAddChatMessage("[Helper] БА очищена", 0x00FF00) end)
 end
 
 imgui.Spacing()
@@ -5239,7 +5236,7 @@ end
 imgui.SameLine()
 if imgui.SmallButton(u8"X") then
 table.remove(edit_corrections, idx)
-saveCorrections()
+lua_thread.create(function() saveCorrections() end)
 imgui.PopID()
 break
 end
@@ -5478,7 +5475,7 @@ imgui.TextUnformatted(u8"Двойной клик: скопировать в буфер")
 imgui.EndTooltip()
 if imgui.IsMouseDoubleClicked(0) then
 setClipboardText(cmd.name)
-sampAddChatMessage(u8:decode("[Helper] Скопировано в буфер: " .. cmd.name), 0x00FFFF)
+lua_thread.create(function() sampAddChatMessage(u8:decode("[Helper] Скопировано в буфер: " .. cmd.name), 0x00FFFF) end)
 end
 end
 
@@ -5500,7 +5497,7 @@ enabled = true,
 drawSettings = function()
 if imgui.Button(u8"Открыть редактор отыгровок", imgui.ImVec2(220, 30)) then rp_show_edit[0] = true end
 imgui.SameLine()
-if imgui.Button(u8"Загрузить статистику", imgui.ImVec2(150, 30)) then playerLogin() end
+if imgui.Button(u8"Загрузить статистику", imgui.ImVec2(150, 30)) then lua_thread.create(playerLogin) end
 imgui.Spacing()
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.8, 0.5, 1))
 imgui.TextUnformatted(u8"Игрок: " .. u8:encode(user.fullName))
@@ -5543,11 +5540,11 @@ drawSettings = function()
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0, 1, 0.7, 1))
 imgui.TextUnformatted(u8"Эфир:")
 imgui.PopStyleColor()
-if imgui.Button(u8"Начать эфир", imgui.ImVec2(120, 30)) then cmdEfir() end
+if imgui.Button(u8"Начать эфир", imgui.ImVec2(120, 30)) then lua_thread.create(cmdEfir) end
 imgui.SameLine()
-if imgui.Button(u8"Завершить эфир", imgui.ImVec2(120, 30)) then cmdEndEfir() end
+if imgui.Button(u8"Завершить эфир", imgui.ImVec2(120, 30)) then lua_thread.create(cmdEndEfir) end
 imgui.SameLine()
-if imgui.Button(u8"Статистика", imgui.ImVec2(100, 30)) then cmdEfirStats() end
+if imgui.Button(u8"Статистика", imgui.ImVec2(100, 30)) then lua_thread.create(cmdEfirStats) end
 
 imgui.Spacing()
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0, 1, 0.7, 1))
@@ -5587,7 +5584,7 @@ imgui.TextUnformatted(u8"Чёрный список:")
 imgui.PopStyleColor()
 if imgui.Button(u8"Открыть список", imgui.ImVec2(120, 30)) then blacklist_show[0] = true end
 imgui.SameLine()
-if imgui.Button(u8"Поиск сотрудников", imgui.ImVec2(150, 30)) then cmdFind() end
+if imgui.Button(u8"Поиск сотрудников", imgui.ImVec2(150, 30)) then lua_thread.create(cmdFind) end
 
 imgui.Spacing()
 imgui.Separator()
@@ -7174,15 +7171,18 @@ imgui.OnFrame(
         if find_selected > 0 and find_list[find_selected] then
             local p = find_list[find_selected]
             if imgui.Button(u8"Позвонить", imgui.ImVec2(100, 30)) then
-                sampSendChat("/call " .. p.phone)
+                local phone = p.phone
+                lua_thread.create(function() sampSendChat("/call " .. phone) end)
             end
             imgui.SameLine()
             if imgui.Button(u8"В ЧС", imgui.ImVec2(80, 30)) then
-                addBlacklistNick(p.nick, "из /find")
+                local nick = p.nick
+                lua_thread.create(function() addBlacklistNick(nick, "из /find") end)
             end
             imgui.SameLine()
             if imgui.Button(u8"mmact", imgui.ImVec2(80, 30)) then
-                cmdAct(tostring(p.id))
+                local pid = tostring(p.id)
+                lua_thread.create(function() cmdAct(pid) end)
             end
         end
         imgui.SameLine()
@@ -7316,7 +7316,8 @@ imgui.OnFrame(
                 if suggested_cp1251 then
                     recordEditCorrection(suggested_cp1251, input_text)
                 end
-                sampSendDialogResponse(ae_dialog_id, 1, -1, input_text)
+                local dlg_id = ae_dialog_id
+                lua_thread.create(function() sampSendDialogResponse(dlg_id, 1, -1, input_text) end)
             end
             ae_active[0] = false
         end
@@ -7345,7 +7346,8 @@ imgui.OnFrame(
                     end
                 end
                 addAdToHistory(orig_text)
-                sampSendDialogResponse(ae_dialog_id, 1, -1, orig_text)
+                local dlg_id = ae_dialog_id
+                lua_thread.create(function() sampSendDialogResponse(dlg_id, 1, -1, orig_text) end)
             end
             ae_active[0] = false
         end
@@ -7359,7 +7361,8 @@ imgui.OnFrame(
                     reject_text = tag .. " | ПРО"
                 end
                 imgui.StrCopy(ae_input_buf, u8:encode(reject_text, encoding.default))
-                sampSendDialogResponse(ae_dialog_id, 0, -1, reject_text)
+                local dlg_id = ae_dialog_id
+                lua_thread.create(function() sampSendDialogResponse(dlg_id, 0, -1, reject_text) end)
             end
             ae_active[0] = false
         end
