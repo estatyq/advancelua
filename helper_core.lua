@@ -23,7 +23,7 @@ script_description("Universal Helper Platform for Advance RP")
 script_dependencies("SAMP.Lua", "mimgui")
 script_properties("work-in-pause")
 
-local SCRIPT_VERSION = 'v1.3 (05.07.2026)'
+local SCRIPT_VERSION = 'v1.7 (05.07.2026)'
 local imgui = require 'mimgui'
 local ffi = require 'ffi'
 local sampev = require 'lib.samp.events'
@@ -130,12 +130,49 @@ local server_names = {u8"Advance RP", u8"Diamond RP", u8"Arizona RP", u8"Evolve 
 
 -- Переменные для модуля "Сбор и обзвон"
 local call_active = false
+local call_worker_running = false
 local call_delay = imgui.new.int(7000)
 local max_calls_session = imgui.new.int(50)
 local call_current_nick = ""
 local call_current_phone = ""
 local last_called = {}
 local call_cooldown_hours = imgui.new.int(1)  -- don't re-call same person for N hours
+local online_list_cache = {}
+local online_list_cache_time = 0
+local online_nicks_cache = {}
+local online_nicks_cache_time = 0
+
+-- Background cache of online player nicknames.
+-- Refreshes every 5 seconds in a worker thread, so render code
+-- never calls SAMP API directly (which crashes from ImGui thread).
+local function refreshOnlineNicksCache()
+    if not isSampAvailable() then
+        online_nicks_cache = {}
+        return
+    end
+    local nicks = {}
+    local id_ok, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
+    if not id_ok then
+        online_nicks_cache = {}
+        return
+    end
+    local max_id = sampGetMaxPlayerId()
+    for i = 0, max_id do
+        if sampIsPlayerConnected(i) then
+            local nick = sampGetPlayerNickname(i)
+            if nick and i ~= myid then
+                nicks[nick] = true
+            end
+        end
+    end
+    online_nicks_cache = nicks
+    online_nicks_cache_time = os.time()
+end
+
+-- Safe online check using cache only (no SAMP API calls)
+local function isOnlineCached(nickname)
+    return online_nicks_cache[nickname] == true
+end
 
 -- Переменные для модуля "MM Editor" (СМИ Редактор)
 local mm_auto_format = imgui.new.bool(true)
@@ -4047,26 +4084,15 @@ end
 
 -- Проверка онлайна (Встроенными методами)
 local function isPlayerOnline(nickname)
-if not isSampAvailable() then return false end
-local id_ok, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
-    if not id_ok then return false end
-for i = 0, sampGetMaxPlayerId() do
-if sampIsPlayerConnected(i) then
-local nick = sampGetPlayerNickname(i)
-if nick == nickname then
-if i == myid then return false end
-return true, i
-end
-end
-end
-return false
+-- Use cache for safety (render thread safe)
+return isOnlineCached(nickname)
 end
 
 -- Сбор онлайн игроков
 local function getOnlinePlayersFromDb()
 local online_list = {}
 for nick, data in pairs(player_db) do
-if isPlayerOnline(nick) then
+if isOnlineCached(nick) then
 table.insert(online_list, {
 nick = nick,
 phone = data.phone,
@@ -4820,17 +4846,25 @@ drawSettings = function()
 local total_records = 0
 for _ in pairs(player_db) do total_records = total_records + 1 end
 
-imgui.Text(u8"Статистика:")
-imgui.BulletText(u8"Всего контактов в базе: " .. total_records)
+imgui.TextUnformatted(u8"Статистика:")
+imgui.Bullet()
+imgui.SameLine()
+imgui.TextUnformatted(u8"Всего контактов в базе: " .. total_records)
 
-local online_list = getOnlinePlayersFromDb()
-imgui.BulletText(u8"Контактов онлайн прямо сейчас: " .. #online_list)
+if os.time() - online_list_cache_time > 3 then
+    online_list_cache = getOnlinePlayersFromDb()
+    online_list_cache_time = os.time()
+end
+local online_list = online_list_cache
+imgui.Bullet()
+imgui.SameLine()
+imgui.TextUnformatted(u8"Контактов онлайн прямо сейчас: " .. #online_list)
 
 imgui.Spacing()
 imgui.Separator()
 imgui.Spacing()
 
-imgui.Text(u8"Настройки обзвона:")
+imgui.TextUnformatted(u8"Настройки обзвона:")
 imgui.PushItemWidth(150)
 imgui.SliderInt(u8"Задержка вызова (мс)", call_delay, 2000, 15000)
 imgui.InputInt(u8"Лимит звонков за сессию", max_calls_session)
@@ -4845,8 +4879,12 @@ local called_recently = 0
 for nick, t in pairs(last_called) do
 if os.time() - t < call_cooldown_hours[0] * 3600 then called_recently = called_recently + 1 end
 end
-imgui.TextColored(imgui.ImVec4(0.7, 0.7, 1, 1), u8"Прогресс:")
-imgui.BulletText(u8"Позвонили за время кулдауна: " .. called_recently)
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.7, 0.7, 1, 1))
+imgui.TextUnformatted(u8"Прогресс:")
+imgui.PopStyleColor()
+imgui.Bullet()
+imgui.SameLine()
+imgui.TextUnformatted(u8"Позвонили за время кулдауна: " .. called_recently)
 
 imgui.Spacing()
 if imgui.Button(u8"Сбросить историю звонков") then
@@ -4868,18 +4906,27 @@ imgui.Separator()
 imgui.Spacing()
 
 if call_active then
-imgui.TextColored(imgui.ImVec4(0, 1, 0, 1), u8"Статус: Идет обзвон...")
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0, 1, 0, 1))
+imgui.TextUnformatted(u8"Статус: Идет обзвон...")
+imgui.PopStyleColor()
 imgui.TextUnformatted(u8"Звоним: " .. u8:encode(call_current_nick) .. " (" .. call_current_phone .. ")")
 if imgui.Button(u8"Остановить обзвон") then call_active = false end
 else
-imgui.TextColored(imgui.ImVec4(1, 0.5, 0, 1), u8"Статус: Ожидание")
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(1, 0.5, 0, 1))
+imgui.TextUnformatted(u8"Статус: Ожидание")
+imgui.PopStyleColor()
 if #online_list > 0 then
 if imgui.Button(u8" Обзвонить онлайн-игроков") then
+if not call_worker_running then
 call_active = true
+call_worker_running = true
 lua_thread.create(onlineCallWorker, online_list)
 end
+end
 else
-imgui.TextColored(imgui.ImVec4(0.6, 0.6, 0.6, 1), u8"Нет контактов онлайн для обзвона")
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.6, 0.6, 0.6, 1))
+imgui.TextUnformatted(u8"Нет контактов онлайн для обзвона")
+imgui.PopStyleColor()
 end
 end
 
@@ -4887,7 +4934,7 @@ imgui.Spacing()
 imgui.Separator()
 imgui.Spacing()
 
-imgui.Text(u8"Последние собранные объявления:")
+imgui.TextUnformatted(u8"Последние собранные объявления:")
 imgui.BeginChild("db_list", imgui.ImVec2(0, 150), true)
 for nick, data in pairs(player_db) do
 local is_on = isPlayerOnline(nick) and u8" [ОНЛАЙН]" or ""
@@ -4906,7 +4953,7 @@ end
 imgui.EndChild()
 end,
 onToggle = function(state)
-if not state then call_active = false end
+if not state then call_active = false call_worker_running = false end
 end
 },
 {
@@ -4933,14 +4980,22 @@ static_aad_active = static_aad_active or imgui.new.bool(false)
     if imgui.SliderInt(u8"Интервал между подачами (мс)##delay_aad", aad_delay, 3000, 30000) then saveSettings() end
     imgui.PopItemWidth()
 
-    imgui.TextColored(imgui.ImVec4(0.5, 0.5, 0.5, 1), u8"-> Вы можете также использовать команду: /aad [текст]")
+    imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
+
+    imgui.TextUnformatted(u8"-> Вы можете также использовать команду: /aad [текст]")
+
+    imgui.PopStyleColor()
     imgui.Spacing()
 
     imgui.Columns(2, "aad_columns", true)
     imgui.SetColumnWidth(0, 290)
     imgui.SetColumnWidth(1, 290)
 
-    imgui.TextColored(imgui.ImVec4(0.3, 0.8, 1, 1), u8"Шаблоны объявлений:")
+    imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.3, 0.8, 1, 1))
+
+    imgui.TextUnformatted(u8"Шаблоны объявлений:")
+
+    imgui.PopStyleColor()
     imgui.SameLine()
     if imgui.Button(u8"Добавить##add_tpl", imgui.ImVec2(70, 20)) then
         local current_str = ffi.string(static_aad_buf)  -- UTF-8 for ImGui display
@@ -4978,13 +5033,19 @@ static_aad_active = static_aad_active or imgui.new.bool(false)
             imgui.PopID()
         end
     else
-        imgui.TextColored(imgui.ImVec4(0.5, 0.5, 0.5, 1), u8"Нет сохраненных шаблонов.")
+        imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
+        imgui.TextUnformatted(u8"Нет сохраненных шаблонов.")
+        imgui.PopStyleColor()
     end
     imgui.EndChild()
 
     imgui.NextColumn()
 
-    imgui.TextColored(imgui.ImVec4(1, 0.7, 0.3, 1), u8"История объявлений:")
+    imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(1, 0.7, 0.3, 1))
+
+    imgui.TextUnformatted(u8"История объявлений:")
+
+    imgui.PopStyleColor()
     imgui.SameLine()
     if imgui.Button(u8"Очистить##clear_hist", imgui.ImVec2(70, 20)) then
         aad_history = {}
@@ -5013,7 +5074,9 @@ static_aad_active = static_aad_active or imgui.new.bool(false)
             imgui.PopID()
         end
     else
-        imgui.TextColored(imgui.ImVec4(0.5, 0.5, 0.5, 1), u8"История пуста.")
+        imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
+        imgui.TextUnformatted(u8"История пуста.")
+        imgui.PopStyleColor()
     end
     imgui.EndChild()
 
@@ -5028,13 +5091,15 @@ name = u8" MM Editor (СМИ)",
 description = u8"Помощник для сотрудников радиоцентра (СМИ). Автоматически заменяет сокращения при редактировании объявлений с учетом правил ПРО (город пишется для домов/бизнесов, но стирается для автомобилей).",
 enabled = false,
 drawSettings = function()
-imgui.Text(u8"Тег объявления:")
+imgui.TextUnformatted(u8"Тег объявления:")
 imgui.SameLine()
 imgui.PushItemWidth(60)
 if imgui.InputText("##mm_tag", mm_tag, ffi.sizeof(mm_tag)) then saveSettings() end
 imgui.PopItemWidth()
 imgui.SameLine()
-imgui.TextColored(imgui.ImVec4(0.5, 0.5, 0.5, 1), u8"Например: LV, LS, SF, TV")
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
+imgui.TextUnformatted(u8"Например: LV, LS, SF, TV")
+imgui.PopStyleColor()
 imgui.Spacing()
 if imgui.Checkbox(u8"Авто-форматирование при открытии редактора", mm_auto_format) then saveSettings() end
 if imgui.Checkbox(u8"Авто-отправка объявлений (Auto-Edit)", mm_auto_send) then saveSettings() end
@@ -5043,14 +5108,16 @@ if mm_auto_send[0] then
 imgui.PushItemWidth(150)
 if imgui.SliderInt(u8"Задержка отправки (мс)", mm_send_delay, 500, 8000) then saveSettings() end
 imgui.PopItemWidth()
-imgui.TextColored(imgui.ImVec4(1, 0.8, 0, 1), u8" Внимание: Используйте задержку от 2000 мс для безопасности от админов!")
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(1, 0.8, 0, 1))
+imgui.TextUnformatted(u8" Внимание: Используйте задержку от 2000 мс для безопасности от админов!")
+imgui.PopStyleColor()
 end
 
 imgui.Spacing()
 imgui.Separator()
 imgui.Spacing()
 
-imgui.Text(u8"Тест автозамены:")
+imgui.TextUnformatted(u8"Тест автозамены:")
 imgui.InputText(u8"Введите черновик", test_input, 128)
 
 if imgui.Button(u8"Проверить замену") then
@@ -5059,7 +5126,7 @@ test_output = u8:encode(formatAdText(raw_text))  -- CP1251 -> UTF-8 for ImGui
 end
 
 if test_output ~= "" then
-imgui.Text(u8"Результат:")
+imgui.TextUnformatted(u8"Результат:")
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0, 1, 0.8, 1))
 imgui.TextUnformatted(test_output)
 imgui.PopStyleColor()
@@ -5069,7 +5136,7 @@ imgui.Spacing()
 imgui.Separator()
 imgui.Spacing()
 
-imgui.Text(u8"Правила замены сокращений (База):")
+imgui.TextUnformatted(u8"Правила замены сокращений (База):")
 imgui.BeginChild("rules_list", imgui.ImVec2(0, 110), true)
 local max_display = 50
 local shown = 0
@@ -5085,7 +5152,9 @@ end
 imgui.Separator()
 end
 if #mm_rules > max_display then
-imgui.TextColored(imgui.ImVec4(1, 0.8, 0, 1), u8" : " .. #mm_rules .. ".  " .. max_display .. ".")
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(1, 0.8, 0, 1))
+imgui.TextUnformatted(u8" : " .. #mm_rules .. ".  " .. max_display .. ".")
+imgui.PopStyleColor()
 end
 imgui.EndChild()
 
@@ -5107,9 +5176,13 @@ end
 imgui.Spacing()
 imgui.Separator()
 imgui.Spacing()
-imgui.TextColored(imgui.ImVec4(0.3, 0.8, 1, 1), u8"Обучение (предложения из ваших правок в AutoEdit):")
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.3, 0.8, 1, 1))
+imgui.TextUnformatted(u8"Обучение (предложения из ваших правок в AutoEdit):")
+imgui.PopStyleColor()
 if #edit_corrections == 0 then
-imgui.TextColored(imgui.ImVec4(0.5, 0.5, 0.5, 1), u8"Пока нет предложений. Поправьте текст перед отправкой в окне AutoEdit - здесь появится предложение добавить правило.")
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
+imgui.TextUnformatted(u8"Пока нет предложений. Поправьте текст перед отправкой в окне AutoEdit - здесь появится предложение добавить правило.")
+imgui.PopStyleColor()
 else
 imgui.BeginChild("corrections_list", imgui.ImVec2(0, 90), true)
 for idx, corr in ipairs(edit_corrections) do
@@ -5143,16 +5216,24 @@ description = u8"Авто-отыгровки от ИГРОВЫХ СОБЫТИЙ: достаёт/убирает оружие при с
 enabled = false,
 drawSettings = function()
 if imgui.Checkbox(u8"Отыгровка доставания/убирания оружия", rp_weapons_enabled) then saveSettings() end
-imgui.TextColored(imgui.ImVec4(0.5, 0.5, 0.5, 1), u8"-> Доставание Deagle, M4, Shotgun, AK-47, Ножа")
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
+imgui.TextUnformatted(u8"-> Доставание Deagle, M4, Shotgun, AK-47, Ножа")
+imgui.PopStyleColor()
 
 if imgui.Checkbox(u8"Отыгровка звонков и сбросов телефона", rp_phone_enabled) then saveSettings() end
-imgui.TextColored(imgui.ImVec4(0.5, 0.5, 0.5, 1), u8"-> Срабатывает при командах /call и /h")
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
+imgui.TextUnformatted(u8"-> Срабатывает при командах /call и /h")
+imgui.PopStyleColor()
 
 if imgui.Checkbox(u8"Отыгровка одевания маски", rp_mask_enabled) then saveSettings() end
-imgui.TextColored(imgui.ImVec4(0.5, 0.5, 0.5, 1), u8"-> Срабатывает при команде /mask")
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
+imgui.TextUnformatted(u8"-> Срабатывает при команде /mask")
+imgui.PopStyleColor()
 
 if imgui.Checkbox(u8"Отыгровка использования аптечки", rp_heal_enabled) then saveSettings() end
-imgui.TextColored(imgui.ImVec4(0.5, 0.5, 0.5, 1), u8"-> Срабатывает при командах /healme и /drugs")
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
+imgui.TextUnformatted(u8"-> Срабатывает при командах /healme и /drugs")
+imgui.PopStyleColor()
 end,
 onToggle = function(state) end
 },
@@ -5162,7 +5243,9 @@ name = u8" Транспорт и Визуал",
 description = u8"Функции для водителей и визуальная кастомизация мира. Включает стробоскопы фарами, круиз-контроль, локальную смену погоды/времени и скин-ченджер.",
 enabled = false,
 drawSettings = function()
-imgui.TextColored(imgui.ImVec4(0, 1, 0.7, 1), u8"Стробоскопы и Круиз:")
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0, 1, 0.7, 1))
+imgui.TextUnformatted(u8"Стробоскопы и Круиз:")
+imgui.PopStyleColor()
 if imgui.Checkbox(u8"Включить стробоскопы", strobe_enabled) then
 if strobe_enabled[0] then
 strobe_active = true
@@ -5173,7 +5256,7 @@ end
 end
 imgui.SameLine(220)
         imgui.Checkbox(u8"Турбо-круиз (риск бана!)", turbo_cruise_enabled)
-        imgui.Text(u8"Круиз: C=вкл/выкл  W=+5  S=-5")
+        imgui.TextUnformatted(u8"Круиз: C=вкл/выкл  W=+5  S=-5")
 
 imgui.PushItemWidth(150)
 if imgui.SliderInt(u8"Скорость стробоскопов (мс)", strobe_speed, 50, 600) then saveSettings() end
@@ -5189,14 +5272,20 @@ imgui.Spacing()
 imgui.Separator()
 imgui.Spacing()
 
-imgui.TextColored(imgui.ImVec4(0, 1, 0.7, 1), u8"Окружение (Локально):")
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0, 1, 0.7, 1))
+
+imgui.TextUnformatted(u8"Окружение (Локально):")
+
+imgui.PopStyleColor()
 
 if imgui.Checkbox(u8"Зафиксировать погоду", weather_locked) then saveSettings() end
 if weather_locked[0] then
 imgui.PushItemWidth(250)
 if imgui.SliderInt(u8"ID Погоды", weather_id, 0, 45) then saveSettings() end
 imgui.PopItemWidth()
-imgui.TextColored(imgui.ImVec4(0.5, 0.5, 0.5, 1), u8"Популярные ID: 1-2 (ясно), 8 (шторм), 9 (туман), 19 (песок)")
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
+imgui.TextUnformatted(u8"Популярные ID: 1-2 (ясно), 8 (шторм), 9 (туман), 19 (песок)")
+imgui.PopStyleColor()
 end
 
 if imgui.Checkbox(u8"Зафиксировать время суток", time_locked) then saveSettings() end
@@ -5210,7 +5299,11 @@ imgui.Spacing()
 imgui.Separator()
 imgui.Spacing()
 
-imgui.TextColored(imgui.ImVec4(0, 1, 0.7, 1), u8"Скин-Ченджер (Локально):")
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0, 1, 0.7, 1))
+
+imgui.TextUnformatted(u8"Скин-Ченджер (Локально):")
+
+imgui.PopStyleColor()
 imgui.PushItemWidth(150)
 imgui.InputInt(u8"ID Скина (0-311)", skin_changer_id)
 imgui.PopItemWidth()
@@ -5218,7 +5311,9 @@ imgui.PopItemWidth()
 if imgui.Button(u8"Применить скин") then
 applyLocalSkin(skin_changer_id[0])
 end
-imgui.TextColored(imgui.ImVec4(0.5, 0.5, 0.5, 1), u8"-> Вы также можете ввести команду в чат: /fskin [ID]")
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
+imgui.TextUnformatted(u8"-> Вы также можете ввести команду в чат: /fskin [ID]")
+imgui.PopStyleColor()
 end,
 onToggle = function(state)
 if not state then
@@ -5236,7 +5331,7 @@ name = u8" Горячие клавиши",
 description = u8"Привязка команд к клавишам. Нажмите клавишу - выполнится команда.\nНе срабатывает при открытом чате или диалоге.",
 enabled = true,
 drawSettings = function()
-imgui.Text(u8"Текущие бинды:")
+imgui.TextUnformatted(u8"Текущие бинды:")
 imgui.Spacing()
 for i, bind in ipairs(keybinds) do
 static_bind_en = static_bind_en or imgui.new.bool(false); static_bind_en[0] = bind.enabled; local en = static_bind_en
@@ -5257,7 +5352,7 @@ end
 imgui.Spacing()
 imgui.Separator()
 imgui.Spacing()
-imgui.Text(u8"Добавить новый бинд:")
+imgui.TextUnformatted(u8"Добавить новый бинд:")
 imgui.PushItemWidth(100)
 -- Key selector
 local key_opts = ""
@@ -5299,7 +5394,9 @@ imgui.PopItemWidth()
 imgui.PopItemWidth()
 imgui.PopItemWidth()
 imgui.Spacing()
-imgui.TextColored(imgui.ImVec4(0.7, 0.7, 0.7, 1), u8"Формат команды: /lock, /e, /me открыл дверь и т.д.")
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.7, 0.7, 0.7, 1))
+imgui.TextUnformatted(u8"Формат команды: /lock, /e, /me открыл дверь и т.д.")
+imgui.PopStyleColor()
 end,
 },
 {
@@ -5308,7 +5405,7 @@ name = u8" Справочник Команд",
 description = u8"Полный и точный список команд сервера Advance RP по фракциям. Дважды кликните по любой команде в списке, чтобы скопировать её в буфер обмена.",
 enabled = true,
 drawSettings = function()
-imgui.Text(u8"Выберите категорию фракций:")
+imgui.TextUnformatted(u8"Выберите категорию фракций:")
 static_selected_cat = static_selected_cat or imgui.new.int(1)
 
 if imgui.BeginCombo(u8"Категории", advance_commands[static_selected_cat[0]].category) then
@@ -5333,7 +5430,9 @@ imgui.TextUnformatted(cmd.name)
 imgui.PopStyleColor()
 
 if imgui.IsItemHovered() then
-imgui.SetTooltip(u8"Двойной клик: скопировать в буфер")
+imgui.BeginTooltip()
+imgui.TextUnformatted(u8"Двойной клик: скопировать в буфер")
+imgui.EndTooltip()
 if imgui.IsMouseDoubleClicked(0) then
 setClipboardText(cmd.name)
 sampAddChatMessage(u8:decode("[Helper] Скопировано в буфер: " .. cmd.name), 0x00FFFF)
@@ -5368,13 +5467,27 @@ imgui.TextUnformatted(u8"Телефон: " .. u8:encode(user.phone))
 imgui.PopStyleColor()
 imgui.Spacing()
 imgui.Separator()
-imgui.TextColored(imgui.ImVec4(0.8, 0.7, 0.3, 1), u8"Команды:")
-imgui.BulletText(u8"/mmact [id] — выбрать цель и открыть отыгровки")
-imgui.BulletText(u8"/mmnext — продолжить отыгровку после паузы <0>")
-imgui.BulletText(u8"/mmstop — остановить отыгровку")
-imgui.BulletText(u8"/rpeditor — открыть редактор отыгровок")
-imgui.BulletText(u8"/rptest — тест выбранной отыгровки")
-imgui.BulletText(u8"/rplogin — загрузить статистику игрока")
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.8, 0.7, 0.3, 1))
+imgui.TextUnformatted(u8"Команды:")
+imgui.PopStyleColor()
+imgui.Bullet()
+imgui.SameLine()
+imgui.TextUnformatted(u8"/mmact [id] — выбрать цель и открыть отыгровки")
+imgui.Bullet()
+imgui.SameLine()
+imgui.TextUnformatted(u8"/mmnext — продолжить отыгровку после паузы <0>")
+imgui.Bullet()
+imgui.SameLine()
+imgui.TextUnformatted(u8"/mmstop — остановить отыгровку")
+imgui.Bullet()
+imgui.SameLine()
+imgui.TextUnformatted(u8"/rpeditor — открыть редактор отыгровок")
+imgui.Bullet()
+imgui.SameLine()
+imgui.TextUnformatted(u8"/rptest — тест выбранной отыгровки")
+imgui.Bullet()
+imgui.SameLine()
+imgui.TextUnformatted(u8"/rplogin — загрузить статистику игрока")
 end,
 onToggle = function(state) end
 },
@@ -5384,7 +5497,9 @@ name = u8" СМИ-Инструменты",
 description = u8"Анаграммы, эфир, чёрный список, поиск сотрудников, лифт ТВ-башни, авто-ответ. Команды: /anag, /mmefir, /endefir, /find, /tvlf, /uninv, /autoans, /bladd, /bldel, /blcheck, /bllist, /efirstats.",
 enabled = false,
 drawSettings = function()
-imgui.TextColored(imgui.ImVec4(0, 1, 0.7, 1), u8"Эфир:")
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0, 1, 0.7, 1))
+imgui.TextUnformatted(u8"Эфир:")
+imgui.PopStyleColor()
 if imgui.Button(u8"Начать эфир", imgui.ImVec2(120, 30)) then cmdEfir() end
 imgui.SameLine()
 if imgui.Button(u8"Завершить эфир", imgui.ImVec2(120, 30)) then cmdEndEfir() end
@@ -5392,18 +5507,26 @@ imgui.SameLine()
 if imgui.Button(u8"Статистика", imgui.ImVec2(100, 30)) then cmdEfirStats() end
 
 imgui.Spacing()
-imgui.TextColored(imgui.ImVec4(0, 1, 0.7, 1), u8"Авто-ответ на звонки:")
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0, 1, 0.7, 1))
+imgui.TextUnformatted(u8"Авто-ответ на звонки:")
+imgui.PopStyleColor()
 if imgui.Checkbox(u8"Включить авто-ответ", auto_answer_enabled) then end
 imgui.PushItemWidth(300)
 imgui.InputText(u8"##autoans_text", auto_answer_text, 256)
 imgui.PopItemWidth()
-imgui.TextColored(imgui.ImVec4(0.5, 0.5, 0.5, 1), u8"-> Текст будет отправлен в /t при входящем звонке во время эфира")
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
+imgui.TextUnformatted(u8"-> Текст будет отправлен в /t при входящем звонке во время эфира")
+imgui.PopStyleColor()
 
 imgui.Spacing()
 imgui.Separator()
 imgui.Spacing()
 
-imgui.TextColored(imgui.ImVec4(0, 1, 0.7, 1), u8"Анаграммы:")
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0, 1, 0.7, 1))
+
+imgui.TextUnformatted(u8"Анаграммы:")
+
+imgui.PopStyleColor()
 if imgui.Button(u8"Слова (1)", imgui.ImVec2(90, 25)) then startAnagram(1) end
 imgui.SameLine()
 if imgui.Button(u8"Телефон (2)", imgui.ImVec2(100, 25)) then startAnagram(2) end
@@ -5414,7 +5537,11 @@ imgui.Spacing()
 imgui.Separator()
 imgui.Spacing()
 
-imgui.TextColored(imgui.ImVec4(0, 1, 0.7, 1), u8"Чёрный список:")
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0, 1, 0.7, 1))
+
+imgui.TextUnformatted(u8"Чёрный список:")
+
+imgui.PopStyleColor()
 if imgui.Button(u8"Открыть список", imgui.ImVec2(120, 30)) then blacklist_show[0] = true end
 imgui.SameLine()
 if imgui.Button(u8"Поиск сотрудников", imgui.ImVec2(150, 30)) then cmdFind() end
@@ -5423,19 +5550,47 @@ imgui.Spacing()
 imgui.Separator()
 imgui.Spacing()
 
-imgui.TextColored(imgui.ImVec4(0.8, 0.7, 0.3, 1), u8"Команды:")
-imgui.BulletText(u8"/anag [1-3] — анаграмма для радио/ТВ игр")
-imgui.BulletText(u8"/mmefir — начать эфир (авто-РП)")
-imgui.BulletText(u8"/endefir — завершить эфир (авто-РП)")
-imgui.BulletText(u8"/efirstats — статистика эфира")
-imgui.BulletText(u8"/find — поиск сотрудников")
-imgui.BulletText(u8"/tvlf [этаж] — лифт ТВ-башни")
-imgui.BulletText(u8"/uninv [id] [причина] — увольнение с РП")
-imgui.BulletText(u8"/autoans [текст] — авто-ответ на звонки")
-imgui.BulletText(u8"/bladd [ник] [причина] — добавить в ЧС")
-imgui.BulletText(u8"/bldel [ник] — удалить из ЧС")
-imgui.BulletText(u8"/blcheck [ник] — проверить ник в ЧС")
-imgui.BulletText(u8"/bllist — показать весь ЧС")
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.8, 0.7, 0.3, 1))
+
+imgui.TextUnformatted(u8"Команды:")
+
+imgui.PopStyleColor()
+imgui.Bullet()
+imgui.SameLine()
+imgui.TextUnformatted(u8"/anag [1-3] — анаграмма для радио/ТВ игр")
+imgui.Bullet()
+imgui.SameLine()
+imgui.TextUnformatted(u8"/mmefir — начать эфир (авто-РП)")
+imgui.Bullet()
+imgui.SameLine()
+imgui.TextUnformatted(u8"/endefir — завершить эфир (авто-РП)")
+imgui.Bullet()
+imgui.SameLine()
+imgui.TextUnformatted(u8"/efirstats — статистика эфира")
+imgui.Bullet()
+imgui.SameLine()
+imgui.TextUnformatted(u8"/find — поиск сотрудников")
+imgui.Bullet()
+imgui.SameLine()
+imgui.TextUnformatted(u8"/tvlf [этаж] — лифт ТВ-башни")
+imgui.Bullet()
+imgui.SameLine()
+imgui.TextUnformatted(u8"/uninv [id] [причина] — увольнение с РП")
+imgui.Bullet()
+imgui.SameLine()
+imgui.TextUnformatted(u8"/autoans [текст] — авто-ответ на звонки")
+imgui.Bullet()
+imgui.SameLine()
+imgui.TextUnformatted(u8"/bladd [ник] [причина] — добавить в ЧС")
+imgui.Bullet()
+imgui.SameLine()
+imgui.TextUnformatted(u8"/bldel [ник] — удалить из ЧС")
+imgui.Bullet()
+imgui.SameLine()
+imgui.TextUnformatted(u8"/blcheck [ник] — проверить ник в ЧС")
+imgui.Bullet()
+imgui.SameLine()
+imgui.TextUnformatted(u8"/bllist — показать весь ЧС")
 end,
 onToggle = function(state) end
 }
@@ -5553,12 +5708,19 @@ lua_thread.create(factionScannerWorker)
 lua_thread.create(weaponTrackWorker)
 lua_thread.create(cruiseControlWorker)
 lua_thread.create(environmentWorker)
+lua_thread.create(function()
+    while true do
+        wait(5000)
+        refreshOnlineNicksCache()
+    end
+end)
 
 -- Поток считывания чата (альтернатива onServerMessage без SAMP.Lua)
 lua_thread.create(chatScannerWorker)
 
 -- Авто-загрузка РП-данных через 3 сек после старта
 lua_thread.create(function() wait(3000) playerLogin() end)
+lua_thread.create(function() wait(2000) refreshOnlineNicksCache() end)
 
 -- Поток отслеживания диалоговых окон (альтернатива onShowDialog без SAMP.Lua)
 
@@ -5696,7 +5858,7 @@ function sampev.onSendChat(message)
         if cmd then
             -- /call <number>
             if (cmd == "call" or cmd == "c") and rp_phone_enabled[0] then
-                local arg = message:match("^/call%s+(.+)")
+                local arg = message:match("^/call%s+(.+)") or message:match("^/c%s+(.+)")
                 if arg and arg ~= "" then
                     lua_thread.create(function()
                         sampSendChat(u8:decode("/me достал мобильный телефон и набрал номер " .. arg))
@@ -6042,9 +6204,9 @@ if weather_locked[0] then
 local w = weather_id[0]
 if w ~= last_w then
 last_w = w
-if type(forceWeatherNow) == "function" then pcall(forceWeatherNow, w) end
+if type(forceWeatherNow) == "function" then forceWeatherNow(w) end
 end
-pcall(memory.write, 0xC81320, w, 1, false)
+if memory then memory.write(0xC81320, w, 1, false) end
 else
 last_w = -1
 end
@@ -6053,9 +6215,9 @@ local h = time_hour[0]
 if h ~= last_t then
 last_t = h
 end
-pcall(memory.write, 0xB70153, h, 1, false)
-pcall(memory.write, 0xB70152, 0, 1, false)
-pcall(memory.write, 0xB70158, 0, 4, false)
+if memory then memory.write(0xB70153, h, 1, false) end
+if memory then memory.write(0xB70152, 0, 1, false) end
+if memory then memory.write(0xB70158, 0, 4, false) end
 else
 last_t = -1
 end
@@ -6171,7 +6333,7 @@ local function setLightState(car, leftOn, rightOn)
     if not leftOn then lightVal = bit.bor(lightVal, 0x02) end   -- bits 0-1 = 2 (front-left damaged)
     if not rightOn then lightVal = bit.bor(lightVal, 0x08) end  -- bits 2-3 = 2 (front-right damaged)
     -- Пишем обратно (4 байта, true = virtual protect)
-    pcall(memory.write, lightAddr, lightVal, 4, true)
+    if memory then memory.write(lightAddr, lightVal, 4, true) end
 end
 
 -- Восстановить все фары (все целые = 0)
@@ -6183,16 +6345,16 @@ local function restoreAllLights(car)
             local lightVal = memory.read(lightAddr, 4, false) or 0
             -- Сбрасываем все 8 бит (4 фары * 2 бита)
             lightVal = bit.band(lightVal, 0xFFFFFF00)
-            pcall(memory.write, lightAddr, lightVal, 4, false)
+            if memory then memory.write(lightAddr, lightVal, 4, false) end
             return
         end
     end
     -- Fallback
     if type(setCarLightDamageStatus) == "function" then
-        pcall(setCarLightDamageStatus, car, 0, 0)
-        pcall(setCarLightDamageStatus, car, 1, 0)
-        pcall(setCarLightDamageStatus, car, 2, 0)
-        pcall(setCarLightDamageStatus, car, 3, 0)
+        if type(setCarLightDamageStatus) == 'function' then setCarLightDamageStatus(car, 0, 0) end
+        if type(setCarLightDamageStatus) == 'function' then setCarLightDamageStatus(car, 1, 0) end
+        if type(setCarLightDamageStatus) == 'function' then setCarLightDamageStatus(car, 2, 0) end
+        if type(setCarLightDamageStatus) == 'function' then setCarLightDamageStatus(car, 3, 0) end
     end
 end
 
@@ -6502,13 +6664,24 @@ function onlineCallWorker(online_list)
 local called_count = 0
 local limit = max_calls_session[0]
 
+if not isSampAvailable() then
+call_active = false
+call_worker_running = false
+return
+end
+
+-- Защита: если с прошлой сессии (или краша) остался незавершённый звонок,
+-- сбрасываем его перед стартом, чтобы не было конфликта состояний
+sampSendChat("/h")
+wait(300)
+
 for i = #online_list, 2, -1 do
 local j = math.random(i)
 online_list[i], online_list[j] = online_list[j], online_list[i]
 end
 
 for _, target in ipairs(online_list) do
-if not call_active or called_count >= limit then break end
+if not call_active or called_count >= limit or not isSampAvailable() then break end
 
 local last_time = last_called[target.nick] or 0
 if os.time() - last_time > call_cooldown_hours[0] * 3600 then
@@ -6522,7 +6695,6 @@ sampSendChat("/c " .. target.phone)
 
 last_called[target.nick] = os.time()
 called_count = called_count + 1
-saveSettings()
 
 local timeLeft = call_delay[0]
 while timeLeft > 0 and call_active do
@@ -6530,16 +6702,24 @@ wait(100)
 timeLeft = timeLeft - 100
 end
 
+-- Вешаем трубку в любом случае: и если время вышло само, и если сессию
+-- остановили вручную кнопкой "Стоп" посреди звонка (раньше в этом случае
+-- /h не отправлялся, и звонок оставался висеть на сервере)
+if isSampAvailable() then
+sampSendChat("/h")
+end
+
 if not call_active then break end
 
-sampSendChat("/h")
 wait(1000)
 end
 end
 
 call_active = false
+call_worker_running = false
 call_current_nick = ""
 call_current_phone = ""
+saveSettings()
 sampAddChatMessage(u8:decode("[Helper] Сессия обзвона завершена. Обзвонили игроков: " .. called_count), 0x00FF00)
 end
 
@@ -6583,7 +6763,7 @@ imgui.SetNextWindowSize(imgui.ImVec2(820, 560), imgui.Cond.FirstUseEver)
 imgui.Begin(WINDOW_TITLE, show_main_window, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
 
 -- Верхняя панель: Переключатель серверов
-imgui.Text(u8"Выбор текущего сервера:")
+imgui.TextUnformatted(u8"Выбор текущего сервера:")
 imgui.SameLine()
 imgui.PushItemWidth(150)
 if imgui.BeginCombo("##ServerSelector", server_names[current_server_idx[0] + 1]) then
@@ -6605,7 +6785,7 @@ imgui.Spacing()
 
 -- Левая колонка: Навигационная панель
 imgui.BeginChild("navigation_panel", imgui.ImVec2(220, 0), true)
-imgui.Text(u8" Доступные Модули")
+imgui.TextUnformatted(u8" Доступные Модули")
 imgui.Separator()
 imgui.Spacing()
 
@@ -6617,9 +6797,13 @@ end
 
 imgui.SameLine(180)
 if mod.enabled then
-imgui.TextColored(imgui.ImVec4(0, 1, 0, 1), "[ON]")
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0, 1, 0, 1))
+imgui.TextUnformatted("[ON]")
+imgui.PopStyleColor()
 else
-imgui.TextColored(imgui.ImVec4(0.5, 0.5, 0.5, 1), "[OFF]")
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
+imgui.TextUnformatted("[OFF]")
+imgui.PopStyleColor()
 end
 end
 imgui.EndChild()
@@ -6667,7 +6851,7 @@ imgui.PopStyleColor()
 end
 end
 else
-imgui.Text(u8"Выберите модуль слева.")
+imgui.TextUnformatted(u8"Выберите модуль слева.")
 end
 imgui.EndChild()
 imgui.End()
@@ -6685,7 +6869,7 @@ imgui.OnFrame(
         imgui.Begin(u8"РП-отыгровки (цель: " .. u8:encode(userTarget.name) .. ")", rp_show_window, imgui.WindowFlags.NoCollapse)
 
         local chapters = {u8"Общие", u8"Мои отыгровки", u8"Для цели"}
-        imgui.Text(u8"Глава:")
+        imgui.TextUnformatted(u8"Глава:")
         imgui.SameLine()
         imgui.PushItemWidth(200)
         if imgui.ComboStr("##rp_chapter", rp_settings.setList, table.concat(chapters, "\0") .. "\0") then
@@ -6706,7 +6890,9 @@ imgui.OnFrame(
                 end
             end
         else
-            imgui.TextColored(imgui.ImVec4(0.5, 0.5, 0.5, 1), u8"Нет отыгровок. Откройте /rpeditor для создания.")
+            imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
+            imgui.TextUnformatted(u8"Нет отыгровок. Откройте /rpeditor для создания.")
+            imgui.PopStyleColor()
         end
         imgui.EndChild()
 
@@ -6738,7 +6924,7 @@ imgui.OnFrame(
         imgui.Begin(u8"РП-Редактор отыгровок", rp_show_edit, imgui.WindowFlags.NoCollapse)
 
         local chapters = {u8"Общие", u8"Мои отыгровки", u8"Для цели"}
-        imgui.Text(u8"Глава:")
+        imgui.TextUnformatted(u8"Глава:")
         imgui.SameLine()
         imgui.PushItemWidth(200)
         if imgui.ComboStr("##rp_edit_chapter", rp_settings.setList, table.concat(chapters, "\0") .. "\0") then
@@ -6776,21 +6962,33 @@ imgui.OnFrame(
         imgui.SameLine()
         imgui.BeginChild("##rp_edit_form", imgui.ImVec2(0, 350), true)
         if rp_edit_index > 0 and list[rp_edit_index] then
-            imgui.Text(u8"Название:")
+            imgui.TextUnformatted(u8"Название:")
             imgui.PushItemWidth(-1)
             imgui.InputText("##rp_name", rp_settings.temp.name, 64)
             imgui.PopItemWidth()
 
-            imgui.Text(u8"Текст отыгровки:")
+            imgui.TextUnformatted(u8"Текст отыгровки:")
             imgui.PushItemWidth(-1)
             imgui.InputTextMultiline("##rp_text", rp_settings.temp.text, 16384, imgui.ImVec2(0, 200))
             imgui.PopItemWidth()
 
-            imgui.TextColored(imgui.ImVec4(0.5, 0.8, 0.5, 1), u8"Теги: <myFio> <myName> <myRang> <myPodr> <myId> <myPhone> <time> <date>")
-            imgui.TextColored(imgui.ImVec4(0.5, 0.8, 0.5, 1), u8"Цель: <tFio> <tName> <tNick> <tId>")
-            imgui.TextColored(imgui.ImVec4(0.8, 0.7, 0.3, 1), u8"Пауза: <1000> (мс) или <0> (до /mmnext)")
-            imgui.TextColored(imgui.ImVec4(0.8, 0.7, 0.3, 1), u8"Рандом: r:{вариант1}{вариант2}:r")
-            imgui.TextColored(imgui.ImVec4(0.8, 0.7, 0.3, 1), u8"Ввод: #input: | Выбор: #list: {a}{b} | Подстановка: {w}")
+            imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.8, 0.5, 1))
+
+            imgui.TextUnformatted(u8"Теги: <myFio> <myName> <myRang> <myPodr> <myId> <myPhone> <time> <date>")
+
+            imgui.PopStyleColor()
+            imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.8, 0.5, 1))
+            imgui.TextUnformatted(u8"Цель: <tFio> <tName> <tNick> <tId>")
+            imgui.PopStyleColor()
+            imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.8, 0.7, 0.3, 1))
+            imgui.TextUnformatted(u8"Пауза: <1000> (мс) или <0> (до /mmnext)")
+            imgui.PopStyleColor()
+            imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.8, 0.7, 0.3, 1))
+            imgui.TextUnformatted(u8"Рандом: r:{вариант1}{вариант2}:r")
+            imgui.PopStyleColor()
+            imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.8, 0.7, 0.3, 1))
+            imgui.TextUnformatted(u8"Ввод: #input: | Выбор: #list: {a}{b} | Подстановка: {w}")
+            imgui.PopStyleColor()
 
             if imgui.Button(u8"Сохранить", imgui.ImVec2(100, 30)) then
                 list[rp_edit_index].name = u8:decode(ffi.string(rp_settings.temp.name))
@@ -6812,7 +7010,9 @@ imgui.OnFrame(
                 playRp(testText, true)
             end
         else
-            imgui.TextColored(imgui.ImVec4(0.5, 0.5, 0.5, 1), u8"Выберите отыгровку слева или нажмите '+ Добавить'")
+            imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
+            imgui.TextUnformatted(u8"Выберите отыгровку слева или нажмите '+ Добавить'")
+            imgui.PopStyleColor()
         end
         imgui.EndChild()
 
@@ -6834,7 +7034,7 @@ imgui.OnFrame(
         imgui.Begin(u8"РП-Ввод", nil, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
 
         if rp_settings.window.type == 1 then
-            imgui.Text(u8"Введите текст:")
+            imgui.TextUnformatted(u8"Введите текст:")
             imgui.PushItemWidth(-1)
             if imgui.InputText("##rp_input_w", rp_settings.window.buf, 256, imgui.InputTextFlags.EnterReturnsTrue) then
                 rp_settings.window.is = 2
@@ -6845,7 +7045,7 @@ imgui.OnFrame(
                 rp_settings.window.is = 2
             end
         elseif rp_settings.window.type == 2 then
-            imgui.Text(u8"Выберите вариант:")
+            imgui.TextUnformatted(u8"Выберите вариант:")
             for i, item in ipairs(rp_settings.window.list) do
                 if imgui.Button(u8:encode(item), imgui.ImVec2(-1, 0)) then
                     rp_settings.window.select = i
@@ -6891,16 +7091,18 @@ imgui.OnFrame(
                 imgui.NextColumn()
                 imgui.TextUnformatted(u8:encode(p.nick))
                 imgui.NextColumn()
-                imgui.Text(tostring(p.id))
+                imgui.TextUnformatted(tostring(p.id))
                 imgui.NextColumn()
-                imgui.Text(tostring(p.rang))
+                imgui.TextUnformatted(tostring(p.rang))
                 imgui.NextColumn()
                 imgui.TextUnformatted(u8:encode(p.podr))
                 imgui.NextColumn()
             end
             imgui.Columns(1)
         else
-            imgui.TextColored(imgui.ImVec4(0.5, 0.5, 0.5, 1), u8"Список пуст. Используйте /find")
+            imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
+            imgui.TextUnformatted(u8"Список пуст. Используйте /find")
+            imgui.PopStyleColor()
         end
 
         imgui.Separator()
@@ -6939,7 +7141,7 @@ imgui.OnFrame(
         for nick, data in pairs(blacklist_data) do
             count = count + 1
         end
-        imgui.Text(u8"Всего в списке: " .. count)
+        imgui.TextUnformatted(u8"Всего в списке: " .. count)
         imgui.Separator()
 
         imgui.BeginChild("##bl_list", imgui.ImVec2(0, 280), true)
@@ -6980,7 +7182,7 @@ imgui.OnFrame(
         imgui.SetNextWindowPos(imgui.ImVec2(display.x / 2, display.y / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
         imgui.Begin(u8"AutoEdit - Редактор объявления", nil, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
 
-        imgui.Text(u8"Оригинальный текст:")
+        imgui.TextUnformatted(u8"Оригинальный текст:")
         imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.7, 0.7, 0.7, 1))
         imgui.PushTextWrapPos(0)
         imgui.TextUnformatted(ae_original_text)
@@ -6988,7 +7190,7 @@ imgui.OnFrame(
         imgui.PopStyleColor()
         imgui.Separator()
 
-        imgui.Text(u8"Отформатированный результат:")
+        imgui.TextUnformatted(u8"Отформатированный результат:")
         imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.0, 0.8, 0.5, 1))
         imgui.PushTextWrapPos(0)
         imgui.TextUnformatted(ae_formatted_text)
@@ -6996,7 +7198,7 @@ imgui.OnFrame(
         imgui.PopStyleColor()
         imgui.Separator()
 
-        imgui.Text(u8"Редактировать:")
+        imgui.TextUnformatted(u8"Редактировать:")
         imgui.PushItemWidth(-1)
         if ae_focus then imgui.SetKeyboardFocusHere(0) end
         local ae_enter = imgui.InputText("##ae_input", ae_input_buf, ffi.sizeof(ae_input_buf), imgui.InputTextFlags.EnterReturnsTrue)
@@ -7045,8 +7247,10 @@ imgui.OnFrame(
             if ae_dialog_id >= 0 then
                 local input_text = u8:decode(ffi.string(ae_input_buf))
                 addAdToHistory(input_text)
-                local fmt_ok2, suggested_cp1251 = pcall(u8.decode, u8, ae_formatted_text)
-                if fmt_ok2 then pcall(recordEditCorrection, suggested_cp1251, input_text) end
+                local suggested_cp1251 = u8:decode(ae_formatted_text)
+                if suggested_cp1251 then
+                    recordEditCorrection(suggested_cp1251, input_text)
+                end
                 sampSendDialogResponse(ae_dialog_id, 1, -1, input_text)
             end
             ae_active[0] = false
@@ -7104,7 +7308,7 @@ imgui.OnFrame(
 
         if ae_show_history[0] and #ad_history > 0 then
             imgui.Separator()
-            imgui.Text(u8"Последние объявления:")
+            imgui.TextUnformatted(u8"Последние объявления:")
             for i, h in ipairs(ad_history) do
                 if imgui.Button(u8:encode(h:sub(1, 60) .. (h:len() > 60 and "..." or "")), imgui.ImVec2(-1, 0)) then
                     imgui.StrCopy(ae_input_buf, u8:encode(h, encoding.default))
