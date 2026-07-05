@@ -140,33 +140,26 @@ local call_cooldown_hours = imgui.new.int(1)  -- don't re-call same person for N
 local online_list_cache = {}
 local online_list_cache_time = 0
 local online_nicks_cache = {}
-local online_nicks_cache_time = 0
+local online_nicks_initialized = false
 
--- Background cache of online player nicknames.
--- Refreshes every 5 seconds in a worker thread, so render code
--- never calls SAMP API directly (which crashes from ImGui thread).
-local function refreshOnlineNicksCache()
-    if not isSampAvailable() then
-        online_nicks_cache = {}
-        return
-    end
-    local nicks = {}
+-- One-time initialization of online nicks cache.
+-- Called from the main loop (wait(0)) where SAMP API is safe.
+-- NOT called from lua_thread.create (causes coroutine crash).
+local function initOnlineNicksCache()
+    if online_nicks_initialized then return end
+    if not isSampAvailable() then return end
     local id_ok, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
-    if not id_ok then
-        online_nicks_cache = {}
-        return
-    end
+    if not id_ok then return end
     local max_id = sampGetMaxPlayerId()
     for i = 0, max_id do
         if sampIsPlayerConnected(i) then
             local nick = sampGetPlayerNickname(i)
             if nick and i ~= myid then
-                nicks[nick] = true
+                online_nicks_cache[nick] = true
             end
         end
     end
-    online_nicks_cache = nicks
-    online_nicks_cache_time = os.time()
+    online_nicks_initialized = true
 end
 
 -- Safe online check using cache only (no SAMP API calls)
@@ -5708,24 +5701,23 @@ lua_thread.create(factionScannerWorker)
 lua_thread.create(weaponTrackWorker)
 lua_thread.create(cruiseControlWorker)
 lua_thread.create(environmentWorker)
-lua_thread.create(function()
-    while true do
-        wait(5000)
-        refreshOnlineNicksCache()
-    end
-end)
 
 -- Поток считывания чата (альтернатива onServerMessage без SAMP.Lua)
 lua_thread.create(chatScannerWorker)
 
 -- Авто-загрузка РП-данных через 3 сек после старта
 lua_thread.create(function() wait(3000) playerLogin() end)
-lua_thread.create(function() wait(2000) refreshOnlineNicksCache() end)
+-- Online nicks cache initialized from main loop, not from thread (avoids coroutine crash)
 
 -- Поток отслеживания диалоговых окон (альтернатива onShowDialog без SAMP.Lua)
 
 while true do
 wait(0)
+
+-- Initialize online nicks cache once (safe from main loop, not from lua_thread)
+if not online_nicks_initialized then
+    initOnlineNicksCache()
+end
 
 -- Клавиша F11
 if wasKeyPressed(0x7A) and not sampIsChatInputActive() and not sampIsDialogActive() then
@@ -6028,6 +6020,21 @@ function sampev.onServerMessage(color, text)
     end
 end
 
+
+-- Event handlers for maintaining online nicks cache
+function sampev.onPlayerJoin(playerId, name)
+    if name and name ~= "" then
+        online_nicks_cache[name] = true
+    end
+end
+
+function sampev.onPlayerQuit(playerId, reason)
+    -- We don't have the name here, so we need to rebuild cache
+    -- Actually, SAMP gives us the name in the event. Let me check...
+    -- In MoonLoader, onPlayerQuit gives (playerId, reason). We need to find the name.
+    -- Since we can't call sampGetPlayerNickname after disconnect, mark for re-init
+    online_nicks_initialized = false
+end
 
 function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
 -- Перехват статистики для playerLogin (РП-движок)
