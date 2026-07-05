@@ -142,6 +142,10 @@ local call_history_show = imgui.new.bool(false)  -- toggle call history view
 local online_list_cache = {}
 local online_list_cache_time = 0
 local online_nicks_cache = {}
+local player_db_queue = {}  -- queue of {sender=, phone=} to apply safely in main loop
+local db_sorted_cache = {}  -- cached sorted db_list, rebuilt every 3 seconds
+local db_sorted_cache_time = 0
+local last_called_queue = {}  -- queue of {nick=, time=} to apply safely in main loop
 local online_nicks_initialized = false
 
 -- One-time initialization of online nicks cache.
@@ -4894,13 +4898,13 @@ imgui.TextUnformatted(u8"Позвонили за время кулдауна: " .. called_recently)
 
 imgui.Spacing()
 if imgui.Button(u8"Сбросить историю звонков") then
-last_called = {}
+last_called_queue = {{nick = "__CLEAR__", time = 0}}
 lua_thread.create(function() saveSettings() sampAddChatMessage("[Helper] История звонков сброшена", 0x00FF00) end)
 end
 imgui.SameLine()
 if imgui.Button(u8"Очистить БД") then
-player_db = {}
-last_called = {}
+player_db_queue = {{sender = "__CLEAR__", phone = ""}}
+last_called_queue = {{nick = "__CLEAR__", time = 0}}
 lua_thread.create(function() saveDatabase() saveSettings() sampAddChatMessage("[Helper] БА очищена", 0x00FF00) end)
 end
 
@@ -4923,6 +4927,7 @@ if imgui.Button(u8" Обзвонить онлайн-игроков") then
 if not call_worker_running then
 call_active = true
 call_worker_running = true
+show_main_window[0] = false
 lua_thread.create(onlineCallWorker, online_list)
 end
 end
@@ -4938,22 +4943,25 @@ imgui.Separator()
 imgui.Spacing()
 
 imgui.TextUnformatted(u8"Последние собранные объявления:")
-imgui.BeginChild("db_list", imgui.ImVec2(0, 150), true)
-for nick, data in pairs(player_db) do
-local is_on = isPlayerOnline(nick) and u8" [ОНЛАЙН]" or ""
-imgui.PushStyleColor(imgui.Col.Text, is_on ~= "" and imgui.ImVec4(0, 1, 0, 1) or imgui.ImVec4(0.7, 0.7, 0.7, 1))
-imgui.TextUnformatted(u8:encode(nick) .. " | Тел: " .. data.phone .. is_on)
-imgui.PopStyleColor()
-if data.ad and data.ad ~= "" then
-imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
-imgui.PushTextWrapPos(0)
-imgui.TextUnformatted("-> " .. u8:encode(data.ad))
-imgui.PopTextWrapPos()
-imgui.PopStyleColor()
+-- Cache sorted list, rebuild every 3 seconds (not every frame!)
+if os.time() - db_sorted_cache_time > 3 then
+    db_sorted_cache = {}
+    for nick, data in pairs(player_db) do
+        table.insert(db_sorted_cache, {nick = nick, data = data})
+    end
+    table.sort(db_sorted_cache, function(a, b) return a.nick < b.nick end)
+    db_sorted_cache_time = os.time()
 end
-imgui.Separator()
+local db_show = math.min(#db_sorted_cache, 20)
+if #db_sorted_cache > 20 then
+    imgui.TextUnformatted(u8"Показано первых 20 из " .. #db_sorted_cache .. " контактов")
 end
-imgui.EndChild()
+imgui.Spacing()
+for i = 1, db_show do
+    local entry = db_sorted_cache[i]
+    local is_on = isPlayerOnline(entry.nick) and " [+]" or ""
+    imgui.TextUnformatted(u8:encode(entry.nick) .. " | " .. tostring(entry.data.phone) .. is_on)
+end
 
 imgui.Spacing()
 imgui.Separator()
@@ -4970,26 +4978,23 @@ if call_history_show[0] then
     imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.7, 0.7, 1, 1))
     imgui.TextUnformatted(u8"История звонков (" .. hist_count .. "):")
     imgui.PopStyleColor()
-    imgui.BeginChild("call_history_list", imgui.ImVec2(0, 150), true)
     if hist_count == 0 then
-        imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
         imgui.TextUnformatted(u8"История пуста.")
-        imgui.PopStyleColor()
     else
-        -- Sort by time (most recent first)
         local sorted = {}
         for nick, t in pairs(last_called) do
             table.insert(sorted, {nick = nick, time = t})
         end
         table.sort(sorted, function(a, b) return a.time > b.time end)
-        for _, entry in ipairs(sorted) do
+        local hist_show = math.min(#sorted, 20)
+        for i = 1, hist_show do
+            local entry = sorted[i]
             local phone = ""
             if player_db[entry.nick] then phone = player_db[entry.nick].phone or "" end
             local time_str = os.date("%d.%m %H:%M", entry.time)
             imgui.TextUnformatted(u8:encode(entry.nick) .. " | " .. phone .. " | " .. time_str)
         end
     end
-    imgui.EndChild()
 end
 end,
 onToggle = function(state)
@@ -5766,6 +5771,38 @@ if not online_nicks_initialized then
     initOnlineNicksCache()
 end
 
+-- Process queued player_db changes (safe - not during ImGui render)
+if #player_db_queue > 0 then
+    for i = 1, #player_db_queue do
+        local item = player_db_queue[i]
+        if item.sender == "__CLEAR__" then
+            player_db = {}
+        else
+            player_db[item.sender] = {
+                phone = item.phone,
+                time = os.date("%Y-%m-%d %H:%M:%S"),
+                ad = ""
+            }
+        end
+    end
+    player_db_queue = {}
+    saveDatabase()
+end
+
+-- Process queued last_called changes (safe - not during ImGui render)
+if #last_called_queue > 0 then
+    for i = 1, #last_called_queue do
+        local item = last_called_queue[i]
+        if item.nick == "__CLEAR__" then
+            last_called = {}
+        else
+            last_called[item.nick] = item.time
+        end
+    end
+    last_called_queue = {}
+    saveSettings()
+end
+
 -- Клавиша F11
 if wasKeyPressed(0x7A) and not sampIsChatInputActive() and not sampIsDialogActive() then
 show_main_window[0] = not show_main_window[0]
@@ -5892,7 +5929,7 @@ end
 -- Перехват команд для авто-РП отыгровок
 -- Добавляет /me перед серверными командами
 function sampev.onSendChat(message)
-    if isModuleEnabled("auto_rp") then
+    if isModuleEnabled("auto_rp") and not call_worker_running then
         local cmd = message:match("^/(%w+)")
         if cmd then
             -- /call <number>
@@ -5966,31 +6003,31 @@ function sampev.onServerMessage(color, text)
     local text_utf8 = u8:encode(text, encoding.default)
 
     if sender and phone then
-        local result, my_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
-        local my_name = result and sampGetPlayerNickname(my_id) or ""
+        local sender_cp = sender
+        local phone_cp = phone
+        lua_thread.create(function()
+            local result, my_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
+            local my_name = result and sampGetPlayerNickname(my_id) or ""
 
-        if sender == my_name then
-            if aad_active and aad_text ~= "" then
-                lua_thread.create(function()
+            if sender_cp == my_name then
+                if aad_active and aad_text ~= "" then
                     sampAddChatMessage("[Helper] Объявление опубликовано. Следующая подача через " .. (aad_delay[0]/1000) .. " сек...", 0x00FFFF)
                     wait(aad_delay[0])
                     if aad_active and aad_text ~= "" then
                         sendAdCommand(aad_text)
                     end
-                end)
+                end
+            elseif isModuleEnabled("autocall_db") then
+                -- Queue the change instead of modifying player_db directly
+                -- (ImGui render thread might be iterating player_db right now)
+                table.insert(player_db_queue, {sender = sender_cp, phone = phone_cp})
+                sampAddChatMessage("[Helper DB] Новый контакт: " .. sender_cp .. " (Тел: " .. phone_cp .. ")", 0x00FF90)
             end
-        elseif isModuleEnabled("autocall_db") then
-            player_db[sender] = {
-                phone = phone,
-                time = os.date("%Y-%m-%d %H:%M:%S"),
-                ad = ""
-            }
-            saveDatabase()
-            sampAddChatMessage("[Helper DB] Новый контакт: " .. sender .. " (Тел: " .. phone .. ")", 0x00FF90)
-        end
+        end)
     end
     -- АВТО-ОТЫГРОВКИ ОТ СОБЫТИЙ СЕРВЕРА (модуль auto_rp)
-    if isModuleEnabled("auto_rp") then
+    -- Отключены во время обзвона чтобы не плодить потоки с sampSendChat
+    if isModuleEnabled("auto_rp") and not call_worker_running then
         local lower = text:lower()
         -- Входящий звонок: сервер пишет "Вам звонит" или "Входящий вызов"
         if rp_phone_enabled[0] and (lower:find("вам звонит") or lower:find("входящий вызов") or lower:find("входящий звонок")) then
@@ -6751,11 +6788,12 @@ call_current_nick = target.nick
 call_current_phone = target.phone
 
 sampAddChatMessage(u8:decode("[Helper] Обзвон: Звоним " .. target.nick .. " (Тел: " .. target.phone .. ") [" .. (called_count+1) .. "/" .. limit .. "]"), 0xFFFF00)
+wait(500)
 
--- Вызов /call отыграется автоматически, так как мы зарегистрировали команду call
+-- /c is same as /call on Advance RP
 sampSendChat("/c " .. target.phone)
 
-last_called[target.nick] = os.time()
+table.insert(last_called_queue, {nick = target.nick, time = os.time()})
 called_count = called_count + 1
 
 local timeLeft = call_delay[0]
