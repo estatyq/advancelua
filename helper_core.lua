@@ -23,7 +23,7 @@ script_description("Universal Helper Platform for Advance RP")
 script_dependencies("SAMP.Lua", "mimgui")
 script_properties("work-in-pause")
 
-local SCRIPT_VERSION = 'v1.0 (29.06.2026)'
+local SCRIPT_VERSION = 'v1.1 (05.07.2026)'
 local imgui = require 'mimgui'
 local ffi = require 'ffi'
 local sampev = require 'lib.samp.events'
@@ -3924,6 +3924,17 @@ if (is_buy or is_sell) and not has_price then
 formatted = formatted .. ". Цена договорная"
 end
 
+-- Нормализация доплаты при обмене (чья сторона доплачивает)
+if is_trade and fl:find("доплат") and not (fl:find("доплата с мо") or fl:find("доплата с ваш")) then
+local doplata_mine = fl:find("мо[йяеиёю]") or fl:find("мен[яе]") or fl:find("доплачива")
+local doplata_theirs = fl:find("ваш") or fl:find("вас")
+if doplata_theirs and not doplata_mine then
+formatted = formatted .. ". Доплата с вашей стороны"
+elseif doplata_mine and not doplata_theirs then
+formatted = formatted .. ". Доплата с моей стороны"
+end
+end
+
 -- Fix double periods and spaces
 formatted = formatted:gsub("%.+%.", ".")
 formatted = formatted:gsub("%. %.", ".")
@@ -4804,7 +4815,7 @@ imgui.Spacing()
 
 if call_active then
 imgui.TextColored(imgui.ImVec4(0, 1, 0, 1), u8"Статус: Идет обзвон...")
-imgui.Text(u8"Звоним: " .. u8:encode(call_current_nick) .. " (" .. call_current_phone .. ")")
+imgui.TextUnformatted(u8"Звоним: " .. u8:encode(call_current_nick) .. " (" .. call_current_phone .. ")")
 if imgui.Button(u8"Остановить обзвон") then call_active = false end
 else
 imgui.TextColored(imgui.ImVec4(1, 0.5, 0, 1), u8"Статус: Ожидание")
@@ -4826,10 +4837,14 @@ imgui.Text(u8"Последние собранные объявления:")
 imgui.BeginChild("db_list", imgui.ImVec2(0, 150), true)
 for nick, data in pairs(player_db) do
 local is_on = isPlayerOnline(nick) and u8" [ОНЛАЙН]" or ""
-imgui.TextColored(is_on ~= "" and imgui.ImVec4(0, 1, 0, 1) or imgui.ImVec4(0.7, 0.7, 0.7, 1), u8:encode(nick) .. " | Тел: " .. data.phone .. is_on)
+imgui.PushStyleColor(imgui.Col.Text, is_on ~= "" and imgui.ImVec4(0, 1, 0, 1) or imgui.ImVec4(0.7, 0.7, 0.7, 1))
+imgui.TextUnformatted(u8:encode(nick) .. " | Тел: " .. data.phone .. is_on)
+imgui.PopStyleColor()
 if data.ad and data.ad ~= "" then
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
-imgui.TextWrapped("-> " .. u8:encode(data.ad))
+imgui.PushTextWrapPos(0)
+imgui.TextUnformatted("-> " .. u8:encode(data.ad))
+imgui.PopTextWrapPos()
 imgui.PopStyleColor()
 end
 imgui.Separator()
@@ -4905,7 +4920,7 @@ static_aad_active = static_aad_active or imgui.new.bool(false)
                 break
             end
             imgui.SameLine()
-            imgui.Text(tpl)  -- already UTF-8
+            imgui.TextUnformatted(tpl)  -- already UTF-8
             imgui.PopID()
         end
     else
@@ -4940,7 +4955,7 @@ static_aad_active = static_aad_active or imgui.new.bool(false)
                 break
             end
             imgui.SameLine()
-            imgui.Text(hist)  -- already UTF-8
+            imgui.TextUnformatted(hist)  -- already UTF-8
             imgui.PopID()
         end
     else
@@ -4991,7 +5006,9 @@ end
 
 if test_output ~= "" then
 imgui.Text(u8"Результат:")
-imgui.TextColored(imgui.ImVec4(0, 1, 0.8, 1), test_output)
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0, 1, 0.8, 1))
+imgui.TextUnformatted(test_output)
+imgui.PopStyleColor()
 end
 
 imgui.Spacing()
@@ -5005,7 +5022,7 @@ local shown = 0
 for idx, rule in ipairs(mm_rules) do
 if shown >= max_display then break end
 shown = shown + 1
-imgui.Text(u8:encode(rule.abbreviation) .. " -> " .. u8:encode(rule.replacement))  -- CP1251 -> UTF-8
+imgui.TextUnformatted(u8:encode(rule.abbreviation) .. " -> " .. u8:encode(rule.replacement))  -- CP1251 -> UTF-8
 imgui.SameLine(350)
 if imgui.Button("X##" .. idx) then
 table.remove(mm_rules, idx)
@@ -5146,7 +5163,7 @@ saveSettings()
 end
 imgui.SameLine()
 local kname = key_names[bind.key] or ("0x" .. string.format("%02X", bind.key))
-imgui.Text(u8:decode("[" .. kname .. "] " .. bind.name .. "  (" .. bind.command .. ")"))
+imgui.TextUnformatted(u8:encode("[" .. kname .. "] " .. bind.name .. "  (" .. bind.command .. ")"))
 imgui.SameLine(350)
 if imgui.Button(u8"Удалить##del" .. i) then
 table.remove(keybinds, i)
@@ -5185,8 +5202,8 @@ imgui.PushItemWidth(150)
 imgui.InputText("##newname", new_bind_name, 128)
 imgui.SameLine()
 if imgui.Button(u8" + Добавить ") then
-local cmd = ffi.string(new_bind_command)
-local nm = ffi.string(new_bind_name)
+local cmd = u8:decode(ffi.string(new_bind_command))
+local nm = u8:decode(ffi.string(new_bind_name))
 if cmd ~= "" then
 if nm == "" then nm = cmd end
 table.insert(keybinds, {key = new_bind_key[0], command = cmd, enabled = true, name = nm})
@@ -6777,13 +6794,13 @@ imgui.OnFrame(
                     find_selected = i
                 end
                 imgui.NextColumn()
-                imgui.Text(u8:encode(p.nick))
+                imgui.TextUnformatted(u8:encode(p.nick))
                 imgui.NextColumn()
                 imgui.Text(tostring(p.id))
                 imgui.NextColumn()
                 imgui.Text(tostring(p.rang))
                 imgui.NextColumn()
-                imgui.Text(u8:encode(p.podr))
+                imgui.TextUnformatted(u8:encode(p.podr))
                 imgui.NextColumn()
             end
             imgui.Columns(1)
@@ -6833,9 +6850,11 @@ imgui.OnFrame(
         imgui.BeginChild("##bl_list", imgui.ImVec2(0, 280), true)
         for nick, data in pairs(blacklist_data) do
             imgui.PushIDStr("bl_" .. nick)
-            imgui.Text(u8:encode(nick))
+            imgui.TextUnformatted(u8:encode(nick))
             imgui.SameLine(200)
-            imgui.TextColored(imgui.ImVec4(0.7, 0.7, 0.7, 1), u8:encode(data.reason or ""))
+            imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.7, 0.7, 0.7, 1))
+            imgui.TextUnformatted(u8:encode(data.reason or ""))
+            imgui.PopStyleColor()
             imgui.SameLine(350)
             if imgui.Button(u8"X") then
                 removeBlacklistNick(nick)
@@ -6868,13 +6887,17 @@ imgui.OnFrame(
 
         imgui.Text(u8"Оригинальный текст:")
         imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.7, 0.7, 0.7, 1))
-        imgui.TextWrapped(ae_original_text)
+        imgui.PushTextWrapPos(0)
+        imgui.TextUnformatted(ae_original_text)
+        imgui.PopTextWrapPos()
         imgui.PopStyleColor()
         imgui.Separator()
 
         imgui.Text(u8"Отформатированный результат:")
         imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.0, 0.8, 0.5, 1))
-        imgui.TextWrapped(ae_formatted_text)
+        imgui.PushTextWrapPos(0)
+        imgui.TextUnformatted(ae_formatted_text)
+        imgui.PopTextWrapPos()
         imgui.PopStyleColor()
         imgui.Separator()
 
