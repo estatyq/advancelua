@@ -216,7 +216,7 @@ if h == ad_text then return end
 end
 table.insert(ad_history, 1, ad_text)
 if #ad_history > 20 then table.remove(ad_history, #ad_history) end
-saveAdHistory()
+lua_thread.create(function() saveAdHistory() end)
 end
 end
 
@@ -268,7 +268,7 @@ if c.abbr == a_mid and c.repl == b_mid then return end
 end
 table.insert(edit_corrections, 1, {abbr = a_mid, repl = b_mid})
 if #edit_corrections > 20 then table.remove(edit_corrections, #edit_corrections) end
-saveCorrections()
+lua_thread.create(function() saveCorrections() end)
 end
 
 loadAdHistory()
@@ -4871,7 +4871,7 @@ imgui.SliderInt(u8"Задержка вызова (мс)", call_delay, 2000, 15000)
 imgui.InputInt(u8"Лимит звонков за сессию", max_calls_session)
 imgui.InputInt(u8"Не звонить человека (часов)", call_cooldown_hours, 0, 24)
 imgui.PopItemWidth()
-if imgui.Checkbox(u8"Не повторять звонки (история)", call_no_repeat) then saveSettings() end
+if imgui.Checkbox(u8"Не повторять звонки (история)", call_no_repeat) then lua_thread.create(function() saveSettings() end) end
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
 imgui.TextUnformatted(u8"Если включено — не звонит тем, кого уже звонил. Кулдаун игнорируется. Сброс — кнопка ниже.")
 imgui.PopStyleColor()
@@ -5022,7 +5022,7 @@ static_aad_active = static_aad_active or imgui.new.bool(false)
     if imgui.InputText(u8"Текст объявления##input_aad", static_aad_buf, 128) then
         aad_text = u8:decode(ffi.string(static_aad_buf))
     end
-    if imgui.SliderInt(u8"Интервал между подачами (мс)##delay_aad", aad_delay, 3000, 30000) then saveSettings() end
+    if imgui.SliderInt(u8"Интервал между подачами (мс)##delay_aad", aad_delay, 3000, 30000) then lua_thread.create(function() saveSettings() end) end
     imgui.PopItemWidth()
 
     imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
@@ -5051,7 +5051,7 @@ static_aad_active = static_aad_active or imgui.new.bool(false)
             end
             if not exists then
                 table.insert(aad_templates, current_str)
-                saveSettings()
+                lua_thread.create(function() saveSettings() end)
             end
         end
     end
@@ -5064,12 +5064,12 @@ static_aad_active = static_aad_active or imgui.new.bool(false)
                 for i = 0, 127 do static_aad_buf[i] = 0 end
                 if #tpl < 127 then ffi.copy(static_aad_buf, tpl) end
                 aad_text = u8:decode(tpl)  -- UTF-8 -> CP1251 for sending
-                saveSettings()
+                lua_thread.create(function() saveSettings() end)
             end
             imgui.SameLine()
             if imgui.Button(u8"X") then
                 table.remove(aad_templates, idx)
-                saveSettings()
+                lua_thread.create(function() saveSettings() end)
                 imgui.PopID()
                 break
             end
@@ -5094,7 +5094,7 @@ static_aad_active = static_aad_active or imgui.new.bool(false)
     imgui.SameLine()
     if imgui.Button(u8"Очистить##clear_hist", imgui.ImVec2(70, 20)) then
         aad_history = {}
-        saveSettings()
+        lua_thread.create(function() saveSettings() end)
     end
 
     imgui.BeginChild("history_child", imgui.ImVec2(280, 150), true)
@@ -5105,12 +5105,12 @@ static_aad_active = static_aad_active or imgui.new.bool(false)
                 for i = 0, 127 do static_aad_buf[i] = 0 end
                 if #hist < 127 then ffi.copy(static_aad_buf, hist) end
                 aad_text = u8:decode(hist)  -- UTF-8 -> CP1251 for sending
-                saveSettings()
+                lua_thread.create(function() saveSettings() end)
             end
             imgui.SameLine()
             if imgui.Button(u8"X") then
                 table.remove(aad_history, idx)
-                saveSettings()
+                lua_thread.create(function() saveSettings() end)
                 imgui.PopID()
                 break
             end
@@ -5139,19 +5139,19 @@ drawSettings = function()
 imgui.TextUnformatted(u8"Тег объявления:")
 imgui.SameLine()
 imgui.PushItemWidth(60)
-if imgui.InputText("##mm_tag", mm_tag, ffi.sizeof(mm_tag)) then saveSettings() end
+if imgui.InputText("##mm_tag", mm_tag, ffi.sizeof(mm_tag)) then lua_thread.create(function() saveSettings() end) end
 imgui.PopItemWidth()
 imgui.SameLine()
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
 imgui.TextUnformatted(u8"Например: LV, LS, SF, TV")
 imgui.PopStyleColor()
 imgui.Spacing()
-if imgui.Checkbox(u8"Авто-форматирование при открытии редактора", mm_auto_format) then saveSettings() end
-if imgui.Checkbox(u8"Авто-отправка объявлений (Auto-Edit)", mm_auto_send) then saveSettings() end
+if imgui.Checkbox(u8"Авто-форматирование при открытии редактора", mm_auto_format) then lua_thread.create(function() saveSettings() end) end
+if imgui.Checkbox(u8"Авто-отправка объявлений (Auto-Edit)", mm_auto_send) then lua_thread.create(function() saveSettings() end) end
 
 if mm_auto_send[0] then
 imgui.PushItemWidth(150)
-if imgui.SliderInt(u8"Задержка отправки (мс)", mm_send_delay, 500, 8000) then saveSettings() end
+if imgui.SliderInt(u8"Задержка отправки (мс)", mm_send_delay, 500, 8000) then lua_thread.create(function() saveSettings() end) end
 imgui.PopItemWidth()
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(1, 0.8, 0, 1))
 imgui.TextUnformatted(u8" Внимание: Используйте задержку от 2000 мс для безопасности от админов!")
@@ -5192,7 +5192,7 @@ imgui.TextUnformatted(u8:encode(rule.abbreviation) .. " -> " .. u8:encode(rule.r
 imgui.SameLine(350)
 if imgui.Button("X##" .. idx) then
 table.remove(mm_rules, idx)
-saveRules()
+lua_thread.create(function() saveRules() end)
 end
 imgui.Separator()
 end
@@ -5212,7 +5212,7 @@ local abbr = u8:decode(ffi.string(static_new_abbr)):lower()  -- UTF-8 -> CP1251
 local repl = u8:decode(ffi.string(static_new_repl))  -- UTF-8 -> CP1251
 if abbr ~= "" and repl ~= "" then
 table.insert(mm_rules, {abbreviation = abbr, replacement = repl})
-saveRules()
+lua_thread.create(function() saveRules() end)
 static_new_abbr[0] = 0
 static_new_repl[0] = 0
 end
@@ -5260,22 +5260,22 @@ name = u8" Авто-Отыгровки",
 description = u8"Авто-отыгровки от ИГРОВЫХ СОБЫТИЙ: достаёт/убирает оружие при смене слота, достаёт телефон при входящем звонке/SMS, отыгрывает /call, /h, /mask, /healme, /drugs. Работает автоматически — не нужно нажимать ничего дополнительно.",
 enabled = false,
 drawSettings = function()
-if imgui.Checkbox(u8"Отыгровка доставания/убирания оружия", rp_weapons_enabled) then saveSettings() end
+if imgui.Checkbox(u8"Отыгровка доставания/убирания оружия", rp_weapons_enabled) then lua_thread.create(function() saveSettings() end) end
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
 imgui.TextUnformatted(u8"-> Доставание Deagle, M4, Shotgun, AK-47, Ножа")
 imgui.PopStyleColor()
 
-if imgui.Checkbox(u8"Отыгровка звонков и сбросов телефона", rp_phone_enabled) then saveSettings() end
+if imgui.Checkbox(u8"Отыгровка звонков и сбросов телефона", rp_phone_enabled) then lua_thread.create(function() saveSettings() end) end
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
 imgui.TextUnformatted(u8"-> Срабатывает при командах /call и /h")
 imgui.PopStyleColor()
 
-if imgui.Checkbox(u8"Отыгровка одевания маски", rp_mask_enabled) then saveSettings() end
+if imgui.Checkbox(u8"Отыгровка одевания маски", rp_mask_enabled) then lua_thread.create(function() saveSettings() end) end
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
 imgui.TextUnformatted(u8"-> Срабатывает при команде /mask")
 imgui.PopStyleColor()
 
-if imgui.Checkbox(u8"Отыгровка использования аптечки", rp_heal_enabled) then saveSettings() end
+if imgui.Checkbox(u8"Отыгровка использования аптечки", rp_heal_enabled) then lua_thread.create(function() saveSettings() end) end
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
 imgui.TextUnformatted(u8"-> Срабатывает при командах /healme и /drugs")
 imgui.PopStyleColor()
@@ -5304,12 +5304,12 @@ imgui.SameLine(220)
         imgui.TextUnformatted(u8"Круиз: C=вкл/выкл  W=+5  S=-5")
 
 imgui.PushItemWidth(150)
-if imgui.SliderInt(u8"Скорость стробоскопов (мс)", strobe_speed, 50, 600) then saveSettings() end
+if imgui.SliderInt(u8"Скорость стробоскопов (мс)", strobe_speed, 50, 600) then lua_thread.create(function() saveSettings() end) end
 
 local strobe_items = u8"Обе вместе" .. "\0" .. u8"Попеременно" .. "\0" .. u8"Гирлянда (по одной)" .. "\0" .. u8"Двойной лево/право" .. "\0" .. u8"Быстрый оба (3х)" .. "\0" .. u8"Очень быстрый оба (5х)" .. "\0" .. u8"Полицейский 1" .. "\0" .. u8"Полицейский 2 (3+3+обе)" .. "\0" .. u8"Полицейский 3 (быстрый)" .. "\0" .. u8"SOS (Морзе)" .. "\0" .. u8"Волна" .. "\0" .. u8"Импульс (вспышка+пауза)" .. "\0" .. u8"Двойная гирлянда" .. "\0" .. u8"Тройная вспышка (спец)" .. "\0" .. u8"Зигзаг" .. "\0" .. u8"Энергичный (2х2)" .. "\0" .. u8"Маяк (медленный)" .. "\0" .. u8"Перекрёстный" .. "\0" .. u8"Каскад (нарастающий)" .. "\0"
 
 if imgui.ComboStr(u8"Режим стробоскопов", strobe_mode, strobe_items) then
-saveSettings()
+lua_thread.create(function() saveSettings() end)
 end
 imgui.PopItemWidth()
 
@@ -5323,20 +5323,20 @@ imgui.TextUnformatted(u8"Окружение (Локально):")
 
 imgui.PopStyleColor()
 
-if imgui.Checkbox(u8"Зафиксировать погоду", weather_locked) then saveSettings() end
+if imgui.Checkbox(u8"Зафиксировать погоду", weather_locked) then lua_thread.create(function() saveSettings() end) end
 if weather_locked[0] then
 imgui.PushItemWidth(250)
-if imgui.SliderInt(u8"ID Погоды", weather_id, 0, 45) then saveSettings() end
+if imgui.SliderInt(u8"ID Погоды", weather_id, 0, 45) then lua_thread.create(function() saveSettings() end) end
 imgui.PopItemWidth()
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
 imgui.TextUnformatted(u8"Популярные ID: 1-2 (ясно), 8 (шторм), 9 (туман), 19 (песок)")
 imgui.PopStyleColor()
 end
 
-if imgui.Checkbox(u8"Зафиксировать время суток", time_locked) then saveSettings() end
+if imgui.Checkbox(u8"Зафиксировать время суток", time_locked) then lua_thread.create(function() saveSettings() end) end
 if time_locked[0] then
 imgui.PushItemWidth(250)
-if imgui.SliderInt(u8"Часы", time_hour, 0, 23) then saveSettings() end
+if imgui.SliderInt(u8"Часы", time_hour, 0, 23) then lua_thread.create(function() saveSettings() end) end
 imgui.PopItemWidth()
 end
 
@@ -5382,7 +5382,7 @@ for i, bind in ipairs(keybinds) do
 static_bind_en = static_bind_en or imgui.new.bool(false); static_bind_en[0] = bind.enabled; local en = static_bind_en
 if imgui.Checkbox("##en" .. i, en) then
 bind.enabled = en[0]
-saveSettings()
+lua_thread.create(function() saveSettings() end)
 end
 imgui.SameLine()
 local kname = key_names[bind.key] or ("0x" .. string.format("%02X", bind.key))
@@ -5432,7 +5432,7 @@ if nm == "" then nm = cmd end
 table.insert(keybinds, {key = new_bind_key[0], command = cmd, enabled = true, name = nm})
 new_bind_command[0] = 0
 new_bind_name[0] = 0
-saveSettings()
+lua_thread.create(function() saveSettings() end)
 end
 end
 imgui.PopItemWidth()
@@ -5754,12 +5754,47 @@ lua_thread.create(weaponTrackWorker)
 lua_thread.create(cruiseControlWorker)
 lua_thread.create(environmentWorker)
 
--- Поток считывания чата (альтернатива onServerMessage без SAMP.Lua)
-lua_thread.create(chatScannerWorker)
+-- Парсер чата в главном цикле (безопасно)
 
 -- Авто-загрузка РП-данных через 3 сек после старта
 lua_thread.create(function() wait(3000) playerLogin() end)
 -- Online nicks cache initialized from main loop, not from thread (avoids coroutine crash)
+
+chatScanner_processed = chatScanner_processed or {}
+chatScanner_processed_count = chatScanner_processed_count or 0
+chatScanner_last_run = chatScanner_last_run or 0
+
+function chatScannerTick()
+if not isModuleEnabled("autocall_db") or not isSampAvailable() then return end
+if os.time() - chatScanner_last_run < 1 then return end
+chatScanner_last_run = os.time()
+
+for i = 90, 99 do
+local text, prefix, color, pcolor = sampGetChatString(i)
+if text and text ~= "" and not chatScanner_processed[text] then
+chatScanner_processed[text] = true
+chatScanner_processed_count = chatScanner_processed_count + 1
+
+if chatScanner_processed_count > 200 then
+chatScanner_processed = {}
+chatScanner_processed_count = 0
+end
+
+local sender, phone = text:match("Отправитель:%s*([A-Za-z0-9_]+).-[Тт]ел%s*:%s*(%d+)")
+if not sender or not phone then
+sender, phone = text:match("([A-Za-z0-9_]+)%s*%.%s*[Тт]ел%s*:%s*(%d+)")
+end
+local text_utf8 = u8:encode(text, encoding.default)
+
+if sender and phone then
+local ad_text = text_utf8:match("Объявление:%s*(.-)%s*Отправитель:") or ""
+table.insert(player_db_queue, {sender = sender, phone = phone, ad = ad_text})
+sampAddChatMessage(u8:decode("[Helper DB] Добавлен контакт: " .. sender .. " (Тел: " .. phone .. ")"), 0x00FF90)
+end
+end
+end
+end
+
 
 -- Поток отслеживания диалоговых окон (альтернатива onShowDialog без SAMP.Lua)
 
@@ -5770,6 +5805,9 @@ wait(0)
 if not online_nicks_initialized then
     initOnlineNicksCache()
 end
+
+-- Scan chat for contacts (safe from main loop, not from thread)
+chatScannerTick()
 
 -- Process queued player_db changes (safe - not during ImGui render)
 if #player_db_queue > 0 then
@@ -6210,49 +6248,6 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
     end
 end
 
-function chatScannerWorker()
-local processed_chat = {}
-local processed_chat_count = 0
-
-while true do
-wait(50) -- Сканируем каждые 50 мс
-
-if isModuleEnabled("autocall_db") and isSampAvailable() then
--- Проходим по последним 10 строкам чата
-for i = 90, 99 do
-local text, prefix, color, pcolor = sampGetChatString(i)
-if text and text ~= "" and not processed_chat[text] then
--- Помечаем как обработанное
-processed_chat[text] = true
-processed_chat_count = processed_chat_count + 1
-
--- Очищаем таблицу от переполнения
-if processed_chat_count > 200 then
-processed_chat = {}
-processed_chat_count = 0
-end
-
--- Парсинг
--- Ищем в оригинальном CP1251 тексте
-local sender, phone = text:match("Отправитель:%s*([A-Za-z0-9_]+).-[Тт]ел%s*:%s*(%d+)")
-if not sender or not phone then
-sender, phone = text:match("([A-Za-z0-9_]+)%s*%.%s*[Тт]ел%s*:%s*(%d+)")
-end
-local text_utf8 = u8:encode(text, encoding.default)
-
-if sender and phone then
-local ad_text = text_utf8:match("Объявление:%s*(.-)%s*Отправитель:") or ""
--- Queue the change instead of modifying player_db directly
-table.insert(player_db_queue, {sender = sender, phone = phone, ad = ad_text})
-sampAddChatMessage(u8:decode("[Helper DB] Добавлен контакт: " .. sender .. " (Тел: " .. phone .. ")"), 0x00FF90)
-end
-end
-end
-end
-end
-end
-
--- ПОТОК ОТСЛЕЖИВАНИЯ ДИАЛОГОВЫХ ОКON (без SAMP.Lua)
 function applyLocalSkin(skinId)
 lua_thread.create(function()
 if skinId >= 0 and skinId <= 311 and skinId ~= 74 then
@@ -6263,9 +6258,7 @@ local charPtr = getCharPointer(PLAYER_PED)
 if charPtr and charPtr >= 1 then
 -- CPed::SetModel - функция по адресу 0x5E4880
 -- void __thiscall SetModel(int thisPtr, int modelId)
-pcall(function()
 ffi.cast("void (__thiscall *)(int, int)", 0x5E4880)(charPtr, skinId)
-end)
 clearCharTasks(PLAYER_PED)
 markModelAsNoLongerNeeded(skinId)
 sampAddChatMessage("[Helper] Скин успешно изменен на ID: " .. skinId, 0x00FF00)
@@ -6868,8 +6861,7 @@ for idx, srv_name in ipairs(server_names) do
 local is_selected = (current_server_idx[0] == idx - 1)
 if imgui.Selectable(srv_name, is_selected) then
 current_server_idx[0] = idx - 1
-saveSettings()
-sampAddChatMessage(u8:decode("[Helper] Сервер изменен на: " .. server_names[current_server_idx[0] + 1]), 0x00FF90)
+lua_thread.create(function() saveSettings() sampAddChatMessage(u8:decode("[Helper] Сервер изменен на: " .. server_names[current_server_idx[0] + 1]), 0x00FF90) end)
 end
 end
 imgui.EndCombo()
@@ -6929,7 +6921,7 @@ static_module_enabled = static_module_enabled or imgui.new.bool(false)
 static_module_enabled[0] = active_module.enabled
 if imgui.Checkbox(u8"Активировать модуль", static_module_enabled) then
 active_module.enabled = static_module_enabled[0]
-saveSettings()
+lua_thread.create(function() saveSettings() end)
 if active_module.onToggle then
 active_module.onToggle(static_module_enabled[0])
 end
