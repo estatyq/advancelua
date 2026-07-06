@@ -190,6 +190,7 @@ local ae_esc_was_down = false  -- track Esc key release before allowing reject
 local ad_history = {}
 local ad_history_path = getFolderPath(0x1C) .. "\\helper_ad_history.json"
 local ae_show_history = imgui.new.bool(false)
+local ae_open_queue = nil  -- queued dialog open from onShowDialog (processed in main loop to avoid race with render thread)
 
 local function loadAdHistory()
 local file = io.open(ad_history_path, "r")
@@ -5841,6 +5842,21 @@ if #last_called_queue > 0 then
     saveSettings()
 end
 
+-- Process queued AutoEdit dialog open (safe - not during ImGui render, avoids race with InputText)
+if ae_open_queue then
+    local q = ae_open_queue
+    ae_open_queue = nil
+    ae_dialog_id = q.dialog_id
+    ae_original_text = u8:encode(q.original, encoding.default)
+    ae_formatted_text = u8:encode(q.formatted, encoding.default)
+    imgui.StrCopy(ae_input_buf, u8:encode(q.formatted, encoding.default))
+    ae_active[0] = true
+    ae_focus = true
+    ae_ignore_enter = 30  -- ignore stale Enter from /edit chat command (~0.5s)
+    ae_enter_was_down = true  -- Enter was just pressed (for /edit), wait for release
+    ae_esc_was_down = true  -- Esc may be held from chat, wait for release
+end
+
 -- Клавиша F11
 if wasKeyPressed(0x7A) and not sampIsChatInputActive() and not sampIsDialogActive() then
 show_main_window[0] = not show_main_window[0]
@@ -6234,15 +6250,7 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
                 sampAddChatMessage("[Helper] formatAdText error: " .. tostring(formatted), 0xFF0000)
                 formatted = original
             end
-            ae_dialog_id = dialogId
-            ae_original_text = u8:encode(original, encoding.default)
-            ae_formatted_text = u8:encode(formatted, encoding.default)
-            imgui.StrCopy(ae_input_buf, u8:encode(formatted, encoding.default))
-            ae_active[0] = true
-            ae_focus = true
-            ae_ignore_enter = 30  -- ignore stale Enter from /edit chat command (~0.5s)
-            ae_enter_was_down = true  -- Enter was just pressed (for /edit), wait for release
-            ae_esc_was_down = true  -- Esc may be held from chat, wait for release
+            ae_open_queue = {dialog_id = dialogId, original = original, formatted = formatted}
             return false
         end
     end
