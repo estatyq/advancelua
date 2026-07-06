@@ -28,6 +28,7 @@ local imgui = require 'mimgui'
 local ffi = require 'ffi'
 -- Safe string copy with bounds check (prevents FFI buffer overflow crash)
 local function safeStrCopy(dst, src, dstSize)
+    if src == nil then dst[0] = 0 return end
     local s = type(src) == "string" and src or ffi.string(src)
     if #s >= dstSize then s = s:sub(1, dstSize - 1) end
     ffi.copy(dst, s, #s)
@@ -4447,6 +4448,7 @@ local function playRp(text, test)
     rp_settings.active[0] = true
 
     rp_thread = lua_thread.create(function()
+        local ok, err = pcall(function()
         local chapter = rp_settings.setList[0] + 1
         setCurTeg(chapter)
         local typeTeg = rp_cur_tegs
@@ -4551,9 +4553,12 @@ local function playRp(text, test)
             ::skip::
         end
 
+        end)
         rp_settings.active[0] = false
         rp_settings.window.is = -1
-        if not test then
+        if not ok then
+            sampAddChatMessage("[Helper] RP error: " .. tostring(err), 0xFF0000)
+        elseif not test then
             sampAddChatMessage("[Helper] Отыгровка завершена", 0x00FF00)
         end
     end)
@@ -5015,7 +5020,8 @@ name = u8" Авто-Объявления",
 description = u8"Автоматически отправляет объявления с заданным интервалом. Поддерживает шаблоны и историю.",
 enabled = false,
 drawSettings = function()
-    static_aad_buf = static_aad_buf or imgui.new.char[128](u8:encode(aad_text))
+    static_aad_buf = static_aad_buf or imgui.new.char[128]("")
+    safeStrCopy(static_aad_buf, u8:encode(aad_text), ffi.sizeof(static_aad_buf))
 static_aad_active = static_aad_active or imgui.new.bool(false)
     static_aad_active[0] = aad_active
     if imgui.Checkbox(u8"Активировать авто-объявления##checkbox_aad", static_aad_active) then
@@ -5266,7 +5272,6 @@ id = "auto_rp",
 enabled = true,
 name = u8" Авто-Отыгровки",
 description = u8"Авто-отыгровки от ИГРОВЫХ СОБЫТИЙ: достаёт/убирает оружие при смене слота, достаёт телефон при входящем звонке/SMS, отыгрывает /call, /h, /mask, /healme, /drugs. Работает автоматически — не нужно нажимать ничего дополнительно.",
-enabled = false,
 drawSettings = function()
 if imgui.Checkbox(u8"Отыгровка доставания/убирания оружия", rp_weapons_enabled) then lua_thread.create(function() saveSettings() end) end
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
