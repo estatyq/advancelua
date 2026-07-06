@@ -5391,7 +5391,7 @@ imgui.TextUnformatted(u8:encode("[" .. kname .. "] " .. bind.name .. "  (" .. bi
 imgui.SameLine(350)
 if imgui.Button(u8"Удалить##del" .. i) then
 table.remove(keybinds, i)
-saveSettings()
+lua_thread.create(function() saveSettings() end)
 break
 end
 end
@@ -7037,7 +7037,7 @@ imgui.OnFrame(
             rp_edit_index = #rp_settings.set[chapter]
             imgui.StrCopy(rp_settings.temp.name, "")
             imgui.StrCopy(rp_settings.temp.text, "")
-            saveRpSettings()
+            lua_thread.create(function() saveRpSettings() end)
         end
 
         imgui.Separator()
@@ -7090,8 +7090,7 @@ imgui.OnFrame(
             if imgui.Button(u8"Сохранить", imgui.ImVec2(100, 30)) then
                 list[rp_edit_index].name = u8:decode(ffi.string(rp_settings.temp.name))
                 list[rp_edit_index].text = u8:decode(ffi.string(rp_settings.temp.text))
-                saveRpSettings()
-                sampAddChatMessage("[Helper] Отыгровка сохранена", 0x00FF00)
+                lua_thread.create(function() saveRpSettings() sampAddChatMessage("[Helper] Отыгровка сохранена", 0x00FF00) end)
             end
             imgui.SameLine()
             if imgui.Button(u8"Удалить", imgui.ImVec2(100, 30)) then
@@ -7099,7 +7098,7 @@ imgui.OnFrame(
                 rp_edit_index = 0
                 imgui.StrCopy(rp_settings.temp.name, "")
                 imgui.StrCopy(rp_settings.temp.text, "")
-                saveRpSettings()
+                lua_thread.create(function() saveRpSettings() end)
             end
             imgui.SameLine()
             if imgui.Button(u8"Тест", imgui.ImVec2(80, 30)) then
