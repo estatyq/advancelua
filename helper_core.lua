@@ -26,6 +26,13 @@ script_properties("work-in-pause")
 local SCRIPT_VERSION = 'v1.7 (05.07.2026)'
 local imgui = require 'mimgui'
 local ffi = require 'ffi'
+-- Safe string copy with bounds check (prevents FFI buffer overflow crash)
+local function safeStrCopy(dst, src, dstSize)
+    local s = type(src) == "string" and src or ffi.string(src)
+    if #s >= dstSize then s = s:sub(1, dstSize - 1) end
+    ffi.copy(dst, s, #s)
+    dst[#s] = 0  -- null terminator
+end
 local sampev = require 'lib.samp.events'
 local encoding = require 'encoding'
 local json = nil
@@ -3638,7 +3645,7 @@ if parsed.rp_heal ~= nil then rp_heal_enabled[0] = parsed.rp_heal end
 if parsed.mm_auto_format ~= nil then mm_auto_format[0] = parsed.mm_auto_format end
 if parsed.mm_auto_send ~= nil then mm_auto_send[0] = parsed.mm_auto_send end
 if parsed.mm_send_delay ~= nil then mm_send_delay[0] = parsed.mm_send_delay end
-if parsed.mm_tag ~= nil then imgui.StrCopy(mm_tag, u8:encode(parsed.mm_tag, encoding.default)) end
+if parsed.mm_tag ~= nil then safeStrCopy(mm_tag, u8:encode(parsed.mm_tag, encoding.default), ffi.sizeof(mm_tag)) end
 if parsed.strobe_speed ~= nil then strobe_speed[0] = parsed.strobe_speed end
 if parsed.strobe_mode ~= nil then strobe_mode[0] = parsed.strobe_mode end
 if parsed.weather_locked ~= nil then weather_locked[0] = parsed.weather_locked end
@@ -4818,7 +4825,7 @@ local auto_answer_text = imgui.new.char[256]("")
 
 local function cmdAutoAnswer(arg)
     if arg and arg ~= "" then
-        imgui.StrCopy(auto_answer_text, u8:encode(arg, encoding.default))
+        safeStrCopy(auto_answer_text, u8:encode(arg, encoding.default), ffi.sizeof(auto_answer_text))
         auto_answer_enabled[0] = not auto_answer_enabled[0]
         if auto_answer_enabled[0] then
             sampAddChatMessage("[Helper] Авто-ответ включён: " .. arg, 0x00FF00)
@@ -5236,8 +5243,8 @@ imgui.PushIDStr("corr_" .. idx)
 imgui.TextUnformatted(u8:encode(corr.abbr) .. " -> " .. u8:encode(corr.repl))
 imgui.SameLine(320)
 if imgui.SmallButton(u8"Использовать") then
-imgui.StrCopy(static_new_abbr, u8:encode(corr.abbr, encoding.default))
-imgui.StrCopy(static_new_repl, u8:encode(corr.repl, encoding.default))
+safeStrCopy(static_new_abbr, u8:encode(corr.abbr, encoding.default), ffi.sizeof(static_new_abbr))
+safeStrCopy(static_new_repl, u8:encode(corr.repl, encoding.default), ffi.sizeof(static_new_repl))
 end
 imgui.SameLine()
 if imgui.SmallButton(u8"X") then
@@ -5849,7 +5856,7 @@ if ae_open_queue then
     ae_dialog_id = q.dialog_id
     ae_original_text = u8:encode(q.original, encoding.default)
     ae_formatted_text = u8:encode(q.formatted, encoding.default)
-    imgui.StrCopy(ae_input_buf, u8:encode(q.formatted, encoding.default))
+    safeStrCopy(ae_input_buf, u8:encode(q.formatted, encoding.default), ffi.sizeof(ae_input_buf))
     ae_active[0] = true
     ae_focus = true
     ae_ignore_enter = 30  -- ignore stale Enter from /edit chat command (~0.5s)
@@ -7050,8 +7057,8 @@ imgui.OnFrame(
             local name = (rp.name and rp.name ~= "") and u8:encode(rp.name) or u8"(без названия #" .. i .. ")"
             if imgui.Selectable(name, rp_edit_index == i) then
                 rp_edit_index = i
-                imgui.StrCopy(rp_settings.temp.name, u8:encode(rp.name or ""))
-                imgui.StrCopy(rp_settings.temp.text, u8:encode(rp.text or ""))
+                safeStrCopy(rp_settings.temp.name, u8:encode(rp.name or ""), ffi.sizeof(rp_settings.temp.name))
+                safeStrCopy(rp_settings.temp.text, u8:encode(rp.text or ""), ffi.sizeof(rp_settings.temp.text))
             end
         end
         imgui.EndChild()
@@ -7310,7 +7317,7 @@ imgui.OnFrame(
             cur = cur:gsub("%s+$", "")
             if cur ~= "" and not cur:find("%.$") then cur = cur .. "." end
             if cur ~= "" then cur = cur .. " " .. phrase else cur = phrase end
-            imgui.StrCopy(ae_input_buf, u8:encode(cur, encoding.default))
+            safeStrCopy(ae_input_buf, u8:encode(cur, encoding.default), ffi.sizeof(ae_input_buf))
         end
         if imgui.SmallButton(u8"+ Цена договорная") then aeQuickInsert("Цена договорная") end
         imgui.SameLine()
@@ -7394,7 +7401,7 @@ imgui.OnFrame(
                 if tag and tag ~= "" then
                     reject_text = tag .. " | ПРО"
                 end
-                imgui.StrCopy(ae_input_buf, u8:encode(reject_text, encoding.default))
+                safeStrCopy(ae_input_buf, u8:encode(reject_text, encoding.default), ffi.sizeof(ae_input_buf))
                 local dlg_id = ae_dialog_id
                 lua_thread.create(function() sampSendDialogResponse(dlg_id, 0, -1, reject_text) end)
             end
@@ -7413,7 +7420,7 @@ imgui.OnFrame(
             imgui.TextUnformatted(u8"Последние объявления:")
             for i, h in ipairs(ad_history) do
                 if imgui.Button(u8:encode(h:sub(1, 60) .. (h:len() > 60 and "..." or "")), imgui.ImVec2(-1, 0)) then
-                    imgui.StrCopy(ae_input_buf, u8:encode(h, encoding.default))
+                    safeStrCopy(ae_input_buf, u8:encode(h, encoding.default), ffi.sizeof(ae_input_buf))
                 end
             end
         end
