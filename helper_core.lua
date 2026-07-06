@@ -3857,6 +3857,8 @@ formatted = rule.replacement
 end
 end
 end
+-- Safety: limit output length to prevent ImGui render overflow
+if #formatted > 1000 then formatted = formatted:sub(1, 1000) end
 
 -- Fix declension after prepositions
 -- Generic rules above replace all forms with accusative (мэрию, полицию, etc.)
@@ -5181,13 +5183,16 @@ imgui.InputText(u8"Введите черновик", test_input, 128)
 
 if imgui.Button(u8"Проверить замену") then
 local raw_text = u8:decode(ffi.string(test_input))  -- UTF-8 -> CP1251
-test_output = u8:encode(formatAdText(raw_text))  -- CP1251 -> UTF-8 for ImGui
+local fmt_ok, fmt_result = pcall(formatAdText, raw_text)
+if fmt_ok then test_output = u8:encode(fmt_result) else test_output = u8"Error: " .. tostring(fmt_result) end
 end
 
 if test_output ~= "" then
 imgui.TextUnformatted(u8"Результат:")
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0, 1, 0.8, 1))
-imgui.TextUnformatted(test_output)
+imgui.PushTextWrapPos(0)
+imgui.TextUnformatted(#test_output > 500 and test_output:sub(1, 500) .. "..." or test_output)
+imgui.PopTextWrapPos()
 imgui.PopStyleColor()
 end
 
@@ -5197,12 +5202,14 @@ imgui.Spacing()
 
 imgui.TextUnformatted(u8"Правила замены сокращений (База):")
 imgui.BeginChild("rules_list", imgui.ImVec2(0, 110), true)
-local max_display = 50
+local max_display = 25
 local shown = 0
 for idx, rule in ipairs(mm_rules) do
 if shown >= max_display then break end
 shown = shown + 1
-imgui.TextUnformatted(u8:encode(rule.abbreviation) .. " -> " .. u8:encode(rule.replacement))  -- CP1251 -> UTF-8
+local _rule_text = u8:encode(rule.abbreviation) .. " -> " .. u8:encode(rule.replacement)
+            if #_rule_text > 80 then _rule_text = _rule_text:sub(1, 80) .. "..." end
+            imgui.TextUnformatted(_rule_text)
 imgui.SameLine(350)
 if imgui.Button("X##" .. idx) then
 table.remove(mm_rules, idx)
@@ -5246,7 +5253,9 @@ else
 imgui.BeginChild("corrections_list", imgui.ImVec2(0, 90), true)
 for idx, corr in ipairs(edit_corrections) do
 imgui.PushIDStr("corr_" .. idx)
-imgui.TextUnformatted(u8:encode(corr.abbr) .. " -> " .. u8:encode(corr.repl))
+local _corr_text = u8:encode(corr.abbr) .. " -> " .. u8:encode(corr.repl)
+            if #_corr_text > 80 then _corr_text = _corr_text:sub(1, 80) .. "..." end
+            imgui.TextUnformatted(_corr_text)
 imgui.SameLine(320)
 if imgui.SmallButton(u8"Использовать") then
 safeStrCopy(static_new_abbr, u8:encode(corr.abbr, encoding.default), ffi.sizeof(static_new_abbr))
