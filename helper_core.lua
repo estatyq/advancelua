@@ -4434,7 +4434,7 @@ end
 
 local function playRp(text, test)
     if rp_settings.active[0] then
-        sampAddChatMessage("[Helper] Отыгровка уже выполняется. /mmstop для остановки", 0xFF0000)
+        lua_thread.create(function() sampAddChatMessage("[Helper] Отыгровка уже выполняется. /mmstop для остановки", 0xFF0000) end)
         return
     end
     rp_settings.active[0] = true
@@ -5015,7 +5015,7 @@ static_aad_active = static_aad_active or imgui.new.bool(false)
         aad_active = static_aad_active[0]
         if aad_active then
             aad_text = u8:decode(ffi.string(static_aad_buf))
-            sendAdCommand(aad_text)
+            lua_thread.create(function() sendAdCommand(aad_text) end)
         end
     end
 
@@ -5573,11 +5573,11 @@ imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0, 1, 0.7, 1))
 imgui.TextUnformatted(u8"Анаграммы:")
 
 imgui.PopStyleColor()
-if imgui.Button(u8"Слова (1)", imgui.ImVec2(90, 25)) then startAnagram(1) end
+if imgui.Button(u8"Слова (1)", imgui.ImVec2(90, 25)) then lua_thread.create(function() startAnagram(1) end) end
 imgui.SameLine()
-if imgui.Button(u8"Телефон (2)", imgui.ImVec2(100, 25)) then startAnagram(2) end
+if imgui.Button(u8"Телефон (2)", imgui.ImVec2(100, 25)) then lua_thread.create(function() startAnagram(2) end) end
 imgui.SameLine()
-if imgui.Button(u8"Газета (3)", imgui.ImVec2(90, 25)) then startAnagram(3) end
+if imgui.Button(u8"Газета (3)", imgui.ImVec2(90, 25)) then lua_thread.create(function() startAnagram(3) end) end
 
 imgui.Spacing()
 imgui.Separator()
@@ -7253,7 +7253,7 @@ imgui.OnFrame(
             imgui.PopStyleColor()
             imgui.SameLine(350)
             if imgui.Button(u8"X") then
-                removeBlacklistNick(nick)
+                lua_thread.create(function() removeBlacklistNick(nick) end)
                 imgui.PopID()
                 break
             end
