@@ -3793,6 +3793,11 @@ if b == 184 then return string.char(168) end
 return ch
 end
 
+-- Escape special Lua pattern characters in a string
+local function escapePattern(s)
+    return (s:gsub("([%%%(%)%.%%%+%-%*%?%[%]%^%$])", "%%%1"))
+end
+
 local function formatAdText(text)
 local formatted = text
 local lower = formatted:lower()
@@ -3815,7 +3820,7 @@ lower = formatted:lower()
 local is_car = false
 local car_keywords = {"булк", "инф", "туризм", "турик", "кловер", "хоткнайф", "дюн", "сультан", "султан", "елег", "банш", "чито", "феникс", "тахом", "премьер", "стретч", "бравур", "сабре", "вуду", "сламван", "ремингтон", "флеш", "джестер", "стратум", "уран", "блист", "баффал", "зомби", "ламбо", "бмв", "мерс", "тойот", "монстр", "бандит", "комет", "стингер", "супергт", "манан", "пикап", "соляр", "винсаг", "шафтер", "альпин", "беггал", "кальц", "салат", "стрикер", "адреналин", "нрг", "фрей", "вейб", "санч", "пжж", "фцз", "фаггио", "фагио", "бмх", "эндюро", "мото", "машин", "а/м", "м/ц", "тачк", "таз", "байк", "велосипед", "велик"}
 for _, word in ipairs(car_keywords) do
-if lower:find(word) then
+if lower:find(word, 1, true) then
 is_car = true
 break
 end
@@ -3837,11 +3842,13 @@ if _rule_count > 200 then break end
 local abbr = rule.abbreviation
 local stem = abbr
 if abbr:len() > 3 then stem = abbr:sub(1, -2) end
+local abbr_esc = escapePattern(abbr)
+local stem_esc = escapePattern(stem)
 local pattern
 if abbr:len() <= 2 then
-pattern = "([%s%,%.])" .. abbr .. "([%s%,%.])"
+pattern = "([%s%,%.])" .. abbr_esc .. "([%s%,%.])"
 else
-pattern = "([%s%,%.])" .. stem .. "[^%s%,%.]*([%s%,%.])"
+pattern = "([%s%,%.])" .. stem_esc .. "[^%s%,%.]*([%s%,%.])"
 end
 formatted = (" " .. formatted .. " "):gsub(pattern, function(left, right)
 return left .. rule.replacement .. right
@@ -3852,7 +3859,7 @@ if formatted:lower() == abbr then
 formatted = rule.replacement
 end
 else
-if formatted:lower():match("^" .. stem) then
+if formatted:lower():match("^" .. stem_esc) then
 formatted = rule.replacement
 end
 end
@@ -3971,14 +3978,14 @@ local prep_fixes = {
 }
 formatted = " " .. formatted .. " "
 for _, fix in ipairs(prep_fixes) do
-formatted = formatted:gsub("(%s)" .. fix.preposition .. "%s+" .. fix.acc .. "([%s%,%.])", "%1" .. fix.preposition .. " " .. fix.correct .. "%2")
+formatted = formatted:gsub("(%s)" .. escapePattern(fix.preposition) .. "%s+" .. escapePattern(fix.acc) .. "([%s%,%.])", "%1" .. fix.preposition .. " " .. fix.correct .. "%2")
 end
 formatted = formatted:gsub("^%s+", ""):gsub("%s+$", "")
 -- Auto-add location for "kuplyu" if no location mentioned
 local has_location = false
 local loc_words = {"Los Santos", "San Fierro", "Las Venturas", "East", "Ganton", "Idlewood", "Jefferson", "Glen", "Willowfield", "El Corona", "Commerce", "Market", "Verona", "Chinatown", "Palomino", "Montgomery", "Dillimore", "Blueberry", "Flint", "Fort Carson", "Tierra", "Angel", "Bayside", "North Rock", "Valle", "Arco", "Green Palms", "Union", "Strip", "Rockshore", "Pilgrim", "Avalon", "Prickle", "Whitewood", "Pilbox", "Doherty", "Kings", "Paradiso", "Queens", "Hashbury", "Garcia", "Santa Flora", "Foster", "Venturas", "штат", "город", "район", "районе", "района", "гетто"}
 for _, word in ipairs(loc_words) do
-if formatted:lower():find(word:lower()) then
+if formatted:lower():find(word:lower(), 1, true) then
 has_location = true
 break
 end
