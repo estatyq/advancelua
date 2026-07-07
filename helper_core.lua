@@ -1,20 +1,20 @@
 --[[
 Universal Game Helper Core for SAMP (MoonLoader / Lua)
 
-Этот файл является ядром и каркасом вашей будущей платформы.
-Здесь реализован минималистичный интерфейс на mimgui (разделенный на вкладки/модули),
-механизм динамического подключения функций, парсинг объявлений СМИ для базы номеров,
-проверка онлайна игроков, автоматизированный обзвон, СМИ Редактор (MM Editor),
-справочник точных команд Advance RP, автоматические RP отыгровки,
-стробоскопы, круиз-контроль, а также смена погоды/времени и скин-ченджер.
+пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
+пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ mimgui (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅпїЅ),
+пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ,
+пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (MM Editor),
+пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ Advance RP, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ RP пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ,
+пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
 
-ВЕРСИЯ 1.0: AutoEdit с автозаменой, историей объявлений, JSON fallback. 
-Скрипт работает «из коробки» на чистом MoonLoader без установки сторонних плагинов!
+пїЅпїЅпїЅпїЅпїЅпїЅ 1.0: AutoEdit пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, JSON fallback. 
+пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ MoonLoader пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ!
 
-Установка:
-1. Установите MoonLoader v0.26+.
-2. Поместите этот файл в папку `GTA San Andreas/moonloader/`.
-3. Открыть меню: клавиша F11 или команда /helper.
+пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ:
+1. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ MoonLoader v0.26+.
+2. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ `GTA San Andreas/moonloader/`.
+3. пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅпїЅ F11 пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ /helper.
 ]]
 
 script_name("Helper Core")
@@ -123,11 +123,11 @@ local u8 = encoding.UTF8
 local WINDOW_TITLE = u8:encode("Universal Helper Platform " .. SCRIPT_VERSION)
 local ORIG_BTN_TEXT = u8:encode(string.char(0xCE,0xF0,0xE8,0xE3,0xE8,0xED,0xE0,0xEB))
 
--- Инициализируем переменные для GUI
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ GUI
 local show_main_window = imgui.new.bool(false)
 local active_module_idx = 1
 
--- Путь к базам данных
+-- пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 local db_path = getWorkingDirectory() .. "/config/helper_db.json"
 local rules_path = getWorkingDirectory() .. "/config/helper_mm_rules.json"
 local settings_path = getWorkingDirectory() .. "/config/helper_settings.json"
@@ -136,7 +136,7 @@ local player_db = {}
 local current_server_idx = imgui.new.int(0)
 local server_names = {u8"Advance RP", u8"Diamond RP", u8"Arizona RP", u8"Evolve RP"}
 
--- Переменные для модуля "Сбор и обзвон"
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ "пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"
 local call_active = false
 local call_worker_running = false
 local call_delay = imgui.new.int(7000)
@@ -181,7 +181,7 @@ local function isOnlineCached(nickname)
     return online_nicks_cache[nickname] == true
 end
 
--- Переменные для модуля "MM Editor" (СМИ Редактор)
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ "MM Editor" (пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
 local mm_auto_format = imgui.new.bool(true)
 local mm_auto_send = imgui.new.bool(false)
 local mm_send_delay = imgui.new.int(3000)
@@ -219,7 +219,7 @@ end
 end
 
 local function addAdToHistory(ad_text)
-if ad_text and ad_text ~= "" and ad_text ~= "ПРО" then
+if ad_text and ad_text ~= "" and ad_text ~= "пїЅпїЅпїЅ" then
 for _, h in ipairs(ad_history) do
 if h == ad_text then return end
 end
@@ -229,7 +229,7 @@ lua_thread.create(function() saveAdHistory() end)
 end
 end
 
--- Самообучение: запоминаем правки пользователя в AutoEdit как кандидаты на новые правила
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ AutoEdit пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 local edit_corrections = {}
 local corrections_path = getFolderPath(0x1C) .. "\\helper_edit_corrections.json"
 
@@ -251,7 +251,7 @@ file:close()
 end
 end
 
--- Возвращает изменённый участок между двумя строками (общий префикс/суффикс отбрасываются)
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
 local function wordDiffMiddle(a, b)
 local aw, bw = {}, {}
 for w in a:gmatch("%S+") do table.insert(aw, w) end
@@ -266,7 +266,7 @@ local b_mid = (i <= jb - j) and table.concat(bw, " ", i, jb - j) or ""
 return a_mid, b_mid
 end
 
--- Запоминает правку, если она короткая, непустая и ещё не записана
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 local function recordEditCorrection(suggested, final_text)
 if suggested == final_text then return end
 local a_mid, b_mid = wordDiffMiddle(suggested, final_text)
@@ -282,3177 +282,3177 @@ end
 
 loadAdHistory()
 loadCorrections()
-local test_input = imgui.new.char[128]("")
+local test_input = imgui.new.char[129]("")
 local test_output = ""
 local mm_rules = {
--- Машины
-{abbreviation = "булка", replacement = "а/м марки \"Bullet\""},
-{abbreviation = "булку", replacement = "а/м марки \"Bullet\""},
-{abbreviation = "булки", replacement = "а/м марки \"Bullet\""},
-{abbreviation = "булке", replacement = "а/м марки \"Bullet\""},
-{abbreviation = "булкой", replacement = "а/м марки \"Bullet\""},
-{abbreviation = "инф", replacement = "а/м марки \"Infernus\""},
-{abbreviation = "инфу", replacement = "а/м марки \"Infernus\""},
-{abbreviation = "инфе", replacement = "а/м марки \"Infernus\""},
-{abbreviation = "инфы", replacement = "а/м марки \"Infernus\""},
-{abbreviation = "инфом", replacement = "а/м марки \"Infernus\""},
-{abbreviation = "туризмо", replacement = "а/м марки \"Turismo\""},
-{abbreviation = "турик", replacement = "а/м марки \"Turismo\""},
-{abbreviation = "турика", replacement = "а/м марки \"Turismo\""},
-{abbreviation = "турику", replacement = "а/м марки \"Turismo\""},
-{abbreviation = "турике", replacement = "а/м марки \"Turismo\""},
-{abbreviation = "банши", replacement = "а/м марки \"Banshee\""},
-{abbreviation = "баншу", replacement = "а/м марки \"Banshee\""},
-{abbreviation = "банше", replacement = "а/м марки \"Banshee\""},
-{abbreviation = "баншей", replacement = "а/м марки \"Banshee\""},
-{abbreviation = "чито", replacement = "а/м марки \"Cheetah\""},
-{abbreviation = "читу", replacement = "а/м марки \"Cheetah\""},
-{abbreviation = "чите", replacement = "а/м марки \"Cheetah\""},
-{abbreviation = "супергт", replacement = "а/м марки \"Super GT\""},
-{abbreviation = "супергта", replacement = "а/м марки \"Super GT\""},
-{abbreviation = "супергту", replacement = "а/м марки \"Super GT\""},
-{abbreviation = "стингер", replacement = "а/м марки \"Stinger\""},
-{abbreviation = "стингера", replacement = "а/м марки \"Stinger\""},
-{abbreviation = "стингеру", replacement = "а/м марки \"Stinger\""},
-{abbreviation = "комета", replacement = "а/м марки \"Comet\""},
-{abbreviation = "комету", replacement = "а/м марки \"Comet\""},
-{abbreviation = "кометы", replacement = "а/м марки \"Comet\""},
-{abbreviation = "комете", replacement = "а/м марки \"Comet\""},
-{abbreviation = "феникс", replacement = "а/м марки \"Phoenix\""},
-{abbreviation = "феникса", replacement = "а/м марки \"Phoenix\""},
-{abbreviation = "фениксу", replacement = "а/м марки \"Phoenix\""},
-{abbreviation = "чампион", replacement = "а/м марки \"Champion\""},
-{abbreviation = "чампиона", replacement = "а/м марки \"Champion\""},
-{abbreviation = "чампиону", replacement = "а/м марки \"Champion\""},
-{abbreviation = "альфа", replacement = "а/м марки \"Alpha\""},
-{abbreviation = "альфу", replacement = "а/м марки \"Alpha\""},
-{abbreviation = "альфы", replacement = "а/м марки \"Alpha\""},
-{abbreviation = "кловер", replacement = "а/м марки \"Clover\""},
-{abbreviation = "кловера", replacement = "а/м марки \"Clover\""},
-{abbreviation = "кловеру", replacement = "а/м марки \"Clover\""},
-{abbreviation = "кловеры", replacement = "а/м марки \"Clover\""},
-{abbreviation = "сабре", replacement = "а/м марки \"Sabre\""},
-{abbreviation = "сабра", replacement = "а/м марки \"Sabre\""},
-{abbreviation = "сабру", replacement = "а/м марки \"Sabre\""},
-{abbreviation = "сабры", replacement = "а/м марки \"Sabre\""},
-{abbreviation = "вуду", replacement = "а/м марки \"Voodoo\""},
-{abbreviation = "вуды", replacement = "а/м марки \"Voodoo\""},
-{abbreviation = "сламван", replacement = "а/м марки \"Slamvan\""},
-{abbreviation = "сламвана", replacement = "а/м марки \"Slamvan\""},
-{abbreviation = "сламвану", replacement = "а/м марки \"Slamvan\""},
-{abbreviation = "ремингтон", replacement = "а/м марки \"Remington\""},
-{abbreviation = "ремингтона", replacement = "а/м марки \"Remington\""},
-{abbreviation = "ремингтону", replacement = "а/м марки \"Remington\""},
-{abbreviation = "бравура", replacement = "а/м марки \"Bravura\""},
-{abbreviation = "бравуру", replacement = "а/м марки \"Bravura\""},
-{abbreviation = "бравуры", replacement = "а/м марки \"Bravura\""},
-{abbreviation = "блейд", replacement = "а/м марки \"Blade\""},
-{abbreviation = "блейда", replacement = "а/м марки \"Blade\""},
-{abbreviation = "блейду", replacement = "а/м марки \"Blade\""},
-{abbreviation = "тампла", replacement = "а/м марки \"Tampa\""},
-{abbreviation = "тамплу", replacement = "а/м марки \"Tampa\""},
-{abbreviation = "торнадо", replacement = "а/м марки \"Tornado\""},
-{abbreviation = "торнадоа", replacement = "а/м марки \"Tornado\""},
-{abbreviation = "торнадоу", replacement = "а/м марки \"Tornado\""},
-{abbreviation = "султан", replacement = "а/м марки \"Sultan\""},
-{abbreviation = "султана", replacement = "а/м марки \"Sultan\""},
-{abbreviation = "султану", replacement = "а/м марки \"Sultan\""},
-{abbreviation = "султаны", replacement = "а/м марки \"Sultan\""},
-{abbreviation = "султане", replacement = "а/м марки \"Sultan\""},
-{abbreviation = "султаном", replacement = "а/м марки \"Sultan\""},
-{abbreviation = "сультан", replacement = "а/м марки \"Sultan\""},
-{abbreviation = "сультана", replacement = "а/м марки \"Sultan\""},
-{abbreviation = "сультану", replacement = "а/м марки \"Sultan\""},
-{abbreviation = "сультаны", replacement = "а/м марки \"Sultan\""},
-{abbreviation = "елегию", replacement = "а/м марки \"Elegy\""},
-{abbreviation = "еледжи", replacement = "а/м марки \"Elegy\""},
-{abbreviation = "елеги", replacement = "а/м марки \"Elegy\""},
-{abbreviation = "елегия", replacement = "а/м марки \"Elegy\""},
-{abbreviation = "елеге", replacement = "а/м марки \"Elegy\""},
-{abbreviation = "флеш", replacement = "а/м марки \"Flash\""},
-{abbreviation = "флеша", replacement = "а/м марки \"Flash\""},
-{abbreviation = "флешу", replacement = "а/м марки \"Flash\""},
-{abbreviation = "джестер", replacement = "а/м марки \"Jester\""},
-{abbreviation = "джестера", replacement = "а/м марки \"Jester\""},
-{abbreviation = "джестеру", replacement = "а/м марки \"Jester\""},
-{abbreviation = "стратум", replacement = "а/м марки \"Stratum\""},
-{abbreviation = "стратума", replacement = "а/м марки \"Stratum\""},
-{abbreviation = "стратуму", replacement = "а/м марки \"Stratum\""},
-{abbreviation = "уран", replacement = "а/м марки \"Uranus\""},
-{abbreviation = "урана", replacement = "а/м марки \"Uranus\""},
-{abbreviation = "урану", replacement = "а/м марки \"Uranus\""},
-{abbreviation = "ураны", replacement = "а/м марки \"Uranus\""},
-{abbreviation = "салат", replacement = "а/м марки \"Sultan RS\""},
-{abbreviation = "салата", replacement = "а/м марки \"Sultan RS\""},
-{abbreviation = "салату", replacement = "а/м марки \"Sultan RS\""},
-{abbreviation = "стрикер", replacement = "а/м марки \"Sultan RS\""},
-{abbreviation = "стрикера", replacement = "а/м марки \"Sultan RS\""},
-{abbreviation = "адреналин", replacement = "а/м марки \"Sultan RS\""},
-{abbreviation = "адреналина", replacement = "а/м марки \"Sultan RS\""},
-{abbreviation = "пикап", replacement = "а/м марки \"Picador\""},
-{abbreviation = "пикапа", replacement = "а/м марки \"Picador\""},
-{abbreviation = "пикапу", replacement = "а/м марки \"Picador\""},
-{abbreviation = "соляр", replacement = "а/м марки \"Solair\""},
-{abbreviation = "соляра", replacement = "а/м марки \"Solair\""},
-{abbreviation = "соляру", replacement = "а/м марки \"Solair\""},
-{abbreviation = "винсаг", replacement = "а/м марки \"Windsor\""},
-{abbreviation = "винсага", replacement = "а/м марки \"Windsor\""},
-{abbreviation = "винсагу", replacement = "а/м марки \"Windsor\""},
-{abbreviation = "шафтер", replacement = "а/м марки \"Stafford\""},
-{abbreviation = "шафтера", replacement = "а/м марки \"Stafford\""},
-{abbreviation = "шафтеру", replacement = "а/м марки \"Stafford\""},
-{abbreviation = "хантер", replacement = "а/м марки \"Huntley\""},
-{abbreviation = "хантера", replacement = "а/м марки \"Huntley\""},
-{abbreviation = "хантеру", replacement = "а/м марки \"Huntley\""},
-{abbreviation = "ранчер", replacement = "а/м марки \"Rancher\""},
-{abbreviation = "ранчера", replacement = "а/м марки \"Rancher\""},
-{abbreviation = "ранчеру", replacement = "а/м марки \"Rancher\""},
-{abbreviation = "ранчо", replacement = "а/м марки \"Rancher\""},
-{abbreviation = "ранчоа", replacement = "а/м марки \"Rancher\""},
-{abbreviation = "йосемити", replacement = "а/м марки \"Yosemite\""},
-{abbreviation = "йосемитиа", replacement = "а/м марки \"Yosemite\""},
-{abbreviation = "бобкэт", replacement = "а/м марки \"Bobcat\""},
-{abbreviation = "бобкэта", replacement = "а/м марки \"Bobcat\""},
-{abbreviation = "бобкэту", replacement = "а/м марки \"Bobcat\""},
-{abbreviation = "премьер", replacement = "а/м марки \"Premier\""},
-{abbreviation = "премьера", replacement = "а/м марки \"Premier\""},
-{abbreviation = "премьеру", replacement = "а/м марки \"Premier\""},
-{abbreviation = "стретч", replacement = "а/м марки \"Stretch\""},
-{abbreviation = "стретча", replacement = "а/м марки \"Stretch\""},
-{abbreviation = "стретчу", replacement = "а/м марки \"Stretch\""},
-{abbreviation = "адмирал", replacement = "а/м марки \"Admiral\""},
-{abbreviation = "адмирала", replacement = "а/м марки \"Admiral\""},
-{abbreviation = "адмиралу", replacement = "а/м марки \"Admiral\""},
-{abbreviation = "вашингтон", replacement = "а/м марки \"Washington\""},
-{abbreviation = "вашингтона", replacement = "а/м марки \"Washington\""},
-{abbreviation = "вашингтону", replacement = "а/м марки \"Washington\""},
-{abbreviation = "винвуд", replacement = "а/м марки \"Willard\""},
-{abbreviation = "винвуда", replacement = "а/м марки \"Willard\""},
-{abbreviation = "эмперор", replacement = "а/м марки \"Emperor\""},
-{abbreviation = "эмперора", replacement = "а/м марки \"Emperor\""},
-{abbreviation = "эмперору", replacement = "а/м марки \"Emperor\""},
-{abbreviation = "элеганс", replacement = "а/м марки \"Elegant\""},
-{abbreviation = "элеганса", replacement = "а/м марки \"Elegant\""},
-{abbreviation = "элегансу", replacement = "а/м марки \"Elegant\""},
-{abbreviation = "глендейл", replacement = "а/м марки \"Glendale\""},
-{abbreviation = "глендейла", replacement = "а/м марки \"Glendale\""},
-{abbreviation = "глендейлу", replacement = "а/м марки \"Glendale\""},
-{abbreviation = "манана", replacement = "а/м марки \"Manana\""},
-{abbreviation = "манану", replacement = "а/м марки \"Manana\""},
-{abbreviation = "мананы", replacement = "а/м марки \"Manana\""},
-{abbreviation = "манане", replacement = "а/м марки \"Manana\""},
-{abbreviation = "блиста", replacement = "а/м марки \"Blista\""},
-{abbreviation = "блисту", replacement = "а/м марки \"Blista\""},
-{abbreviation = "блисты", replacement = "а/м марки \"Blista\""},
-{abbreviation = "фортун", replacement = "а/м марки \"Fortune\""},
-{abbreviation = "фортуна", replacement = "а/м марки \"Fortune\""},
-{abbreviation = "фортуну", replacement = "а/м марки \"Fortune\""},
-{abbreviation = "сентинел", replacement = "а/м марки \"Sentinel\""},
-{abbreviation = "сентинела", replacement = "а/м марки \"Sentinel\""},
-{abbreviation = "сентинелу", replacement = "а/м марки \"Sentinel\""},
-{abbreviation = "букер", replacement = "а/м марки \"Buccaneer\""},
-{abbreviation = "букера", replacement = "а/м марки \"Buccaneer\""},
-{abbreviation = "букеру", replacement = "а/м марки \"Buccaneer\""},
-{abbreviation = "хёрмит", replacement = "а/м марки \"Hermes\""},
-{abbreviation = "хёрмита", replacement = "а/м марки \"Hermes\""},
-{abbreviation = "хёрмиту", replacement = "а/м марки \"Hermes\""},
-{abbreviation = "маджестик", replacement = "а/м марки \"Majestic\""},
-{abbreviation = "маджестика", replacement = "а/м марки \"Majestic\""},
-{abbreviation = "невада", replacement = "а/м марки \"Nevada\""},
-{abbreviation = "неваду", replacement = "а/м марки \"Nevada\""},
-{abbreviation = "невады", replacement = "а/м марки \"Nevada\""},
-{abbreviation = "примо", replacement = "а/м марки \"Primo\""},
-{abbreviation = "примоа", replacement = "а/м марки \"Primo\""},
-{abbreviation = "хоткнайф", replacement = "а/м марки \"Hotknife\""},
-{abbreviation = "хоткнайфа", replacement = "а/м марки \"Hotknife\""},
-{abbreviation = "хоткнайфу", replacement = "а/м марки \"Hotknife\""},
-{abbreviation = "дюна", replacement = "а/м марки \"Dune\""},
-{abbreviation = "дюну", replacement = "а/м марки \"Dune\""},
-{abbreviation = "дюны", replacement = "а/м марки \"Dune\""},
-{abbreviation = "дюне", replacement = "а/м марки \"Dune\""},
-{abbreviation = "монстр", replacement = "а/м марки \"Monster\""},
-{abbreviation = "монстра", replacement = "а/м марки \"Monster\""},
-{abbreviation = "монстру", replacement = "а/м марки \"Monster\""},
-{abbreviation = "монстры", replacement = "а/м марки \"Monster\""},
-{abbreviation = "бандито", replacement = "а/м марки \"Bandito\""},
-{abbreviation = "бандита", replacement = "а/м марки \"Bandito\""},
-{abbreviation = "бандиту", replacement = "а/м марки \"Bandito\""},
-{abbreviation = "кальцо", replacement = "а/м марки \"Calcium\""},
-{abbreviation = "кальцию", replacement = "а/м марки \"Calcium\""},
-{abbreviation = "кальция", replacement = "а/м марки \"Calcium\""},
-{abbreviation = "патриот", replacement = "а/м марки \"Patriot\""},
-{abbreviation = "патриота", replacement = "а/м марки \"Patriot\""},
-{abbreviation = "патриоту", replacement = "а/м марки \"Patriot\""},
-{abbreviation = "хотринг", replacement = "а/м марки \"Hotring\""},
-{abbreviation = "хотринга", replacement = "а/м марки \"Hotring\""},
-{abbreviation = "хотрингу", replacement = "а/м марки \"Hotring\""},
-{abbreviation = "хотрингер", replacement = "а/м марки \"Hotring\""},
-{abbreviation = "хотрингера", replacement = "а/м марки \"Hotring\""},
-{abbreviation = "багги", replacement = "а/м марки \"Bandito\""},
-{abbreviation = "баггиа", replacement = "а/м марки \"Bandito\""},
-{abbreviation = "крэйг", replacement = "а/м марки \"Crane\""},
-{abbreviation = "крэйга", replacement = "а/м марки \"Crane\""},
-{abbreviation = "инфернус", replacement = "а/м марки \"Infernus\""},
-{abbreviation = "инфернуса", replacement = "а/м марки \"Infernus\""},
-{abbreviation = "инфернусу", replacement = "а/м марки \"Infernus\""},
-{abbreviation = "буллет", replacement = "а/м марки \"Bullet\""},
-{abbreviation = "буллета", replacement = "а/м марки \"Bullet\""},
-{abbreviation = "буллету", replacement = "а/м марки \"Bullet\""},
-{abbreviation = "турисмо", replacement = "а/м марки \"Turismo\""},
-{abbreviation = "турисмоа", replacement = "а/м марки \"Turismo\""},
-{abbreviation = "ковбой", replacement = "а/м марки \"Clover\""},
-{abbreviation = "ковбоя", replacement = "а/м марки \"Clover\""},
-{abbreviation = "сэлбрайт", replacement = "а/м марки \"Sultan\""},
-{abbreviation = "сэлбрайта", replacement = "а/м марки \"Sultan\""},
-{abbreviation = "тампико", replacement = "а/м марки \"Tampa\""},
-{abbreviation = "фортуне", replacement = "а/м марки \"Fortune\""},
-{abbreviation = "фортунеа", replacement = "а/м марки \"Fortune\""},
-{abbreviation = "элегант", replacement = "а/м марки \"Elegant\""},
-{abbreviation = "элеганта", replacement = "а/м марки \"Elegant\""},
-{abbreviation = "октан", replacement = "а/м марки \"Uranus\""},
-{abbreviation = "октана", replacement = "а/м марки \"Uranus\""},
-{abbreviation = "октану", replacement = "а/м марки \"Uranus\""},
-{abbreviation = "зр350", replacement = "а/м марки \"ZR-350\""},
-{abbreviation = "зр350а", replacement = "а/м марки \"ZR-350\""},
-{abbreviation = "зр", replacement = "а/м марки \"ZR-350\""},
-{abbreviation = "зра", replacement = "а/м марки \"ZR-350\""},
-{abbreviation = "файрберд", replacement = "а/м марки \"Phoenix\""},
-{abbreviation = "файрберда", replacement = "а/м марки \"Phoenix\""},
-{abbreviation = "чирок", replacement = "а/м марки \"Cheetah\""},
-{abbreviation = "чирока", replacement = "а/м марки \"Cheetah\""},
-{abbreviation = "банка", replacement = "а/м марки \"Banshee\""},
-{abbreviation = "банку", replacement = "а/м марки \"Banshee\""},
-{abbreviation = "шевроле", replacement = "а/м марки \"Chevrolet\""},
-{abbreviation = "шевролеа", replacement = "а/м марки \"Chevrolet\""},
-{abbreviation = "ламбо", replacement = "а/м марки \"Lamborghini\""},
-{abbreviation = "ламбу", replacement = "а/м марки \"Lamborghini\""},
-{abbreviation = "бмв", replacement = "а/м марки \"BMW\""},
-{abbreviation = "бмву", replacement = "а/м марки \"BMW\""},
-{abbreviation = "мерс", replacement = "а/м марки \"Mercedes\""},
-{abbreviation = "мерса", replacement = "а/м марки \"Mercedes\""},
-{abbreviation = "мерсу", replacement = "а/м марки \"Mercedes\""},
-{abbreviation = "тойота", replacement = "а/м марки \"Toyota\""},
-{abbreviation = "тойоту", replacement = "а/м марки \"Toyota\""},
-{abbreviation = "тойоты", replacement = "а/м марки \"Toyota\""},
-{abbreviation = "ауди", replacement = "а/м марки \"Audi\""},
-{abbreviation = "аудиа", replacement = "а/м марки \"Audi\""},
-{abbreviation = "порше", replacement = "а/м марки \"Porsche\""},
-{abbreviation = "поршеа", replacement = "а/м марки \"Porsche\""},
-{abbreviation = "феррари", replacement = "а/м марки \"Ferrari\""},
-{abbreviation = "феррариа", replacement = "а/м марки \"Ferrari\""},
-{abbreviation = "лексус", replacement = "а/м марки \"Lexus\""},
-{abbreviation = "лексуса", replacement = "а/м марки \"Lexus\""},
-{abbreviation = "хонда", replacement = "а/м марки \"Honda\""},
-{abbreviation = "хонду", replacement = "а/м марки \"Honda\""},
-{abbreviation = "хонды", replacement = "а/м марки \"Honda\""},
-{abbreviation = "ниссан", replacement = "а/м марки \"Nissan\""},
-{abbreviation = "ниссана", replacement = "а/м марки \"Nissan\""},
-{abbreviation = "мазда", replacement = "а/м марки \"Mazda\""},
-{abbreviation = "мазду", replacement = "а/м марки \"Mazda\""},
-{abbreviation = "мазды", replacement = "а/м марки \"Mazda\""},
-{abbreviation = "субару", replacement = "а/м марки \"Subaru\""},
-{abbreviation = "субаруа", replacement = "а/м марки \"Subaru\""},
-{abbreviation = "митсубиси", replacement = "а/м марки \"Mitsubishi\""},
-{abbreviation = "крайслер", replacement = "а/м марки \"Chrysler\""},
-{abbreviation = "крайслера", replacement = "а/м марки \"Chrysler\""},
-{abbreviation = "форд", replacement = "а/м марки \"Ford\""},
-{abbreviation = "форда", replacement = "а/м марки \"Ford\""},
-{abbreviation = "форду", replacement = "а/м марки \"Ford\""},
-{abbreviation = "вольво", replacement = "а/м марки \"Volvo\""},
-{abbreviation = "бьюик", replacement = "а/м марки \"Buick\""},
-{abbreviation = "бьюика", replacement = "а/м марки \"Buick\""},
-{abbreviation = "кадиллак", replacement = "а/м марки \"Cadillac\""},
-{abbreviation = "кадиллака", replacement = "а/м марки \"Cadillac\""},
-{abbreviation = "понтиак", replacement = "а/м марки \"Pontiac\""},
-{abbreviation = "понтиака", replacement = "а/м марки \"Pontiac\""},
-{abbreviation = "додж", replacement = "а/м марки \"Dodge\""},
-{abbreviation = "доджа", replacement = "а/м марки \"Dodge\""},
-{abbreviation = "доджу", replacement = "а/м марки \"Dodge\""},
-{abbreviation = "ягуар", replacement = "а/м марки \"Jaguar\""},
-{abbreviation = "ягуара", replacement = "а/м марки \"Jaguar\""},
-{abbreviation = "бентли", replacement = "а/м марки \"Bentley\""},
-{abbreviation = "бентлиа", replacement = "а/м марки \"Bentley\""},
-{abbreviation = "роллсройс", replacement = "а/м марки \"Rolls-Royce\""},
-{abbreviation = "мазерати", replacement = "а/м марки \"Maserati\""},
-{abbreviation = "астонмартин", replacement = "а/м марки \"Aston Martin\""},
-{abbreviation = "бугатти", replacement = "а/м марки \"Bugatti\""},
-{abbreviation = "тачку", replacement = "а/м"},
-{abbreviation = "тачка", replacement = "а/м"},
-{abbreviation = "тачки", replacement = "а/м"},
-{abbreviation = "тачке", replacement = "а/м"},
-{abbreviation = "таз", replacement = "а/м"},
-{abbreviation = "таза", replacement = "а/м"},
-{abbreviation = "тазу", replacement = "а/м"},
-{abbreviation = "машину", replacement = "а/м"},
-{abbreviation = "машина", replacement = "а/м"},
-{abbreviation = "машины", replacement = "а/м"},
-{abbreviation = "машине", replacement = "а/м"},
-{abbreviation = "авто", replacement = "а/м"},
-{abbreviation = "автоа", replacement = "а/м"},
-{abbreviation = "лодка", replacement = "лодку"},
-{abbreviation = "лодку", replacement = "лодку"},
-{abbreviation = "лодки", replacement = "лодку"},
-{abbreviation = "лодке", replacement = "лодку"},
-{abbreviation = "яхта", replacement = "яхту"},
-{abbreviation = "яхту", replacement = "яхту"},
-{abbreviation = "яхты", replacement = "яхту"},
-{abbreviation = "яхте", replacement = "яхту"},
-{abbreviation = "самолет", replacement = "самолёт"},
-{abbreviation = "самолёт", replacement = "самолёт"},
-{abbreviation = "самолёта", replacement = "самолёт"},
-{abbreviation = "вертолет", replacement = "вертолёт"},
-{abbreviation = "вертолёт", replacement = "вертолёт"},
-{abbreviation = "вертолёта", replacement = "вертолёт"},
--- Мото
-{abbreviation = "нрг", replacement = "мото марки \"NRG-500\""},
-{abbreviation = "нргу", replacement = "мото марки \"NRG-500\""},
-{abbreviation = "нрга", replacement = "мото марки \"NRG-500\""},
-{abbreviation = "нрге", replacement = "мото марки \"NRG-500\""},
-{abbreviation = "нрги", replacement = "мото марки \"NRG-500\""},
-{abbreviation = "фрей", replacement = "мото марки \"Freeway\""},
-{abbreviation = "фрея", replacement = "мото марки \"Freeway\""},
-{abbreviation = "фрею", replacement = "мото марки \"Freeway\""},
-{abbreviation = "вейб", replacement = "мото марки \"Wayfarer\""},
-{abbreviation = "вейба", replacement = "мото марки \"Wayfarer\""},
-{abbreviation = "вейбу", replacement = "мото марки \"Wayfarer\""},
-{abbreviation = "санч", replacement = "мото марки \"Sanchez\""},
-{abbreviation = "санчез", replacement = "мото марки \"Sanchez\""},
-{abbreviation = "санча", replacement = "мото марки \"Sanchez\""},
-{abbreviation = "санчу", replacement = "мото марки \"Sanchez\""},
-{abbreviation = "пжж", replacement = "мото марки \"PCJ-600\""},
-{abbreviation = "пжжа", replacement = "мото марки \"PCJ-600\""},
-{abbreviation = "пжжу", replacement = "мото марки \"PCJ-600\""},
-{abbreviation = "фцз", replacement = "мото марки \"FCR-900\""},
-{abbreviation = "фцза", replacement = "мото марки \"FCR-900\""},
-{abbreviation = "фцзу", replacement = "мото марки \"FCR-900\""},
-{abbreviation = "фаггио", replacement = "мото марки \"Faggio\""},
-{abbreviation = "фагио", replacement = "мото марки \"Faggio\""},
-{abbreviation = "фаггиу", replacement = "мото марки \"Faggio\""},
-{abbreviation = "бф", replacement = "мото марки \"BF-400\""},
-{abbreviation = "бфа", replacement = "мото марки \"BF-400\""},
-{abbreviation = "эндюро", replacement = "мото марки \"Enduro\""},
-{abbreviation = "эндюра", replacement = "мото марки \"Enduro\""},
-{abbreviation = "ангел", replacement = "мото марки \"Angel\""},
-{abbreviation = "ангела", replacement = "мото марки \"Angel\""},
--- Велосипеды
-{abbreviation = "бмх", replacement = "велосипед марки \"BMX\""},
-{abbreviation = "бмха", replacement = "велосипед марки \"BMX\""},
-{abbreviation = "бмху", replacement = "велосипед марки \"BMX\""},
-{abbreviation = "байк", replacement = "велосипед марки \"BMX\""},
-{abbreviation = "байка", replacement = "велосипед марки \"BMX\""},
-{abbreviation = "байку", replacement = "велосипед марки \"BMX\""},
-{abbreviation = "велик", replacement = "велосипед"},
-{abbreviation = "велика", replacement = "велосипед"},
-{abbreviation = "велику", replacement = "велосипед"},
-{abbreviation = "велосипед", replacement = "велосипед"},
-{abbreviation = "велосипеда", replacement = "велосипед"},
--- Города
-{abbreviation = "лс", replacement = "Los Santos"},
-{abbreviation = "лос сантос", replacement = "Los Santos"},
-{abbreviation = "сф", replacement = "San Fierro"},
-{abbreviation = "санфиеро", replacement = "San Fierro"},
-{abbreviation = "сан фиерро", replacement = "San Fierro"},
-{abbreviation = "лв", replacement = "Las Venturas"},
+-- пїЅпїЅпїЅпїЅпїЅпїЅ
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bullet\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bullet\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bullet\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bullet\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bullet\""},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Infernus\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Infernus\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Infernus\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Infernus\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Infernus\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Turismo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Turismo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Turismo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Turismo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Turismo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Banshee\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Banshee\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Banshee\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Banshee\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Cheetah\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Cheetah\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Cheetah\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Super GT\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Super GT\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Super GT\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Stinger\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Stinger\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Stinger\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Comet\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Comet\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Comet\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Comet\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Phoenix\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Phoenix\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Phoenix\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Champion\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Champion\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Champion\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Alpha\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Alpha\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Alpha\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Clover\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Clover\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Clover\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Clover\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sabre\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sabre\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sabre\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sabre\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Voodoo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Voodoo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Slamvan\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Slamvan\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Slamvan\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Remington\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Remington\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Remington\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bravura\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bravura\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bravura\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Blade\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Blade\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Blade\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Tampa\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Tampa\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Tornado\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Tornado\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Tornado\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Elegy\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Elegy\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Elegy\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Elegy\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Elegy\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Flash\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Flash\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Flash\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Jester\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Jester\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Jester\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Stratum\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Stratum\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Stratum\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Uranus\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Uranus\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Uranus\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Uranus\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan RS\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan RS\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan RS\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan RS\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan RS\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan RS\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan RS\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Picador\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Picador\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Picador\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Solair\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Solair\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Solair\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Windsor\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Windsor\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Windsor\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Stafford\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Stafford\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Stafford\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Huntley\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Huntley\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Huntley\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Rancher\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Rancher\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Rancher\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Rancher\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Rancher\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Yosemite\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Yosemite\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bobcat\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bobcat\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bobcat\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Premier\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Premier\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Premier\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Stretch\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Stretch\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Stretch\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Admiral\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Admiral\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Admiral\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Washington\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Washington\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Washington\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Willard\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Willard\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Emperor\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Emperor\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Emperor\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Elegant\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Elegant\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Elegant\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Glendale\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Glendale\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Glendale\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Manana\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Manana\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Manana\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Manana\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Blista\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Blista\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Blista\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Fortune\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Fortune\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Fortune\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sentinel\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sentinel\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sentinel\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Buccaneer\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Buccaneer\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Buccaneer\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hermes\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hermes\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hermes\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Majestic\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Majestic\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Nevada\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Nevada\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Nevada\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Primo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Primo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hotknife\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hotknife\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hotknife\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Dune\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Dune\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Dune\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Dune\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Monster\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Monster\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Monster\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Monster\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bandito\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bandito\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bandito\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Calcium\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Calcium\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Calcium\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Patriot\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Patriot\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Patriot\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hotring\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hotring\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hotring\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hotring\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hotring\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bandito\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bandito\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Crane\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Crane\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Infernus\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Infernus\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Infernus\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bullet\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bullet\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bullet\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Turismo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Turismo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Clover\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Clover\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Tampa\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Fortune\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Fortune\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Elegant\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Elegant\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Uranus\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Uranus\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Uranus\""},
+{abbreviation = "пїЅпїЅ350", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"ZR-350\""},
+{abbreviation = "пїЅпїЅ350пїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"ZR-350\""},
+{abbreviation = "пїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"ZR-350\""},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"ZR-350\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Phoenix\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Phoenix\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Cheetah\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Cheetah\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Banshee\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Banshee\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Chevrolet\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Chevrolet\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Lamborghini\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Lamborghini\""},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"BMW\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"BMW\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Mercedes\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Mercedes\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Mercedes\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Toyota\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Toyota\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Toyota\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Audi\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Audi\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Porsche\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Porsche\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Ferrari\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Ferrari\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Lexus\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Lexus\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Honda\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Honda\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Honda\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Nissan\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Nissan\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Mazda\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Mazda\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Mazda\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Subaru\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Subaru\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Mitsubishi\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Chrysler\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Chrysler\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Ford\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Ford\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Ford\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Volvo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Buick\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Buick\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Cadillac\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Cadillac\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Pontiac\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Pontiac\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Dodge\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Dodge\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Dodge\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Jaguar\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Jaguar\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bentley\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bentley\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Rolls-Royce\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Maserati\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Aston Martin\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bugatti\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+-- пїЅпїЅпїЅпїЅ
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"NRG-500\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"NRG-500\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"NRG-500\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"NRG-500\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"NRG-500\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Freeway\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Freeway\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Freeway\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Wayfarer\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Wayfarer\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Wayfarer\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Sanchez\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Sanchez\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Sanchez\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Sanchez\""},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"PCJ-600\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"PCJ-600\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"PCJ-600\""},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"FCR-900\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"FCR-900\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"FCR-900\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Faggio\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Faggio\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Faggio\""},
+{abbreviation = "пїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"BF-400\""},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"BF-400\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Enduro\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Enduro\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Angel\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Angel\""},
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"BMX\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"BMX\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"BMX\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"BMX\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"BMX\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"BMX\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+-- пїЅпїЅпїЅпїЅпїЅпїЅ
+{abbreviation = "пїЅпїЅ", replacement = "Los Santos"},
+{abbreviation = "пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Los Santos"},
+{abbreviation = "пїЅпїЅ", replacement = "San Fierro"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "San Fierro"},
+{abbreviation = "пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "San Fierro"},
+{abbreviation = "пїЅпїЅ", replacement = "Las Venturas"},
 {abbreviation = "las venturas", replacement = "Las Venturas"},
 {abbreviation = "lv", replacement = "Las Venturas"},
-{abbreviation = "штат", replacement = "штат"},
-{abbreviation = "штата", replacement = "штат"},
--- Районы
-{abbreviation = "гетто", replacement = "East Los Santos"},
-{abbreviation = "геттоа", replacement = "East Los Santos"},
-{abbreviation = "ждлс", replacement = "East Los Santos"},
-{abbreviation = "жёлс", replacement = "East Los Santos"},
-{abbreviation = "гантон", replacement = "Ganton"},
-{abbreviation = "гантона", replacement = "Ganton"},
-{abbreviation = "гантону", replacement = "Ganton"},
-{abbreviation = "идл", replacement = "Idlewood"},
-{abbreviation = "идлвуд", replacement = "Idlewood"},
-{abbreviation = "джеф", replacement = "Jefferson"},
-{abbreviation = "джеферсон", replacement = "Jefferson"},
-{abbreviation = "глен", replacement = "Glen Park"},
-{abbreviation = "глена", replacement = "Glen Park"},
-{abbreviation = "верон", replacement = "Verona Beach"},
-{abbreviation = "верона", replacement = "Verona Beach"},
-{abbreviation = "верону", replacement = "Verona Beach"},
-{abbreviation = "вилл", replacement = "Willowfield"},
-{abbreviation = "виллоу", replacement = "Willowfield"},
-{abbreviation = "элкорона", replacement = "El Corona"},
-{abbreviation = "элтех", replacement = "El Corona"},
-{abbreviation = "элтек", replacement = "El Corona"},
-{abbreviation = "комфтон", replacement = "Commerce"},
-{abbreviation = "коммерс", replacement = "Commerce"},
-{abbreviation = "маркет", replacement = "Market"},
-{abbreviation = "маркета", replacement = "Market"},
-{abbreviation = "шром", replacement = "Chinatown"},
-{abbreviation = "пальмино", replacement = "Palomino Creek"},
-{abbreviation = "палминас", replacement = "Palomino Creek"},
-{abbreviation = "монтгомери", replacement = "Montgomery"},
-{abbreviation = "монтгомеря", replacement = "Montgomery"},
-{abbreviation = "диллимор", replacement = "Dillimore"},
-{abbreviation = "диллимора", replacement = "Dillimore"},
-{abbreviation = "блюбери", replacement = "Blueberry"},
-{abbreviation = "бляберри", replacement = "Blueberry"},
-{abbreviation = "чайнатаун", replacement = "Chinatown SF"},
-{abbreviation = "дохерти", replacement = "Doherty"},
-{abbreviation = "кингс", replacement = "Kings"},
-{abbreviation = "кингса", replacement = "Kings"},
-{abbreviation = "парадизо", replacement = "Paradiso"},
-{abbreviation = "стрип", replacement = "The Strip"},
-{abbreviation = "стрипа", replacement = "The Strip"},
-{abbreviation = "рокшор", replacement = "Rockshore"},
-{abbreviation = "рокшора", replacement = "Rockshore"},
-{abbreviation = "пилон", replacement = "Pilgrim"},
-{abbreviation = "пилона", replacement = "Pilgrim"},
-{abbreviation = "авалон", replacement = "Avalon"},
-{abbreviation = "авалона", replacement = "Avalon"},
-{abbreviation = "драгон", replacement = "Dragons Dojo"},
-{abbreviation = "драгона", replacement = "Dragons Dojo"},
--- Районы (деревни/посёлки/округа)
-{abbreviation = "флинт", replacement = "Flint County"},
-{abbreviation = "флинта", replacement = "Flint County"},
-{abbreviation = "флинт кантри", replacement = "Flint County"},
-{abbreviation = "флинт кантриа", replacement = "Flint County"},
-{abbreviation = "пк", replacement = "Palomino Creek"},
-{abbreviation = "палмино", replacement = "Palomino Creek"},
-{abbreviation = "паломино", replacement = "Palomino Creek"},
-{abbreviation = "паломино крик", replacement = "Palomino Creek"},
-{abbreviation = "блюберри", replacement = "Blueberry"},
-{abbreviation = "ель куебрадос", replacement = "El Quebrados"},
-{abbreviation = "куебрадос", replacement = "El Quebrados"},
-{abbreviation = "форт карсон", replacement = "Fort Carson"},
-{abbreviation = "форт карсона", replacement = "Fort Carson"},
-{abbreviation = "форт", replacement = "Fort Carson"},
-{abbreviation = "карсон", replacement = "Fort Carson"},
-{abbreviation = "тиера робада", replacement = "Tierra Robada"},
-{abbreviation = "тиера", replacement = "Tierra Robada"},
-{abbreviation = "робада", replacement = "Tierra Robada"},
-{abbreviation = "ангел пайн", replacement = "Angel Pine"},
-{abbreviation = "ангел", replacement = "Angel Pine"},
-{abbreviation = "норт рок", replacement = "North Rock"},
-{abbreviation = "норт", replacement = "North Rock"},
-{abbreviation = "эшберри", replacement = "Ashberry"},
-{abbreviation = "хилтоп", replacement = "Hilltop"},
-{abbreviation = "хилтопа", replacement = "Hilltop"},
-{abbreviation = "валле", replacement = "Valle Ocultado"},
-{abbreviation = "валле оклудадо", replacement = "Valle Ocultado"},
-{abbreviation = "оклудадо", replacement = "Valle Ocultado"},
-{abbreviation = "арко дель оесте", replacement = "Arco del Oeste"},
-{abbreviation = "арко", replacement = "Arco del Oeste"},
-{abbreviation = "бейсайд", replacement = "Bayside"},
-{abbreviation = "бэйсайд", replacement = "Bayside"},
-{abbreviation = "эл кебрадос", replacement = "El Quebrados"},
-{abbreviation = "эль кебрадос", replacement = "El Quebrados"},
-{abbreviation = "грин палмс", replacement = "Green Palms"},
-{abbreviation = "грин", replacement = "Green Palms"},
-{abbreviation = "палмс", replacement = "Green Palms"},
-{abbreviation = "юнион станция", replacement = "Union Station"},
-{abbreviation = "юнион", replacement = "Union Station"},
-{abbreviation = "крик", replacement = "Palomino Creek"},
-{abbreviation = "кантри", replacement = "Flint County"},
-{abbreviation = "вайтвуд", replacement = "Whitewood"},
-{abbreviation = "вайтвуд бич", replacement = "Whitewood Beach"},
-{abbreviation = "вайтвуда", replacement = "Whitewood"},
-{abbreviation = "прайм", replacement = "Prickle Pine"},
-{abbreviation = "прикл пайн", replacement = "Prickle Pine"},
-{abbreviation = "прикл", replacement = "Prickle Pine"},
-{abbreviation = "рокшор вест", replacement = "Rockshore West"},
-{abbreviation = "олд вегас", replacement = "Old Venturas"},
-{abbreviation = "олдвегас", replacement = "Old Venturas"},
-{abbreviation = "нью вегас", replacement = "New Venturas"},
-{abbreviation = "ньювегас", replacement = "New Venturas"},
-{abbreviation = "каменный сад", replacement = "Rockshore"},
-{abbreviation = "каменная", replacement = "Rockshore"},
-{abbreviation = "пилбокс", replacement = "Pilbox"},
-{abbreviation = "пилбокса", replacement = "Pilbox"},
-{abbreviation = "ройал", replacement = "Royal Casino"},
-{abbreviation = "ройала", replacement = "Royal Casino"},
-{abbreviation = "калигула", replacement = "Caligulas Palace"},
-{abbreviation = "калигулы", replacement = "Caligulas Palace"},
-{abbreviation = "пират", replacement = "Pirates in Mens Pants"},
-{abbreviation = "пирата", replacement = "Pirates in Mens Pants"},
-{abbreviation = "визаж", replacement = "Visage"},
-{abbreviation = "визажа", replacement = "Visage"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+-- пїЅпїЅпїЅпїЅпїЅпїЅ
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "East Los Santos"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "East Los Santos"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "East Los Santos"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "East Los Santos"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Ganton"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Ganton"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Ganton"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "Idlewood"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Idlewood"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "Jefferson"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Jefferson"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "Glen Park"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Glen Park"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Verona Beach"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Verona Beach"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Verona Beach"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "Willowfield"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Willowfield"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "El Corona"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "El Corona"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "El Corona"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Commerce"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Commerce"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Market"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Market"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "Chinatown"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Palomino Creek"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Palomino Creek"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Montgomery"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Montgomery"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Dillimore"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Dillimore"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Blueberry"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Blueberry"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Chinatown SF"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Doherty"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Kings"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Kings"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Paradiso"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "The Strip"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "The Strip"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Rockshore"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Rockshore"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Pilgrim"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Pilgrim"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Avalon"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Avalon"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Dragons Dojo"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Dragons Dojo"},
+-- пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅпїЅ)
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Flint County"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Flint County"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Flint County"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Flint County"},
+{abbreviation = "пїЅпїЅ", replacement = "Palomino Creek"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Palomino Creek"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Palomino Creek"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ", replacement = "Palomino Creek"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Blueberry"},
+{abbreviation = "пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "El Quebrados"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "El Quebrados"},
+{abbreviation = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Fort Carson"},
+{abbreviation = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Fort Carson"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "Fort Carson"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Fort Carson"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Tierra Robada"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Tierra Robada"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Tierra Robada"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ", replacement = "Angel Pine"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Angel Pine"},
+{abbreviation = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ", replacement = "North Rock"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "North Rock"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Ashberry"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Hilltop"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Hilltop"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Valle Ocultado"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Valle Ocultado"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Valle Ocultado"},
+{abbreviation = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ", replacement = "Arco del Oeste"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "Arco del Oeste"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Bayside"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Bayside"},
+{abbreviation = "пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "El Quebrados"},
+{abbreviation = "пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "El Quebrados"},
+{abbreviation = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ", replacement = "Green Palms"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "Green Palms"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Green Palms"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Union Station"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Union Station"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "Palomino Creek"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Flint County"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Whitewood"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ", replacement = "Whitewood Beach"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Whitewood"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Prickle Pine"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ", replacement = "Prickle Pine"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Prickle Pine"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ", replacement = "Rockshore West"},
+{abbreviation = "пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ", replacement = "Old Venturas"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Old Venturas"},
+{abbreviation = "пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ", replacement = "New Venturas"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "New Venturas"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ", replacement = "Rockshore"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Rockshore"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Pilbox"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Pilbox"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Royal Casino"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Royal Casino"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Caligulas Palace"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Caligulas Palace"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Pirates in Mens Pants"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Pirates in Mens Pants"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Visage"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Visage"},
 
--- Недвижимость
-{abbreviation = "кв", replacement = "квартиру"},
-{abbreviation = "квартира", replacement = "квартиру"},
-{abbreviation = "квартиру", replacement = "квартиру"},
-{abbreviation = "квартиры", replacement = "квартиру"},
-{abbreviation = "особняк", replacement = "особняк"},
-{abbreviation = "особняка", replacement = "особняк"},
-{abbreviation = "особняку", replacement = "особняк"},
-{abbreviation = "виллу", replacement = "виллу"},
-{abbreviation = "вилла", replacement = "виллу"},
-{abbreviation = "виллы", replacement = "виллу"},
-{abbreviation = "биз", replacement = "бизнес"},
-{abbreviation = "бизик", replacement = "бизнес"},
-{abbreviation = "бизнес", replacement = "бизнес"},
-{abbreviation = "бизнеса", replacement = "бизнес"},
-{abbreviation = "бизнесу", replacement = "бизнес"},
-{abbreviation = "завод", replacement = "производство"},
-{abbreviation = "завода", replacement = "производство"},
-{abbreviation = "заводу", replacement = "производство"},
-{abbreviation = "фабрика", replacement = "производство"},
-{abbreviation = "фабрику", replacement = "производство"},
-{abbreviation = "фабрики", replacement = "производство"},
-{abbreviation = "фактория", replacement = "производство"},
-{abbreviation = "факторию", replacement = "производство"},
-{abbreviation = "заправка", replacement = "АЗС"},
-{abbreviation = "азс", replacement = "АЗС"},
-{abbreviation = "заправку", replacement = "АЗС"},
-{abbreviation = "бензоль", replacement = "АЗС"},
-{abbreviation = "отель", replacement = "отель"},
-{abbreviation = "мотель", replacement = "отель"},
-{abbreviation = "отеля", replacement = "отель"},
-{abbreviation = "мотеля", replacement = "отель"},
-{abbreviation = "маг", replacement = "магазин"},
-{abbreviation = "магазин", replacement = "магазин"},
-{abbreviation = "магазина", replacement = "магазин"},
-{abbreviation = "хатка", replacement = "магазин"},
-{abbreviation = "хатку", replacement = "магазин"},
-{abbreviation = "хатки", replacement = "магазин"},
-{abbreviation = "барах", replacement = "барах"},
-{abbreviation = "бараху", replacement = "барах"},
-{abbreviation = "барахи", replacement = "барах"},
-{abbreviation = "барахе", replacement = "барах"},
-{abbreviation = "клуб", replacement = "клуб"},
-{abbreviation = "клуба", replacement = "клуб"},
-{abbreviation = "клубу", replacement = "клуб"},
-{abbreviation = "казино", replacement = "казино"},
-{abbreviation = "казик", replacement = "казино"},
-{abbreviation = "казика", replacement = "казино"},
-{abbreviation = "казику", replacement = "казино"},
-{abbreviation = "качалка", replacement = "тренажёрный зал"},
-{abbreviation = "качалку", replacement = "тренажёрный зал"},
-{abbreviation = "качалки", replacement = "тренажёрный зал"},
-{abbreviation = "качалке", replacement = "тренажёрный зал"},
-{abbreviation = "спортзал", replacement = "тренажёрный зал"},
-{abbreviation = "спортзала", replacement = "тренажёрный зал"},
-{abbreviation = "зал", replacement = "тренажёрный зал"},
-{abbreviation = "закусочная", replacement = "закусочную"},
-{abbreviation = "закусочную", replacement = "закусочную"},
-{abbreviation = "столовая", replacement = "столовую"},
-{abbreviation = "столовую", replacement = "столовую"},
-{abbreviation = "бар", replacement = "бар"},
-{abbreviation = "бара", replacement = "бар"},
-{abbreviation = "бару", replacement = "бар"},
-{abbreviation = "ресторан", replacement = "ресторан"},
-{abbreviation = "ресторана", replacement = "ресторан"},
-{abbreviation = "кафе", replacement = "кафе"},
-{abbreviation = "аптека", replacement = "аптеку"},
-{abbreviation = "аптеку", replacement = "аптеку"},
-{abbreviation = "аптеки", replacement = "аптеку"},
-{abbreviation = "склад", replacement = "склад"},
-{abbreviation = "склада", replacement = "склад"},
-{abbreviation = "складу", replacement = "склад"},
-{abbreviation = "ангар", replacement = "ангар"},
-{abbreviation = "ангара", replacement = "ангар"},
-{abbreviation = "причал", replacement = "причал"},
-{abbreviation = "причала", replacement = "причал"},
-{abbreviation = "ферма", replacement = "ферму"},
-{abbreviation = "ферму", replacement = "ферму"},
-{abbreviation = "фермы", replacement = "ферму"},
-{abbreviation = "шахта", replacement = "шахту"},
-{abbreviation = "шахту", replacement = "шахту"},
-{abbreviation = "шахты", replacement = "шахту"},
-{abbreviation = "лесопилка", replacement = "лесопилку"},
-{abbreviation = "лесопилку", replacement = "лесопилку"},
-{abbreviation = "порт", replacement = "порт"},
-{abbreviation = "порта", replacement = "порт"},
-{abbreviation = "порту", replacement = "порт"},
-{abbreviation = "верфь", replacement = "верфь"},
-{abbreviation = "верфи", replacement = "верфь"},
-{abbreviation = "хранилище", replacement = "хранилище"},
-{abbreviation = "хранилища", replacement = "хранилище"},
-{abbreviation = "электростанция", replacement = "электростанцию"},
-{abbreviation = "электростанцию", replacement = "электростанцию"},
-{abbreviation = "мэрия", replacement = "мэрию"},
-{abbreviation = "мэрию", replacement = "мэрию"},
-{abbreviation = "мэрии", replacement = "мэрию"},
-{abbreviation = "мэрие", replacement = "мэрию"},
-{abbreviation = "мерия", replacement = "мэрию"},
-{abbreviation = "мерию", replacement = "мэрию"},
-{abbreviation = "полиция", replacement = "полицию"},
-{abbreviation = "полицию", replacement = "полицию"},
-{abbreviation = "полиции", replacement = "полицию"},
-{abbreviation = "больница", replacement = "больницу"},
-{abbreviation = "больницу", replacement = "больницу"},
-{abbreviation = "больницы", replacement = "больницу"},
-{abbreviation = "школа", replacement = "школу"},
-{abbreviation = "школу", replacement = "школу"},
-{abbreviation = "школы", replacement = "школу"},
-{abbreviation = "церковь", replacement = "церковь"},
-{abbreviation = "церкви", replacement = "церковь"},
-{abbreviation = "банк", replacement = "банк"},
-{abbreviation = "банка", replacement = "банк"},
-{abbreviation = "банку", replacement = "банк"},
-{abbreviation = "стадион", replacement = "стадион"},
-{abbreviation = "стадиона", replacement = "стадион"},
-{abbreviation = "стадиону", replacement = "стадион"},
--- Предметы
-{abbreviation = "сим", replacement = "SIM-card"},
-{abbreviation = "симка", replacement = "SIM-card"},
-{abbreviation = "симку", replacement = "SIM-card"},
-{abbreviation = "симки", replacement = "SIM-card"},
-{abbreviation = "тел", replacement = "телефон"},
-{abbreviation = "телефон", replacement = "телефон"},
-{abbreviation = "телефона", replacement = "телефон"},
-{abbreviation = "номер", replacement = "тел. номер"},
-{abbreviation = "номера", replacement = "тел. номер"},
-{abbreviation = "одежду", replacement = "одежду"},
-{abbreviation = "одежда", replacement = "одежду"},
-{abbreviation = "одежды", replacement = "одежду"},
-{abbreviation = "скин", replacement = "одежду"},
-{abbreviation = "скина", replacement = "одежду"},
-{abbreviation = "скину", replacement = "одежду"},
-{abbreviation = "аксессуар", replacement = "аксессуар"},
-{abbreviation = "аксесуар", replacement = "аксессуар"},
-{abbreviation = "аксессуара", replacement = "аксессуар"},
-{abbreviation = "меч", replacement = "аксессуар \"Меч\""},
-{abbreviation = "меча", replacement = "аксессуар \"Меч\""},
-{abbreviation = "рюкзак", replacement = "аксессуар \"Рюкзак\""},
-{abbreviation = "рюкзака", replacement = "аксессуар \"Рюкзак\""},
-{abbreviation = "часы", replacement = "аксессуар \"Часы\""},
-{abbreviation = "очки", replacement = "аксессуар \"Очки\""},
-{abbreviation = "шляпу", replacement = "аксессуар \"Шляпа\""},
-{abbreviation = "шляпа", replacement = "аксессуар \"Шляпа\""},
-{abbreviation = "маску", replacement = "аксессуар \"Маска\""},
-{abbreviation = "маска", replacement = "аксессуар \"Маска\""},
-{abbreviation = "парашют", replacement = "аксессуар \"Парашют\""},
-{abbreviation = "парашюты", replacement = "аксессуар \"Парашют\""},
-{abbreviation = "бинты", replacement = "аптечку"},
-{abbreviation = "бинтов", replacement = "аптечку"},
-{abbreviation = "аптечка", replacement = "аптечку"},
-{abbreviation = "аптечку", replacement = "аптечку"},
-{abbreviation = "аптеки", replacement = "аптечку"},
-{abbreviation = "еда", replacement = "еду"},
-{abbreviation = "еду", replacement = "еду"},
-{abbreviation = "еды", replacement = "еду"},
-{abbreviation = "вода", replacement = "воду"},
-{abbreviation = "воду", replacement = "воду"},
-{abbreviation = "воды", replacement = "воду"},
-{abbreviation = "бронежилет", replacement = "бронежилет"},
-{abbreviation = "бронежилета", replacement = "бронежилет"},
-{abbreviation = "бинокль", replacement = "бинокль"},
-{abbreviation = "бинокля", replacement = "бинокль"},
-{abbreviation = "фонарик", replacement = "фонарик"},
-{abbreviation = "фонарика", replacement = "фонарик"},
-{abbreviation = "радио", replacement = "радио"},
-{abbreviation = "радиоа", replacement = "радио"},
-{abbreviation = "гитара", replacement = "гитару"},
-{abbreviation = "гитару", replacement = "гитару"},
-{abbreviation = "гитары", replacement = "гитару"},
-{abbreviation = "мяч", replacement = "мяч"},
-{abbreviation = "мяча", replacement = "мяч"},
-{abbreviation = "удочка", replacement = "удочку"},
-{abbreviation = "удочку", replacement = "удочку"},
-{abbreviation = "удочки", replacement = "удочку"},
--- Оружие
-{abbreviation = "дигл", replacement = "оружие \"Desert Eagle\""},
-{abbreviation = "дигла", replacement = "оружие \"Desert Eagle\""},
-{abbreviation = "диглу", replacement = "оружие \"Desert Eagle\""},
-{abbreviation = "шотган", replacement = "оружие \"Shotgun\""},
-{abbreviation = "шотгана", replacement = "оружие \"Shotgun\""},
-{abbreviation = "дробовик", replacement = "оружие \"Shotgun\""},
-{abbreviation = "м4", replacement = "оружие \"M4\""},
-{abbreviation = "м4а1", replacement = "оружие \"M4\""},
-{abbreviation = "ак", replacement = "оружие \"AK-47\""},
-{abbreviation = "ака", replacement = "оружие \"AK-47\""},
-{abbreviation = "смг", replacement = "оружие \"SMG\""},
-{abbreviation = "смга", replacement = "оружие \"SMG\""},
-{abbreviation = "узи", replacement = "оружие \"Uzi\""},
-{abbreviation = "узиа", replacement = "оружие \"Uzi\""},
-{abbreviation = "тэк", replacement = "оружие \"TEC-9\""},
-{abbreviation = "тека", replacement = "оружие \"TEC-9\""},
-{abbreviation = "снайпа", replacement = "оружие \"Sniper Rifle\""},
-{abbreviation = "снайпу", replacement = "оружие \"Sniper Rifle\""},
-{abbreviation = "снайперка", replacement = "оружие \"Sniper Rifle\""},
-{abbreviation = "снайперку", replacement = "оружие \"Sniper Rifle\""},
-{abbreviation = "нож", replacement = "оружие \"Knife\""},
-{abbreviation = "ножа", replacement = "оружие \"Knife\""},
-{abbreviation = "биту", replacement = "оружие \"Baseball Bat\""},
-{abbreviation = "бита", replacement = "оружие \"Baseball Bat\""},
-{abbreviation = "катана", replacement = "аксессуар \"Katana\""},
-{abbreviation = "катану", replacement = "аксессуар \"Katana\""},
-{abbreviation = "гранату", replacement = "оружие \"Grenade\""},
-{abbreviation = "граната", replacement = "оружие \"Grenade\""},
-{abbreviation = "тазер", replacement = "оружие \"Taser\""},
-{abbreviation = "тазера", replacement = "оружие \"Taser\""},
-{abbreviation = "пистолет", replacement = "оружие \"Pistol\""},
-{abbreviation = "пистолета", replacement = "оружие \"Pistol\""},
-{abbreviation = "револьвер", replacement = "оружие \"Desert Eagle\""},
-{abbreviation = "револьвера", replacement = "оружие \"Desert Eagle\""},
--- Деньги
-{abbreviation = "кк", replacement = ".000.000$"},
-{abbreviation = "млн", replacement = ".000.000$"},
-{abbreviation = "ккк", replacement = ".000.000$"},
-{abbreviation = "миллиард", replacement = ".000.000.000$"},
-{abbreviation = "млрд", replacement = ".000.000.000$"},
-{abbreviation = "миллиарда", replacement = ".000.000.000$"},
-{abbreviation = "миллион", replacement = ".000.000$"},
-{abbreviation = "миллиона", replacement = ".000.000$"},
--- Цена
-{abbreviation = "обмен", replacement = "обмен"},
-{abbreviation = "бартер", replacement = "обмен"},
-{abbreviation = "дешево", replacement = "по низкой цене"},
-{abbreviation = "дёшево", replacement = "по низкой цене"},
-{abbreviation = "недорого", replacement = "по низкой цене"},
--- Услуги
-{abbreviation = "услуг", replacement = "услуги"},
-{abbreviation = "услуги", replacement = "услуги"},
-{abbreviation = "перевозк", replacement = "перевозки"},
-{abbreviation = "перевозки", replacement = "перевозки"},
-{abbreviation = "доставка", replacement = "доставка"},
-{abbreviation = "доставку", replacement = "доставка"},
-{abbreviation = "такси", replacement = "такси"},
-{abbreviation = "эвакуатор", replacement = "эвакуатор"},
-{abbreviation = "эвакуатора", replacement = "эвакуатор"},
-{abbreviation = "ремонт", replacement = "ремонт"},
-{abbreviation = "ремонта", replacement = "ремонт"},
-{abbreviation = "тюнинг", replacement = "тюнинг"},
-{abbreviation = "тюнинга", replacement = "тюнинг"},
-{abbreviation = "покраска", replacement = "покраска"},
-{abbreviation = "покраску", replacement = "покраска"},
-{abbreviation = "охрана", replacement = "охрана"},
-{abbreviation = "охрану", replacement = "охрана"},
--- Семья
-{abbreviation = "семья", replacement = "семья"},
-{abbreviation = "семью", replacement = "семья"},
-{abbreviation = "семьи", replacement = "семья"},
-{abbreviation = "родственников", replacement = "родственников"},
-{abbreviation = "родня", replacement = "родственников"},
-{abbreviation = "родню", replacement = "родственников"},
--- Лицензии
-{abbreviation = "права", replacement = "вод. права"},
-{abbreviation = "прав", replacement = "вод. права"},
-{abbreviation = "лицензия", replacement = "лицензия"},
-{abbreviation = "лицензию", replacement = "лицензия"},
-{abbreviation = "лицензии", replacement = "лицензия"},
-{abbreviation = "лиц", replacement = "лицензия"},
-{abbreviation = "медкарта", replacement = "мед. карта"},
-{abbreviation = "медкарту", replacement = "мед. карта"},
--- Работа/Организации
-{abbreviation = "сми", replacement = "СМИ"},
-{abbreviation = "смиа", replacement = "СМИ"},
-{abbreviation = "собеседование", replacement = "собеседование"},
-{abbreviation = "собеседованиеа", replacement = "собеседование"},
-{abbreviation = "фбр", replacement = "ФБР"},
-{abbreviation = "фбра", replacement = "ФБР"},
-{abbreviation = "мчс", replacement = "МЧС"},
-{abbreviation = "мчса", replacement = "МЧС"},
-{abbreviation = "армия", replacement = "армию"},
-{abbreviation = "армию", replacement = "армию"},
-{abbreviation = "армии", replacement = "армию"},
-{abbreviation = "инструктор", replacement = "инструктора"},
-{abbreviation = "инструктора", replacement = "инструктора"},
-{abbreviation = "работа", replacement = "работу"},
-{abbreviation = "работу", replacement = "работу"},
-{abbreviation = "работы", replacement = "работу"},
-{abbreviation = "вакансия", replacement = "вакансию"},
-{abbreviation = "вакансию", replacement = "вакансию"},
-{abbreviation = "вакансии", replacement = "вакансию"},
-{abbreviation = "набор", replacement = "набор"},
-{abbreviation = "набора", replacement = "набор"},
-{abbreviation = "собеседования", replacement = "собеседование"},
--- Транспорт
-{abbreviation = "поезд", replacement = "поезд"},
-{abbreviation = "поезда", replacement = "поезд"},
-{abbreviation = "поезду", replacement = "поезд"},
-{abbreviation = "автобус", replacement = "автобус"},
-{abbreviation = "автобуса", replacement = "автобус"},
-{abbreviation = "автобусу", replacement = "автобус"},
-{abbreviation = "трамвай", replacement = "трамвай"},
-{abbreviation = "трамвая", replacement = "трамвай"},
-{abbreviation = "трамваю", replacement = "трамвай"},
-{abbreviation = "грузовик", replacement = "грузовик"},
-{abbreviation = "грузовика", replacement = "грузовик"},
-{abbreviation = "грузовику", replacement = "грузовик"},
-{abbreviation = "фура", replacement = "грузовик"},
-{abbreviation = "фуру", replacement = "грузовик"},
-{abbreviation = "фуры", replacement = "грузовик"},
-{abbreviation = "тягач", replacement = "тягач"},
-{abbreviation = "тягача", replacement = "тягач"},
-{abbreviation = "сэлбрайт", replacement = "а/м марки \"Sultan\""},
-{abbreviation = "ковбой", replacement = "а/м марки \"Clover\""},
-{abbreviation = "чирок", replacement = "а/м марки \"Cheetah\""},
-{abbreviation = "банка", replacement = "а/м марки \"Banshee\""},
-{abbreviation = "файрберд", replacement = "а/м марки \"Phoenix\""},
-{abbreviation = "октан", replacement = "а/м марки \"Uranus\""},
-{abbreviation = "зр350", replacement = "а/м марки \"ZR-350\""},
-{abbreviation = "зр", replacement = "а/м марки \"ZR-350\""},
-{abbreviation = "инфернус", replacement = "а/м марки \"Infernus\""},
-{abbreviation = "инфернуса", replacement = "а/м марки \"Infernus\""},
-{abbreviation = "буллет", replacement = "а/м марки \"Bullet\""},
-{abbreviation = "буллета", replacement = "а/м марки \"Bullet\""},
-{abbreviation = "турисмо", replacement = "а/м марки \"Turismo\""},
-{abbreviation = "ковер", replacement = "а/м марки \"Clover\""},
-{abbreviation = "элегант", replacement = "а/м марки \"Elegant\""},
-{abbreviation = "элеганта", replacement = "а/м марки \"Elegant\""},
-{abbreviation = "фортуне", replacement = "а/м марки \"Fortune\""},
-{abbreviation = "тампико", replacement = "а/м марки \"Tampa\""},
-{abbreviation = "глендейл", replacement = "а/м марки \"Glendale\""},
-{abbreviation = "глендейла", replacement = "а/м марки \"Glendale\""},
-{abbreviation = "эмперор", replacement = "а/м марки \"Emperor\""},
-{abbreviation = "эмперора", replacement = "а/м марки \"Emperor\""},
-{abbreviation = "невада", replacement = "а/м марки \"Nevada\""},
-{abbreviation = "неваду", replacement = "а/м марки \"Nevada\""},
-{abbreviation = "примо", replacement = "а/м марки \"Primo\""},
-{abbreviation = "маджестик", replacement = "а/м марки \"Majestic\""},
-{abbreviation = "маджестика", replacement = "а/м марки \"Majestic\""},
-{abbreviation = "винвуд", replacement = "а/м марки \"Willard\""},
-{abbreviation = "винвуда", replacement = "а/м марки \"Willard\""},
-{abbreviation = "вашингтон", replacement = "а/м марки \"Washington\""},
-{abbreviation = "вашингтона", replacement = "а/м марки \"Washington\""},
-{abbreviation = "адмирал", replacement = "а/м марки \"Admiral\""},
-{abbreviation = "адмирала", replacement = "а/м марки \"Admiral\""},
-{abbreviation = "ранчер", replacement = "а/м марки \"Rancher\""},
-{abbreviation = "ранчера", replacement = "а/м марки \"Rancher\""},
-{abbreviation = "ранчо", replacement = "а/м марки \"Rancher\""},
-{abbreviation = "бобкэт", replacement = "а/м марки \"Bobcat\""},
-{abbreviation = "бобкэта", replacement = "а/м марки \"Bobcat\""},
-{abbreviation = "йосемити", replacement = "а/м марки \"Yosemite\""},
-{abbreviation = "валдшнеп", replacement = "а/м марки \"Walton\""},
-{abbreviation = "валдшнепа", replacement = "а/м марки \"Walton\""},
-{abbreviation = "торнадо", replacement = "а/м марки \"Tornado\""},
-{abbreviation = "торнадоа", replacement = "а/м марки \"Tornado\""},
-{abbreviation = "блейд", replacement = "а/м марки \"Blade\""},
-{abbreviation = "блейда", replacement = "а/м марки \"Blade\""},
-{abbreviation = "тампла", replacement = "а/м марки \"Tampa\""},
-{abbreviation = "тамплу", replacement = "а/м марки \"Tampa\""},
-{abbreviation = "альфа", replacement = "а/м марки \"Alpha\""},
-{abbreviation = "альфу", replacement = "а/м марки \"Alpha\""},
-{abbreviation = "комета", replacement = "а/м марки \"Comet\""},
-{abbreviation = "комету", replacement = "а/м марки \"Comet\""},
-{abbreviation = "стингер", replacement = "а/м марки \"Stinger\""},
-{abbreviation = "стингера", replacement = "а/м марки \"Stinger\""},
-{abbreviation = "супергт", replacement = "а/м марки \"Super GT\""},
-{abbreviation = "супергта", replacement = "а/м марки \"Super GT\""},
-{abbreviation = "чампион", replacement = "а/м марки \"Champion\""},
-{abbreviation = "чампиона", replacement = "а/м марки \"Champion\""},
-{abbreviation = "букер", replacement = "а/м марки \"Buccaneer\""},
-{abbreviation = "букера", replacement = "а/м марки \"Buccaneer\""},
-{abbreviation = "хёрмит", replacement = "а/м марки \"Hermes\""},
-{abbreviation = "хёрмита", replacement = "а/м марки \"Hermes\""},
-{abbreviation = "сентинел", replacement = "а/м марки \"Sentinel\""},
-{abbreviation = "сентинела", replacement = "а/м марки \"Sentinel\""},
-{abbreviation = "фортун", replacement = "а/м марки \"Fortune\""},
-{abbreviation = "фортуна", replacement = "а/м марки \"Fortune\""},
-{abbreviation = "фортуну", replacement = "а/м марки \"Fortune\""},
-{abbreviation = "блиста", replacement = "а/м марки \"Blista\""},
-{abbreviation = "блисту", replacement = "а/м марки \"Blista\""},
-{abbreviation = "манана", replacement = "а/м марки \"Manana\""},
-{abbreviation = "манану", replacement = "а/м марки \"Manana\""},
-{abbreviation = "пикап", replacement = "а/м марки \"Picador\""},
-{abbreviation = "пикапа", replacement = "а/м марки \"Picador\""},
-{abbreviation = "соляр", replacement = "а/м марки \"Solair\""},
-{abbreviation = "соляра", replacement = "а/м марки \"Solair\""},
-{abbreviation = "винсаг", replacement = "а/м марки \"Windsor\""},
-{abbreviation = "винсага", replacement = "а/м марки \"Windsor\""},
-{abbreviation = "шафтер", replacement = "а/м марки \"Stafford\""},
-{abbreviation = "шафтера", replacement = "а/м марки \"Stafford\""},
-{abbreviation = "хантер", replacement = "а/м марки \"Huntley\""},
-{abbreviation = "хантера", replacement = "а/м марки \"Huntley\""},
-{abbreviation = "патриот", replacement = "а/м марки \"Patriot\""},
-{abbreviation = "патриота", replacement = "а/м марки \"Patriot\""},
-{abbreviation = "монстр", replacement = "а/м марки \"Monster\""},
-{abbreviation = "монстра", replacement = "а/м марки \"Monster\""},
-{abbreviation = "бандито", replacement = "а/м марки \"Bandito\""},
-{abbreviation = "бандита", replacement = "а/м марки \"Bandito\""},
-{abbreviation = "кальцо", replacement = "а/м марки \"Calcium\""},
-{abbreviation = "кальция", replacement = "а/м марки \"Calcium\""},
-{abbreviation = "хотринг", replacement = "а/м марки \"Hotring\""},
-{abbreviation = "хотринга", replacement = "а/м марки \"Hotring\""},
-{abbreviation = "хотрингер", replacement = "а/м марки \"Hotring\""},
-{abbreviation = "багги", replacement = "а/м марки \"Bandito\""},
-{abbreviation = "крэйг", replacement = "а/м марки \"Crane\""},
-{abbreviation = "стретч", replacement = "а/м марки \"Stretch\""},
-{abbreviation = "стретча", replacement = "а/м марки \"Stretch\""},
-{abbreviation = "премьер", replacement = "а/м марки \"Premier\""},
-{abbreviation = "премьера", replacement = "а/м марки \"Premier\""},
-{abbreviation = "бравура", replacement = "а/м марки \"Bravura\""},
-{abbreviation = "бравуру", replacement = "а/м марки \"Bravura\""},
-{abbreviation = "сламван", replacement = "а/м марки \"Slamvan\""},
-{abbreviation = "сламвана", replacement = "а/м марки \"Slamvan\""},
-{abbreviation = "ремингтон", replacement = "а/м марки \"Remington\""},
-{abbreviation = "ремингтона", replacement = "а/м марки \"Remington\""},
-{abbreviation = "флеш", replacement = "а/м марки \"Flash\""},
-{abbreviation = "флеша", replacement = "а/м марки \"Flash\""},
-{abbreviation = "джестер", replacement = "а/м марки \"Jester\""},
-{abbreviation = "джестера", replacement = "а/м марки \"Jester\""},
-{abbreviation = "стратум", replacement = "а/м марки \"Stratum\""},
-{abbreviation = "стратума", replacement = "а/м марки \"Stratum\""},
-{abbreviation = "уран", replacement = "а/м марки \"Uranus\""},
-{abbreviation = "урана", replacement = "а/м марки \"Uranus\""},
-{abbreviation = "салат", replacement = "а/м марки \"Sultan RS\""},
-{abbreviation = "салата", replacement = "а/м марки \"Sultan RS\""},
-{abbreviation = "стрикер", replacement = "а/м марки \"Sultan RS\""},
-{abbreviation = "адреналин", replacement = "а/м марки \"Sultan RS\""},
-{abbreviation = "адреналина", replacement = "а/м марки \"Sultan RS\""},
-{abbreviation = "хоткнайф", replacement = "а/м марки \"Hotknife\""},
-{abbreviation = "хоткнайфа", replacement = "а/м марки \"Hotknife\""},
-{abbreviation = "дюна", replacement = "а/м марки \"Dune\""},
-{abbreviation = "дюну", replacement = "а/м марки \"Dune\""},
-{abbreviation = "дюны", replacement = "а/м марки \"Dune\""},
-{abbreviation = "сабре", replacement = "а/м марки \"Sabre\""},
-{abbreviation = "сабра", replacement = "а/м марки \"Sabre\""},
-{abbreviation = "сабру", replacement = "а/м марки \"Sabre\""},
-{abbreviation = "вуду", replacement = "а/м марки \"Voodoo\""},
-{abbreviation = "кловер", replacement = "а/м марки \"Clover\""},
-{abbreviation = "кловера", replacement = "а/м марки \"Clover\""},
-{abbreviation = "булка", replacement = "а/м марки \"Bullet\""},
-{abbreviation = "булку", replacement = "а/м марки \"Bullet\""},
-{abbreviation = "булки", replacement = "а/м марки \"Bullet\""},
-{abbreviation = "инф", replacement = "а/м марки \"Infernus\""},
-{abbreviation = "инфу", replacement = "а/м марки \"Infernus\""},
-{abbreviation = "туризмо", replacement = "а/м марки \"Turismo\""},
-{abbreviation = "турик", replacement = "а/м марки \"Turismo\""},
-{abbreviation = "банши", replacement = "а/м марки \"Banshee\""},
-{abbreviation = "баншу", replacement = "а/м марки \"Banshee\""},
-{abbreviation = "чито", replacement = "а/м марки \"Cheetah\""},
-{abbreviation = "читу", replacement = "а/м марки \"Cheetah\""},
-{abbreviation = "феникс", replacement = "а/м марки \"Phoenix\""},
-{abbreviation = "феникса", replacement = "а/м марки \"Phoenix\""},
-{abbreviation = "тахома", replacement = "а/м марки \"Tahoma\""},
-{abbreviation = "тахому", replacement = "а/м марки \"Tahoma\""},
-{abbreviation = "султан", replacement = "а/м марки \"Sultan\""},
-{abbreviation = "султана", replacement = "а/м марки \"Sultan\""},
-{abbreviation = "султану", replacement = "а/м марки \"Sultan\""},
-{abbreviation = "сультан", replacement = "а/м марки \"Sultan\""},
-{abbreviation = "елегию", replacement = "а/м марки \"Elegy\""},
-{abbreviation = "еледжи", replacement = "а/м марки \"Elegy\""},
-{abbreviation = "елеги", replacement = "а/м марки \"Elegy\""},
-{abbreviation = "елегия", replacement = "а/м марки \"Elegy\""},
-{abbreviation = "нрг", replacement = "мото марки \"NRG-500\""},
-{abbreviation = "нргу", replacement = "мото марки \"NRG-500\""},
-{abbreviation = "нрга", replacement = "мото марки \"NRG-500\""},
-{abbreviation = "нрге", replacement = "мото марки \"NRG-500\""},
-{abbreviation = "фрей", replacement = "мото марки \"Freeway\""},
-{abbreviation = "фрея", replacement = "мото марки \"Freeway\""},
-{abbreviation = "фрею", replacement = "мото марки \"Freeway\""},
-{abbreviation = "вейб", replacement = "мото марки \"Wayfarer\""},
-{abbreviation = "вейба", replacement = "мото марки \"Wayfarer\""},
-{abbreviation = "санч", replacement = "мото марки \"Sanchez\""},
-{abbreviation = "санчез", replacement = "мото марки \"Sanchez\""},
-{abbreviation = "санча", replacement = "мото марки \"Sanchez\""},
-{abbreviation = "санчу", replacement = "мото марки \"Sanchez\""},
-{abbreviation = "пжж", replacement = "мото марки \"PCJ-600\""},
-{abbreviation = "пжжа", replacement = "мото марки \"PCJ-600\""},
-{abbreviation = "фцз", replacement = "мото марки \"FCR-900\""},
-{abbreviation = "фцза", replacement = "мото марки \"FCR-900\""},
-{abbreviation = "фаггио", replacement = "мото марки \"Faggio\""},
-{abbreviation = "фагио", replacement = "мото марки \"Faggio\""},
-{abbreviation = "бф", replacement = "мото марки \"BF-400\""},
-{abbreviation = "эндюро", replacement = "мото марки \"Enduro\""},
-{abbreviation = "ангел", replacement = "мото марки \"Angel\""},
-{abbreviation = "меч", replacement = "аксессуар \"Меч\""},
-{abbreviation = "рюкзак", replacement = "аксессуар \"Рюкзак\""},
-{abbreviation = "часы", replacement = "аксессуар \"Часы\""},
-{abbreviation = "очки", replacement = "аксессуар \"Очки\""},
-{abbreviation = "шляпу", replacement = "аксессуар \"Шляпа\""},
-{abbreviation = "маску", replacement = "аксессуар \"Маска\""},
-{abbreviation = "парашют", replacement = "аксессуар \"Парашют\""},
-{abbreviation = "дигл", replacement = "оружие \"Desert Eagle\""},
-{abbreviation = "дигла", replacement = "оружие \"Desert Eagle\""},
-{abbreviation = "шотган", replacement = "оружие \"Shotgun\""},
-{abbreviation = "дробовик", replacement = "оружие \"Shotgun\""},
-{abbreviation = "м4", replacement = "оружие \"M4\""},
-{abbreviation = "ак", replacement = "оружие \"AK-47\""},
-{abbreviation = "смг", replacement = "оружие \"SMG\""},
-{abbreviation = "узи", replacement = "оружие \"Uzi\""},
-{abbreviation = "тэк", replacement = "оружие \"TEC-9\""},
-{abbreviation = "снайпа", replacement = "оружие \"Sniper Rifle\""},
-{abbreviation = "снайперку", replacement = "оружие \"Sniper Rifle\""},
-{abbreviation = "нож", replacement = "оружие \"Knife\""},
-{abbreviation = "биту", replacement = "оружие \"Baseball Bat\""},
-{abbreviation = "пистолет", replacement = "оружие \"Pistol\""},
-{abbreviation = "револьвер", replacement = "оружие \"Desert Eagle\""},
-{abbreviation = "катана", replacement = "аксессуар \"Katana\""},
-{abbreviation = "катану", replacement = "аксессуар \"Katana\""},
-{abbreviation = "гранату", replacement = "оружие \"Grenade\""},
-{abbreviation = "тазер", replacement = "оружие \"Taser\""},
-{abbreviation = "бмх", replacement = "велосипед марки \"BMX\""},
-{abbreviation = "гринвуд", replacement = "а/м марки \"Greenwood\""},
-{abbreviation = "гринвуда", replacement = "а/м марки \"Greenwood\""},
-{abbreviation = "гринвуду", replacement = "а/м марки \"Greenwood\""},
-{abbreviation = "саванна", replacement = "а/м марки \"Savanna\""},
-{abbreviation = "саванну", replacement = "а/м марки \"Savanna\""},
-{abbreviation = "саванны", replacement = "а/м марки \"Savanna\""},
-{abbreviation = "тумми", replacement = "а/м марки \"Tahoma\""},
-{abbreviation = "чайтон", replacement = "а/м марки \"Cheetah\""},
-{abbreviation = "карт", replacement = "а/м марки \"Kart\""},
-{abbreviation = "карта", replacement = "а/м марки \"Kart\""},
-{abbreviation = "мрак", replacement = "а/м марки \"Bravura\""},
-{abbreviation = "мрака", replacement = "а/м марки \"Bravura\""},
-{abbreviation = "мраку", replacement = "а/м марки \"Bravura\""},
-{abbreviation = "санд king", replacement = "а/м марки \"Sandking\""},
-{abbreviation = "сандкинг", replacement = "а/м марки \"Sandking\""},
-{abbreviation = "сандкинга", replacement = "а/м марки \"Sandking\""},
-{abbreviation = "меска", replacement = "а/м марки \"Mesa\""},
-{abbreviation = "месу", replacement = "а/м марки \"Mesa\""},
-{abbreviation = "меса", replacement = "а/м марки \"Mesa\""},
-{abbreviation = "месы", replacement = "а/м марки \"Mesa\""},
-{abbreviation = "мунбим", replacement = "а/м марки \"Moonbeam\""},
-{abbreviation = "мунбима", replacement = "а/м марки \"Moonbeam\""},
-{abbreviation = "пони", replacement = "а/м марки \"Pony\""},
-{abbreviation = "пониа", replacement = "а/м марки \"Pony\""},
-{abbreviation = "регина", replacement = "а/м марки \"Regina\""},
-{abbreviation = "регину", replacement = "а/м марки \"Regina\""},
-{abbreviation = "регины", replacement = "а/м марки \"Regina\""},
-{abbreviation = "ромеро", replacement = "а/м марки \"Romero\""},
-{abbreviation = "ромероа", replacement = "а/м марки \"Romero\""},
-{abbreviation = "стокер", replacement = "а/м марки \"Stocker\""},
-{abbreviation = "стокера", replacement = "а/м марки \"Stocker\""},
-{abbreviation = "топфан", replacement = "а/м марки \"Topfun\""},
-{abbreviation = "топфана", replacement = "а/м марки \"Topfun\""},
-{abbreviation = "трактор", replacement = "а/м марки \"Tractor\""},
-{abbreviation = "трактора", replacement = "а/м марки \"Tractor\""},
-{abbreviation = "трактору", replacement = "а/м марки \"Tractor\""},
-{abbreviation = "вудуп", replacement = "а/м марки \"Woodpecker\""},
-{abbreviation = "вудупа", replacement = "а/м марки \"Woodpecker\""},
-{abbreviation = "флэтбед", replacement = "а/м марки \"Flatbed\""},
-{abbreviation = "флэтбеда", replacement = "а/м марки \"Flatbed\""},
-{abbreviation = "лайнер", replacement = "а/м марки \"Linerunner\""},
-{abbreviation = "лайнера", replacement = "а/м марки \"Linerunner\""},
-{abbreviation = "лайнрунер", replacement = "а/м марки \"Linerunner\""},
-{abbreviation = "лайнрунера", replacement = "а/м марки \"Linerunner\""},
-{abbreviation = "роудтрейн", replacement = "а/м марки \"Roadtrain\""},
-{abbreviation = "роудтрейна", replacement = "а/м марки \"Roadtrain\""},
-{abbreviation = "танкер", replacement = "а/м марки \"Tanker\""},
-{abbreviation = "танкера", replacement = "а/м марки \"Tanker\""},
-{abbreviation = "дум", replacement = "а/м марки \"Dune\""},
-{abbreviation = "дума", replacement = "а/м марки \"Dune\""},
-{abbreviation = "думу", replacement = "а/м марки \"Dune\""},
-{abbreviation = "хантер2", replacement = "а/м марки \"Hunter\""},
-{abbreviation = "хантера2", replacement = "а/м марки \"Hunter\""},
-{abbreviation = "сиспарроу", replacement = "а/м марки \"Sparrow\""},
-{abbreviation = "сиспарроуа", replacement = "а/м марки \"Sparrow\""},
-{abbreviation = "спарроу", replacement = "а/м марки \"Sparrow\""},
-{abbreviation = "спарроуа", replacement = "а/м марки \"Sparrow\""},
-{abbreviation = "левиафан", replacement = "а/м марки \"Leviathan\""},
-{abbreviation = "левиафана", replacement = "а/м марки \"Leviathan\""},
-{abbreviation = "карго", replacement = "а/м марки \"Cargo\""},
-{abbreviation = "каргоа", replacement = "а/м марки \"Cargo\""},
-{abbreviation = "андровер", replacement = "а/м марки \"Andromada\""},
-{abbreviation = "андровера", replacement = "а/м марки \"Andromada\""},
-{abbreviation = "небула", replacement = "а/м марки \"Nebula\""},
-{abbreviation = "небулу", replacement = "а/м марки \"Nebula\""},
-{abbreviation = "небулы", replacement = "а/м марки \"Nebula\""},
-{abbreviation = "зомби2", replacement = "а/м марки \"Zombie\""},
-{abbreviation = "зомбиа", replacement = "а/м марки \"Zombie\""},
-{abbreviation = "файр", replacement = "а/м марки \"Firetruck\""},
-{abbreviation = "файра", replacement = "а/м марки \"Firetruck\""},
-{abbreviation = "пожарка", replacement = "а/м марки \"Firetruck\""},
-{abbreviation = "пожарку", replacement = "а/м марки \"Firetruck\""},
-{abbreviation = "пожарки", replacement = "а/м марки \"Firetruck\""},
-{abbreviation = "скорая", replacement = "а/м марки \"Ambulance\""},
-{abbreviation = "скорую", replacement = "а/м марки \"Ambulance\""},
-{abbreviation = "скорой", replacement = "а/м марки \"Ambulance\""},
-{abbreviation = "амбуланс", replacement = "а/м марки \"Ambulance\""},
-{abbreviation = "амбуланса", replacement = "а/м марки \"Ambulance\""},
-{abbreviation = "энфорсер", replacement = "а/м марки \"Enforcer\""},
-{abbreviation = "энфорсера", replacement = "а/м марки \"Enforcer\""},
-{abbreviation = "рио", replacement = "а/м марки \"Rio\""},
-{abbreviation = "риоа", replacement = "а/м марки \"Rio\""},
-{abbreviation = "астр", replacement = "а/м марки \"Astro\""},
-{abbreviation = "астра", replacement = "а/м марки \"Astro\""},
-{abbreviation = "астру", replacement = "а/м марки \"Astro\""},
-{abbreviation = "астры", replacement = "а/м марки \"Astro\""},
-{abbreviation = "вуду2", replacement = "а/м марки \"Voodoo\""},
-{abbreviation = "вуды2", replacement = "а/м марки \"Voodoo\""},
-{abbreviation = "карма", replacement = "а/м марки \"Karma\""},
-{abbreviation = "карму", replacement = "а/м марки \"Karma\""},
-{abbreviation = "кармы", replacement = "а/м марки \"Karma\""},
-{abbreviation = "клео", replacement = "а/м марки \"Cleo\""},
-{abbreviation = "клеоа", replacement = "а/м марки \"Cleo\""},
-{abbreviation = "фурион", replacement = "а/м марки \"Fury\""},
-{abbreviation = "фуриона", replacement = "а/м марки \"Fury\""},
-{abbreviation = "фуриону", replacement = "а/м марки \"Fury\""},
-{abbreviation = "хаку", replacement = "а/м марки \"Hakuchou\""},
-{abbreviation = "хакуа", replacement = "а/м марки \"Hakuchou\""},
-{abbreviation = "хакуча", replacement = "а/м марки \"Hakuchou\""},
-{abbreviation = "хакучи", replacement = "а/м марки \"Hakuchou\""},
-{abbreviation = "нэо", replacement = "а/м марки \"Neo\""},
-{abbreviation = "нэоа", replacement = "а/м марки \"Neo\""},
-{abbreviation = "фьюри", replacement = "а/м марки \"Fury\""},
-{abbreviation = "фьюриа", replacement = "а/м марки \"Fury\""},
-{abbreviation = "биффа", replacement = "а/м марки \"Biff\""},
-{abbreviation = "биффу", replacement = "а/м марки \"Biff\""},
-{abbreviation = "биффы", replacement = "а/м марки \"Biff\""},
-{abbreviation = "бифф", replacement = "а/м марки \"Biff\""},
-{abbreviation = "инкассатор", replacement = "а/м марки \"Securicar\""},
-{abbreviation = "инкассатора", replacement = "а/м марки \"Securicar\""},
-{abbreviation = "инкас", replacement = "а/м марки \"Securicar\""},
-{abbreviation = "инкаса", replacement = "а/м марки \"Securicar\""},
-{abbreviation = "секурикар", replacement = "а/м марки \"Securicar\""},
-{abbreviation = "мистер", replacement = "а/м марки \"Mr. Whoopee\""},
-{abbreviation = "вупи", replacement = "а/м марки \"Mr. Whoopee\""},
-{abbreviation = "вупиа", replacement = "а/м марки \"Mr. Whoopee\""},
-{abbreviation = "хотдог", replacement = "а/м марки \"Hotdog\""},
-{abbreviation = "хотдога", replacement = "а/м марки \"Hotdog\""},
-{abbreviation = "квартал", replacement = "Queens"},
-{abbreviation = "квартала", replacement = "Queens"},
-{abbreviation = "хашбери", replacement = "Hashbury"},
-{abbreviation = "хашбериа", replacement = "Hashbury"},
-{abbreviation = "гарсия", replacement = "Garcia"},
-{abbreviation = "гарсии", replacement = "Garcia"},
-{abbreviation = "санчео", replacement = "Sanchez SF"},
-{abbreviation = "элфла", replacement = "El Fuego"},
-{abbreviation = "элфуэго", replacement = "El Fuego"},
-{abbreviation = "бэйсайда", replacement = "Bayside"},
-{abbreviation = "бэйсайду", replacement = "Bayside"},
-{abbreviation = "крэйг", replacement = "Craig"},
-{abbreviation = "крэйга", replacement = "Craig"},
-{abbreviation = "честнат", replacement = "Chestnut"},
-{abbreviation = "честната", replacement = "Chestnut"},
-{abbreviation = "хайланд", replacement = "Highland"},
-{abbreviation = "хайланда", replacement = "Highland"},
-{abbreviation = "вэлли", replacement = "Valley"},
-{abbreviation = "вэллиа", replacement = "Valley"},
-{abbreviation = "хилсайд", replacement = "Hillside"},
-{abbreviation = "хилсайда", replacement = "Hillside"},
-{abbreviation = "санта", replacement = "Santa Flora"},
-{abbreviation = "санта флора", replacement = "Santa Flora"},
-{abbreviation = "сантафлора", replacement = "Santa Flora"},
-{abbreviation = "эйнджел", replacement = "Angel Pine"},
-{abbreviation = "эйнджела", replacement = "Angel Pine"},
-{abbreviation = "куэбрадос", replacement = "El Quebrados"},
-{abbreviation = "куэбрадоса", replacement = "El Quebrados"},
-{abbreviation = "тиерра", replacement = "Tierra Robada"},
-{abbreviation = "тиерраа", replacement = "Tierra Robada"},
-{abbreviation = "тиерры", replacement = "Tierra Robada"},
-{abbreviation = "флинт2", replacement = "Flint County"},
-{abbreviation = "флинт2а", replacement = "Flint County"},
-{abbreviation = "вайтвуд2", replacement = "Whitewood"},
-{abbreviation = "рокшор2", replacement = "Rockshore"},
-{abbreviation = "рокшора2", replacement = "Rockshore"},
-{abbreviation = "рокшору", replacement = "Rockshore"},
-{abbreviation = "рокшоры", replacement = "Rockshore"},
-{abbreviation = "спринг", replacement = "Springfield"},
-{abbreviation = "спринга", replacement = "Springfield"},
-{abbreviation = "белл", replacement = "Bell"},
-{abbreviation = "белла", replacement = "Bell"},
-{abbreviation = "харбор", replacement = "Harbor"},
-{abbreviation = "харбора", replacement = "Harbor"},
-{abbreviation = "док", replacement = "Dock"},
-{abbreviation = "дока", replacement = "Dock"},
-{abbreviation = "доки", replacement = "Dock"},
-{abbreviation = "порт2", replacement = "Port"},
-{abbreviation = "порта2", replacement = "Port"},
-{abbreviation = "бэй", replacement = "Bay"},
-{abbreviation = "бэя", replacement = "Bay"},
-{abbreviation = "бэйс", replacement = "Bays"},
-{abbreviation = "бэйса", replacement = "Bays"},
-{abbreviation = "кросс", replacement = "Cross"},
-{abbreviation = "кросса", replacement = "Cross"},
-{abbreviation = "хилл", replacement = "Hill"},
-{abbreviation = "хилла", replacement = "Hill"},
-{abbreviation = "парк", replacement = "Park"},
-{abbreviation = "парка", replacement = "Park"},
-{abbreviation = "вью", replacement = "View"},
-{abbreviation = "вьюа", replacement = "View"},
-{abbreviation = "хейтс", replacement = "Heights"},
-{abbreviation = "хейтса", replacement = "Heights"},
-{abbreviation = "тауэр", replacement = "Tower"},
-{abbreviation = "тауэра", replacement = "Tower"},
-{abbreviation = "бридж", replacement = "Bridge"},
-{abbreviation = "бриджа", replacement = "Bridge"},
-{abbreviation = "авеню", replacement = "Avenue"},
-{abbreviation = "авенюа", replacement = "Avenue"},
-{abbreviation = "стрит", replacement = "Street"},
-{abbreviation = "стрита", replacement = "Street"},
-{abbreviation = "роуд", replacement = "Road"},
-{abbreviation = "роуда", replacement = "Road"},
-{abbreviation = "плаза", replacement = "Plaza"},
-{abbreviation = "плазы", replacement = "Plaza"},
-{abbreviation = "сквер", replacement = "Square"},
-{abbreviation = "сквера", replacement = "Square"},
-{abbreviation = "барбершоп", replacement = "парикмахерскую"},
-{abbreviation = "барбершопа", replacement = "парикмахерскую"},
-{abbreviation = "парикмахерская", replacement = "парикмахерскую"},
-{abbreviation = "парикмахерскую", replacement = "парикмахерскую"},
-{abbreviation = "салон", replacement = "салон красоты"},
-{abbreviation = "салона", replacement = "салон красоты"},
-{abbreviation = "салону", replacement = "салон красоты"},
-{abbreviation = "тату", replacement = "тату-салон"},
-{abbreviation = "тату-салон", replacement = "тату-салон"},
-{abbreviation = "тату-салона", replacement = "тату-салон"},
-{abbreviation = "пиццерия", replacement = "пиццерию"},
-{abbreviation = "пиццерию", replacement = "пиццерию"},
-{abbreviation = "пиццерии", replacement = "пиццерию"},
-{abbreviation = "пицца", replacement = "пиццерию"},
-{abbreviation = "пиццы", replacement = "пиццерию"},
-{abbreviation = "бордель", replacement = "бордель"},
-{abbreviation = "борделя", replacement = "бордель"},
-{abbreviation = "борделю", replacement = "бордель"},
-{abbreviation = "стриптиз", replacement = "стриптиз-клуб"},
-{abbreviation = "стриптиз-клуб", replacement = "стриптиз-клуб"},
-{abbreviation = "стриптиз-клуба", replacement = "стриптиз-клуб"},
-{abbreviation = "джентльмен", replacement = "стриптиз-клуб"},
-{abbreviation = "автомойка", replacement = "автомойку"},
-{abbreviation = "автомойку", replacement = "автомойку"},
-{abbreviation = "автомойки", replacement = "автомойку"},
-{abbreviation = "мойка", replacement = "автомойку"},
-{abbreviation = "мойку", replacement = "автомойку"},
-{abbreviation = "шиномонтаж", replacement = "шиномонтаж"},
-{abbreviation = "шиномонтажа", replacement = "шиномонтаж"},
-{abbreviation = "сто", replacement = "СТО"},
-{abbreviation = "стоа", replacement = "СТО"},
-{abbreviation = "техцентр", replacement = "техцентр"},
-{abbreviation = "техцентра", replacement = "техцентр"},
-{abbreviation = "автосервис", replacement = "автосервис"},
-{abbreviation = "автосервиса", replacement = "автосервис"},
-{abbreviation = "шиномонтажка", replacement = "шиномонтаж"},
-{abbreviation = "шиномонтажку", replacement = "шиномонтаж"},
-{abbreviation = "прачечная", replacement = "прачечную"},
-{abbreviation = "прачечную", replacement = "прачечную"},
-{abbreviation = "прачечной", replacement = "прачечную"},
-{abbreviation = "химчистка", replacement = "химчистку"},
-{abbreviation = "химчистку", replacement = "химчистку"},
-{abbreviation = "химчистки", replacement = "химчистку"},
-{abbreviation = "пункт", replacement = "пункт"},
-{abbreviation = "пункта", replacement = "пункт"},
-{abbreviation = "ломбард", replacement = "ломбард"},
-{abbreviation = "ломбарда", replacement = "ломбард"},
-{abbreviation = "ломбарду", replacement = "ломбард"},
-{abbreviation = "ювелирный", replacement = "ювелирный магазин"},
-{abbreviation = "ювелирного", replacement = "ювелирный магазин"},
-{abbreviation = "ювелирка", replacement = "ювелирный магазин"},
-{abbreviation = "ювелирку", replacement = "ювелирный магазин"},
-{abbreviation = "ювелирки", replacement = "ювелирный магазин"},
-{abbreviation = "оружейный", replacement = "оружейный магазин"},
-{abbreviation = "оружейного", replacement = "оружейный магазин"},
-{abbreviation = "оружейка", replacement = "оружейный магазин"},
-{abbreviation = "оружейку", replacement = "оружейный магазин"},
-{abbreviation = "оружейки", replacement = "оружейный магазин"},
-{abbreviation = "электро", replacement = "электронику"},
-{abbreviation = "электронику", replacement = "электронику"},
-{abbreviation = "электроники", replacement = "электронику"},
-{abbreviation = "компьютерный", replacement = "компьютерный магазин"},
-{abbreviation = "компьютерного", replacement = "компьютерный магазин"},
-{abbreviation = "комп", replacement = "компьютерный магазин"},
-{abbreviation = "компа", replacement = "компьютерный магазин"},
-{abbreviation = "спорттовары", replacement = "спорттовары"},
-{abbreviation = "спорттоваров", replacement = "спорттовары"},
-{abbreviation = "хозяйственный", replacement = "хозяйственный магазин"},
-{abbreviation = "хозяйственного", replacement = "хозяйственный магазин"},
-{abbreviation = "хозмаг", replacement = "хозяйственный магазин"},
-{abbreviation = "хозмага", replacement = "хозяйственный магазин"},
-{abbreviation = "продукты", replacement = "продуктовый магазин"},
-{abbreviation = "продуктовый", replacement = "продуктовый магазин"},
-{abbreviation = "продуктового", replacement = "продуктовый магазин"},
-{abbreviation = "продмаг", replacement = "продуктовый магазин"},
-{abbreviation = "продмага", replacement = "продуктовый магазин"},
-{abbreviation = "супермаркет", replacement = "супермаркет"},
-{abbreviation = "супермаркета", replacement = "супермаркет"},
-{abbreviation = "супермаркету", replacement = "супермаркет"},
-{abbreviation = "мини", replacement = "мини-маркет"},
-{abbreviation = "мини-маркет", replacement = "мини-маркет"},
-{abbreviation = "мини-маркета", replacement = "мини-маркет"},
-{abbreviation = "ларек", replacement = "ларек"},
-{abbreviation = "ларька", replacement = "ларек"},
-{abbreviation = "ларьку", replacement = "ларек"},
-{abbreviation = "киоск", replacement = "киоск"},
-{abbreviation = "киоска", replacement = "киоск"},
-{abbreviation = "палатка", replacement = "палатку"},
-{abbreviation = "палатку", replacement = "палатку"},
-{abbreviation = "палатки", replacement = "палатку"},
-{abbreviation = "тент", replacement = "тент"},
-{abbreviation = "тента", replacement = "тент"},
-{abbreviation = "навес", replacement = "навес"},
-{abbreviation = "навеса", replacement = "навес"},
-{abbreviation = "гараж", replacement = "гараж"},
-{abbreviation = "гаража", replacement = "гараж"},
-{abbreviation = "гаражу", replacement = "гараж"},
-{abbreviation = "гаражи", replacement = "гараж"},
-{abbreviation = "бункер", replacement = "бункер"},
-{abbreviation = "бункера", replacement = "бункер"},
-{abbreviation = "бункеру", replacement = "бункер"},
-{abbreviation = "подвал", replacement = "подвал"},
-{abbreviation = "подвала", replacement = "подвал"},
-{abbreviation = "чердак", replacement = "чердак"},
-{abbreviation = "чердака", replacement = "чердак"},
-{abbreviation = "мансарда", replacement = "мансарду"},
-{abbreviation = "мансарду", replacement = "мансарду"},
-{abbreviation = "мансарды", replacement = "мансарду"},
-{abbreviation = "дача", replacement = "дачу"},
-{abbreviation = "дачу", replacement = "дачу"},
-{abbreviation = "дачи", replacement = "дачу"},
-{abbreviation = "коттедж", replacement = "коттедж"},
-{abbreviation = "коттеджа", replacement = "коттедж"},
-{abbreviation = "коттеджу", replacement = "коттедж"},
-{abbreviation = "таунхаус", replacement = "таунхаус"},
-{abbreviation = "таунхауса", replacement = "таунхаус"},
-{abbreviation = "таунхаусу", replacement = "таунхаус"},
-{abbreviation = "бунгало", replacement = "бунгало"},
-{abbreviation = "бунгалоа", replacement = "бунгало"},
-{abbreviation = "времянка", replacement = "времянку"},
-{abbreviation = "времянку", replacement = "времянку"},
-{abbreviation = "времянки", replacement = "времянку"},
-{abbreviation = "халупа", replacement = "халупу"},
-{abbreviation = "халупу", replacement = "халупу"},
-{abbreviation = "халупы", replacement = "халупу"},
-{abbreviation = "лачуга", replacement = "лачугу"},
-{abbreviation = "лачугу", replacement = "лачугу"},
-{abbreviation = "лачуги", replacement = "лачугу"},
-{abbreviation = "шалаш", replacement = "шалаш"},
-{abbreviation = "шалаша", replacement = "шалаш"},
-{abbreviation = "земля", replacement = "землю"},
-{abbreviation = "землю", replacement = "землю"},
-{abbreviation = "земли", replacement = "землю"},
-{abbreviation = "участок", replacement = "участок"},
-{abbreviation = "участка", replacement = "участок"},
-{abbreviation = "участку", replacement = "участок"},
-{abbreviation = "территория", replacement = "территорию"},
-{abbreviation = "территорию", replacement = "территорию"},
-{abbreviation = "территории", replacement = "территорию"},
-{abbreviation = "площадь", replacement = "площадь"},
-{abbreviation = "площади", replacement = "площадь"},
-{abbreviation = "патроны", replacement = "патроны"},
-{abbreviation = "патронов", replacement = "патроны"},
-{abbreviation = "обойма", replacement = "обойму"},
-{abbreviation = "обойму", replacement = "обойму"},
-{abbreviation = "прицел", replacement = "прицел"},
-{abbreviation = "прицела", replacement = "прицел"},
-{abbreviation = "глушитель", replacement = "глушитель"},
-{abbreviation = "глушителя", replacement = "глушитель"},
-{abbreviation = "фонарик2", replacement = "фонарик"},
-{abbreviation = "компас", replacement = "компас"},
-{abbreviation = "компаса", replacement = "компас"},
-{abbreviation = "карта", replacement = "карту"},
-{abbreviation = "карту", replacement = "карту"},
-{abbreviation = "карты", replacement = "карту"},
-{abbreviation = "бинокль2", replacement = "бинокль"},
-{abbreviation = "термос", replacement = "термос"},
-{abbreviation = "термоса", replacement = "термос"},
-{abbreviation = "зажигалка", replacement = "зажигалку"},
-{abbreviation = "зажигалку", replacement = "зажигалку"},
-{abbreviation = "зажигалки", replacement = "зажигалку"},
-{abbreviation = "сигареты", replacement = "сигареты"},
-{abbreviation = "сигарет", replacement = "сигареты"},
-{abbreviation = "алкоголь", replacement = "алкоголь"},
-{abbreviation = "алкоголя", replacement = "алкоголь"},
-{abbreviation = "пиво", replacement = "пиво"},
-{abbreviation = "пива", replacement = "пиво"},
-{abbreviation = "водка", replacement = "водку"},
-{abbreviation = "водку", replacement = "водку"},
-{abbreviation = "водки", replacement = "водку"},
-{abbreviation = "виски", replacement = "виски"},
-{abbreviation = "вискиа", replacement = "виски"},
-{abbreviation = "вино", replacement = "вино"},
-{abbreviation = "вина", replacement = "вино"},
-{abbreviation = "кофе", replacement = "кофе"},
-{abbreviation = "кофеа", replacement = "кофе"},
-{abbreviation = "чай", replacement = "чай"},
-{abbreviation = "чая", replacement = "чай"},
-{abbreviation = "сок", replacement = "сок"},
-{abbreviation = "сока", replacement = "сок"},
-{abbreviation = "молоко", replacement = "молоко"},
-{abbreviation = "молока", replacement = "молоко"},
-{abbreviation = "хлеб", replacement = "хлеб"},
-{abbreviation = "хлеба", replacement = "хлеб"},
-{abbreviation = "мясо", replacement = "мясо"},
-{abbreviation = "мяса", replacement = "мясо"},
-{abbreviation = "рыба", replacement = "рыбу"},
-{abbreviation = "рыбу", replacement = "рыбу"},
-{abbreviation = "рыбы", replacement = "рыбу"},
-{abbreviation = "фрукты", replacement = "фрукты"},
-{abbreviation = "фруктов", replacement = "фрукты"},
-{abbreviation = "овощи", replacement = "овощи"},
-{abbreviation = "овощей", replacement = "овощи"},
-{abbreviation = "конфеты", replacement = "конфеты"},
-{abbreviation = "конфет", replacement = "конфеты"},
-{abbreviation = "шоколад", replacement = "шоколад"},
-{abbreviation = "шоколада", replacement = "шоколад"},
-{abbreviation = "печенье", replacement = "печенье"},
-{abbreviation = "печенья", replacement = "печенье"},
-{abbreviation = "торт", replacement = "торт"},
-{abbreviation = "торта", replacement = "торт"},
-{abbreviation = "мороженое", replacement = "мороженое"},
-{abbreviation = "мороженого", replacement = "мороженое"},
-{abbreviation = "пицца2", replacement = "пиццу"},
-{abbreviation = "пиццу", replacement = "пиццу"},
-{abbreviation = "бургер", replacement = "бургер"},
-{abbreviation = "бургера", replacement = "бургер"},
-{abbreviation = "гамбургер", replacement = "гамбургер"},
-{abbreviation = "гамбургера", replacement = "гамбургер"},
-{abbreviation = "хотдог2", replacement = "хотдог"},
-{abbreviation = "хотдога2", replacement = "хотдог"},
-{abbreviation = "сэндвич", replacement = "сэндвич"},
-{abbreviation = "сэндвича", replacement = "сэндвич"},
-{abbreviation = "салат", replacement = "салат"},
-{abbreviation = "салата", replacement = "салат"},
-{abbreviation = "суши", replacement = "суши"},
-{abbreviation = "роллы", replacement = "роллы"},
-{abbreviation = "роллов", replacement = "роллы"},
-{abbreviation = "лапша", replacement = "лапшу"},
-{abbreviation = "лапшу", replacement = "лапшу"},
-{abbreviation = "лапши", replacement = "лапшу"},
-{abbreviation = "пельмени", replacement = "пельмени"},
-{abbreviation = "пельменей", replacement = "пельмени"},
-{abbreviation = "борщ", replacement = "борщ"},
-{abbreviation = "борща", replacement = "борщ"},
-{abbreviation = "суп", replacement = "суп"},
-{abbreviation = "супа", replacement = "суп"},
-{abbreviation = "обрез", replacement = "оружие \"Sawn-off Shotgun\""},
-{abbreviation = "обреза", replacement = "оружие \"Sawn-off Shotgun\""},
-{abbreviation = "обрезу", replacement = "оружие \"Sawn-off Shotgun\""},
-{abbreviation = "двустволка", replacement = "оружие \"Sawn-off Shotgun\""},
-{abbreviation = "двустволку", replacement = "оружие \"Sawn-off Shotgun\""},
-{abbreviation = "помпа", replacement = "оружие \"Combat Shotgun\""},
-{abbreviation = "помпу", replacement = "оружие \"Combat Shotgun\""},
-{abbreviation = "помпы", replacement = "оружие \"Combat Shotgun\""},
-{abbreviation = "комбат", replacement = "оружие \"Combat Shotgun\""},
-{abbreviation = "комбата", replacement = "оружие \"Combat Shotgun\""},
-{abbreviation = "микро", replacement = "оружие \"Micro SMG\""},
-{abbreviation = "микроа", replacement = "оружие \"Micro SMG\""},
-{abbreviation = "микроу", replacement = "оружие \"Micro SMG\""},
-{abbreviation = "мп5", replacement = "оружие \"MP5\""},
-{abbreviation = "мп5а", replacement = "оружие \"MP5\""},
-{abbreviation = "глок", replacement = "оружие \"Pistol\""},
-{abbreviation = "глока", replacement = "оружие \"Pistol\""},
-{abbreviation = "кольт", replacement = "оружие \"Pistol\""},
-{abbreviation = "кольта", replacement = "оружие \"Pistol\""},
-{abbreviation = "беретта", replacement = "оружие \"Pistol\""},
-{abbreviation = "беретту", replacement = "оружие \"Pistol\""},
-{abbreviation = "дезерт", replacement = "оружие \"Desert Eagle\""},
-{abbreviation = "дезерта", replacement = "оружие \"Desert Eagle\""},
-{abbreviation = "игл", replacement = "оружие \"Desert Eagle\""},
-{abbreviation = "игла", replacement = "оружие \"Desert Eagle\""},
-{abbreviation = "слон", replacement = "оружие \"Desert Eagle\""},
-{abbreviation = "слона", replacement = "оружие \"Desert Eagle\""},
-{abbreviation = "калаш", replacement = "оружие \"AK-47\""},
-{abbreviation = "калаша", replacement = "оружие \"AK-47\""},
-{abbreviation = "калаша", replacement = "оружие \"AK-47\""},
-{abbreviation = "м16", replacement = "оружие \"M4\""},
-{abbreviation = "м16а", replacement = "оружие \"M4\""},
-{abbreviation = "галил", replacement = "оружие \"AK-47\""},
-{abbreviation = "галила", replacement = "оружие \"AK-47\""},
-{abbreviation = "стечкин", replacement = "оружие \"TEC-9\""},
-{abbreviation = "стечкина", replacement = "оружие \"TEC-9\""},
-{abbreviation = "скорпион", replacement = "оружие \"TEC-9\""},
-{abbreviation = "скорпиона", replacement = "оружие \"TEC-9\""},
-{abbreviation = "кукри", replacement = "оружие \"Knife\""},
-{abbreviation = "кукриа", replacement = "оружие \"Knife\""},
-{abbreviation = "мачете", replacement = "оружие \"Machete\""},
-{abbreviation = "мачетеа", replacement = "оружие \"Machete\""},
-{abbreviation = "дубину", replacement = "оружие \"Baseball Bat\""},
-{abbreviation = "дубина", replacement = "оружие \"Baseball Bat\""},
-{abbreviation = "дубины", replacement = "оружие \"Baseball Bat\""},
-{abbreviation = "дубинка", replacement = "оружие \"Baseball Bat\""},
-{abbreviation = "дубинку", replacement = "оружие \"Baseball Bat\""},
-{abbreviation = "дубинки", replacement = "оружие \"Baseball Bat\""},
-{abbreviation = "клюшка", replacement = "оружие \"Hockey Stick\""},
-{abbreviation = "клюшку", replacement = "оружие \"Hockey Stick\""},
-{abbreviation = "клюшки", replacement = "оружие \"Hockey Stick\""},
-{abbreviation = "лапта", replacement = "оружие \"Baseball Bat\""},
-{abbreviation = "лапту", replacement = "оружие \"Baseball Bat\""},
-{abbreviation = "лапты", replacement = "оружие \"Baseball Bat\""},
-{abbreviation = "ракета", replacement = "оружие \"Rocket Launcher\""},
-{abbreviation = "ракету", replacement = "оружие \"Rocket Launcher\""},
-{abbreviation = "ракеты", replacement = "оружие \"Rocket Launcher\""},
-{abbreviation = "базука", replacement = "оружие \"Rocket Launcher\""},
-{abbreviation = "базуку", replacement = "оружие \"Rocket Launcher\""},
-{abbreviation = "базуки", replacement = "оружие \"Rocket Launcher\""},
-{abbreviation = "гранатомет", replacement = "оружие \"Rocket Launcher\""},
-{abbreviation = "гранатомета", replacement = "оружие \"Rocket Launcher\""},
-{abbreviation = "огнемет", replacement = "оружие \"Flamethrower\""},
-{abbreviation = "огнемета", replacement = "оружие \"Flamethrower\""},
-{abbreviation = "миниган", replacement = "оружие \"Minigun\""},
-{abbreviation = "минигана", replacement = "оружие \"Minigun\""},
-{abbreviation = "мини", replacement = "оружие \"Minigun\""},
-{abbreviation = "миниа", replacement = "оружие \"Minigun\""},
-{abbreviation = "массаж", replacement = "массаж"},
-{abbreviation = "массажа", replacement = "массаж"},
-{abbreviation = "стрижка", replacement = "стрижку"},
-{abbreviation = "стрижку", replacement = "стрижку"},
-{abbreviation = "стрижки", replacement = "стрижку"},
-{abbreviation = "маникюр", replacement = "маникюр"},
-{abbreviation = "маникюра", replacement = "маникюр"},
-{abbreviation = "педикюр", replacement = "педикюр"},
-{abbreviation = "педикюра", replacement = "педикюр"},
-{abbreviation = "бритье", replacement = "бритье"},
-{abbreviation = "бритья", replacement = "бритье"},
-{abbreviation = "укладка", replacement = "укладку"},
-{abbreviation = "укладку", replacement = "укладку"},
-{abbreviation = "окраска", replacement = "окраску"},
-{abbreviation = "окраску", replacement = "окраску"},
-{abbreviation = "окраски", replacement = "окраску"},
-{abbreviation = "наращивание", replacement = "наращивание"},
-{abbreviation = "наращивания", replacement = "наращивание"},
-{abbreviation = "пирсинг", replacement = "пирсинг"},
-{abbreviation = "пирсинга", replacement = "пирсинг"},
-{abbreviation = "татуировка", replacement = "татуировку"},
-{abbreviation = "татуировку", replacement = "татуировку"},
-{abbreviation = "татуировки", replacement = "татуировку"},
-{abbreviation = "репетитор", replacement = "репетитора"},
-{abbreviation = "репетитора", replacement = "репетитора"},
-{abbreviation = "обучение", replacement = "обучение"},
-{abbreviation = "обучения", replacement = "обучение"},
-{abbreviation = "курсы", replacement = "курсы"},
-{abbreviation = "курсов", replacement = "курсы"},
-{abbreviation = "тренинг", replacement = "тренинг"},
-{abbreviation = "тренинга", replacement = "тренинг"},
-{abbreviation = "тренинги", replacement = "тренинг"},
-{abbreviation = "семинар", replacement = "семинар"},
-{abbreviation = "семинара", replacement = "семинар"},
-{abbreviation = "лекция", replacement = "лекцию"},
-{abbreviation = "лекцию", replacement = "лекцию"},
-{abbreviation = "лекции", replacement = "лекцию"},
-{abbreviation = "консультация", replacement = "консультацию"},
-{abbreviation = "консультацию", replacement = "консультацию"},
-{abbreviation = "консультации", replacement = "консультацию"},
-{abbreviation = "лечение", replacement = "лечение"},
-{abbreviation = "лечения", replacement = "лечение"},
-{abbreviation = "терапия", replacement = "терапию"},
-{abbreviation = "терапию", replacement = "терапию"},
-{abbreviation = "диагностика", replacement = "диагностику"},
-{abbreviation = "диагностику", replacement = "диагностику"},
-{abbreviation = "диагностики", replacement = "диагностику"},
-{abbreviation = "ремонт2", replacement = "ремонт"},
-{abbreviation = "настройка", replacement = "настройку"},
-{abbreviation = "настройку", replacement = "настройку"},
-{abbreviation = "настройки", replacement = "настройку"},
-{abbreviation = "установка", replacement = "установку"},
-{abbreviation = "установку", replacement = "установку"},
-{abbreviation = "установки", replacement = "установку"},
-{abbreviation = "монтаж", replacement = "монтаж"},
-{abbreviation = "монтажа", replacement = "монтаж"},
-{abbreviation = "демонтаж", replacement = "демонтаж"},
-{abbreviation = "демонтажа", replacement = "демонтаж"},
-{abbreviation = "перевозка", replacement = "перевозку"},
-{abbreviation = "перевозку", replacement = "перевозку"},
-{abbreviation = "перевозки", replacement = "перевозку"},
-{abbreviation = "грузоперевозки", replacement = "грузоперевозки"},
-{abbreviation = "грузоперевозок", replacement = "грузоперевозки"},
-{abbreviation = "логистика", replacement = "логистику"},
-{abbreviation = "логистику", replacement = "логистику"},
-{abbreviation = "склад2", replacement = "складирование"},
-{abbreviation = "хранение", replacement = "хранение"},
-{abbreviation = "хранения", replacement = "хранение"},
-{abbreviation = "охрана2", replacement = "охрана"},
-{abbreviation = "охрану2", replacement = "охрану"},
-{abbreviation = "сигнализация", replacement = "сигнализацию"},
-{abbreviation = "сигнализацию", replacement = "сигнализацию"},
-{abbreviation = "сигнализации", replacement = "сигнализацию"},
-{abbreviation = "видеонаблюдение", replacement = "видеонаблюдение"},
-{abbreviation = "видеонаблюдения", replacement = "видеонаблюдение"},
-{abbreviation = "уборка", replacement = "уборку"},
-{abbreviation = "уборку", replacement = "уборку"},
-{abbreviation = "уборки", replacement = "уборку"},
-{abbreviation = "клининг", replacement = "клининг"},
-{abbreviation = "клининга", replacement = "клининг"},
-{abbreviation = "стирка", replacement = "стирку"},
-{abbreviation = "стирку", replacement = "стирку"},
-{abbreviation = "стирки", replacement = "стирку"},
-{abbreviation = "химчистка2", replacement = "химчистку"},
-{abbreviation = "глажка", replacement = "глажку"},
-{abbreviation = "глажку", replacement = "глажку"},
-{abbreviation = "глажки", replacement = "глажку"},
-{abbreviation = "ремонт3", replacement = "починку"},
-{abbreviation = "починку", replacement = "починку"},
-{abbreviation = "починки", replacement = "починку"},
-{abbreviation = "наладка", replacement = "наладку"},
-{abbreviation = "наладку", replacement = "наладку"},
-{abbreviation = "наладки", replacement = "наладку"},
-{abbreviation = "заправка2", replacement = "заправку"},
-{abbreviation = "заправку2", replacement = "заправку"},
-{abbreviation = "дозаправка", replacement = "дозаправку"},
-{abbreviation = "дозаправку", replacement = "дозаправку"},
-{abbreviation = "эвакуатор2", replacement = "эвакуатор"},
-{abbreviation = "буксировка", replacement = "буксировку"},
-{abbreviation = "буксировку", replacement = "буксировку"},
-{abbreviation = "буксировки", replacement = "буксировку"},
-{abbreviation = "запуск", replacement = "запуск двигателя"},
-{abbreviation = "запуска", replacement = "запуск двигателя"},
-{abbreviation = "прикуривание", replacement = "прикуривание"},
-{abbreviation = "прикуривания", replacement = "прикуривание"},
-{abbreviation = "замена", replacement = "замену"},
-{abbreviation = "замену", replacement = "замену"},
-{abbreviation = "замены", replacement = "замену"},
-{abbreviation = "масло", replacement = "замену масла"},
-{abbreviation = "масла", replacement = "замену масла"},
-{abbreviation = "фильтр", replacement = "фильтр"},
-{abbreviation = "фильтра", replacement = "фильтр"},
-{abbreviation = "шины", replacement = "шины"},
-{abbreviation = "шин", replacement = "шины"},
-{abbreviation = "покрышки", replacement = "покрышки"},
-{abbreviation = "покрышек", replacement = "покрышки"},
-{abbreviation = "диски", replacement = "диски"},
-{abbreviation = "дисков", replacement = "диски"},
-{abbreviation = "колеса", replacement = "колеса"},
-{abbreviation = "колес", replacement = "колеса"},
-{abbreviation = "аккумулятор", replacement = "аккумулятор"},
-{abbreviation = "аккумулятора", replacement = "аккумулятор"},
-{abbreviation = "телефон2", replacement = "телефон"},
-{abbreviation = "телефона2", replacement = "телефон"},
-{abbreviation = "смартфон", replacement = "смартфон"},
-{abbreviation = "смартфона", replacement = "смартфон"},
-{abbreviation = "айфон", replacement = "смартфон"},
-{abbreviation = "айфона", replacement = "смартфон"},
-{abbreviation = "андроид", replacement = "смартфон"},
-{abbreviation = "планшет", replacement = "планшет"},
-{abbreviation = "планшета", replacement = "планшет"},
-{abbreviation = "ноутбук", replacement = "ноутбук"},
-{abbreviation = "ноутбука", replacement = "ноутбук"},
-{abbreviation = "компьютер", replacement = "компьютер"},
-{abbreviation = "компьютера", replacement = "компьютер"},
-{abbreviation = "монитор", replacement = "монитор"},
-{abbreviation = "монитора", replacement = "монитор"},
-{abbreviation = "клавиатура", replacement = "клавиатуру"},
-{abbreviation = "клавиатуру", replacement = "клавиатуру"},
-{abbreviation = "мышь", replacement = "мышь"},
-{abbreviation = "мыши", replacement = "мышь"},
-{abbreviation = "принтер", replacement = "принтер"},
-{abbreviation = "принтера", replacement = "принтер"},
-{abbreviation = "наушники", replacement = "наушники"},
-{abbreviation = "наушников", replacement = "наушники"},
-{abbreviation = "колонка", replacement = "колонку"},
-{abbreviation = "колонку", replacement = "колонку"},
-{abbreviation = "колонки", replacement = "колонку"},
-{abbreviation = "микрофон", replacement = "микрофон"},
-{abbreviation = "микрофона", replacement = "микрофон"},
-{abbreviation = "камера", replacement = "камеру"},
-{abbreviation = "камеру", replacement = "камеру"},
-{abbreviation = "камеры", replacement = "камеру"},
-{abbreviation = "фотоаппарат", replacement = "фотоаппарат"},
-{abbreviation = "фотоаппарата", replacement = "фотоаппарат"},
-{abbreviation = "объектив", replacement = "объектив"},
-{abbreviation = "объектива", replacement = "объектив"},
-{abbreviation = "штатив", replacement = "штатив"},
-{abbreviation = "штатива", replacement = "штатив"},
-{abbreviation = "очки2", replacement = "очки"},
-{abbreviation = "линзы", replacement = "линзы"},
-{abbreviation = "линзов", replacement = "линзы"},
-{abbreviation = "сумка", replacement = "сумку"},
-{abbreviation = "сумку", replacement = "сумку"},
-{abbreviation = "сумки", replacement = "сумку"},
-{abbreviation = "рюкзак2", replacement = "рюкзак"},
-{abbreviation = "рюкзака2", replacement = "рюкзак"},
-{abbreviation = "чемодан", replacement = "чемодан"},
-{abbreviation = "чемодана", replacement = "чемодан"},
-{abbreviation = "портфель", replacement = "портфель"},
-{abbreviation = "портфеля", replacement = "портфель"},
-{abbreviation = "кошелек", replacement = "кошелек"},
-{abbreviation = "кошелька", replacement = "кошелек"},
-{abbreviation = "зонт", replacement = "зонт"},
-{abbreviation = "зонта", replacement = "зонт"},
-{abbreviation = "ключ", replacement = "ключ"},
-{abbreviation = "ключа", replacement = "ключ"},
-{abbreviation = "ключи", replacement = "ключи"},
-{abbreviation = "ключей", replacement = "ключи"},
-{abbreviation = "замок", replacement = "замок"},
-{abbreviation = "замка", replacement = "замок"},
-{abbreviation = "цепь", replacement = "цепь"},
-{abbreviation = "цепи", replacement = "цепь"},
-{abbreviation = "цепь2", replacement = "цепь"},
-{abbreviation = "брелок", replacement = "брелок"},
-{abbreviation = "брелока", replacement = "брелок"},
-{abbreviation = "значок", replacement = "значок"},
-{abbreviation = "значка", replacement = "значок"},
-{abbreviation = "медаль", replacement = "медаль"},
-{abbreviation = "медали", replacement = "медаль"},
-{abbreviation = "кубок", replacement = "кубок"},
-{abbreviation = "кубка", replacement = "кубок"},
-{abbreviation = "грамота", replacement = "грамоту"},
-{abbreviation = "грамоту", replacement = "грамоту"},
-{abbreviation = "диплом", replacement = "диплом"},
-{abbreviation = "диплома", replacement = "диплом"},
-{abbreviation = "сертификат", replacement = "сертификат"},
-{abbreviation = "сертификата", replacement = "сертификат"},
-{abbreviation = "купон", replacement = "купон"},
-{abbreviation = "купона", replacement = "купон"},
-{abbreviation = "ваучер", replacement = "ваучер"},
-{abbreviation = "ваучера", replacement = "ваучер"},
-{abbreviation = "билет", replacement = "билет"},
-{abbreviation = "билета", replacement = "билет"},
-{abbreviation = "абонемент", replacement = "абонемент"},
-{abbreviation = "абонемента", replacement = "абонемент"},
-{abbreviation = "пропуск", replacement = "пропуск"},
-{abbreviation = "пропуска", replacement = "пропуск"},
-{abbreviation = "бенсон", replacement = "а/м марки \"Benson\""},
-{abbreviation = "бенсона", replacement = "а/м марки \"Benson\""},
-{abbreviation = "бенсону", replacement = "а/м марки \"Benson\""},
-{abbreviation = "боксвилл", replacement = "а/м марки \"Boxville\""},
-{abbreviation = "боксвилла", replacement = "а/м марки \"Boxville\""},
-{abbreviation = "борд", replacement = "а/м марки \"Bord\""},
-{abbreviation = "борда", replacement = "а/м марки \"Bord\""},
-{abbreviation = "калвер", replacement = "а/м марки \"Culver\""},
-{abbreviation = "калвера", replacement = "а/м марки \"Culver\""},
-{abbreviation = "дюнес", replacement = "а/м марки \"Dunes\""},
-{abbreviation = "дюнеса", replacement = "а/м марки \"Dunes\""},
-{abbreviation = "форд2", replacement = "а/м марки \"Ford\""},
-{abbreviation = "форда2", replacement = "а/м марки \"Ford\""},
-{abbreviation = "ханли", replacement = "а/м марки \"Hanley\""},
-{abbreviation = "ханлиа", replacement = "а/м марки \"Hanley\""},
-{abbreviation = "хантер3", replacement = "а/м марки \"Hunter\""},
-{abbreviation = "хантера3", replacement = "а/м марки \"Hunter\""},
-{abbreviation = "ларго", replacement = "а/м марки \"Largo\""},
-{abbreviation = "ларгоа", replacement = "а/м марки \"Largo\""},
-{abbreviation = "локус", replacement = "а/м марки \"Locust\""},
-{abbreviation = "локуса", replacement = "а/м марки \"Locust\""},
-{abbreviation = "маверик", replacement = "а/м марки \"Maverick\""},
-{abbreviation = "маверика", replacement = "а/м марки \"Maverick\""},
-{abbreviation = "мерит", replacement = "а/м марки \"Merit\""},
-{abbreviation = "мерита", replacement = "а/м марки \"Merit\""},
-{abbreviation = "мэверик", replacement = "а/м марки \"Maverick\""},
-{abbreviation = "мэверика", replacement = "а/м марки \"Maverick\""},
-{abbreviation = "нэссон", replacement = "а/м марки \"Nesson\""},
-{abbreviation = "нэссона", replacement = "а/м марки \"Nesson\""},
-{abbreviation = "полар", replacement = "а/м марки \"Polar\""},
-{abbreviation = "полара", replacement = "а/м марки \"Polar\""},
-{abbreviation = "рэнчер2", replacement = "а/м марки \"Rancher\""},
-{abbreviation = "рэнчера2", replacement = "а/м марки \"Rancher\""},
-{abbreviation = "санчо", replacement = "а/м марки \"Sanchez\""},
-{abbreviation = "санчоа", replacement = "а/м марки \"Sanchez\""},
-{abbreviation = "симплон", replacement = "а/м марки \"Simpleon\""},
-{abbreviation = "симплона", replacement = "а/м марки \"Simpleon\""},
-{abbreviation = "симпл", replacement = "а/м марки \"Simpleon\""},
-{abbreviation = "спринтер", replacement = "а/м марки \"Sprinter\""},
-{abbreviation = "спринтера", replacement = "а/м марки \"Sprinter\""},
-{abbreviation = "сток", replacement = "а/м марки \"Stock\""},
-{abbreviation = "стока", replacement = "а/м марки \"Stock\""},
-{abbreviation = "трэш", replacement = "а/м марки \"Trash\""},
-{abbreviation = "трэша", replacement = "а/м марки \"Trash\""},
-{abbreviation = "трэшмастер", replacement = "а/м марки \"Trashmaster\""},
-{abbreviation = "трэшмастера", replacement = "а/м марки \"Trashmaster\""},
-{abbreviation = "урал", replacement = "а/м марки \"Ural\""},
-{abbreviation = "урала", replacement = "а/м марки \"Ural\""},
-{abbreviation = "уралу", replacement = "а/м марки \"Ural\""},
-{abbreviation = "вэн", replacement = "а/м марки \"Van\""},
-{abbreviation = "вэна", replacement = "а/м марки \"Van\""},
-{abbreviation = "вэну", replacement = "а/м марки \"Van\""},
-{abbreviation = "вэнс", replacement = "а/м марки \"Vance\""},
-{abbreviation = "вэнса", replacement = "а/м марки \"Vance\""},
-{abbreviation = "вэнсон", replacement = "а/м марки \"Venson\""},
-{abbreviation = "вэнсона", replacement = "а/м марки \"Venson\""},
-{abbreviation = "йолк", replacement = "а/м марки \"Yolk\""},
-{abbreviation = "йолка", replacement = "а/м марки \"Yolk\""},
-{abbreviation = "зомби3", replacement = "а/м марки \"Zombie\""},
-{abbreviation = "зомбиа3", replacement = "а/м марки \"Zombie\""},
-{abbreviation = "буллет2", replacement = "а/м марки \"Bullet\""},
-{abbreviation = "буллета2", replacement = "а/м марки \"Bullet\""},
-{abbreviation = "инфернус2", replacement = "а/м марки \"Infernus\""},
-{abbreviation = "инфернуса2", replacement = "а/м марки \"Infernus\""},
-{abbreviation = "турисмо2", replacement = "а/м марки \"Turismo\""},
-{abbreviation = "турисмоа2", replacement = "а/м марки \"Turismo\""},
-{abbreviation = "чирок2", replacement = "а/м марки \"Cheetah\""},
-{abbreviation = "чирока2", replacement = "а/м марки \"Cheetah\""},
-{abbreviation = "банши2", replacement = "а/м марки \"Banshee\""},
-{abbreviation = "банши2а", replacement = "а/м марки \"Banshee\""},
-{abbreviation = "феникс2", replacement = "а/м марки \"Phoenix\""},
-{abbreviation = "феникса2", replacement = "а/м марки \"Phoenix\""},
-{abbreviation = "супергт2", replacement = "а/м марки \"Super GT\""},
-{abbreviation = "супергта2", replacement = "а/м марки \"Super GT\""},
-{abbreviation = "стингер2", replacement = "а/м марки \"Stinger\""},
-{abbreviation = "стингера2", replacement = "а/м марки \"Stinger\""},
-{abbreviation = "комета2", replacement = "а/м марки \"Comet\""},
-{abbreviation = "комету2", replacement = "а/м марки \"Comet\""},
-{abbreviation = "бмх2", replacement = "велосипед марки \"BMX\""},
-{abbreviation = "бмха2", replacement = "велосипед марки \"BMX\""},
-{abbreviation = "бмху2", replacement = "велосипед марки \"BMX\""},
-{abbreviation = "байк2", replacement = "велосипед марки \"BMX\""},
-{abbreviation = "байка2", replacement = "велосипед марки \"BMX\""},
-{abbreviation = "велика2", replacement = "велосипед"},
-{abbreviation = "велику2", replacement = "велосипед"},
-{abbreviation = "велик2", replacement = "велосипед"},
-{abbreviation = "катер", replacement = "лодку"},
-{abbreviation = "катера", replacement = "лодку"},
-{abbreviation = "катеру", replacement = "лодку"},
-{abbreviation = "лодка2", replacement = "лодку"},
-{abbreviation = "лодку2", replacement = "лодку"},
-{abbreviation = "лодки2", replacement = "лодку"},
-{abbreviation = "яхта2", replacement = "яхту"},
-{abbreviation = "яхту2", replacement = "яхту"},
-{abbreviation = "яхты2", replacement = "яхту"},
-{abbreviation = "баркас", replacement = "лодку"},
-{abbreviation = "баркаса", replacement = "лодку"},
-{abbreviation = "шлюпка", replacement = "лодку"},
-{abbreviation = "шлюпку", replacement = "лодку"},
-{abbreviation = "байдарка", replacement = "лодку"},
-{abbreviation = "байдарку", replacement = "лодку"},
-{abbreviation = "каноэ", replacement = "лодку"},
-{abbreviation = "каноэа", replacement = "лодку"},
-{abbreviation = "плот", replacement = "лодку"},
-{abbreviation = "плота", replacement = "лодку"},
-{abbreviation = "вертолет2", replacement = "вертолёт"},
-{abbreviation = "вертолёт2", replacement = "вертолёт"},
-{abbreviation = "вертолёта2", replacement = "вертолёт"},
-{abbreviation = "самолет2", replacement = "самолёт"},
-{abbreviation = "самолёт2", replacement = "самолёт"},
-{abbreviation = "самолёта2", replacement = "самолёт"},
-{abbreviation = "самолёту2", replacement = "самолёт"},
-{abbreviation = "кукурузник", replacement = "самолёт"},
-{abbreviation = "кукурузника", replacement = "самолёт"},
-{abbreviation = "кукурузнику", replacement = "самолёт"},
-{abbreviation = "истребитель", replacement = "самолёт"},
-{abbreviation = "истребителя", replacement = "самолёт"},
-{abbreviation = "бомбардировщик", replacement = "самолёт"},
-{abbreviation = "бомбардировщика", replacement = "самолёт"},
-{abbreviation = "дирижабль", replacement = "дирижабль"},
-{abbreviation = "дирижабля", replacement = "дирижабль"},
-{abbreviation = "воздушный", replacement = "шар"},
-{abbreviation = "шар", replacement = "шар"},
-{abbreviation = "шара", replacement = "шар"},
-{abbreviation = "парашют2", replacement = "аксессуар \"Парашют\""},
-{abbreviation = "парашюты2", replacement = "аксессуар \"Парашют\""},
-{abbreviation = "дельтаплан", replacement = "дельтаплан"},
-{abbreviation = "дельтаплана", replacement = "дельтаплан"},
-{abbreviation = "эхо", replacement = "East Los Santos"},
-{abbreviation = "эхоа", replacement = "East Los Santos"},
-{abbreviation = "эхо парк", replacement = "East Los Santos"},
-{abbreviation = "айдинлвуд", replacement = "Idlewood"},
-{abbreviation = "айдинлвуда", replacement = "Idlewood"},
-{abbreviation = "джеф2", replacement = "Jefferson"},
-{abbreviation = "джеф2а", replacement = "Jefferson"},
-{abbreviation = "глен2", replacement = "Glen Park"},
-{abbreviation = "глена2", replacement = "Glen Park"},
-{abbreviation = "виллоуфилд2", replacement = "Willowfield"},
-{abbreviation = "элкорона2", replacement = "El Corona"},
-{abbreviation = "элкорона2а", replacement = "El Corona"},
-{abbreviation = "коммерс2", replacement = "Commerce"},
-{abbreviation = "маркет2", replacement = "Market"},
-{abbreviation = "маркета2", replacement = "Market"},
-{abbreviation = "конференс", replacement = "Conference Center"},
-{abbreviation = "конференса", replacement = "Conference Center"},
-{abbreviation = "персхинг", replacement = "Pershing Square"},
-{abbreviation = "персхинга", replacement = "Pershing Square"},
-{abbreviation = "першинг", replacement = "Pershing Square"},
-{abbreviation = "першинга", replacement = "Pershing Square"},
-{abbreviation = "сити", replacement = "City Hall"},
-{abbreviation = "сити2", replacement = "City Hall"},
-{abbreviation = "таун", replacement = "Downtown"},
-{abbreviation = "тауна", replacement = "Downtown"},
-{abbreviation = "даунтаун", replacement = "Downtown"},
-{abbreviation = "даунтауна", replacement = "Downtown"},
-{abbreviation = "плаза2", replacement = "Pershing Square"},
-{abbreviation = "гарсия2", replacement = "Garcia"},
-{abbreviation = "гарсии2", replacement = "Garcia"},
-{abbreviation = "хашбери2", replacement = "Hashbury"},
-{abbreviation = "хашбериа2", replacement = "Hashbury"},
-{abbreviation = "дохерти2", replacement = "Doherty"},
-{abbreviation = "дохертиа2", replacement = "Doherty"},
-{abbreviation = "кингс2", replacement = "Kings"},
-{abbreviation = "кингса2", replacement = "Kings"},
-{abbreviation = "парадизо2", replacement = "Paradiso"},
-{abbreviation = "парадизоа2", replacement = "Paradiso"},
-{abbreviation = "квартал2", replacement = "Queens"},
-{abbreviation = "квартала2", replacement = "Queens"},
-{abbreviation = "сантафлора2", replacement = "Santa Flora"},
-{abbreviation = "санта2", replacement = "Santa Flora"},
-{abbreviation = "фостер", replacement = "Foster Valley"},
-{abbreviation = "фостера", replacement = "Foster Valley"},
-{abbreviation = "фостер2", replacement = "Foster Valley"},
-{abbreviation = "фостера2", replacement = "Foster Valley"},
-{abbreviation = "гарберри", replacement = "Garberry"},
-{abbreviation = "гарберриа", replacement = "Garberry"},
-{abbreviation = "эшберри2", replacement = "Ashberry"},
-{abbreviation = "эшберри2а", replacement = "Ashberry"},
-{abbreviation = "бэйсайд2", replacement = "Bayside"},
-{abbreviation = "бэйсайд2а", replacement = "Bayside"},
-{abbreviation = "бэйсайду2", replacement = "Bayside"},
-{abbreviation = "стрип2", replacement = "The Strip"},
-{abbreviation = "стрипа2", replacement = "The Strip"},
-{abbreviation = "пилон2", replacement = "Pilgrim"},
-{abbreviation = "пилона2", replacement = "Pilgrim"},
-{abbreviation = "авалон2", replacement = "Avalon"},
-{abbreviation = "авалона2", replacement = "Avalon"},
-{abbreviation = "драгон2", replacement = "Dragons Dojo"},
-{abbreviation = "драгона2", replacement = "Dragons Dojo"},
-{abbreviation = "прайм2", replacement = "Prickle Pine"},
-{abbreviation = "прикл2", replacement = "Prickle Pine"},
-{abbreviation = "вайтвуда2", replacement = "Whitewood"},
-{abbreviation = "пилбокс2", replacement = "Pilbox"},
-{abbreviation = "пилбокса2", replacement = "Pilbox"},
-{abbreviation = "ройал2", replacement = "Royal Casino"},
-{abbreviation = "калигула2", replacement = "Caligulas Palace"},
-{abbreviation = "пират2", replacement = "Pirates in Mens Pants"},
-{abbreviation = "визаж2", replacement = "Visage"},
-{abbreviation = "флинт3", replacement = "Flint County"},
-{abbreviation = "флинта3", replacement = "Flint County"},
-{abbreviation = "пк2", replacement = "Palomino Creek"},
-{abbreviation = "паломино2", replacement = "Palomino Creek"},
-{abbreviation = "монтгомери2", replacement = "Montgomery"},
-{abbreviation = "диллимор2", replacement = "Dillimore"},
-{abbreviation = "блюбери2", replacement = "Blueberry"},
-{abbreviation = "бляберри2", replacement = "Blueberry"},
-{abbreviation = "форт2", replacement = "Fort Carson"},
-{abbreviation = "карсон2", replacement = "Fort Carson"},
-{abbreviation = "тиера2", replacement = "Tierra Robada"},
-{abbreviation = "робада2", replacement = "Tierra Robada"},
-{abbreviation = "ангел2", replacement = "Angel Pine"},
-{abbreviation = "норт2", replacement = "North Rock"},
-{abbreviation = "валле2", replacement = "Valle Ocultado"},
-{abbreviation = "арко2", replacement = "Arco del Oeste"},
-{abbreviation = "грин2", replacement = "Green Palms"},
-{abbreviation = "палмс2", replacement = "Green Palms"},
-{abbreviation = "юнион2", replacement = "Union Station"},
-{abbreviation = "крик2", replacement = "Palomino Creek"},
-{abbreviation = "элькебрадос", replacement = "El Quebrados"},
-{abbreviation = "элькуебрадос", replacement = "El Quebrados"},
-{abbreviation = "аэропорт", replacement = "Airport"},
-{abbreviation = "аэропорта", replacement = "Airport"},
-{abbreviation = "аэропорту", replacement = "Airport"},
-{abbreviation = "аэро", replacement = "Airport"},
-{abbreviation = "аэроа", replacement = "Airport"},
-{abbreviation = "порт3", replacement = "Port"},
-{abbreviation = "порта3", replacement = "Port"},
-{abbreviation = "вокзал", replacement = "Station"},
-{abbreviation = "вокзала", replacement = "Station"},
-{abbreviation = "станция", replacement = "Station"},
-{abbreviation = "станции", replacement = "Station"},
-{abbreviation = "станцию", replacement = "Station"},
-{abbreviation = "метро", replacement = "Metro"},
-{abbreviation = "метроа", replacement = "Metro"},
-{abbreviation = "остановка", replacement = "остановку"},
-{abbreviation = "остановку", replacement = "остановку"},
-{abbreviation = "перекресток", replacement = "перекресток"},
-{abbreviation = "перекрестка", replacement = "перекресток"},
-{abbreviation = "развязка", replacement = "развязку"},
-{abbreviation = "развязку", replacement = "развязку"},
-{abbreviation = "мост", replacement = "мост"},
-{abbreviation = "моста", replacement = "мост"},
-{abbreviation = "тоннель", replacement = "тоннель"},
-{abbreviation = "тоннеля", replacement = "тоннель"},
-{abbreviation = "трасса", replacement = "трассу"},
-{abbreviation = "трассу", replacement = "трассу"},
-{abbreviation = "шоссе", replacement = "шоссе"},
-{abbreviation = "шоссеа", replacement = "шоссе"},
-{abbreviation = "автострада", replacement = "автостраду"},
-{abbreviation = "автостраду", replacement = "автостраду"},
-{abbreviation = "дорога", replacement = "дорогу"},
-{abbreviation = "дорогу", replacement = "дорогу"},
-{abbreviation = "улица", replacement = "улицу"},
-{abbreviation = "улицу", replacement = "улицу"},
-{abbreviation = "переулок", replacement = "переулок"},
-{abbreviation = "переулка", replacement = "переулок"},
-{abbreviation = "проспект", replacement = "проспект"},
-{abbreviation = "проспекта", replacement = "проспект"},
-{abbreviation = "бульвар", replacement = "бульвар"},
-{abbreviation = "бульвара", replacement = "бульвар"},
-{abbreviation = "набережная", replacement = "набережную"},
-{abbreviation = "набережную", replacement = "набережную"},
-{abbreviation = "пляж", replacement = "пляж"},
-{abbreviation = "пляжа", replacement = "пляж"},
-{abbreviation = "берег", replacement = "берег"},
-{abbreviation = "берега", replacement = "берег"},
-{abbreviation = "остров", replacement = "остров"},
-{abbreviation = "острова", replacement = "остров"},
-{abbreviation = "полуостров", replacement = "полуостров"},
-{abbreviation = "полуострова", replacement = "полуостров"},
-{abbreviation = "залив", replacement = "залив"},
-{abbreviation = "залива", replacement = "залив"},
-{abbreviation = "бухта", replacement = "бухту"},
-{abbreviation = "бухту", replacement = "бухту"},
-{abbreviation = "мыс", replacement = "мыс"},
-{abbreviation = "мыса", replacement = "мыс"},
-{abbreviation = "гора", replacement = "гору"},
-{abbreviation = "гору", replacement = "гору"},
-{abbreviation = "холм", replacement = "холм"},
-{abbreviation = "холма", replacement = "холм"},
-{abbreviation = "долина", replacement = "долину"},
-{abbreviation = "долину", replacement = "долину"},
-{abbreviation = "пустыня", replacement = "пустыню"},
-{abbreviation = "пустыню", replacement = "пустыню"},
-{abbreviation = "лес", replacement = "лес"},
-{abbreviation = "леса", replacement = "лес"},
-{abbreviation = "поле", replacement = "поле"},
-{abbreviation = "поля", replacement = "поле"},
-{abbreviation = "озеро", replacement = "озеро"},
-{abbreviation = "озера", replacement = "озеро"},
-{abbreviation = "река", replacement = "реку"},
-{abbreviation = "реку", replacement = "реку"},
-{abbreviation = "канал", replacement = "канал"},
-{abbreviation = "канала", replacement = "канал"},
-{abbreviation = "водопад", replacement = "водопад"},
-{abbreviation = "водопада", replacement = "водопад"},
-{abbreviation = "каньон", replacement = "каньон"},
-{abbreviation = "каньона", replacement = "каньон"},
-{abbreviation = "ущелье", replacement = "ущелье"},
-{abbreviation = "ущелья", replacement = "ущелье"},
-{abbreviation = "пещера", replacement = "пещеру"},
-{abbreviation = "пещеру", replacement = "пещеру"},
-{abbreviation = "руины", replacement = "руины"},
-{abbreviation = "руин", replacement = "руины"},
-{abbreviation = "крепость", replacement = "крепость"},
-{abbreviation = "крепости", replacement = "крепость"},
-{abbreviation = "башня", replacement = "башню"},
-{abbreviation = "башню", replacement = "башню"},
-{abbreviation = "колокол", replacement = "колокол"},
-{abbreviation = "колокола", replacement = "колокол"},
-{abbreviation = "маяк", replacement = "маяк"},
-{abbreviation = "маяка", replacement = "маяк"},
-{abbreviation = "плотина", replacement = "плотину"},
-{abbreviation = "плотину", replacement = "плотину"},
-{abbreviation = "шлюз", replacement = "шлюз"},
-{abbreviation = "шлюза", replacement = "шлюз"},
-{abbreviation = "мельница", replacement = "мельницу"},
-{abbreviation = "мельницу", replacement = "мельницу"},
-{abbreviation = "фабрика2", replacement = "фабрику"},
-{abbreviation = "завод2", replacement = "завод"},
-{abbreviation = "шахта2", replacement = "шахту"},
-{abbreviation = "карьер", replacement = "карьер"},
-{abbreviation = "карьера", replacement = "карьер"},
-{abbreviation = "рудник", replacement = "рудник"},
-{abbreviation = "рудника", replacement = "рудник"},
-{abbreviation = "шахта3", replacement = "шахту"},
-{abbreviation = "барбершоп2", replacement = "парикмахерскую"},
-{abbreviation = "барбер", replacement = "парикмахерскую"},
-{abbreviation = "цирюльня", replacement = "парикмахерскую"},
-{abbreviation = "цирюльню", replacement = "парикмахерскую"},
-{abbreviation = "парикмахерская2", replacement = "парикмахерскую"},
-{abbreviation = "салон2", replacement = "салон красоты"},
-{abbreviation = "салона2", replacement = "салон красоты"},
-{abbreviation = "спа", replacement = "СПА"},
-{abbreviation = "спаа", replacement = "СПА"},
-{abbreviation = "бани", replacement = "баню"},
-{abbreviation = "баню", replacement = "баню"},
-{abbreviation = "бanya", replacement = "баню"},
-{abbreviation = "сауна", replacement = "сауну"},
-{abbreviation = "сауну", replacement = "сауну"},
-{abbreviation = "сауны", replacement = "сауну"},
-{abbreviation = "бассейн", replacement = "бассейн"},
-{abbreviation = "бассейна", replacement = "бассейн"},
-{abbreviation = "аквапарк", replacement = "аквапарк"},
-{abbreviation = "аквапарка", replacement = "аквапарк"},
-{abbreviation = "парк2", replacement = "парк"},
-{abbreviation = "парка2", replacement = "парк"},
-{abbreviation = "сквер2", replacement = "сквер"},
-{abbreviation = "сквера2", replacement = "сквер"},
-{abbreviation = "сад", replacement = "сад"},
-{abbreviation = "сада", replacement = "сад"},
-{abbreviation = "огород", replacement = "огород"},
-{abbreviation = "огорода", replacement = "огород"},
-{abbreviation = "теплица", replacement = "теплицу"},
-{abbreviation = "теплицу", replacement = "теплицу"},
-{abbreviation = "оранжерея", replacement = "оранжерею"},
-{abbreviation = "оранжерею", replacement = "оранжерею"},
-{abbreviation = "питомник", replacement = "питомник"},
-{abbreviation = "питомника", replacement = "питомник"},
-{abbreviation = "зоопарк", replacement = "зоопарк"},
-{abbreviation = "зоопарка", replacement = "зоопарк"},
-{abbreviation = "конюшня", replacement = "конюшню"},
-{abbreviation = "конюшню", replacement = "конюшню"},
-{abbreviation = "ферма2", replacement = "ферму"},
-{abbreviation = "ферму2", replacement = "ферму"},
-{abbreviation = "пасека", replacement = "пасеку"},
-{abbreviation = "пасеку", replacement = "пасеку"},
-{abbreviation = "ульи", replacement = "пасеку"},
-{abbreviation = "пасека2", replacement = "пасеку"},
-{abbreviation = "рыбхоз", replacement = "рыбхоз"},
-{abbreviation = "рыбхоза", replacement = "рыбхоз"},
-{abbreviation = "пруд", replacement = "пруд"},
-{abbreviation = "пруда", replacement = "пруд"},
-{abbreviation = "озеро2", replacement = "озеро"},
-{abbreviation = "пляж2", replacement = "пляж"},
-{abbreviation = "причал2", replacement = "причал"},
-{abbreviation = "якорь2", replacement = "причал"},
-{abbreviation = "верфь2", replacement = "верфь"},
-{abbreviation = "док2", replacement = "док"},
-{abbreviation = "склад2", replacement = "склад"},
-{abbreviation = "склада2", replacement = "склад"},
-{abbreviation = "ангар2", replacement = "ангар"},
-{abbreviation = "ангара2", replacement = "ангар"},
-{abbreviation = "депо", replacement = "депо"},
-{abbreviation = "депоа", replacement = "депо"},
-{abbreviation = "гараж2", replacement = "гараж"},
-{abbreviation = "гаража2", replacement = "гараж"},
-{abbreviation = "стоянка", replacement = "стоянку"},
-{abbreviation = "стоянку", replacement = "стоянку"},
-{abbreviation = "парковка", replacement = "парковку"},
-{abbreviation = "парковку", replacement = "парковку"},
-{abbreviation = "автостоянка", replacement = "автостоянку"},
-{abbreviation = "автостоянку", replacement = "автостоянку"},
-{abbreviation = "мойка2", replacement = "автомойку"},
-{abbreviation = "мойку2", replacement = "автомойку"},
-{abbreviation = "шиномонтаж2", replacement = "шиномонтаж"},
-{abbreviation = "сто2", replacement = "СТО"},
-{abbreviation = "техцентр2", replacement = "техцентр"},
-{abbreviation = "автосервис2", replacement = "автосервис"},
-{abbreviation = "ремзона", replacement = "ремзону"},
-{abbreviation = "ремзону", replacement = "ремзону"},
-{abbreviation = "пункт2", replacement = "пункт"},
-{abbreviation = "пункта2", replacement = "пункт"},
-{abbreviation = "офис", replacement = "офис"},
-{abbreviation = "офиса", replacement = "офис"},
-{abbreviation = "офису", replacement = "офис"},
-{abbreviation = "контора", replacement = "контору"},
-{abbreviation = "контору", replacement = "контору"},
-{abbreviation = "конторы", replacement = "контору"},
-{abbreviation = "бюро", replacement = "бюро"},
-{abbreviation = "бюроа", replacement = "бюро"},
-{abbreviation = "агентство", replacement = "агентство"},
-{abbreviation = "агентства", replacement = "агентство"},
-{abbreviation = "представительство", replacement = "представительство"},
-{abbreviation = "представительства", replacement = "представительство"},
-{abbreviation = "отделение", replacement = "отделение"},
-{abbreviation = "отделения", replacement = "отделение"},
-{abbreviation = "филиал", replacement = "филиал"},
-{abbreviation = "филиала", replacement = "филиал"},
-{abbreviation = "цех", replacement = "цех"},
-{abbreviation = "цеха", replacement = "цех"},
-{abbreviation = "лаборатория", replacement = "лабораторию"},
-{abbreviation = "лабораторию", replacement = "лабораторию"},
-{abbreviation = "мастерская", replacement = "мастерскую"},
-{abbreviation = "мастерскую", replacement = "мастерскую"},
-{abbreviation = "мастерские", replacement = "мастерскую"},
-{abbreviation = "ателье", replacement = "ателье"},
-{abbreviation = "ательеа", replacement = "ателье"},
-{abbreviation = "студия", replacement = "студию"},
-{abbreviation = "студию", replacement = "студию"},
-{abbreviation = "студии", replacement = "студию"},
-{abbreviation = "фотостудия", replacement = "фотостудию"},
-{abbreviation = "фотостудию", replacement = "фотостудию"},
-{abbreviation = "музыкальная", replacement = "музыкальную студию"},
-{abbreviation = "танцевальная", replacement = "танцевальную студию"},
-{abbreviation = "тренажерный", replacement = "тренажёрный зал"},
-{abbreviation = "тренажёрный", replacement = "тренажёрный зал"},
-{abbreviation = "спортзал2", replacement = "тренажёрный зал"},
-{abbreviation = "качалка2", replacement = "тренажёрный зал"},
-{abbreviation = "качалку2", replacement = "тренажёрный зал"},
-{abbreviation = "фитнес", replacement = "фитнес-клуб"},
-{abbreviation = "фитнеса", replacement = "фитнес-клуб"},
-{abbreviation = "фитнес-клуб", replacement = "фитнес-клуб"},
-{abbreviation = "фитнес-клуба", replacement = "фитнес-клуб"},
-{abbreviation = "кроссфит", replacement = "кроссфит"},
-{abbreviation = "йога", replacement = "йога-студию"},
-{abbreviation = "йога-студию", replacement = "йога-студию"},
-{abbreviation = "пилатес", replacement = "студию пилатеса"},
-{abbreviation = "единоборства", replacement = "зал единоборств"},
-{abbreviation = "бокс", replacement = "боксерский зал"},
-{abbreviation = "боксерский", replacement = "боксерский зал"},
-{abbreviation = "спорт", replacement = "спортзал"},
-{abbreviation = "спорта", replacement = "спортзал"},
-{abbreviation = "школа2", replacement = "школу"},
-{abbreviation = "школу2", replacement = "школу"},
-{abbreviation = "училище", replacement = "училище"},
-{abbreviation = "училища", replacement = "училище"},
-{abbreviation = "колледж", replacement = "колледж"},
-{abbreviation = "колледжа", replacement = "колледж"},
-{abbreviation = "университет", replacement = "университет"},
-{abbreviation = "университета", replacement = "университет"},
-{abbreviation = "институт", replacement = "институт"},
-{abbreviation = "института", replacement = "институт"},
-{abbreviation = "академия", replacement = "академию"},
-{abbreviation = "академию", replacement = "академию"},
-{abbreviation = "лицей2", replacement = "лицей"},
-{abbreviation = "лицея", replacement = "лицей"},
-{abbreviation = "детсад", replacement = "детский сад"},
-{abbreviation = "детский", replacement = "детский сад"},
-{abbreviation = "ясли", replacement = "ясли"},
-{abbreviation = "яслей", replacement = "ясли"},
-{abbreviation = "хоспис", replacement = "хоспис"},
-{abbreviation = "хосписа", replacement = "хоспис"},
-{abbreviation = "санаторий", replacement = "санаторий"},
-{abbreviation = "санатория", replacement = "санаторий"},
-{abbreviation = "пансионат", replacement = "пансионат"},
-{abbreviation = "пансионата", replacement = "пансионат"},
-{abbreviation = "курорт", replacement = "курорт"},
-{abbreviation = "курорта", replacement = "курорт"},
-{abbreviation = "турбаза", replacement = "турбазу"},
-{abbreviation = "турбазу", replacement = "турбазу"},
-{abbreviation = "кемпинг", replacement = "кемпинг"},
-{abbreviation = "кемпинга", replacement = "кемпинг"},
-{abbreviation = "мотель2", replacement = "отель"},
-{abbreviation = "отель2", replacement = "отель"},
-{abbreviation = "гостиница", replacement = "гостиницу"},
-{abbreviation = "гостиницу", replacement = "гостиницу"},
-{abbreviation = "хостел", replacement = "хостел"},
-{abbreviation = "хостела", replacement = "хостел"},
-{abbreviation = "общежитие", replacement = "общежитие"},
-{abbreviation = "общежития", replacement = "общежитие"},
-{abbreviation = "квартира2", replacement = "квартиру"},
-{abbreviation = "квартиру2", replacement = "квартиру"},
-{abbreviation = "студия2", replacement = "квартиру-студию"},
-{abbreviation = "комната", replacement = "комнату"},
-{abbreviation = "комнату", replacement = "комнату"},
-{abbreviation = "комнаты", replacement = "комнату"},
-{abbreviation = "койка", replacement = "койко-место"},
-{abbreviation = "койку", replacement = "койко-место"},
-{abbreviation = "койки", replacement = "койко-место"},
-{abbreviation = "койко-место", replacement = "койко-место"},
-{abbreviation = "спальня", replacement = "спальню"},
-{abbreviation = "спальню", replacement = "спальню"},
-{abbreviation = "гостиная", replacement = "гостиную"},
-{abbreviation = "гостиную", replacement = "гостиную"},
-{abbreviation = "кухня", replacement = "кухню"},
-{abbreviation = "кухню", replacement = "кухню"},
-{abbreviation = "ванная", replacement = "ванную"},
-{abbreviation = "ванную", replacement = "ванную"},
-{abbreviation = "балкон", replacement = "балкон"},
-{abbreviation = "балкона", replacement = "балкон"},
-{abbreviation = "терраса", replacement = "террасу"},
-{abbreviation = "террасу", replacement = "террасу"},
-{abbreviation = "веранда", replacement = "веранду"},
-{abbreviation = "веранду", replacement = "веранду"},
-{abbreviation = "беседка", replacement = "беседку"},
-{abbreviation = "беседку", replacement = "беседку"},
-{abbreviation = "навес2", replacement = "навес"},
-{abbreviation = "тент2", replacement = "тент"},
-{abbreviation = "сарай", replacement = "сарай"},
-{abbreviation = "сарая", replacement = "сарай"},
-{abbreviation = "амбар", replacement = "амбар"},
-{abbreviation = "амбара", replacement = "амбар"},
-{abbreviation = "хлев", replacement = "хлев"},
-{abbreviation = "хлева", replacement = "хлев"},
-{abbreviation = "курятник", replacement = "курятник"},
-{abbreviation = "курятника", replacement = "курятник"},
-{abbreviation = "конура", replacement = "конуру"},
-{abbreviation = "конуру", replacement = "конуру"},
-{abbreviation = "будка", replacement = "будку"},
-{abbreviation = "будку", replacement = "будку"},
-{abbreviation = "колодец", replacement = "колодец"},
-{abbreviation = "колодца", replacement = "колодец"},
-{abbreviation = "скважина", replacement = "скважину"},
-{abbreviation = "скважину", replacement = "скважину"},
-{abbreviation = "септик", replacement = "септик"},
-{abbreviation = "септика", replacement = "септик"},
-{abbreviation = "канализация", replacement = "канализацию"},
-{abbreviation = "канализацию", replacement = "канализацию"},
-{abbreviation = "электричество", replacement = "электричество"},
-{abbreviation = "электричества", replacement = "электричество"},
-{abbreviation = "генератор", replacement = "генератор"},
-{abbreviation = "генератора", replacement = "генератор"},
-{abbreviation = "солнечная", replacement = "солнечную панель"},
-{abbreviation = "ветряк", replacement = "ветряк"},
-{abbreviation = "ветряка", replacement = "ветряк"},
-{abbreviation = "турбина", replacement = "турбину"},
-{abbreviation = "турбину", replacement = "турбину"},
-{abbreviation = "футболка", replacement = "футболку"},
-{abbreviation = "футболку", replacement = "футболку"},
-{abbreviation = "майка", replacement = "майку"},
-{abbreviation = "майку", replacement = "майку"},
-{abbreviation = "рубашка", replacement = "рубашку"},
-{abbreviation = "рубашку", replacement = "рубашку"},
-{abbreviation = "брюки", replacement = "брюки"},
-{abbreviation = "брюк", replacement = "брюки"},
-{abbreviation = "джинсы", replacement = "джинсы"},
-{abbreviation = "джинсов", replacement = "джинсы"},
-{abbreviation = "шорты", replacement = "шорты"},
-{abbreviation = "шорт", replacement = "шорты"},
-{abbreviation = "юбка", replacement = "юбку"},
-{abbreviation = "юбку", replacement = "юбку"},
-{abbreviation = "платье", replacement = "платье"},
-{abbreviation = "платья", replacement = "платье"},
-{abbreviation = "костюм", replacement = "костюм"},
-{abbreviation = "костюма", replacement = "костюм"},
-{abbreviation = "пиджак", replacement = "пиджак"},
-{abbreviation = "пиджака", replacement = "пиджак"},
-{abbreviation = "жилет", replacement = "жилет"},
-{abbreviation = "жилета", replacement = "жилет"},
-{abbreviation = "свитер", replacement = "свитер"},
-{abbreviation = "свитера", replacement = "свитер"},
-{abbreviation = "кофта", replacement = "кофту"},
-{abbreviation = "кофту", replacement = "кофту"},
-{abbreviation = "куртка", replacement = "куртку"},
-{abbreviation = "куртку", replacement = "куртку"},
-{abbreviation = "пальто", replacement = "пальто"},
-{abbreviation = "пальтоа", replacement = "пальто"},
-{abbreviation = "шуба", replacement = "шубу"},
-{abbreviation = "шубу", replacement = "шубу"},
-{abbreviation = "дубленка", replacement = "дубленку"},
-{abbreviation = "дубленку", replacement = "дубленку"},
-{abbreviation = "пуховик", replacement = "пуховик"},
-{abbreviation = "пуховика", replacement = "пуховик"},
-{abbreviation = "ветровка", replacement = "ветровку"},
-{abbreviation = "ветровку", replacement = "ветровку"},
-{abbreviation = "парка", replacement = "парку"},
-{abbreviation = "парку", replacement = "парку"},
-{abbreviation = "тренч", replacement = "тренч"},
-{abbreviation = "тренча", replacement = "тренч"},
-{abbreviation = "плащ", replacement = "плащ"},
-{abbreviation = "плаща", replacement = "плащ"},
-{abbreviation = "галстук", replacement = "галстук"},
-{abbreviation = "галстука", replacement = "галстук"},
-{abbreviation = "бабочка", replacement = "бабочку"},
-{abbreviation = "бабочку", replacement = "бабочку"},
-{abbreviation = "ремень", replacement = "ремень"},
-{abbreviation = "ремня", replacement = "ремень"},
-{abbreviation = "пояс", replacement = "пояс"},
-{abbreviation = "пояса", replacement = "пояс"},
-{abbreviation = "шарф", replacement = "шарф"},
-{abbreviation = "шарфа", replacement = "шарф"},
-{abbreviation = "перчатки", replacement = "перчатки"},
-{abbreviation = "перчаток", replacement = "перчатки"},
-{abbreviation = "варежки", replacement = "варежки"},
-{abbreviation = "варежек", replacement = "варежки"},
-{abbreviation = "носки", replacement = "носки"},
-{abbreviation = "носков", replacement = "носки"},
-{abbreviation = "чулки", replacement = "чулки"},
-{abbreviation = "чулок", replacement = "чулки"},
-{abbreviation = "колготки", replacement = "колготки"},
-{abbreviation = "колготок", replacement = "колготки"},
-{abbreviation = "трусы", replacement = "трусы"},
-{abbreviation = "трусов", replacement = "трусы"},
-{abbreviation = "бюстгальтер", replacement = "бюстгальтер"},
-{abbreviation = "бра", replacement = "бюстгальтер"},
-{abbreviation = "нижнее", replacement = "нижнее белье"},
-{abbreviation = "белье", replacement = "нижнее белье"},
-{abbreviation = "белья", replacement = "нижнее белье"},
-{abbreviation = "пижама", replacement = "пижаму"},
-{abbreviation = "пижаму", replacement = "пижаму"},
-{abbreviation = "халат", replacement = "халат"},
-{abbreviation = "халата", replacement = "халат"},
-{abbreviation = "купальник", replacement = "купальник"},
-{abbreviation = "купальника", replacement = "купальник"},
-{abbreviation = "бикини", replacement = "бикини"},
-{abbreviation = "бикиниа", replacement = "бикини"},
-{abbreviation = "сланцы", replacement = "сланцы"},
-{abbreviation = "сланцев", replacement = "сланцы"},
-{abbreviation = "шлепанцы", replacement = "шлепанцы"},
-{abbreviation = "шлепанцев", replacement = "шлепанцы"},
-{abbreviation = "вьетнамки", replacement = "вьетнамки"},
-{abbreviation = "вьетнамок", replacement = "вьетнамки"},
-{abbreviation = "босоножки", replacement = "босоножки"},
-{abbreviation = "босоножек", replacement = "босоножки"},
-{abbreviation = "сандалии", replacement = "сандалии"},
-{abbreviation = "сандалий", replacement = "сандалии"},
-{abbreviation = "кеды", replacement = "кеды"},
-{abbreviation = "кедов", replacement = "кеды"},
-{abbreviation = "кроссовки", replacement = "кроссовки"},
-{abbreviation = "кроссовок", replacement = "кроссовки"},
-{abbreviation = "туфли", replacement = "туфли"},
-{abbreviation = "туфель", replacement = "туфли"},
-{abbreviation = "ботинки", replacement = "ботинки"},
-{abbreviation = "ботинок", replacement = "ботинки"},
-{abbreviation = "сапоги", replacement = "сапоги"},
-{abbreviation = "сапог", replacement = "сапоги"},
-{abbreviation = "валенки", replacement = "валенки"},
-{abbreviation = "валенок", replacement = "валенки"},
-{abbreviation = "угги", replacement = "угги"},
-{abbreviation = "уггов", replacement = "угги"},
-{abbreviation = "мокасины", replacement = "мокасины"},
-{abbreviation = "мокасин", replacement = "мокасины"},
-{abbreviation = "лоферы", replacement = "лоферы"},
-{abbreviation = "лоферов", replacement = "лоферы"},
-{abbreviation = "эспадрильи", replacement = "эспадрильи"},
-{abbreviation = "эспадрилий", replacement = "эспадрильи"},
-{abbreviation = "обувь", replacement = "обувь"},
-{abbreviation = "обуви", replacement = "обувь"},
-{abbreviation = "кросовки", replacement = "кроссовки"},
-{abbreviation = "кросовок", replacement = "кроссовки"},
-{abbreviation = "часы2", replacement = "аксессуар \"Часы\""},
-{abbreviation = "часов2", replacement = "аксессуар \"Часы\""},
-{abbreviation = "браслет", replacement = "браслет"},
-{abbreviation = "браслета", replacement = "браслет"},
-{abbreviation = "кольцо", replacement = "кольцо"},
-{abbreviation = "кольца", replacement = "кольцо"},
-{abbreviation = "серьги", replacement = "серьги"},
-{abbreviation = "серег", replacement = "серьги"},
-{abbreviation = "цепочка", replacement = "цепочку"},
-{abbreviation = "цепочку", replacement = "цепочку"},
-{abbreviation = "кулон", replacement = "кулон"},
-{abbreviation = "кулона", replacement = "кулон"},
-{abbreviation = "брошь", replacement = "брошь"},
-{abbreviation = "броши", replacement = "брошь"},
-{abbreviation = "заколка", replacement = "заколку"},
-{abbreviation = "заколку", replacement = "заколку"},
-{abbreviation = "обруч", replacement = "обруч"},
-{abbreviation = "обруча", replacement = "обруч"},
-{abbreviation = "корона", replacement = "корону"},
-{abbreviation = "корону", replacement = "корону"},
-{abbreviation = "диадема", replacement = "диадему"},
-{abbreviation = "диадему", replacement = "диадему"},
-{abbreviation = "галстук2", replacement = "галстук"},
-{abbreviation = "зажим", replacement = "зажим"},
-{abbreviation = "зажима", replacement = "зажим"},
-{abbreviation = "портупея", replacement = "портупею"},
-{abbreviation = "портупею", replacement = "портупею"},
-{abbreviation = "подтяжки", replacement = "подтяжки"},
-{abbreviation = "подтяжек", replacement = "подтяжки"},
-{abbreviation = "телефон3", replacement = "телефон"},
-{abbreviation = "смартфон2", replacement = "смартфон"},
-{abbreviation = "айфон2", replacement = "смартфон"},
-{abbreviation = "айфона2", replacement = "смартфон"},
-{abbreviation = "самсунг", replacement = "смартфон"},
-{abbreviation = "самсунга", replacement = "смартфон"},
-{abbreviation = "нокиа", replacement = "смартфон"},
-{abbreviation = "нокиаа", replacement = "смартфон"},
-{abbreviation = "сяоми", replacement = "смартфон"},
-{abbreviation = "хонор", replacement = "смартфон"},
-{abbreviation = "хуавей", replacement = "смартфон"},
-{abbreviation = "планшет2", replacement = "планшет"},
-{abbreviation = "айпад", replacement = "планшет"},
-{abbreviation = "айпада", replacement = "планшет"},
-{abbreviation = "лэптоп", replacement = "ноутбук"},
-{abbreviation = "лэптопа", replacement = "ноутбук"},
-{abbreviation = "макбук", replacement = "ноутбук"},
-{abbreviation = "макбука", replacement = "ноутбук"},
-{abbreviation = "пк", replacement = "компьютер"},
-{abbreviation = "пка", replacement = "компьютер"},
-{abbreviation = "системник", replacement = "компьютер"},
-{abbreviation = "системника", replacement = "компьютер"},
-{abbreviation = "процессор", replacement = "процессор"},
-{abbreviation = "процессора", replacement = "процессор"},
-{abbreviation = "видеокарта", replacement = "видеокарту"},
-{abbreviation = "видеокарту", replacement = "видеокарту"},
-{abbreviation = "озу", replacement = "оперативную память"},
-{abbreviation = "оперативная", replacement = "оперативную память"},
-{abbreviation = "память", replacement = "память"},
-{abbreviation = "памяти", replacement = "память"},
-{abbreviation = "жесткий", replacement = "жесткий диск"},
-{abbreviation = "диск", replacement = "диск"},
-{abbreviation = "диска", replacement = "диск"},
-{abbreviation = "ссд", replacement = "SSD накопитель"},
-{abbreviation = "ссда", replacement = "SSD накопитель"},
-{abbreviation = "хард", replacement = "жесткий диск"},
-{abbreviation = "харда", replacement = "жесткий диск"},
-{abbreviation = "флешка", replacement = "флешку"},
-{abbreviation = "флешку", replacement = "флешку"},
-{abbreviation = "флешки", replacement = "флешку"},
-{abbreviation = "флэшка", replacement = "флешку"},
-{abbreviation = "флэшку", replacement = "флешку"},
-{abbreviation = "юзб", replacement = "USB-накопитель"},
-{abbreviation = "юсб", replacement = "USB-накопитель"},
-{abbreviation = "роутер", replacement = "роутер"},
-{abbreviation = "роутера", replacement = "роутер"},
-{abbreviation = "модем", replacement = "модем"},
-{abbreviation = "модема", replacement = "модем"},
-{abbreviation = "свитч", replacement = "коммутатор"},
-{abbreviation = "хаб", replacement = "концентратор"},
-{abbreviation = "патч", replacement = "патч-корд"},
-{abbreviation = "кабель", replacement = "кабель"},
-{abbreviation = "кабеля", replacement = "кабель"},
-{abbreviation = "провод", replacement = "провод"},
-{abbreviation = "провода", replacement = "провод"},
-{abbreviation = "удлинитель", replacement = "удлинитель"},
-{abbreviation = "удлинителя", replacement = "удлинитель"},
-{abbreviation = "сетевой", replacement = "сетевой фильтр"},
-{abbreviation = "блок", replacement = "блок питания"},
-{abbreviation = "блока", replacement = "блок питания"},
-{abbreviation = "бп", replacement = "блок питания"},
-{abbreviation = "бпа", replacement = "блок питания"},
-{abbreviation = "куллер", replacement = "кулер"},
-{abbreviation = "кулера", replacement = "кулер"},
-{abbreviation = "кулер", replacement = "кулер"},
-{abbreviation = "куллеры", replacement = "кулер"},
-{abbreviation = "термопаста", replacement = "термопасту"},
-{abbreviation = "термопасту", replacement = "термопасту"},
-{abbreviation = "материнка", replacement = "материнскую плату"},
-{abbreviation = "материнскую", replacement = "материнскую плату"},
-{abbreviation = "плата", replacement = "плату"},
-{abbreviation = "плату", replacement = "плату"},
-{abbreviation = "платы", replacement = "плату"},
-{abbreviation = "звуковая", replacement = "звуковую карту"},
-{abbreviation = "сетевая", replacement = "сетевую карту"},
-{abbreviation = "твтюнер", replacement = "ТВ-тюнер"},
-{abbreviation = "вебка", replacement = "веб-камеру"},
-{abbreviation = "веб-камеру", replacement = "веб-камеру"},
-{abbreviation = "веб-камера", replacement = "веб-камеру"},
-{abbreviation = "вебкамера", replacement = "веб-камеру"},
-{abbreviation = "телевизор", replacement = "телевизор"},
-{abbreviation = "телевизора", replacement = "телевизор"},
-{abbreviation = "тв", replacement = "телевизор"},
-{abbreviation = "тва", replacement = "телевизор"},
-{abbreviation = "яндекств", replacement = "телевизор"},
-{abbreviation = "смарттв", replacement = "телевизор"},
-{abbreviation = "холодильник", replacement = "холодильник"},
-{abbreviation = "холодильника", replacement = "холодильник"},
-{abbreviation = "морозилка", replacement = "морозилку"},
-{abbreviation = "морозилку", replacement = "морозилку"},
-{abbreviation = "стиралка", replacement = "стиральную машину"},
-{abbreviation = "стиральная", replacement = "стиральную машину"},
-{abbreviation = "стиральную", replacement = "стиральную машину"},
-{abbreviation = "посудомойка", replacement = "посудомойку"},
-{abbreviation = "посудомойку", replacement = "посудомойку"},
-{abbreviation = "посудомоечная", replacement = "посудомойку"},
-{abbreviation = "печь", replacement = "печь"},
-{abbreviation = "печи", replacement = "печь"},
-{abbreviation = "духовка", replacement = "духовку"},
-{abbreviation = "духовку", replacement = "духовку"},
-{abbreviation = "плита", replacement = "плиту"},
-{abbreviation = "плиту", replacement = "плиту"},
-{abbreviation = "варочная", replacement = "варочную панель"},
-{abbreviation = "микроволновка", replacement = "микроволновку"},
-{abbreviation = "микроволновку", replacement = "микроволновку"},
-{abbreviation = "микроволновая", replacement = "микроволновку"},
-{abbreviation = "миксер", replacement = "миксер"},
-{abbreviation = "миксера", replacement = "миксер"},
-{abbreviation = "блендер", replacement = "блендер"},
-{abbreviation = "блендера", replacement = "блендер"},
-{abbreviation = "комбайн", replacement = "кухонный комбайн"},
-{abbreviation = "тостер", replacement = "тостер"},
-{abbreviation = "тостера", replacement = "тостер"},
-{abbreviation = "кофеварка", replacement = "кофеварку"},
-{abbreviation = "кофеварку", replacement = "кофеварку"},
-{abbreviation = "кофемашина", replacement = "кофемашину"},
-{abbreviation = "кофемашину", replacement = "кофемашину"},
-{abbreviation = "чайник", replacement = "чайник"},
-{abbreviation = "чайника", replacement = "чайник"},
-{abbreviation = "кипятильник", replacement = "кипятильник"},
-{abbreviation = "термос2", replacement = "термос"},
-{abbreviation = "термоса2", replacement = "термос"},
-{abbreviation = "пылесос", replacement = "пылесос"},
-{abbreviation = "пылесоса", replacement = "пылесос"},
-{abbreviation = "робот", replacement = "робот-пылесос"},
-{abbreviation = "робота", replacement = "робот-пылесос"},
-{abbreviation = "швабра", replacement = "швабру"},
-{abbreviation = "швабру", replacement = "швабру"},
-{abbreviation = "ведро", replacement = "ведро"},
-{abbreviation = "ведра", replacement = "ведро"},
-{abbreviation = "щетка", replacement = "щетку"},
-{abbreviation = "щетку", replacement = "щетку"},
-{abbreviation = "совок", replacement = "совок"},
-{abbreviation = "совка", replacement = "совок"},
-{abbreviation = "утюг", replacement = "утюг"},
-{abbreviation = "утюга", replacement = "утюг"},
-{abbreviation = "парогенератор", replacement = "парогенератор"},
-{abbreviation = "парогенератора", replacement = "парогенератор"},
-{abbreviation = "кондиционер", replacement = "кондиционер"},
-{abbreviation = "кондиционера", replacement = "кондиционер"},
-{abbreviation = "обогреватель", replacement = "обогреватель"},
-{abbreviation = "обогревателя", replacement = "обогреватель"},
-{abbreviation = "радиатор", replacement = "радиатор"},
-{abbreviation = "радиатора", replacement = "радиатор"},
-{abbreviation = "батарея", replacement = "батарею"},
-{abbreviation = "батарею", replacement = "батарею"},
-{abbreviation = "камин", replacement = "камин"},
-{abbreviation = "камина", replacement = "камин"},
-{abbreviation = "печка", replacement = "печку"},
-{abbreviation = "печку", replacement = "печку"},
-{abbreviation = "буржуйка", replacement = "буржуйку"},
-{abbreviation = "буржуйку", replacement = "буржуйку"},
-{abbreviation = "люстра", replacement = "люстру"},
-{abbreviation = "люстру", replacement = "люстру"},
-{abbreviation = "лампа", replacement = "лампу"},
-{abbreviation = "лампу", replacement = "лампу"},
-{abbreviation = "лампы", replacement = "лампу"},
-{abbreviation = "торшер", replacement = "торшер"},
-{abbreviation = "торшера", replacement = "торшер"},
-{abbreviation = "бра2", replacement = "светильник"},
-{abbreviation = "светильник", replacement = "светильник"},
-{abbreviation = "светильника", replacement = "светильник"},
-{abbreviation = "фонарь", replacement = "фонарь"},
-{abbreviation = "фонаря", replacement = "фонарь"},
-{abbreviation = "прожектор", replacement = "прожектор"},
-{abbreviation = "прожектора", replacement = "прожектор"},
-{abbreviation = "гирлянда", replacement = "гирлянду"},
-{abbreviation = "гирлянду", replacement = "гирлянду"},
-{abbreviation = "диско", replacement = "диско-шар"},
-{abbreviation = "шар2", replacement = "диско-шар"},
-{abbreviation = "диван", replacement = "диван"},
-{abbreviation = "дивана", replacement = "диван"},
-{abbreviation = "кресло", replacement = "кресло"},
-{abbreviation = "кресла", replacement = "кресло"},
-{abbreviation = "стул", replacement = "стул"},
-{abbreviation = "стула", replacement = "стул"},
-{abbreviation = "стулья", replacement = "стулья"},
-{abbreviation = "стульев", replacement = "стулья"},
-{abbreviation = "табурет", replacement = "табурет"},
-{abbreviation = "табурета", replacement = "табурет"},
-{abbreviation = "табуретка", replacement = "табуретку"},
-{abbreviation = "табуретку", replacement = "табуретку"},
-{abbreviation = "стол", replacement = "стол"},
-{abbreviation = "стола", replacement = "стол"},
-{abbreviation = "столы", replacement = "столы"},
-{abbreviation = "столов", replacement = "столы"},
-{abbreviation = "журнальный", replacement = "журнальный столик"},
-{abbreviation = "столик", replacement = "столик"},
-{abbreviation = "столика", replacement = "столик"},
-{abbreviation = "тумба", replacement = "тумбу"},
-{abbreviation = "тумбу", replacement = "тумбу"},
-{abbreviation = "тумбы", replacement = "тумбу"},
-{abbreviation = "комод", replacement = "комод"},
-{abbreviation = "комода", replacement = "комод"},
-{abbreviation = "шкаф", replacement = "шкаф"},
-{abbreviation = "шкафа", replacement = "шкаф"},
-{abbreviation = "шкафы", replacement = "шкафы"},
-{abbreviation = "шкафов", replacement = "шкафы"},
-{abbreviation = "гардероб", replacement = "гардероб"},
-{abbreviation = "гардероба", replacement = "гардероб"},
-{abbreviation = "вешалка", replacement = "вешалку"},
-{abbreviation = "вешалку", replacement = "вешалку"},
-{abbreviation = "полка", replacement = "полку"},
-{abbreviation = "полку", replacement = "полку"},
-{abbreviation = "полки", replacement = "полку"},
-{abbreviation = "стеллаж", replacement = "стеллаж"},
-{abbreviation = "стеллажа", replacement = "стеллаж"},
-{abbreviation = "этажерка", replacement = "этажерку"},
-{abbreviation = "этажерку", replacement = "этажерку"},
-{abbreviation = "кровать", replacement = "кровать"},
-{abbreviation = "кровати", replacement = "кровать"},
-{abbreviation = "кроватей", replacement = "кровать"},
-{abbreviation = "матрас", replacement = "матрас"},
-{abbreviation = "матраса", replacement = "матрас"},
-{abbreviation = "матрац", replacement = "матрас"},
-{abbreviation = "матраца", replacement = "матрас"},
-{abbreviation = "подушка", replacement = "подушку"},
-{abbreviation = "подушку", replacement = "подушку"},
-{abbreviation = "подушки", replacement = "подушку"},
-{abbreviation = "одеяло", replacement = "одеяло"},
-{abbreviation = "одеяла", replacement = "одеяло"},
-{abbreviation = "плед", replacement = "плед"},
-{abbreviation = "пледа", replacement = "плед"},
-{abbreviation = "покрывало", replacement = "покрывало"},
-{abbreviation = "покрывала", replacement = "покрывало"},
-{abbreviation = "простыня", replacement = "простыню"},
-{abbreviation = "простыню", replacement = "простыню"},
-{abbreviation = "пододеяльник", replacement = "пододеяльник"},
-{abbreviation = "пододеяльника", replacement = "пододеяльник"},
-{abbreviation = "наволочка", replacement = "наволочку"},
-{abbreviation = "наволочку", replacement = "наволочку"},
-{abbreviation = "зеркало", replacement = "зеркало"},
-{abbreviation = "зеркала", replacement = "зеркало"},
-{abbreviation = "картина", replacement = "картину"},
-{abbreviation = "картину", replacement = "картину"},
-{abbreviation = "постер", replacement = "постер"},
-{abbreviation = "постера", replacement = "постер"},
-{abbreviation = "ковер", replacement = "ковер"},
-{abbreviation = "ковра", replacement = "ковер"},
-{abbreviation = "ковры", replacement = "ковры"},
-{abbreviation = "ковров", replacement = "ковры"},
-{abbreviation = "палас", replacement = "палас"},
-{abbreviation = "паласа", replacement = "палас"},
-{abbreviation = "дорожка", replacement = "дорожку"},
-{abbreviation = "дорожку", replacement = "дорожку"},
-{abbreviation = "циновка", replacement = "циновку"},
-{abbreviation = "циновку", replacement = "циновку"},
-{abbreviation = "штора", replacement = "штору"},
-{abbreviation = "штору", replacement = "штору"},
-{abbreviation = "шторы", replacement = "шторы"},
-{abbreviation = "штор", replacement = "шторы"},
-{abbreviation = "жалюзи", replacement = "жалюзи"},
-{abbreviation = "жалюзиа", replacement = "жалюзи"},
-{abbreviation = "карниз", replacement = "карниз"},
-{abbreviation = "карниза", replacement = "карниз"},
-{abbreviation = "подушка2", replacement = "подушку"},
-{abbreviation = "декор", replacement = "декор"},
-{abbreviation = "декора", replacement = "декор"},
-{abbreviation = "сувенир", replacement = "сувенир"},
-{abbreviation = "сувенира", replacement = "сувенир"},
-{abbreviation = "статуэтка", replacement = "статуэтку"},
-{abbreviation = "статуэтку", replacement = "статуэтку"},
-{abbreviation = "ваза", replacement = "вазу"},
-{abbreviation = "вазу", replacement = "вазу"},
-{abbreviation = "вазы", replacement = "вазу"},
-{abbreviation = "горшок", replacement = "горшок"},
-{abbreviation = "горшка", replacement = "горшок"},
-{abbreviation = "вазон", replacement = "вазон"},
-{abbreviation = "вазона", replacement = "вазон"},
-{abbreviation = "цветок", replacement = "цветок"},
-{abbreviation = "цветка", replacement = "цветок"},
-{abbreviation = "растение", replacement = "растение"},
-{abbreviation = "растения", replacement = "растение"},
-{abbreviation = "букет", replacement = "букет"},
-{abbreviation = "букета", replacement = "букет"},
-{abbreviation = "медикаменты", replacement = "медикаменты"},
-{abbreviation = "лекарства", replacement = "лекарства"},
-{abbreviation = "лекарств", replacement = "лекарства"},
-{abbreviation = "таблетки", replacement = "таблетки"},
-{abbreviation = "таблеток", replacement = "таблетки"},
-{abbreviation = "антибиотик", replacement = "антибиотик"},
-{abbreviation = "антибиотика", replacement = "антибиотик"},
-{abbreviation = "витамины", replacement = "витамины"},
-{abbreviation = "витаминов", replacement = "витамины"},
-{abbreviation = "анальгин", replacement = "анальгин"},
-{abbreviation = "анальгина", replacement = "анальгин"},
-{abbreviation = "аспирин", replacement = "аспирин"},
-{abbreviation = "аспирина", replacement = "аспирин"},
-{abbreviation = "ношпа", replacement = "ношпу"},
-{abbreviation = "ношпу", replacement = "ношпу"},
-{abbreviation = "активированный", replacement = "активированный уголь"},
-{abbreviation = "уголь", replacement = "активированный уголь"},
-{abbreviation = "угля", replacement = "активированный уголь"},
-{abbreviation = "йод", replacement = "йод"},
-{abbreviation = "йода", replacement = "йод"},
-{abbreviation = "зеленка", replacement = "зеленку"},
-{abbreviation = "зеленку", replacement = "зеленку"},
-{abbreviation = "перекись", replacement = "перекись"},
-{abbreviation = "перекиси", replacement = "перекись"},
-{abbreviation = "пластырь", replacement = "пластырь"},
-{abbreviation = "пластыря", replacement = "пластырь"},
-{abbreviation = "бинт", replacement = "бинт"},
-{abbreviation = "бинта", replacement = "бинт"},
-{abbreviation = "марля", replacement = "марлю"},
-{abbreviation = "марлю", replacement = "марлю"},
-{abbreviation = "шприц", replacement = "шприц"},
-{abbreviation = "шприца", replacement = "шприц"},
-{abbreviation = "мазь", replacement = "мазь"},
-{abbreviation = "мази", replacement = "мазь"},
-{abbreviation = "крем", replacement = "крем"},
-{abbreviation = "крема", replacement = "крем"},
-{abbreviation = "гель", replacement = "гель"},
-{abbreviation = "геля", replacement = "гель"},
-{abbreviation = "спрей", replacement = "спрей"},
-{abbreviation = "спрея", replacement = "спрей"},
-{abbreviation = "молоток", replacement = "молоток"},
-{abbreviation = "молотка", replacement = "молоток"},
-{abbreviation = "отвертка", replacement = "отвертку"},
-{abbreviation = "отвертку", replacement = "отвертку"},
-{abbreviation = "плоскогубцы", replacement = "плоскогубцы"},
-{abbreviation = "пассатижи", replacement = "пассатижи"},
-{abbreviation = "кусачки", replacement = "кусачки"},
-{abbreviation = "ключ2", replacement = "ключ"},
-{abbreviation = "гаечный", replacement = "гаечный ключ"},
-{abbreviation = "торцевой", replacement = "торцевой ключ"},
-{abbreviation = "разводной", replacement = "разводной ключ"},
-{abbreviation = "трещотка2", replacement = "трещотку"},
-{abbreviation = "трещотку", replacement = "трещотку"},
-{abbreviation = "пила", replacement = "пилу"},
-{abbreviation = "пилу", replacement = "пилу"},
-{abbreviation = "ножовка", replacement = "ножовку"},
-{abbreviation = "ножовку", replacement = "ножовку"},
-{abbreviation = "болгарка", replacement = "болгарку"},
-{abbreviation = "болгарку", replacement = "болгарку"},
-{abbreviation = "дрель", replacement = "дрель"},
-{abbreviation = "дрели", replacement = "дрель"},
-{abbreviation = "шуруповерт", replacement = "шуруповерт"},
-{abbreviation = "шуруповерта", replacement = "шуруповерт"},
-{abbreviation = "перфоратор", replacement = "перфоратор"},
-{abbreviation = "перфоратора", replacement = "перфоратор"},
-{abbreviation = "гвоздодер", replacement = "гвоздодер"},
-{abbreviation = "лом", replacement = "лом"},
-{abbreviation = "лома", replacement = "лом"},
-{abbreviation = "топор", replacement = "топор"},
-{abbreviation = "топора", replacement = "топор"},
-{abbreviation = "колун", replacement = "колун"},
-{abbreviation = "колуна", replacement = "колун"},
-{abbreviation = "кувалда", replacement = "кувалду"},
-{abbreviation = "кувалду", replacement = "кувалду"},
-{abbreviation = "зубило", replacement = "зубило"},
-{abbreviation = "зубила", replacement = "зубило"},
-{abbreviation = "напильник", replacement = "напильник"},
-{abbreviation = "напильника", replacement = "напильник"},
-{abbreviation = "наждачка", replacement = "наждачку"},
-{abbreviation = "наждачку", replacement = "наждачку"},
-{abbreviation = "рулетка2", replacement = "рулетку"},
-{abbreviation = "рулетку2", replacement = "рулетку"},
-{abbreviation = "уровень", replacement = "уровень"},
-{abbreviation = "уровня", replacement = "уровень"},
-{abbreviation = "отвес", replacement = "отвес"},
-{abbreviation = "отвеса", replacement = "отвес"},
-{abbreviation = "угольник", replacement = "угольник"},
-{abbreviation = "угольника", replacement = "угольник"},
-{abbreviation = "штангенциркуль", replacement = "штангенциркуль"},
-{abbreviation = "микрометр", replacement = "микрометр"},
-{abbreviation = "лестница", replacement = "лестницу"},
-{abbreviation = "лестницу", replacement = "лестницу"},
-{abbreviation = "стремянка", replacement = "стремянку"},
-{abbreviation = "стремянку", replacement = "стремянку"},
-{abbreviation = "тали", replacement = "таль"},
-{abbreviation = "таль", replacement = "таль"},
-{abbreviation = "домкрат", replacement = "домкрат"},
-{abbreviation = "домкрата", replacement = "домкрат"},
-{abbreviation = "тиски", replacement = "тиски"},
-{abbreviation = "тисков", replacement = "тиски"},
-{abbreviation = "наковальня", replacement = "наковальню"},
-{abbreviation = "наковальню", replacement = "наковальню"},
-{abbreviation = "горн", replacement = "горн"},
-{abbreviation = "горна", replacement = "горн"},
-{abbreviation = "паяльник", replacement = "паяльник"},
-{abbreviation = "паяльника", replacement = "паяльник"},
-{abbreviation = "тестер", replacement = "мультиметр"},
-{abbreviation = "мультиметр", replacement = "мультиметр"},
-{abbreviation = "мультиметра", replacement = "мультиметр"},
-{abbreviation = "осциллограф", replacement = "осциллограф"},
-{abbreviation = "гвозди", replacement = "гвозди"},
-{abbreviation = "гвоздей", replacement = "гвозди"},
-{abbreviation = "шурупы", replacement = "шурупы"},
-{abbreviation = "шурупов", replacement = "шурупы"},
-{abbreviation = "саморезы", replacement = "саморезы"},
-{abbreviation = "саморезов", replacement = "саморезы"},
-{abbreviation = "болты", replacement = "болты"},
-{abbreviation = "болтов", replacement = "болты"},
-{abbreviation = "гайки", replacement = "гайки"},
-{abbreviation = "гаек", replacement = "гайки"},
-{abbreviation = "шайбы", replacement = "шайбы"},
-{abbreviation = "шайб", replacement = "шайбы"},
-{abbreviation = "гровер", replacement = "гровер"},
-{abbreviation = "гровера", replacement = "гровер"},
-{abbreviation = "анкер", replacement = "анкер"},
-{abbreviation = "анкера", replacement = "анкер"},
-{abbreviation = "дюбель", replacement = "дюбель"},
-{abbreviation = "дюбеля", replacement = "дюбель"},
-{abbreviation = "заклепка", replacement = "заклепку"},
-{abbreviation = "заклепку", replacement = "заклепку"},
-{abbreviation = "проволока", replacement = "проволоку"},
-{abbreviation = "проволоку", replacement = "проволоку"},
-{abbreviation = "веревка", replacement = "веревку"},
-{abbreviation = "веревку", replacement = "веревку"},
-{abbreviation = "шнур", replacement = "шнур"},
-{abbreviation = "шнура", replacement = "шнур"},
-{abbreviation = "цепь3", replacement = "цепь"},
-{abbreviation = "цепи3", replacement = "цепь"},
-{abbreviation = "трос", replacement = "трос"},
-{abbreviation = "троса", replacement = "трос"},
-{abbreviation = "лента", replacement = "ленту"},
-{abbreviation = "ленту", replacement = "ленту"},
-{abbreviation = "скотч", replacement = "скотч"},
-{abbreviation = "скотча", replacement = "скотч"},
-{abbreviation = "изолента", replacement = "изоленту"},
-{abbreviation = "изоленту", replacement = "изоленту"},
-{abbreviation = "герметик", replacement = "герметик"},
-{abbreviation = "герметика", replacement = "герметик"},
-{abbreviation = "клей", replacement = "клей"},
-{abbreviation = "клея", replacement = "клей"},
-{abbreviation = "цемент", replacement = "цемент"},
-{abbreviation = "цемента", replacement = "цемент"},
-{abbreviation = "бетон", replacement = "бетон"},
-{abbreviation = "бетона", replacement = "бетон"},
-{abbreviation = "кирпич", replacement = "кирпич"},
-{abbreviation = "кирпича", replacement = "кирпич"},
-{abbreviation = "блок", replacement = "блок"},
-{abbreviation = "блока2", replacement = "блок"},
-{abbreviation = "плита2", replacement = "плиту"},
-{abbreviation = "панель", replacement = "панель"},
-{abbreviation = "панели", replacement = "панель"},
-{abbreviation = "гипс", replacement = "гипс"},
-{abbreviation = "гипса", replacement = "гипс"},
-{abbreviation = "штукатурка", replacement = "штукатурку"},
-{abbreviation = "штукатурку", replacement = "штукатурку"},
-{abbreviation = "шпатлевка", replacement = "шпатлевку"},
-{abbreviation = "шпатлевку", replacement = "шпатлевку"},
-{abbreviation = "грунтовка", replacement = "грунтовку"},
-{abbreviation = "грунтовку", replacement = "грунтовку"},
-{abbreviation = "краска", replacement = "краску"},
-{abbreviation = "краску", replacement = "краску"},
-{abbreviation = "краски2", replacement = "краску"},
-{abbreviation = "эмаль", replacement = "эмаль"},
-{abbreviation = "эмали", replacement = "эмаль"},
-{abbreviation = "лак", replacement = "лак"},
-{abbreviation = "лака", replacement = "лак"},
-{abbreviation = "морилка", replacement = "морилку"},
-{abbreviation = "морилку", replacement = "морилку"},
-{abbreviation = "антисептик", replacement = "антисептик"},
-{abbreviation = "антисептика", replacement = "антисептик"},
-{abbreviation = "пена", replacement = "монтажную пену"},
-{abbreviation = "монтажная", replacement = "монтажную пену"},
-{abbreviation = "монтажную", replacement = "монтажную пену"},
-{abbreviation = "пену", replacement = "монтажную пену"},
-{abbreviation = "утеплитель", replacement = "утеплитель"},
-{abbreviation = "утеплителя", replacement = "утеплитель"},
-{abbreviation = "изоляция", replacement = "изоляцию"},
-{abbreviation = "изоляцию", replacement = "изоляцию"},
-{abbreviation = "пленка", replacement = "пленку"},
-{abbreviation = "пленку", replacement = "пленку"},
-{abbreviation = "рубероид", replacement = "рубероид"},
-{abbreviation = "рубероида", replacement = "рубероид"},
-{abbreviation = "шифер", replacement = "шифер"},
-{abbreviation = "шифера", replacement = "шифер"},
-{abbreviation = "черепица", replacement = "черепицу"},
-{abbreviation = "черепицу", replacement = "черепицу"},
-{abbreviation = "металлочерепица", replacement = "металлочерепицу"},
-{abbreviation = "профнастил", replacement = "профнастил"},
-{abbreviation = "сайдинг", replacement = "сайдинг"},
-{abbreviation = "сайдинга", replacement = "сайдинг"},
-{abbreviation = "вагонка", replacement = "вагонку"},
-{abbreviation = "вагонку", replacement = "вагонку"},
-{abbreviation = "доска", replacement = "доску"},
-{abbreviation = "доску", replacement = "доску"},
-{abbreviation = "брус", replacement = "брус"},
-{abbreviation = "бруса", replacement = "брус"},
-{abbreviation = "бревно", replacement = "бревно"},
-{abbreviation = "бревна", replacement = "бревно"},
-{abbreviation = "фанера", replacement = "фанеру"},
-{abbreviation = "фанеру", replacement = "фанеру"},
-{abbreviation = "дсп", replacement = "ДСП"},
-{abbreviation = "двп", replacement = "ДВП"},
-{abbreviation = "мдф", replacement = "МДФ"},
-{abbreviation = "осб", replacement = "ОСБ"},
-{abbreviation = "оргалит", replacement = "оргалит"},
-{abbreviation = "оргалита", replacement = "оргалит"},
-{abbreviation = "стекло", replacement = "стекло"},
-{abbreviation = "стекла", replacement = "стекло"},
-{abbreviation = "зеркало2", replacement = "зеркало"},
-{abbreviation = "пластик", replacement = "пластик"},
-{abbreviation = "пластика", replacement = "пластик"},
-{abbreviation = "металл", replacement = "металл"},
-{abbreviation = "металла", replacement = "металл"},
-{abbreviation = "алюминий", replacement = "алюминий"},
-{abbreviation = "алюминия", replacement = "алюминий"},
-{abbreviation = "медь", replacement = "медь"},
-{abbreviation = "меди", replacement = "медь"},
-{abbreviation = "латунь", replacement = "латунь"},
-{abbreviation = "латуни", replacement = "латунь"},
-{abbreviation = "бронза", replacement = "бронзу"},
-{abbreviation = "бронзу", replacement = "бронзу"},
-{abbreviation = "чугун", replacement = "чугун"},
-{abbreviation = "чугуна", replacement = "чугун"},
-{abbreviation = "сталь", replacement = "сталь"},
-{abbreviation = "стали", replacement = "сталь"},
-{abbreviation = "железо", replacement = "железо"},
-{abbreviation = "железа", replacement = "железо"},
-{abbreviation = "свинец", replacement = "свинец"},
-{abbreviation = "свинца", replacement = "свинец"},
-{abbreviation = "оцинковка", replacement = "оцинковку"},
-{abbreviation = "оцинковку", replacement = "оцинковку"},
-{abbreviation = "24/7", replacement = "магазин \"24/7\""},
-{abbreviation = "24-7", replacement = "магазин \"24/7\""},
-{abbreviation = "247", replacement = "магазин \"24/7\""},
-{abbreviation = "круглосуточный", replacement = "магазин \"24/7\""},
-{abbreviation = "круглосуточного", replacement = "магазин \"24/7\""},
-{abbreviation = "кругосут", replacement = "магазин \"24/7\""},
-{abbreviation = "св", replacement = "а/м марки \"Sultan\""},
-{abbreviation = "закуп", replacement = "закупка"},
-{abbreviation = "закупка", replacement = "закупка"},
-{abbreviation = "закупки", replacement = "закупка"},
-{abbreviation = "закупаю", replacement = "закупаю"},
-{abbreviation = "закупаешь", replacement = "закупаешь"},
-{abbreviation = "скупаю", replacement = "скупаю"},
-{abbreviation = "скупка", replacement = "скупка"},
-{abbreviation = "скупки", replacement = "скупка"},
-{abbreviation = "принимаю", replacement = "принимаю заказы"},
-{abbreviation = "заказы", replacement = "заказы"},
-{abbreviation = "заказов", replacement = "заказы"},
-{abbreviation = "на заказ", replacement = "на заказ"},
-{abbreviation = "под заказ", replacement = "под заказ"},
-{abbreviation = "рп", replacement = "RP"},
-{abbreviation = "рпа", replacement = "RP"},
-{abbreviation = "дрп", replacement = "DRP"},
-{abbreviation = "арп", replacement = "ARP"},
-{abbreviation = "адванс", replacement = "Advance RP"},
-{abbreviation = "адванса", replacement = "Advance RP"},
-{abbreviation = "пр", replacement = "PRO"},
-{abbreviation = "нонрп", replacement = "non-RP"},
-{abbreviation = "мг", replacement = "MG"},
-{abbreviation = "мгш", replacement = "MG"},
-{abbreviation = "дм", replacement = "DM"},
-{abbreviation = "дмш", replacement = "DM"},
-{abbreviation = "тк", replacement = "TK"},
-{abbreviation = "ск", replacement = "SK"},
-{abbreviation = "пг", replacement = "PG"},
-{abbreviation = "рк", replacement = "RK"},
-{abbreviation = "автошкола", replacement = "автошколу"},
-{abbreviation = "автошколу", replacement = "автошколу"},
-{abbreviation = "школа вождения", replacement = "автошколу"},
-{abbreviation = "страйкбол", replacement = "страйкбольный клуб"},
-{abbreviation = "пейнтбол", replacement = "пейнтбольный клуб"},
-{abbreviation = "лазертаг", replacement = "лазертаг"},
-{abbreviation = "квест", replacement = "квест-комнату"},
-{abbreviation = "квесты", replacement = "квест-комнаты"},
-{abbreviation = "квестов", replacement = "квест-комнаты"},
-{abbreviation = "квестовая", replacement = "квест-комнату"},
-{abbreviation = "квартира3", replacement = "квартиру"},
-{abbreviation = "апартаменты", replacement = "апартаменты"},
-{abbreviation = "апартаментов", replacement = "апартаменты"},
-{abbreviation = "пентхаус", replacement = "пентхаус"},
-{abbreviation = "пентхауса", replacement = "пентхаус"},
-{abbreviation = "лофт", replacement = "лофт"},
-{abbreviation = "лофта", replacement = "лофт"},
-{abbreviation = "студия3", replacement = "студию"},
-{abbreviation = "резиденция", replacement = "резиденцию"},
-{abbreviation = "резиденцию", replacement = "резиденцию"},
-{abbreviation = "поместье", replacement = "поместье"},
-{abbreviation = "поместья", replacement = "поместье"},
-{abbreviation = "усадьба", replacement = "усадьбу"},
-{abbreviation = "усадьбу", replacement = "усадьбу"},
-{abbreviation = "дворец", replacement = "дворец"},
-{abbreviation = "дворца", replacement = "дворец"},
-{abbreviation = "тазик", replacement = "а/м"},
-{abbreviation = "тазика", replacement = "а/м"},
-{abbreviation = "коробка", replacement = "а/м"},
-{abbreviation = "коробку", replacement = "а/м"},
-{abbreviation = "ведро", replacement = "а/м"},
-{abbreviation = "ведра", replacement = "а/м"},
-{abbreviation = "корыто", replacement = "а/м"},
-{abbreviation = "корыта", replacement = "а/м"},
-{abbreviation = "селедка", replacement = "а/м"},
-{abbreviation = "селедку", replacement = "а/м"},
-{abbreviation = "бричка", replacement = "а/м"},
-{abbreviation = "бричку", replacement = "а/м"},
-{abbreviation = "колымага", replacement = "а/м"},
-{abbreviation = "колымагу", replacement = "а/м"},
-{abbreviation = "драндулет", replacement = "а/м"},
-{abbreviation = "драндулета", replacement = "а/м"},
-{abbreviation = "конфетка", replacement = "а/м"},
-{abbreviation = "конфетку", replacement = "а/м"},
-{abbreviation = "пушка", replacement = "а/м"},
-{abbreviation = "пушку", replacement = "а/м"},
-{abbreviation = "ласточка", replacement = "а/м"},
-{abbreviation = "ласточку", replacement = "а/м"},
-{abbreviation = "рублей", replacement = "рублей"},
-{abbreviation = "рубля", replacement = "рублей"},
-{abbreviation = "баксов", replacement = "$"},
-{abbreviation = "бакса", replacement = "$"},
-{abbreviation = "зеленых", replacement = "$"},
-{abbreviation = "зеленых2", replacement = "$"},
-{abbreviation = "тугриков", replacement = "$"},
-{abbreviation = "монет", replacement = "$"},
-{abbreviation = "кредитов", replacement = "$"},
-{abbreviation = "денег", replacement = "денег"},
-{abbreviation = "бюджет", replacement = "бюджет"},
-{abbreviation = "бюджета", replacement = "бюджет"},
-{abbreviation = "бюджет2", replacement = "бюджет"},
-{abbreviation = "сумма", replacement = "сумма"},
-{abbreviation = "суммы", replacement = "сумма"},
-{abbreviation = "стоимость", replacement = "стоимость"},
-{abbreviation = "стоимости", replacement = "стоимость"},
-{abbreviation = "прайс", replacement = "прайс"},
-{abbreviation = "прайса", replacement = "прайс"},
-{abbreviation = "расценки", replacement = "расценки"},
-{abbreviation = "расценок", replacement = "расценки"},
-{abbreviation = "тариф", replacement = "тариф"},
-{abbreviation = "тарифа", replacement = "тариф"},
-{abbreviation = "тарифы", replacement = "тарифы"},
-{abbreviation = "тарифов", replacement = "тарифы"},
-{abbreviation = "срочно", replacement = "срочно"},
-{abbreviation = "срочная", replacement = "срочная"},
-{abbreviation = "срочную", replacement = "срочную"},
-{abbreviation = "срочное", replacement = "срочное"},
-{abbreviation = "быстро", replacement = "быстро"},
-{abbreviation = "недорого2", replacement = "по доступной цене"},
-{abbreviation = "выгодно", replacement = "выгодно"},
-{abbreviation = "дешево2", replacement = "по низкой цене"},
-{abbreviation = "дёшево2", replacement = "по низкой цене"},
-{abbreviation = "оптом", replacement = "оптом"},
-{abbreviation = "в розницу", replacement = "в розницу"},
-{abbreviation = "розницу", replacement = "в розницу"},
-{abbreviation = "в наличии", replacement = "в наличии"},
-{abbreviation = "наличии", replacement = "в наличии"},
-{abbreviation = "под заказ2", replacement = "под заказ"},
-{abbreviation = "предзаказ", replacement = "предзаказ"},
-{abbreviation = "предзаказа", replacement = "предзаказ"},
-{abbreviation = "резерв", replacement = "резерв"},
-{abbreviation = "резерва", replacement = "резерв"},
-{abbreviation = "бронь", replacement = "бронь"},
-{abbreviation = "брони", replacement = "бронь"},
-{abbreviation = "брони2", replacement = "бронь"},
-{abbreviation = "участок2", replacement = "участок"},
-{abbreviation = "участка2", replacement = "участок"},
-{abbreviation = "надел", replacement = "надел"},
-{abbreviation = "надела", replacement = "надел"},
-{abbreviation = "паевой", replacement = "паевой взнос"},
-{abbreviation = "пай", replacement = "пай"},
-{abbreviation = "пая", replacement = "пай"},
-{abbreviation = "доля", replacement = "долю"},
-{abbreviation = "долю", replacement = "долю"},
-{abbreviation = "доли", replacement = "долю"},
-{abbreviation = "часть", replacement = "часть"},
-{abbreviation = "части", replacement = "часть"},
-{abbreviation = "акция", replacement = "акцию"},
-{abbreviation = "акцию", replacement = "акцию"},
-{abbreviation = "акции", replacement = "акцию"},
-{abbreviation = "акций", replacement = "акции"},
-{abbreviation = "дивиденды", replacement = "дивиденды"},
-{abbreviation = "дивидендов", replacement = "дивиденды"},
-{abbreviation = "бизнес2", replacement = "бизнес"},
-{abbreviation = "доля2", replacement = "долю в бизнесе"},
-{abbreviation = "франшиза", replacement = "франшизу"},
-{abbreviation = "франшизу", replacement = "франшизу"},
-{abbreviation = "франшизы", replacement = "франшизу"},
-{abbreviation = "лицензия2", replacement = "лицензию"},
-{abbreviation = "разрешение", replacement = "разрешение"},
-{abbreviation = "разрешения", replacement = "разрешение"},
-{abbreviation = "патент", replacement = "патент"},
-{abbreviation = "патента", replacement = "патент"},
-{abbreviation = "сертификат2", replacement = "сертификат"},
-{abbreviation = "свидетельство", replacement = "свидетельство"},
-{abbreviation = "свидетельства", replacement = "свидетельство"},
-{abbreviation = "договор2", replacement = "договор"},
-{abbreviation = "договора2", replacement = "договор"},
-{abbreviation = "контракт", replacement = "контракт"},
-{abbreviation = "контракта", replacement = "контракт"},
-{abbreviation = "аренда", replacement = "аренду"},
-{abbreviation = "аренду", replacement = "аренду"},
-{abbreviation = "аренды", replacement = "аренду"},
-{abbreviation = "сдаю", replacement = "сдаю"},
-{abbreviation = "сдается", replacement = "сдается"},
-{abbreviation = "сниму", replacement = "сниму"},
-{abbreviation = "ищу2", replacement = "ищу"},
-{abbreviation = "предлагаю", replacement = "предлагаю"},
-{abbreviation = "предлагаем", replacement = "предлагаем"},
-{abbreviation = "распродаю", replacement = "распродаю"},
-{abbreviation = "распродажа", replacement = "распродажа"},
-{abbreviation = "распродажи", replacement = "распродажа"},
-{abbreviation = "ликвидация", replacement = "ликвидация"},
-{abbreviation = "ликвидации", replacement = "ликвидация"},
-{abbreviation = "закрытие", replacement = "закрытие"},
-{abbreviation = "закрытия", replacement = "закрытие"},
-{abbreviation = "переезд", replacement = "переезд"},
-{abbreviation = "переезда", replacement = "переезд"},
-{abbreviation = "фт", replacement = "FT"},
--- Бизнесы
-{abbreviation = "одежда", replacement = "магазин одежды"},
-{abbreviation = "одежды", replacement = "магазин одежды"},
-{abbreviation = "магазин оружия", replacement = "оружейный магазин"},
-{abbreviation = "париках", replacement = "салон красоты"},
-{abbreviation = "парикам", replacement = "салон красоты"},
-{abbreviation = "парикахма", replacement = "салон красоты"},
-{abbreviation = "парикахмерская", replacement = "салон красоты"},
-{abbreviation = "салон красоты", replacement = "салон красоты"},
-{abbreviation = "закусочная", replacement = "закусочная"},
-{abbreviation = "ресторан", replacement = "закусочная"},
-{abbreviation = "бургер", replacement = "Burger Shot"},
-{abbreviation = "клаш", replacement = "Clucking Bell"},
-{abbreviation = "клакинг", replacement = "Clucking Bell"},
-{abbreviation = "тюнинг", replacement = "тюнинг-центр"},
-{abbreviation = "тюнинг центр", replacement = "тюнинг-центр"},
-{abbreviation = "визаж", replacement = "отель Visage"},
-{abbreviation = "пират", replacement = "отель Пират"},
-{abbreviation = "секс шоп", replacement = "секс-шоп"},
-{abbreviation = "секс-шоп", replacement = "секс-шоп"},
-{abbreviation = "пиротехника", replacement = "магазин пиротехники"},
-{abbreviation = "пиро", replacement = "магазин пиротехники"},
-{abbreviation = "развлекательный", replacement = "развлекательный центр"},
-{abbreviation = "развлекатель", replacement = "развлекательный центр"},
-{abbreviation = "риелтор", replacement = "риелторское агентство"},
-{abbreviation = "риелторское", replacement = "риелторское агентство"},
-{abbreviation = "риелторск", replacement = "риелторское агентство"},
-{abbreviation = "статистики", replacement = "управление статистики"},
-{abbreviation = "управление статистики", replacement = "управление статистики"},
-{abbreviation = "мебель", replacement = "мебельный салон"},
-{abbreviation = "мебельный", replacement = "мебельный салон"},
-{abbreviation = "сантехника", replacement = "салон сантехники"},
-{abbreviation = "сантех", replacement = "салон сантехники"},
-{abbreviation = "стройматериалы", replacement = "магазин стройматериалов"},
-{abbreviation = "строймат", replacement = "магазин стройматериалов"},
-{abbreviation = "хиппи", replacement = "хиппи"},
-{abbreviation = "аренда авто", replacement = "аренда эксклюзивных авто"},
-{abbreviation = "аренда", replacement = "аренда эксклюзивных авто"},
-{abbreviation = "хранение транспорта", replacement = "хранение транспорта"},
-{abbreviation = "хранение тс", replacement = "хранение транспорта"},
-{abbreviation = "парковка", replacement = "хранение транспорта"},
-{abbreviation = "хранение аксессуаров", replacement = "хранение аксессуаров"},
-{abbreviation = "хранение акс", replacement = "хранение аксессуаров"},
-{abbreviation = "склад", replacement = "хранение аксессуаров"},
--- Государственные организации
-{abbreviation = "мэрия", replacement = "мэрия"},
-{abbreviation = "мерия", replacement = "мэрия"},
-{abbreviation = "мерии", replacement = "мэрия"},
-{abbreviation = "администрация", replacement = "администрация президента"},
-{abbreviation = "президента", replacement = "администрация президента"},
-{abbreviation = "больница", replacement = "больница"},
-{abbreviation = "болница", replacement = "больница"},
-{abbreviation = "телецентр", replacement = "телецентр"},
-{abbreviation = "радиоцентр", replacement = "радиоцентр"},
--- Банды и мафии
-{abbreviation = "балас", replacement = "Ballas"},
-{abbreviation = "баллас", replacement = "Ballas"},
-{abbreviation = "баллы", replacement = "Ballas"},
-{abbreviation = "гров", replacement = "Grove Street"},
-{abbreviation = "гроув", replacement = "Grove Street"},
-{abbreviation = "азтек", replacement = "Aztecas"},
-{abbreviation = "азтекс", replacement = "Aztecas"},
-{abbreviation = "вагос", replacement = "Vagos"},
-{abbreviation = "вагоз", replacement = "Vagos"},
-{abbreviation = "русская", replacement = "русская мафия"},
-{abbreviation = "русская мафия", replacement = "русская мафия"},
-{abbreviation = "рус маф", replacement = "русская мафия"},
-{abbreviation = "лакоста", replacement = "La Cosa Nostra"},
-{abbreviation = "ла коста", replacement = "La Cosa Nostra"},
-{abbreviation = "лакоста ностра", replacement = "La Cosa Nostra"},
-{abbreviation = "якудза", replacement = "Yakuza"},
-{abbreviation = "якуца", replacement = "Yakuza"},
-{abbreviation = "якудзы", replacement = "Yakuza"},
--- Правоохранительные органы
-{abbreviation = "фбр", replacement = "FBI"},
-{abbreviation = "полиция", replacement = "LVPD"},
-{abbreviation = "полицейские", replacement = "LVPD"},
-{abbreviation = "лвпд", replacement = "LVPD"},
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+{abbreviation = "пїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+{abbreviation = "пїЅпїЅпїЅ", replacement = "SIM-card"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "SIM-card"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "SIM-card"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "SIM-card"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"пїЅпїЅпїЅ\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"пїЅпїЅпїЅ\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"пїЅпїЅпїЅпїЅпїЅпїЅ\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"пїЅпїЅпїЅпїЅпїЅпїЅ\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"пїЅпїЅпїЅпїЅ\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"пїЅпїЅпїЅпїЅ\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"пїЅпїЅпїЅпїЅпїЅ\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"пїЅпїЅпїЅпїЅпїЅ\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"пїЅпїЅпїЅпїЅпїЅ\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"пїЅпїЅпїЅпїЅпїЅ\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+-- пїЅпїЅпїЅпїЅпїЅпїЅ
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Desert Eagle\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Desert Eagle\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Desert Eagle\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Shotgun\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Shotgun\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Shotgun\""},
+{abbreviation = "пїЅ4", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"M4\""},
+{abbreviation = "пїЅ4пїЅ1", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"M4\""},
+{abbreviation = "пїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"AK-47\""},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"AK-47\""},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"SMG\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"SMG\""},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Uzi\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Uzi\""},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"TEC-9\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"TEC-9\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Sniper Rifle\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Sniper Rifle\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Sniper Rifle\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Sniper Rifle\""},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Knife\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Knife\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Baseball Bat\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Baseball Bat\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"Katana\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"Katana\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Grenade\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Grenade\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Taser\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Taser\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Pistol\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Pistol\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Desert Eagle\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Desert Eagle\""},
+-- пїЅпїЅпїЅпїЅпїЅпїЅ
+{abbreviation = "пїЅпїЅ", replacement = ".000.000$"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = ".000.000$"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = ".000.000$"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = ".000.000.000$"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = ".000.000.000$"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = ".000.000.000$"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = ".000.000$"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = ".000.000$"},
+-- пїЅпїЅпїЅпїЅ
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ"},
+-- пїЅпїЅпїЅпїЅпїЅпїЅ
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+-- пїЅпїЅпїЅпїЅпїЅ
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅ"},
+-- пїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Clover\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Cheetah\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Banshee\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Phoenix\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Uranus\""},
+{abbreviation = "пїЅпїЅ350", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"ZR-350\""},
+{abbreviation = "пїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"ZR-350\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Infernus\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Infernus\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bullet\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bullet\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Turismo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Clover\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Elegant\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Elegant\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Fortune\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Tampa\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Glendale\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Glendale\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Emperor\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Emperor\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Nevada\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Nevada\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Primo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Majestic\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Majestic\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Willard\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Willard\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Washington\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Washington\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Admiral\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Admiral\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Rancher\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Rancher\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Rancher\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bobcat\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bobcat\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Yosemite\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Walton\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Walton\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Tornado\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Tornado\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Blade\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Blade\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Tampa\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Tampa\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Alpha\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Alpha\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Comet\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Comet\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Stinger\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Stinger\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Super GT\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Super GT\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Champion\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Champion\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Buccaneer\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Buccaneer\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hermes\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hermes\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sentinel\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sentinel\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Fortune\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Fortune\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Fortune\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Blista\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Blista\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Manana\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Manana\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Picador\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Picador\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Solair\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Solair\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Windsor\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Windsor\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Stafford\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Stafford\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Huntley\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Huntley\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Patriot\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Patriot\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Monster\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Monster\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bandito\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bandito\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Calcium\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Calcium\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hotring\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hotring\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hotring\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bandito\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Crane\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Stretch\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Stretch\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Premier\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Premier\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bravura\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bravura\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Slamvan\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Slamvan\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Remington\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Remington\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Flash\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Flash\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Jester\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Jester\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Stratum\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Stratum\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Uranus\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Uranus\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan RS\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan RS\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan RS\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan RS\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan RS\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hotknife\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hotknife\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Dune\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Dune\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Dune\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sabre\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sabre\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sabre\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Voodoo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Clover\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Clover\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bullet\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bullet\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bullet\""},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Infernus\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Infernus\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Turismo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Turismo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Banshee\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Banshee\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Cheetah\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Cheetah\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Phoenix\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Phoenix\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Tahoma\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Tahoma\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Elegy\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Elegy\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Elegy\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Elegy\""},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"NRG-500\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"NRG-500\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"NRG-500\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"NRG-500\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Freeway\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Freeway\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Freeway\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Wayfarer\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Wayfarer\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Sanchez\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Sanchez\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Sanchez\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Sanchez\""},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"PCJ-600\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"PCJ-600\""},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"FCR-900\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"FCR-900\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Faggio\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Faggio\""},
+{abbreviation = "пїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"BF-400\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Enduro\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"Angel\""},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"пїЅпїЅпїЅ\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"пїЅпїЅпїЅпїЅпїЅпїЅ\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"пїЅпїЅпїЅпїЅ\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"пїЅпїЅпїЅпїЅ\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"пїЅпїЅпїЅпїЅпїЅ\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"пїЅпїЅпїЅпїЅпїЅ\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Desert Eagle\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Desert Eagle\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Shotgun\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Shotgun\""},
+{abbreviation = "пїЅ4", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"M4\""},
+{abbreviation = "пїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"AK-47\""},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"SMG\""},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Uzi\""},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"TEC-9\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Sniper Rifle\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Sniper Rifle\""},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Knife\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Baseball Bat\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Pistol\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Desert Eagle\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"Katana\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"Katana\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Grenade\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Taser\""},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"BMX\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Greenwood\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Greenwood\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Greenwood\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Savanna\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Savanna\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Savanna\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Tahoma\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Cheetah\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Kart\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Kart\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bravura\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bravura\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bravura\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ king", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sandking\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sandking\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sandking\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Mesa\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Mesa\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Mesa\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Mesa\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Moonbeam\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Moonbeam\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Pony\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Pony\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Regina\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Regina\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Regina\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Romero\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Romero\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Stocker\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Stocker\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Topfun\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Topfun\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Tractor\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Tractor\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Tractor\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Woodpecker\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Woodpecker\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Flatbed\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Flatbed\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Linerunner\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Linerunner\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Linerunner\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Linerunner\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Roadtrain\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Roadtrain\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Tanker\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Tanker\""},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Dune\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Dune\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Dune\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hunter\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hunter\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sparrow\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sparrow\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sparrow\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sparrow\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Leviathan\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Leviathan\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Cargo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Cargo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Andromada\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Andromada\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Nebula\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Nebula\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Nebula\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Zombie\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Zombie\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Firetruck\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Firetruck\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Firetruck\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Firetruck\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Firetruck\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Ambulance\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Ambulance\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Ambulance\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Ambulance\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Ambulance\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Enforcer\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Enforcer\""},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Rio\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Rio\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Astro\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Astro\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Astro\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Astro\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ2", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Voodoo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ2", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Voodoo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Karma\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Karma\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Karma\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Cleo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Cleo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Fury\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Fury\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Fury\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hakuchou\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hakuchou\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hakuchou\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hakuchou\""},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Neo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Neo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Fury\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Fury\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Biff\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Biff\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Biff\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Biff\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Securicar\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Securicar\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Securicar\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Securicar\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Securicar\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Mr. Whoopee\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Mr. Whoopee\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Mr. Whoopee\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hotdog\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hotdog\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Queens"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Queens"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Hashbury"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Hashbury"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Garcia"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Garcia"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Sanchez SF"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "El Fuego"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "El Fuego"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Bayside"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Bayside"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Craig"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Craig"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Chestnut"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Chestnut"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Highland"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Highland"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Valley"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Valley"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Hillside"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Hillside"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Santa Flora"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ", replacement = "Santa Flora"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Santa Flora"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Angel Pine"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Angel Pine"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "El Quebrados"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "El Quebrados"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Tierra Robada"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Tierra Robada"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Tierra Robada"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "Flint County"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2пїЅ", replacement = "Flint County"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Whitewood"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Rockshore"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Rockshore"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Rockshore"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Rockshore"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Springfield"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Springfield"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "Bell"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Bell"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Harbor"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Harbor"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "Dock"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "Dock"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "Dock"},
+{abbreviation = "пїЅпїЅпїЅпїЅ2", replacement = "Port"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "Port"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "Bay"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "Bay"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "Bays"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Bays"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Cross"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Cross"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "Hill"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Hill"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "Park"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Park"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "View"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "View"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Heights"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Heights"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Tower"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Tower"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Bridge"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Bridge"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Avenue"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Avenue"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Street"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Street"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "Road"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Road"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Plaza"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Plaza"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Square"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Square"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Sawn-off Shotgun\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Sawn-off Shotgun\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Sawn-off Shotgun\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Sawn-off Shotgun\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Sawn-off Shotgun\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Combat Shotgun\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Combat Shotgun\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Combat Shotgun\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Combat Shotgun\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Combat Shotgun\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Micro SMG\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Micro SMG\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Micro SMG\""},
+{abbreviation = "пїЅпїЅ5", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"MP5\""},
+{abbreviation = "пїЅпїЅ5пїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"MP5\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Pistol\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Pistol\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Pistol\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Pistol\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Pistol\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Pistol\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Desert Eagle\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Desert Eagle\""},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Desert Eagle\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Desert Eagle\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Desert Eagle\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Desert Eagle\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"AK-47\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"AK-47\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"AK-47\""},
+{abbreviation = "пїЅ16", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"M4\""},
+{abbreviation = "пїЅ16пїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"M4\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"AK-47\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"AK-47\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"TEC-9\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"TEC-9\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"TEC-9\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"TEC-9\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Knife\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Knife\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Machete\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Machete\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Baseball Bat\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Baseball Bat\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Baseball Bat\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Baseball Bat\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Baseball Bat\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Baseball Bat\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Hockey Stick\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Hockey Stick\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Hockey Stick\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Baseball Bat\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Baseball Bat\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Baseball Bat\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Rocket Launcher\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Rocket Launcher\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Rocket Launcher\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Rocket Launcher\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Rocket Launcher\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Rocket Launcher\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Rocket Launcher\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Rocket Launcher\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Flamethrower\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Flamethrower\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Minigun\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Minigun\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Minigun\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ \"Minigun\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ3", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Benson\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Benson\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Benson\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Boxville\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Boxville\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bord\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bord\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Culver\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Culver\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Dunes\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Dunes\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ2", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Ford\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Ford\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hanley\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hanley\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ3", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hunter\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ3", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Hunter\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Largo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Largo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Locust\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Locust\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Maverick\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Maverick\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Merit\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Merit\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Maverick\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Maverick\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Nesson\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Nesson\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Polar\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Polar\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Rancher\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Rancher\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sanchez\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sanchez\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Simpleon\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Simpleon\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Simpleon\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sprinter\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sprinter\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Stock\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Stock\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Trash\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Trash\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Trashmaster\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Trashmaster\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Ural\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Ural\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Ural\""},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Van\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Van\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Van\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Vance\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Vance\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Venson\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Venson\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Yolk\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Yolk\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ3", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Zombie\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ3", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Zombie\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bullet\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Bullet\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Infernus\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Infernus\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Turismo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Turismo\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Cheetah\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Cheetah\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Banshee\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2пїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Banshee\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Phoenix\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Phoenix\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Super GT\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Super GT\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Stinger\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Stinger\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Comet\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Comet\""},
+{abbreviation = "пїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"BMX\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"BMX\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"BMX\""},
+{abbreviation = "пїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"BMX\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ \"BMX\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "East Los Santos"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "East Los Santos"},
+{abbreviation = "пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ", replacement = "East Los Santos"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Idlewood"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Idlewood"},
+{abbreviation = "пїЅпїЅпїЅпїЅ2", replacement = "Jefferson"},
+{abbreviation = "пїЅпїЅпїЅпїЅ2пїЅ", replacement = "Jefferson"},
+{abbreviation = "пїЅпїЅпїЅпїЅ2", replacement = "Glen Park"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "Glen Park"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Willowfield"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "El Corona"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2пїЅ", replacement = "El Corona"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Commerce"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Market"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Market"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Conference Center"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Conference Center"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Pershing Square"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Pershing Square"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Pershing Square"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Pershing Square"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "City Hall"},
+{abbreviation = "пїЅпїЅпїЅпїЅ2", replacement = "City Hall"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "Downtown"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Downtown"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Downtown"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Downtown"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "Pershing Square"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Garcia"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Garcia"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Hashbury"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Hashbury"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Doherty"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Doherty"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "Kings"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Kings"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Paradiso"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Paradiso"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Queens"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Queens"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Santa Flora"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "Santa Flora"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Foster Valley"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Foster Valley"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Foster Valley"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Foster Valley"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Garberry"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Garberry"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Ashberry"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2пїЅ", replacement = "Ashberry"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Bayside"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2пїЅ", replacement = "Bayside"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Bayside"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "The Strip"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "The Strip"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "Pilgrim"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Pilgrim"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Avalon"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Avalon"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Dragons Dojo"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Dragons Dojo"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "Prickle Pine"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "Prickle Pine"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Whitewood"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Pilbox"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Pilbox"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "Royal Casino"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Caligulas Palace"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "Pirates in Mens Pants"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "Visage"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ3", replacement = "Flint County"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ3", replacement = "Flint County"},
+{abbreviation = "пїЅпїЅ2", replacement = "Palomino Creek"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Palomino Creek"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Montgomery"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Dillimore"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Blueberry"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Blueberry"},
+{abbreviation = "пїЅпїЅпїЅпїЅ2", replacement = "Fort Carson"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Fort Carson"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "Tierra Robada"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "Tierra Robada"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "Angel Pine"},
+{abbreviation = "пїЅпїЅпїЅпїЅ2", replacement = "North Rock"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "Valle Ocultado"},
+{abbreviation = "пїЅпїЅпїЅпїЅ2", replacement = "Arco del Oeste"},
+{abbreviation = "пїЅпїЅпїЅпїЅ2", replacement = "Green Palms"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "Green Palms"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "Union Station"},
+{abbreviation = "пїЅпїЅпїЅпїЅ2", replacement = "Palomino Creek"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "El Quebrados"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "El Quebrados"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Airport"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Airport"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Airport"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "Airport"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Airport"},
+{abbreviation = "пїЅпїЅпїЅпїЅ3", replacement = "Port"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ3", replacement = "Port"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Station"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Station"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Station"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Station"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Station"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Metro"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Metro"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ3", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅanya", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"пїЅпїЅпїЅпїЅ\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"пїЅпїЅпїЅпїЅ\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ3", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "SSD пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "SSD пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "USB-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "USB-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ3", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ3", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "24/7", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"24/7\""},
+{abbreviation = "24-7", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"24/7\""},
+{abbreviation = "247", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"24/7\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"24/7\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"24/7\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"24/7\""},
+{abbreviation = "пїЅпїЅ", replacement = "пїЅ/пїЅ пїЅпїЅпїЅпїЅпїЅ \"Sultan\""},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅ", replacement = "RP"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "RP"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "DRP"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "ARP"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Advance RP"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Advance RP"},
+{abbreviation = "пїЅпїЅ", replacement = "PRO"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "non-RP"},
+{abbreviation = "пїЅпїЅ", replacement = "MG"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "MG"},
+{abbreviation = "пїЅпїЅ", replacement = "DM"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "DM"},
+{abbreviation = "пїЅпїЅ", replacement = "TK"},
+{abbreviation = "пїЅпїЅ", replacement = "SK"},
+{abbreviation = "пїЅпїЅ", replacement = "PG"},
+{abbreviation = "пїЅпїЅ", replacement = "RK"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ3", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ3", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ/пїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "$"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "$"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "$"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "$"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "$"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "$"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "$"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ2", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅ", replacement = "FT"},
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Burger Shot"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "Clucking Bell"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Clucking Bell"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ Visage"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+-- пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Ballas"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Ballas"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Ballas"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "Grove Street"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Grove Street"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Aztecas"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Aztecas"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Vagos"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Vagos"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "La Cosa Nostra"},
+{abbreviation = "пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ", replacement = "La Cosa Nostra"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "La Cosa Nostra"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Yakuza"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅ", replacement = "Yakuza"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "Yakuza"},
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+{abbreviation = "пїЅпїЅпїЅ", replacement = "FBI"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "LVPD"},
+{abbreviation = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", replacement = "LVPD"},
+{abbreviation = "пїЅпїЅпїЅпїЅ", replacement = "LVPD"},
 {abbreviation = "lspd", replacement = "LSPD"},
 {abbreviation = "sfpd", replacement = "SFPD"},
--- Армия
-{abbreviation = "ввс", replacement = "ВВС"},
-{abbreviation = "св", replacement = "СВ"},
-{abbreviation = "вмф", replacement = "ВМФ"},
+-- пїЅпїЅпїЅпїЅпїЅ
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
+{abbreviation = "пїЅпїЅ", replacement = "пїЅпїЅ"},
+{abbreviation = "пїЅпїЅпїЅ", replacement = "пїЅпїЅпїЅ"},
 }
 
--- Переменные для модуля "Авто-отыгровки (Auto-RP)"
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ "пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (Auto-RP)"
 local rp_weapons_enabled = imgui.new.bool(true)
 local rp_phone_enabled = imgui.new.bool(true)
 local rp_mask_enabled = imgui.new.bool(true)
 local rp_heal_enabled = imgui.new.bool(true)
 
--- Переменные для модуля "Транспорт и Визуал (Vehicles & Visuals)"
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (Vehicles & Visuals)"
 local strobe_enabled = imgui.new.bool(false)
 local strobe_speed = imgui.new.int(150)
 local strobe_mode = imgui.new.int(1)
@@ -3461,13 +3461,13 @@ local cruise_enabled = imgui.new.bool(false)
 local turbo_cruise_enabled = imgui.new.bool(false)
 local cruise_active = false
 
--- Горячие клавиши на команды
--- key: VK код клавиши, command: команда, name: описание
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+-- key: VK пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, command: пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, name: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 local keybinds = {
-    {key = 0x4C, command = "/lock",   enabled = true,  name = "Закрыть/открыть машину"},
-    {key = 0x4B, command = "/e",     enabled = true,  name = "Завести/заглушить двигатель"},
+    {key = 0x4C, command = "/lock",   enabled = true,  name = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"},
+    {key = 0x4B, command = "/e",     enabled = true,  name = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
 }
--- VK коды для справки: 0x4C=L, 0x4B=K, 0x4A=J, 0x4D=M, 0x4E=N, 0x50=P, 0x52=R, 0x54=T
+-- VK пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ: 0x4C=L, 0x4B=K, 0x4A=J, 0x4D=M, 0x4E=N, 0x50=P, 0x52=R, 0x54=T
 local key_names = {
     [0x4A] = "J", [0x4B] = "K", [0x4C] = "L", [0x4D] = "M", [0x4E] = "N",
     [0x4F] = "O", [0x50] = "P", [0x51] = "Q", [0x52] = "R", [0x54] = "T",
@@ -3477,20 +3477,20 @@ local key_names = {
     [0x30] = "0", [0x20] = "Space", [0x0D] = "Enter",
 }
 local new_bind_key = imgui.new.int(0x4C)
-local new_bind_command = imgui.new.char[128]("")
-local new_bind_name = imgui.new.char[128]("")
+local new_bind_command = imgui.new.char[129]("")
+local new_bind_name = imgui.new.char[129]("")
 local cruise_speed = 0.0
 
--- Погода и Время (Визуал)
+-- пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅ)
 local weather_locked = imgui.new.bool(false)
 local weather_id = imgui.new.int(1)
 local time_locked = imgui.new.bool(false)
 local time_hour = imgui.new.int(12)
 
--- Визуальный скин-ченджер
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 local skin_changer_id = imgui.new.int(0)
 
--- Переменные для модуля "Авто-объявления (Auto-Ad)"
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ "пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (Auto-Ad)"
 local aad_active = false
 local aad_text = ""
 local aad_delay = imgui.new.int(15000)
@@ -3500,10 +3500,10 @@ local static_aad_buf = nil
 local last_ad_sent_time = 0
 local aad_waiting_for_publish = false
 
--- Переменная для определения фракции
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 local selected_faction = imgui.new.int(0)
 
--- Forward declarations (функции определяются позже, но используются в модулях)
+-- Forward declarations (пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
 local isModuleEnabled
 local saved_module_states
 local modules
@@ -3512,102 +3512,102 @@ local chatScannerWorker
 local sendAdCommand
 
 
--- СПРАВОЧНИК КОМАНД ADVANCE RP
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ ADVANCE RP
 local advance_commands = {
 {
-category = u8"Основное / Гражданские",
+category = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ / пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ",
 cmds = {
-{name = "/menu", desc = u8"Главное меню персонажа (статистика, настройки)"},
-{name = "/gps", desc = u8"Навигатор по важным местам штата"},
-{name = "/phone", desc = u8"Достать телефон (интерфейс)"},
-{name = "/call [номер]", desc = u8"Позвонить игроку"},
-{name = "/h", desc = u8"Повесить трубку телефона"},
-{name = "/c [номер] [текст]", desc = u8"Отправить SMS игроку (точно для Advance!)"},
-{name = "/book", desc = u8"Открыть телефонную книгу"},
-{name = "/dir", desc = u8"Справочник организаций и лидеров онлайн"},
-{name = "/pay [ID] [сумма]", desc = u8"Передать деньги игроку"},
-{name = "/id [Ник/ID]", desc = u8"Узнать ID и уровень игрока"},
-{name = "/number [ID]", desc = u8"Узнать номер телефона игрока"},
-{name = "/lic", desc = u8"Показать свои лицензии"},
-{name = "/pass [ID]", desc = u8"Показать паспорт игроку"},
-{name = "/med [ID]", desc = u8"Показать мед. карту игроку"},
-{name = "/w [ID] [текст]", desc = u8"Шептать (тихий чат)"},
-{name = "/s [текст]", desc = u8"Кричать (громкий чат)"}
+{name = "/menu", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)"},
+{name = "/gps", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{name = "/phone", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)"},
+{name = "/call [пїЅпїЅпїЅпїЅпїЅ]", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/h", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/c [пїЅпїЅпїЅпїЅпїЅ] [пїЅпїЅпїЅпїЅпїЅ]", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ SMS пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ Advance!)"},
+{name = "/book", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{name = "/dir", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/pay [ID] [пїЅпїЅпїЅпїЅпїЅ]", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/id [пїЅпїЅпїЅ/ID]", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅ ID пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/number [ID]", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/lic", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/pass [ID]", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/med [ID]", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/w [ID] [пїЅпїЅпїЅпїЅпїЅ]", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ)"},
+{name = "/s [пїЅпїЅпїЅпїЅпїЅ]", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ)"}
 }
 },
 {
-category = u8"СМИ (Mass Media)",
+category = u8"пїЅпїЅпїЅ (Mass Media)",
 cmds = {
-{name = "/edit", desc = u8"Редактировать объявления из очереди"},
-{name = "/ad [текст]", desc = u8"Подать объявление на модерацию"},
-{name = "/t [текст]", desc = u8"Вещание в эфир из студии / фургона новостей"},
-{name = "/u [текст]", desc = u8"Вещание в микрофон во время репортажа"},
-{name = "/bring [ID]", desc = u8"Пригласить гостя в радиоэфир"},
-{name = "/nbring [ID]", desc = u8"Пригласить гостя в газетный эфир"},
-{name = "/audiomedia", desc = u8"Управление медиаплеером радиоцентра"},
-{name = "/lead", desc = u8"Управление радиостанцией (для лидера/замов)"}
+{name = "/edit", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/ad [пїЅпїЅпїЅпїЅпїЅ]", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/t [пїЅпїЅпїЅпїЅпїЅ]", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ / пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/u [пїЅпїЅпїЅпїЅпїЅ]", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/bring [ID]", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/nbring [ID]", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ"},
+{name = "/audiomedia", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/lead", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅ)"}
 }
 },
 {
-category = u8"МВД (Полиция / ФБР)",
+category = u8"пїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅ / пїЅпїЅпїЅ)",
 cmds = {
-{name = "/su [ID] [уровень] [причина]", desc = u8"Выдать розыск (до 6 звезд)"},
-{name = "/cuff [ID]", desc = u8"Надеть наручники"},
-{name = "/uncuff [ID]", desc = u8"Снять наручники"},
-{name = "/clear [ID]", desc = u8"Снять розыск (очистить уровень розыска)"},
-{name = "/putpl [ID]", desc = u8"Посадить задержанного в патрульную машину"},
-{name = "/outpl [ID]", desc = u8"Высадить задержанного из машины"},
-{name = "/arrest [ID] [мин] [залог 0/1] [цена]", desc = u8"Арестовать в КПЗ"},
-{name = "/co", desc = u8"Список разыскиваемых преступников онлайн (Wanted)"},
-{name = "/search [ID]", desc = u8"Обыскать игрока на наркотики/патроны"},
-{name = "/take [ID]", desc = u8"Изъять права, наркотики, оружие или лицензии"},
-{name = "/m [текст]", desc = u8"Говорить в полицейский мегафон"},
-{name = "/ticket [ID] [сумма] [причина]", desc = u8"Выписать штраф"},
-{name = "/patrol", desc = u8"Начать/завершить патрулирование района"},
-{name = "/ram", desc = u8"Выломать дверь дома (штурм)"},
-{name = "/ftalk", desc = u8"Подслушивать рацию других гос. организаций (ФБР)"}
+{name = "/su [ID] [пїЅпїЅпїЅпїЅпїЅпїЅпїЅ] [пїЅпїЅпїЅпїЅпїЅпїЅпїЅ]", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅ 6 пїЅпїЅпїЅпїЅпїЅ)"},
+{name = "/cuff [ID]", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/uncuff [ID]", desc = u8"пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/clear [ID]", desc = u8"пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ)"},
+{name = "/putpl [ID]", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/outpl [ID]", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/arrest [ID] [пїЅпїЅпїЅ] [пїЅпїЅпїЅпїЅпїЅ 0/1] [пїЅпїЅпїЅпїЅ]", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ"},
+{name = "/co", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (Wanted)"},
+{name = "/search [ID]", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/take [ID]", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/m [пїЅпїЅпїЅпїЅпїЅ]", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/ticket [ID] [пїЅпїЅпїЅпїЅпїЅ] [пїЅпїЅпїЅпїЅпїЅпїЅпїЅ]", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{name = "/patrol", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/ram", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅ)"},
+{name = "/ftalk", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ)"}
 }
 },
 {
-category = u8"МЗ (Больницы)",
+category = u8"пїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)",
 cmds = {
-{name = "/heal [ID] [цена]", desc = u8"Вылечить игрока (в больнице или карете)"},
-{name = "/medcard [ID] [тип 1-3] [цена]", desc = u8"Выдать/обновить медицинскую карту"},
-{name = "/changeheal [цена]", desc = u8"Установить цену лечения по умолчанию"}
+{name = "/heal [ID] [пїЅпїЅпїЅпїЅ]", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ)"},
+{name = "/medcard [ID] [пїЅпїЅпїЅ 1-3] [пїЅпїЅпїЅпїЅ]", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{name = "/changeheal [пїЅпїЅпїЅпїЅ]", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"}
 }
 },
 {
-category = u8"МО (Армия)",
+category = u8"пїЅпїЅ (пїЅпїЅпїЅпїЅпїЅ)",
 cmds = {
-{name = "/makegun", desc = u8"Сделать оружие из патронов/металла в казарме"},
-{name = "/state", desc = u8"Проверить состояние складов патронов на базах"},
-{name = "/putammo", desc = u8"Загрузить ящик патронов в грузовик снабжения"},
-{name = "/takeammo", desc = u8"Выгрузить ящик патронов на склад базы"}
+{name = "/makegun", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/state", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"},
+{name = "/putammo", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/takeammo", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ"}
 }
 },
 {
-category = u8"Дома, Авто и Бизнес",
+category = u8"пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ",
 cmds = {
-{name = "/home", desc = u8"Управление домашним меню (подселение, сейф)"},
-{name = "/sellhome", desc = u8"Продать дом государству или игроку"},
-{name = "/lock", desc = u8"Закрыть/открыть замок домашней двери или машины"},
-{name = "/car", desc = u8"Управление личным транспортом (припарковать, капот)"},
-{name = "/fill", desc = u8"Заправить транспорт на АЗС или из канистры"},
-{name = "/sellcar [ID] [цена]", desc = u8"Продать свой автомобиль другому игроку"},
-{name = "/biz", desc = u8"Управление бизнесом (заказ продуктов, налоги)"},
-{name = "/sellbiz", desc = u8"Продать бизнес"}
+{name = "/home", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ)"},
+{name = "/sellhome", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/lock", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/car", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ)"},
+{name = "/fill", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/sellcar [ID] [пїЅпїЅпїЅпїЅ]", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{name = "/biz", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ)"},
+{name = "/sellbiz", desc = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"}
 }
 }
 }
 
--- Загрузка баз
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ
 local function loadDatabases()
 -- Auto-resume AAD if it was active before reload
 if aad_active and aad_text ~= "" then
 lua_thread.create(function()
 wait(3000)  -- wait for SAMP to be ready
 if aad_active and aad_text ~= "" then
-sampAddChatMessage("[Helper] Авто-реклама возобновлена", 0x00FF00)
+sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", 0x00FF00)
 sendAdCommand(aad_text)
 end
 end)
@@ -3674,7 +3674,7 @@ keybinds = {
 }
 end
 end
--- Миграция: конвертируем старые CP1251 шаблоны/историю в UTF-8
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ CP1251 пїЅпїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ UTF-8
 local function needsUtf8Convert(s)
     if type(s) ~= "string" then return false end
     -- CP1251 Cyrillic: single bytes 0xC0-0xFF
@@ -3704,8 +3704,8 @@ if aad_templates then
             aad_templates[i] = converted
         end
     end
-    -- saveSettings() не вызываем здесь - функция определена ниже
-    -- Конвертация в памяти, сохранится при следующем изменении настроек
+    -- saveSettings() пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ - пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+    -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 end
 
 if aad_history then
@@ -3720,7 +3720,7 @@ end
 end
 end
 
--- Сохранение настроек
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 local function saveSettings()
 -- Save module enabled states
 local module_states = {}
@@ -3784,7 +3784,7 @@ file:close()
 end
 end
 
--- Умное форматирование ПРО
+-- пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ
 local function cp1251_upper(ch)
 local b = ch:byte()
 if b >= 97 and b <= 122 then return string.char(b - 32) end
@@ -3796,6 +3796,82 @@ end
 -- Escape special Lua pattern characters in a string
 local function escapePattern(s)
     return (s:gsub("([%%%(%)%.%%%+%-%*%?%[%]%^%$])", "%%%1"))
+end
+
+-- Truncate UTF-8 string at a valid character boundary (prevents invalid UTF-8 crash)
+local function safeUtf8Truncate(s, maxBytes)
+    if #s <= maxBytes then return s end
+    local cut = maxBytes
+    -- Scan backwards to find a valid UTF-8 boundary
+    -- Continuation bytes are 0x80-0xBF (10xxxxxx)
+    while cut > 0 do
+        local b = s:byte(cut)
+        if b < 0x80 or b > 0xBF then break end
+        cut = cut - 1
+    end
+    return s:sub(1, cut) .. "..."
+end
+
+-- Remove invalid UTF-8 sequences from a string (prevents ImGui glyph crash)
+local function sanitizeUtf8(s)
+    if s == nil then return "" end
+    local result = {}
+    local i = 1
+    local len = #s
+    while i <= len do
+        local b = s:byte(i)
+        if b < 0x80 then
+            -- ASCII byte
+            result[#result + 1] = s:sub(i, i)
+            i = i + 1
+        elseif b >= 0xC2 and b <= 0xDF then
+            -- 2-byte sequence: need 1 continuation byte
+            if i + 1 <= len then
+                local b2 = s:byte(i + 1)
+                if b2 >= 0x80 and b2 <= 0xBF then
+                    result[#result + 1] = s:sub(i, i + 1)
+                    i = i + 2
+                else
+                    i = i + 1 -- skip invalid
+                end
+            else
+                i = i + 1 -- incomplete, skip
+            end
+        elseif b >= 0xE0 and b <= 0xEF then
+            -- 3-byte sequence: need 2 continuation bytes
+            if i + 2 <= len then
+                local b2 = s:byte(i + 1)
+                local b3 = s:byte(i + 2)
+                if b2 >= 0x80 and b2 <= 0xBF and b3 >= 0x80 and b3 <= 0xBF then
+                    result[#result + 1] = s:sub(i, i + 2)
+                    i = i + 3
+                else
+                    i = i + 1
+                end
+            else
+                i = i + 1
+            end
+        elseif b >= 0xF0 and b <= 0xF4 then
+            -- 4-byte sequence: need 3 continuation bytes
+            if i + 3 <= len then
+                local b2 = s:byte(i + 1)
+                local b3 = s:byte(i + 2)
+                local b4 = s:byte(i + 3)
+                if b2 >= 0x80 and b2 <= 0xBF and b3 >= 0x80 and b3 <= 0xBF and b4 >= 0x80 and b4 <= 0xBF then
+                    result[#result + 1] = s:sub(i, i + 3)
+                    i = i + 4
+                else
+                    i = i + 1
+                end
+            else
+                i = i + 1
+            end
+        else
+            -- Invalid lead byte (0x80-0xBF continuation without lead, or 0xF5-0xFF)
+            i = i + 1
+        end
+    end
+    return table.concat(result)
 end
 
 local function formatAdText(text)
@@ -3818,7 +3894,7 @@ lower = formatted:lower()
 
 -- Detect car keywords (to skip city removal for cars)
 local is_car = false
-local car_keywords = {"булк", "инф", "туризм", "турик", "кловер", "хоткнайф", "дюн", "сультан", "султан", "елег", "банш", "чито", "феникс", "тахом", "премьер", "стретч", "бравур", "сабре", "вуду", "сламван", "ремингтон", "флеш", "джестер", "стратум", "уран", "блист", "баффал", "зомби", "ламбо", "бмв", "мерс", "тойот", "монстр", "бандит", "комет", "стингер", "супергт", "манан", "пикап", "соляр", "винсаг", "шафтер", "альпин", "беггал", "кальц", "салат", "стрикер", "адреналин", "нрг", "фрей", "вейб", "санч", "пжж", "фцз", "фаггио", "фагио", "бмх", "эндюро", "мото", "машин", "а/м", "м/ц", "тачк", "таз", "байк", "велосипед", "велик"}
+local car_keywords = {"пїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅ", "пїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅ", "пїЅ/пїЅ", "пїЅ/пїЅ", "пїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅ"}
 for _, word in ipairs(car_keywords) do
 if lower:find(word, 1, true) then
 is_car = true
@@ -3827,12 +3903,12 @@ end
 end
 
 -- Convert numbers with slang: 50kk -> 50.000.000$, 5mln -> 5.000.000$, 1kkk -> 1.000.000.000$
-formatted = formatted:gsub("(%d+)%s*[кk][кk]", "%1.000.000$")
-formatted = formatted:gsub("(%d+)%s*[кk][кk][кk]", "%1.000.000.000$")
-formatted = formatted:gsub("(%d+)%s*[мm][лl][нn]", "%1.000.000$")
-formatted = formatted:gsub("(%d+)%s*[мm][лl][рp][дd]", "%1.000.000.000$")
-formatted = formatted:gsub("(%d+)%s*[мm][иi][лl][лl][иi][аa][рp][дd]", "%1.000.000.000$")
-formatted = formatted:gsub("(%d+)%s*[мm][иi][лl][лl][иi][оo][нn]", "%1.000.000$")
+formatted = formatted:gsub("(%d+)%s*[пїЅk][пїЅk]", "%1.000.000$")
+formatted = formatted:gsub("(%d+)%s*[пїЅk][пїЅk][пїЅk]", "%1.000.000.000$")
+formatted = formatted:gsub("(%d+)%s*[пїЅm][пїЅl][пїЅn]", "%1.000.000$")
+formatted = formatted:gsub("(%d+)%s*[пїЅm][пїЅl][пїЅp][пїЅd]", "%1.000.000.000$")
+formatted = formatted:gsub("(%d+)%s*[пїЅm][пїЅi][пїЅl][пїЅl][пїЅi][пїЅa][пїЅp][пїЅd]", "%1.000.000.000$")
+formatted = formatted:gsub("(%d+)%s*[пїЅm][пїЅi][пїЅl][пїЅl][пїЅi][пїЅo][пїЅn]", "%1.000.000$")
 
 -- Apply replacement rules
 local _rule_count = 0
@@ -3868,113 +3944,113 @@ end
 if #formatted > 1000 then formatted = formatted:sub(1, 1000) end
 
 -- Fix declension after prepositions
--- Generic rules above replace all forms with accusative (мэрию, полицию, etc.)
+-- Generic rules above replace all forms with accusative (пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, etc.)
 -- but after prepositions, other cases are grammatically required.
 local prep_fixes = {
--- мэрия
-{preposition="у", acc="мэрию", correct="мэрии"},
-{preposition="возле", acc="мэрию", correct="мэрии"},
-{preposition="около", acc="мэрию", correct="мэрии"},
-{preposition="от", acc="мэрию", correct="мэрии"},
-{preposition="из", acc="мэрию", correct="мэрии"},
-{preposition="к", acc="мэрию", correct="мэрии"},
-{preposition="за", acc="мэрию", correct="мэрией"},
-{preposition="под", acc="мэрию", correct="мэрией"},
-{preposition="над", acc="мэрию", correct="мэрией"},
-{preposition="перед", acc="мэрию", correct="мэрией"},
-{preposition="в", acc="мэрию", correct="мэрии"},
-{preposition="на", acc="мэрию", correct="мэрии"},
--- полиция
-{preposition="у", acc="полицию", correct="полиции"},
-{preposition="возле", acc="полицию", correct="полиции"},
-{preposition="около", acc="полицию", correct="полиции"},
-{preposition="от", acc="полицию", correct="полиции"},
-{preposition="из", acc="полицию", correct="полиции"},
-{preposition="к", acc="полицию", correct="полиции"},
-{preposition="за", acc="полицию", correct="полицией"},
-{preposition="под", acc="полицию", correct="полицией"},
-{preposition="над", acc="полицию", correct="полицией"},
-{preposition="перед", acc="полицию", correct="полицией"},
-{preposition="в", acc="полицию", correct="полиции"},
-{preposition="на", acc="полицию", correct="полиции"},
--- больница
-{preposition="у", acc="больницу", correct="больницы"},
-{preposition="возле", acc="больницу", correct="больницы"},
-{preposition="около", acc="больницу", correct="больницы"},
-{preposition="от", acc="больницу", correct="больницы"},
-{preposition="из", acc="больницу", correct="больницы"},
-{preposition="к", acc="больницу", correct="больнице"},
-{preposition="за", acc="больницу", correct="больницей"},
-{preposition="под", acc="больницу", correct="больницей"},
-{preposition="над", acc="больницу", correct="больницей"},
-{preposition="перед", acc="больницу", correct="больницей"},
-{preposition="в", acc="больницу", correct="больнице"},
-{preposition="на", acc="больницу", correct="больнице"},
--- школа
-{preposition="у", acc="школу", correct="школы"},
-{preposition="возле", acc="школу", correct="школы"},
-{preposition="около", acc="школу", correct="школы"},
-{preposition="от", acc="школу", correct="школы"},
-{preposition="из", acc="школу", correct="школы"},
-{preposition="к", acc="школу", correct="школе"},
-{preposition="за", acc="школу", correct="школой"},
-{preposition="под", acc="школу", correct="школой"},
-{preposition="над", acc="школу", correct="школой"},
-{preposition="перед", acc="школу", correct="школой"},
-{preposition="в", acc="школу", correct="школе"},
-{preposition="на", acc="школу", correct="школе"},
--- церковь
-{preposition="у", acc="церковь", correct="церкви"},
-{preposition="возле", acc="церковь", correct="церкви"},
-{preposition="около", acc="церковь", correct="церкви"},
-{preposition="от", acc="церковь", correct="церкви"},
-{preposition="из", acc="церковь", correct="церкви"},
-{preposition="к", acc="церковь", correct="церкви"},
-{preposition="за", acc="церковь", correct="церковью"},
-{preposition="под", acc="церковь", correct="церковью"},
-{preposition="над", acc="церковь", correct="церковью"},
-{preposition="перед", acc="церковь", correct="церковью"},
-{preposition="в", acc="церковь", correct="церкви"},
-{preposition="на", acc="церковь", correct="церкви"},
--- электростанция
-{preposition="у", acc="электростанцию", correct="электростанции"},
-{preposition="возле", acc="электростанцию", correct="электростанции"},
-{preposition="около", acc="электростанцию", correct="электростанции"},
-{preposition="от", acc="электростанцию", correct="электростанции"},
-{preposition="из", acc="электростанцию", correct="электростанции"},
-{preposition="к", acc="электростанцию", correct="электростанции"},
-{preposition="за", acc="электростанцию", correct="электростанцией"},
-{preposition="под", acc="электростанцию", correct="электростанцией"},
-{preposition="над", acc="электростанцию", correct="электростанцией"},
-{preposition="перед", acc="электростанцию", correct="электростанцией"},
-{preposition="в", acc="электростанцию", correct="электростанции"},
-{preposition="на", acc="электростанцию", correct="электростанции"},
--- банк (муж.род: им.=вин.)
-{preposition="у", acc="банк", correct="банка"},
-{preposition="возле", acc="банк", correct="банка"},
-{preposition="около", acc="банк", correct="банка"},
-{preposition="от", acc="банк", correct="банка"},
-{preposition="из", acc="банк", correct="банка"},
-{preposition="к", acc="банк", correct="банку"},
-{preposition="за", acc="банк", correct="банком"},
-{preposition="под", acc="банк", correct="банком"},
-{preposition="над", acc="банк", correct="банком"},
-{preposition="перед", acc="банк", correct="банком"},
-{preposition="в", acc="банк", correct="банке"},
-{preposition="на", acc="банк", correct="банке"},
--- стадион (муж.род: им.=вин.)
-{preposition="у", acc="стадион", correct="стадиона"},
-{preposition="возле", acc="стадион", correct="стадиона"},
-{preposition="около", acc="стадион", correct="стадиона"},
-{preposition="от", acc="стадион", correct="стадиона"},
-{preposition="из", acc="стадион", correct="стадиона"},
-{preposition="к", acc="стадион", correct="стадиону"},
-{preposition="за", acc="стадион", correct="стадионом"},
-{preposition="под", acc="стадион", correct="стадионом"},
-{preposition="над", acc="стадион", correct="стадионом"},
-{preposition="перед", acc="стадион", correct="стадионом"},
-{preposition="в", acc="стадион", correct="стадионе"},
-{preposition="на", acc="стадион", correct="стадионе"},
+-- пїЅпїЅпїЅпїЅпїЅ
+{preposition="пїЅ", acc="пїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅ", acc="пїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅ", acc="пїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅ"},
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+{preposition="пїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+{preposition="пїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+-- пїЅпїЅпїЅпїЅпїЅ
+{preposition="пїЅ", acc="пїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅ", acc="пїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅ", acc="пїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅ"},
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+{preposition="пїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅ"},
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+{preposition="пїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+-- пїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ.пїЅпїЅпїЅ: пїЅпїЅ.=пїЅпїЅпїЅ.)
+{preposition="пїЅ", acc="пїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅ", acc="пїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅ", acc="пїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅ"},
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ.пїЅпїЅпїЅ: пїЅпїЅ.=пїЅпїЅпїЅ.)
+{preposition="пїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅпїЅпїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+{preposition="пїЅпїЅ", acc="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", correct="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
 }
 formatted = " " .. formatted .. " "
 for _, fix in ipairs(prep_fixes) do
@@ -3983,7 +4059,7 @@ end
 formatted = formatted:gsub("^%s+", ""):gsub("%s+$", "")
 -- Auto-add location for "kuplyu" if no location mentioned
 local has_location = false
-local loc_words = {"Los Santos", "San Fierro", "Las Venturas", "East", "Ganton", "Idlewood", "Jefferson", "Glen", "Willowfield", "El Corona", "Commerce", "Market", "Verona", "Chinatown", "Palomino", "Montgomery", "Dillimore", "Blueberry", "Flint", "Fort Carson", "Tierra", "Angel", "Bayside", "North Rock", "Valle", "Arco", "Green Palms", "Union", "Strip", "Rockshore", "Pilgrim", "Avalon", "Prickle", "Whitewood", "Pilbox", "Doherty", "Kings", "Paradiso", "Queens", "Hashbury", "Garcia", "Santa Flora", "Foster", "Venturas", "штат", "город", "район", "районе", "района", "гетто"}
+local loc_words = {"Los Santos", "San Fierro", "Las Venturas", "East", "Ganton", "Idlewood", "Jefferson", "Glen", "Willowfield", "El Corona", "Commerce", "Market", "Verona", "Chinatown", "Palomino", "Montgomery", "Dillimore", "Blueberry", "Flint", "Fort Carson", "Tierra", "Angel", "Bayside", "North Rock", "Valle", "Arco", "Green Palms", "Union", "Strip", "Rockshore", "Pilgrim", "Avalon", "Prickle", "Whitewood", "Pilbox", "Doherty", "Kings", "Paradiso", "Queens", "Hashbury", "Garcia", "Santa Flora", "Foster", "Venturas", "пїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅ"}
 for _, word in ipairs(loc_words) do
 if formatted:lower():find(word:lower(), 1, true) then
 has_location = true
@@ -3992,21 +4068,21 @@ end
 end
 
 -- Detect action type from original text
-local is_buy = lower:find("^куплю") ~= nil
-local is_sell = lower:find("^продам") ~= nil
-local is_trade = lower:find("^обменяю") ~= nil
-local is_rent_out = lower:find("^сдам") ~= nil
-local is_rent_seek = lower:find("^сниму") ~= nil
-local is_ad = is_buy or is_sell or is_trade or is_rent_out or is_rent_seek or lower:find("^распродаю") ~= nil or lower:find("^скуп") ~= nil or lower:find("^закуп") ~= nil
+local is_buy = lower:find("^пїЅпїЅпїЅпїЅпїЅ") ~= nil
+local is_sell = lower:find("^пїЅпїЅпїЅпїЅпїЅпїЅ") ~= nil
+local is_trade = lower:find("^пїЅпїЅпїЅпїЅпїЅпїЅпїЅ") ~= nil
+local is_rent_out = lower:find("^пїЅпїЅпїЅпїЅ") ~= nil
+local is_rent_seek = lower:find("^пїЅпїЅпїЅпїЅпїЅ") ~= nil
+local is_ad = is_buy or is_sell or is_trade or is_rent_out or is_rent_seek or lower:find("^пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") ~= nil or lower:find("^пїЅпїЅпїЅпїЅ") ~= nil or lower:find("^пїЅпїЅпїЅпїЅпїЅ") ~= nil
 
 -- Add location for "kuplyu" without location
 if (is_buy or is_rent_seek) and not has_location then
-formatted = formatted:gsub("^(Куплю%s+[^%.%d]+)%s*$", "%1 в любой точке штата")
-if not formatted:lower():find("в любой точке") then
-formatted = formatted:gsub("^(Куплю%s+[^%.%d]+)(%s+бюджет.*)", "%1 в любой точке штата.%2")
+formatted = formatted:gsub("^(пїЅпїЅпїЅпїЅпїЅ%s+[^%.%d]+)%s*$", "%1 пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ")
+if not formatted:lower():find("пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ") then
+formatted = formatted:gsub("^(пїЅпїЅпїЅпїЅпїЅ%s+[^%.%d]+)(%s+пїЅпїЅпїЅпїЅпїЅпїЅ.*)", "%1 пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ.%2")
 end
-if not formatted:lower():find("в любой точке") then
-formatted = formatted .. " в любой точке штата"
+if not formatted:lower():find("пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ") then
+formatted = formatted .. " пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"
 end
 end
 
@@ -4015,33 +4091,33 @@ formatted = formatted:gsub("%s+", " ")
 formatted = formatted:gsub("^%s+", "")
 formatted = formatted:gsub("%s+$", "")
 
--- Add period before бюджет
-formatted = formatted:gsub("%s+(бюджет)", ". %1")
+-- Add period before пїЅпїЅпїЅпїЅпїЅпїЅ
+formatted = formatted:gsub("%s+(пїЅпїЅпїЅпїЅпїЅпїЅ)", ". %1")
 
--- Add "Цена: " before dollar amounts if not already present
-formatted = formatted:gsub("([%s])(%d+%.%d+%$)", "%1Цена %2")
-formatted = formatted:gsub("^(%d+%.%d+%$)", "Цена %1")
+-- Add "пїЅпїЅпїЅпїЅ: " before dollar amounts if not already present
+formatted = formatted:gsub("([%s])(%d+%.%d+%$)", "%1пїЅпїЅпїЅпїЅ %2")
+formatted = formatted:gsub("^(%d+%.%d+%$)", "пїЅпїЅпїЅпїЅ %1")
 
 -- Check if has price already
 local fl = formatted:lower()
 local has_price = false
-if fl:find("%$") or fl:find("цена") or fl:find("дог") or fl:find("торг") or fl:find("обмен") or fl:find("бартер") or fl:find("бесплатн") or fl:find("бюджет") then
+if fl:find("%$") or fl:find("пїЅпїЅпїЅпїЅ") or fl:find("пїЅпїЅпїЅ") or fl:find("пїЅпїЅпїЅпїЅ") or fl:find("пїЅпїЅпїЅпїЅпїЅ") or fl:find("пїЅпїЅпїЅпїЅпїЅпїЅ") or fl:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or fl:find("пїЅпїЅпїЅпїЅпїЅпїЅ") then
 has_price = true
 end
 
 -- Auto-add price if buy/sell but no price (NOT for trade/obmen)
 if (is_buy or is_sell or is_rent_out or is_rent_seek) and not has_price then
-formatted = formatted .. ". Цена договорная"
+formatted = formatted .. ". пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"
 end
 
--- Нормализация доплаты при обмене (чья сторона доплачивает)
-if is_trade and fl:find("доплат") and not (fl:find("доплата с мо") or fl:find("доплата с ваш")) then
-local doplata_mine = fl:find("мо[йяеиёю]") or fl:find("мен[яе]") or fl:find("доплачива")
-local doplata_theirs = fl:find("ваш") or fl:find("вас")
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
+if is_trade and fl:find("пїЅпїЅпїЅпїЅпїЅпїЅ") and not (fl:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅ") or fl:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ")) then
+local doplata_mine = fl:find("пїЅпїЅ[пїЅпїЅпїЅпїЅпїЅ]") or fl:find("пїЅпїЅпїЅ[пїЅпїЅ]") or fl:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ")
+local doplata_theirs = fl:find("пїЅпїЅпїЅ") or fl:find("пїЅпїЅпїЅ")
 if doplata_theirs and not doplata_mine then
-formatted = formatted .. ". Доплата с вашей стороны"
+formatted = formatted .. ". пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"
 elseif doplata_mine and not doplata_theirs then
-formatted = formatted .. ". Доплата с моей стороны"
+formatted = formatted .. ". пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"
 end
 end
 
@@ -4101,13 +4177,13 @@ end
 return formatted
 end
 
--- Проверка онлайна (Встроенными методами)
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
 local function isPlayerOnline(nickname)
 -- Use cache for safety (render thread safe)
 return isOnlineCached(nickname)
 end
 
--- Сбор онлайн игроков
+-- пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 local function getOnlinePlayersFromDb()
 local online_list = {}
 for nick, data in pairs(player_db) do
@@ -4123,33 +4199,33 @@ end
 return online_list
 end
 
--- ===== РП-ДВИЖОК: КАСТОМНЫЕ ОТЫГРОВКИ =====
+-- ===== пїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ =====
 
--- Данные игрока (заполняются playerLogin)
+-- пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ playerLogin)
 local user = {
     nick = "", fullName = "", name = "", family = "",
     rang = 0, rangName = "", podr = "", podrNum = 0,
     phone = "", id = -1, isWork = false
 }
 
--- Данные цели (для /mmact)
+-- пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ /mmact)
 local userTarget = { id = -1, nick = "", name = "" }
 
--- Настройки РП-отыгровок
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 local rp_settings = {
     active = imgui.new.bool(false),
     wait = false,
     selected = 1,
     setList = imgui.new.int(0),
-    -- Главы: [1]=общие, [2]=мои, [3]=для цели
+    -- пїЅпїЅпїЅпїЅпїЅ: [1]=пїЅпїЅпїЅпїЅпїЅ, [2]=пїЅпїЅпїЅ, [3]=пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
     set = { [1] = {}, [2] = {}, [3] = {} },
-    -- Окно ввода/выбора
+    -- пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅпїЅ
     window = {
         type = 0, list = {},
         buf = imgui.new.char[256](""),
         select = 0, is = -1,
     },
-    -- Редактирование
+    -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     temp = {
         name = imgui.new.char[64](""),
         text = imgui.new.char[16384](""),
@@ -4157,9 +4233,9 @@ local rp_settings = {
     },
 }
 
--- Теги для отыгровок
+-- пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 local rp_tegs = {
-    {   -- Общие теги
+    {   -- пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
         {'<time>', function() return os.date('%X', os.time()) end},
         {'<date>', function() return os.date('%d.%m.%Y', os.time()) end},
         {'<myFio>', function() return user.fullName end},
@@ -4170,7 +4246,7 @@ local rp_tegs = {
         {'<myId>', function() local _, id = sampGetPlayerIdByCharHandle(PLAYER_PED); return tostring(id) end},
         {'<myPhone>', function() return user.phone end},
     },
-    {   -- Теги цели (/mmact)
+    {   -- пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ (/mmact)
         {'<tFio>', function() return userTarget.name end},
         {'<tName>', function() return (userTarget.nick):match('(.-)_') or userTarget.name end},
         {'<tNick>', function() return userTarget.nick end},
@@ -4212,143 +4288,143 @@ end
 local function initDefaultRp()
     if rp_settings.set[1] and #rp_settings.set[1] > 0 then return end
 
-    -- Глава 1: Общие отыгровки (вспомогательные — то, что НЕ срабатывает автоматически)
-    -- Авто-отыгровки (телефон, оружие, маска, аптечка) работают от событий в auto_rp
+    -- пїЅпїЅпїЅпїЅпїЅ 1: пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
+    -- пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ) пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ auto_rp
     rp_settings.set[1] = {
         {
-            name = "Закурить",
-            text = "/me достал пачку сигарет из кармана\n<600>\n/me вытащил сигарету из пачки\n<400>\n/me убрал пачку обратно в карман\n<400>\n/me поднёс зажигалку к сигарете\n<500>\n/do Сигарета зажжена, дым идёт"
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<600>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ\n<400>\n/me пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ\n<400>\n/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<500>\n/do пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅ"
         },
         {
-            name = "Затушить сигарету",
-            text = "/me бросил сигарету на землю\n<400>\n/me затушил сигарету ногой\n<300>\n/do Сигарета потушена"
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ\n<400>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ\n<300>\n/do пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"
         },
         {
-            name = "Напиться воды",
-            text = "/me достал бутылку воды\n<500>\n/me открутил крышку бутылки\n<400>\n/me сделал несколько глотков воды\n<600>\n/me закрутил крышку обратно\n<400>\n/do Бутылка убрана"
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ\n<500>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<400>\n/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ\n<600>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<400>\n/do пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"
         },
         {
-            name = "Показать паспорт",
-            text = "/me достал паспорт из внутреннего кармана\n<500>\n/me открыл паспорт на нужной странице\n<400>\n/me показал паспорт\n<800>\n/do Паспорт открыт, фото и данные видны"
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<500>\n/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<400>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<800>\n/do пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"
         },
         {
-            name = "Показать медкарту",
-            text = "/me достал медицинскую карту из папки\n<500>\n/me раскрыл медкарту\n<400>\n/me показал медкарту\n<800>\n/do Медкарта раскрыта"
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ\n<500>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<400>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<800>\n/do пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"
         },
         {
-            name = "Показать лицензии",
-            text = "/me достал папку с лицензиями\n<500>\n/me открыл папку\n<400>\n/me показал лицензии\n<800>\n/do Лицензии видны"
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<500>\n/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ\n<400>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<800>\n/do пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"
         },
         {
-            name = "Осмотреться",
-            text = "/me осмотрелся по сторонам\n<800>\n/do Внимательно изучает окружение"
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<800>\n/do пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"
         },
         {
-            name = "Достать рацию",
-            text = "/me снял рацию с пояса\n<400>\n/me нажал кнопку вызова\n<300>\n/do Рация в руке, канал активен"
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ\n<400>\n/me пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ\n<300>\n/do пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"
         },
         {
-            name = "Убрать рацию",
-            text = "/me отпустил кнопку вызова\n<300>\n/me повесил рацию на пояс\n<400>\n/do Рация на поясе"
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ\n<300>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ\n<400>\n/do пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"
         },
         {
-            name = "Заправить машину",
-            text = "/me вышел из машины\n<500>\n/me достал шланг с колонки\n<400>\n/me вставил пистолет в бензобак\n<800>\n/do Топливо поступает в бак\n<2000>\n/me вытащил пистолет из бензобака\n<400>\n/me повесил шланг обратно на колонку"
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ\n<500>\n/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<400>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<800>\n/do пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ\n<2000>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<400>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"
         },
         {
-            name = "Открыть капот",
-            text = "/me подошёл к машине\n<400>\n/me потянул за рычаг капота\n<300>\n/me открыл капот машины\n<400>\n/do Капот открыт"
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ\n<400>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ\n<300>\n/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ\n<400>\n/do пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"
         },
         {
-            name = "Закрыть капот",
-            text = "/me захлопнул капот машины\n<400>\n/do Капот закрыт"
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ\n<400>\n/do пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"
         },
         {
-            name = "Залезть в багажник",
-            text = "/me открыл багажник машины\n<400>\n/me достал нужную вещь из багажника\n<500>\n/me закрыл багажник\n<300>\n/do Багажник закрыт"
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ\n<400>\n/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<500>\n/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<300>\n/do пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"
         },
         {
-            name = "Постучать в дверь",
-            text = "/me подошёл к двери\n<400>\n/me постучал в дверь\n<500>\n/do Стук в дверь"
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ\n<400>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ\n<500>\n/do пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ"
         },
         {
-            name = "Открыть дверь дома",
-            text = "/me достал ключи из кармана\n<400>\n/me вставил ключ в замочную скважину\n<500>\n/me повернул ключ и открыл дверь\n<400>\n/me вошёл в помещение\n<300>\n/me закрыл дверь за собой"
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<400>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<500>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ\n<400>\n/me пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<300>\n/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"
         },
         {
-            name = "Выпить кофе",
-            text = "/me достал стаканчик с кофе\n<500>\n/me сделал глоток кофе\n<600>\n/do Тёплый кофе согревает\n<400>\n/me поставил стаканчик на стол"
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ\n<500>\n/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ\n<600>\n/do ТёпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<400>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ"
         },
         {
-            name = "Достать блокнот",
-            text = "/me достал блокнот из кармана\n<400>\n/me раскрыл блокнот\n<300>\n/me достал ручку\n<400>\n/do Блокнот раскрыт, ручка в руке"
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<400>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<300>\n/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ\n<400>\n/do пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ"
         },
         {
-            name = "Убрать блокнот",
-            text = "/me закрыл блокнот\n<300>\n/me убрал блокнот и ручку в карман\n<400>\n/do Блокнот в кармане"
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<300>\n/me пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ\n<400>\n/do пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"
         },
         {
-            name = "Надеть наушники",
-            text = "/me достал наушники из кармана\n<400>\n/me надел наушники на голову\n<300>\n/do Наушники надеты"
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<400>\n/me пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ\n<300>\n/do пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"
         },
         {
-            name = "Снять наушники",
-            text = "/me снял наушники с головы\n<300>\n/me убрал наушники в карман\n<400>\n/do Наушники убраны"
+            name = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ\n<300>\n/me пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ\n<400>\n/do пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"
         },
     }
 
-    -- Глава 2: Мои отыгровки (пустые — пользователь заполняет сам)
+    -- пїЅпїЅпїЅпїЅпїЅ 2: пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ)
     rp_settings.set[2] = {}
 
-    -- Глава 3: Для цели (/mmact) — сложные интерактивные отыгровки
+    -- пїЅпїЅпїЅпїЅпїЅ 3: пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ (/mmact) пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     rp_settings.set[3] = {
         {
-            name = "Проверка документов",
-            text = "/me обратился к гражданину\n<500>\nr:{Здравствуйте}{Добрый день}r, я <myRang> <myPodr>.\n<800>\n/me предъявил удостоверение\n<600>\n/do Удостоверение в руке\n<1000>\nПрошу предъявить документы.\n<0>\n/me убрал удостоверение\n<400>\n/do Ожидание ответа"
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<500>\nr:{пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ}{пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ}r, пїЅ <myRang> <myPodr>.\n<800>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<600>\n/do пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ\n<1000>\nпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.\n<0>\n/me пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<400>\n/do пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"
         },
         {
-            name = "Досмотр личности",
-            text = "/me подошёл к <tFio>\n<500>\n/me положил руку на плечо\n<400>\nr:{Стойте}{Остановитесь}r, необходимо пройти досмотр.\n<1000>\n/me достал рацию с пояса\n<400>\n/me передал данные по рации\n<800>\n/do Рация издаёт щелчок\n<600>\n/me убрал рацию на пояс"
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ <tFio>\n<500>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ\n<400>\nr:{пїЅпїЅпїЅпїЅпїЅпїЅ}{пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ}r, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.\n<1000>\n/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ\n<400>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ\n<800>\n/do пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ\n<600>\n/me пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ"
         },
         {
-            name = "Обыск",
-            text = "/me подошёл к <tFio> сзади\n<500>\n/me зафиксировал руки задержанного\n<400>\n/do Руки зафиксированы\n<600>\n/me провёл ощупывание карманов\n<800>\n/me проверил внутренние карманы\n<600>\n/me осмотрел поясницу\n<500>\n/do Обыск завершён"
+            name = "пїЅпїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ <tFio> пїЅпїЅпїЅпїЅпїЅ\n<500>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<400>\n/do пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<600>\n/me пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<800>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<600>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<500>\n/do пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"
         },
         {
-            name = "Задержание",
-            text = "/me резким движением заломил руку <tFio>\n<500>\n/do Рука заломлена за спину\n<400>\n/me достал наручники с пояса\n<300>\n/me надел наручники на запястья\n<500>\n/do Наручники надеты, руки зафиксированы\n<400>\nВы задержаны. Следуйте за мной."
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ <tFio>\n<500>\n/do пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ\n<400>\n/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ\n<300>\n/me пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<500>\n/do пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<400>\nпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ."
         },
         {
-            name = "Посадить в машину",
-            text = "/me открыл заднюю дверь патрульной машины\n<500>\n/me надавил на голову <tFio>, усаживая в салон\n<600>\n/do Задержанный в салоне\n<400>\n/me закрыл дверь машины\n<300>\n/do Дверь закрыта"
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ\n<500>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ <tFio>, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ\n<600>\n/do пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ\n<400>\n/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ\n<300>\n/do пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"
         },
         {
-            name = "Высадить из машины",
-            text = "/me открыл дверь машины\n<400>\n/me взял <tFio> за руку\n<400>\n/me помог выйти из салона\n<500>\n/do Задержанный на улице"
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ\n<400>\n/me пїЅпїЅпїЅпїЅ <tFio> пїЅпїЅ пїЅпїЅпїЅпїЅ\n<400>\n/me пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ\n<500>\n/do пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"
         },
         {
-            name = "Штраф",
-            text = "/me подошёл к <tFio>\n<400>\n/me достал блокнот с квитанциями\n<500>\n/me заполнил квитанцию\n<800>\n/me оторвал квитанцию от блокнота\n<400>\n/me протянул квитанцию\n<600>\n/do Квитанция передана"
+            name = "пїЅпїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ <tFio>\n<400>\n/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<500>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<800>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<400>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<600>\n/do пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"
         },
         {
-            name = "Медосмотр",
-            text = "/me подошёл к <tFio>\n<400>\n/me достал стетоскоп\n<500>\n/me приложил стетоскоп к груди\n<800>\n/do Слушает сердцебиение\n<600>\n/me убрал стетоскоп\n<400>\n/me достал тонометр\n<500>\n/me измерил давление\n<800>\n/do Давление измерено"
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ <tFio>\n<400>\n/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<500>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ\n<800>\n/do пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<600>\n/me пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<400>\n/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<500>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<800>\n/do пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"
         },
         {
-            name = "Лечение",
-            text = "/me достал аптечку\n<500>\n/me открыл аптечку\n<400>\n/me достал бинт\n<300>\n/me обработал рану <tFio>\n<800>\n/me наложил повязку\n<600>\n/do Рана обработана, повязка наложена\n<400>\n/me убрал аптечку"
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<500>\n/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<400>\n/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ\n<300>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ <tFio>\n<800>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<600>\n/do пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<400>\n/me пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"
         },
         {
-            name = "Допрос",
-            text = "/me сел напротив <tFio>\n<500>\n/me достал блокнот и ручку\n<400>\n/do Блокнот раскрыт\n<600>\nr:{Расскажите}{Объясните}r, что произошло.\n<0>\n/me записал показания в блокнот\n<800>\n/do Ручка скрипит по бумаге"
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ <tFio>\n<500>\n/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ\n<400>\n/do пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<600>\nr:{пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ}{пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ}r, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.\n<0>\n/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<800>\n/do пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"
         },
         {
-            name = "Приветствие цели",
-            text = "/me подошёл к <tFio>\n<400>\nr:{Здравствуйте}{Приветствую}{Добрый день}r.\n<800>\n/do Лёгкий кивок головой"
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ <tFio>\n<400>\nr:{пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ}{пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ}{пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ}r.\n<800>\n/do ЛёпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"
         },
         {
-            name = "Рукопожатие",
-            text = "/me протянул руку <tFio>\n<500>\n/me пожал руку\n<400>\n/do Крепкое рукопожатие"
+            name = "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ",
+            text = "/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ <tFio>\n<500>\n/me пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ\n<400>\n/do пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"
         },
     }
 
@@ -4367,11 +4443,11 @@ local function loadRpSettings()
             end
         end
     end
-    -- Если файл пустой или нет — загружаем дефолтные отыгровки
+    -- пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     initDefaultRp()
 end
 
--- playerLogin: авто-определение фракции/ранга/подразделения
+-- playerLogin: пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 local function playerLogin()
     if rp_reading_stats then return end
     rp_reading_stats = true
@@ -4380,26 +4456,26 @@ local function playerLogin()
 
     lua_thread.create(function()
         wait(500)
-        -- Сначала пробуем /stats напрямую (быстрее)
+        -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ /stats пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
         sampSendChat("/stats")
 
         local timer = os.time() + 3
         while rp_stats_step == "waiting" and os.time() < timer do wait(100) end
 
-        -- Если /stats не открыл статистику — пробуем через /mn
+        -- пїЅпїЅпїЅпїЅ /stats пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ /mn
         if rp_stats_step == "waiting" then
             sampSendChat("/mn")
             timer = os.time() + 5
             while rp_stats_step == "waiting" and os.time() < timer do wait(100) end
         end
 
-        -- Если открылось меню — ждём пока пройдём через него к статистике
+        -- пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         if rp_stats_step == "menu" then
             timer = os.time() + 5
             while rp_stats_step ~= "done" and os.time() < timer do wait(100) end
         end
 
-        -- Ждём получения текста статистики
+        -- пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         timer = os.time() + 5
         while rp_stats_step == "stats" and os.time() < timer do wait(100) end
 
@@ -4407,28 +4483,28 @@ local function playerLogin()
             local id_ok2, pid = sampGetPlayerIdByCharHandle(PLAYER_PED)
             if not id_ok2 then return end
             user.nick = sampGetPlayerNickname(pid)
-            user.rang = tonumber(rp_stats_text:match("Ранг:%s*{.-}(%d+)") or "0")
-            user.podr = rp_stats_text:match("Подразделение:%s*{.-}(.-)\n") or ""
-            user.rangName = rp_stats_text:match("Должность:%s*{.-}(.-)\n") or ""
-            user.phone = rp_stats_text:match("Телефон:%s*{.-}(%d+)") or ""
+            user.rang = tonumber(rp_stats_text:match("пїЅпїЅпїЅпїЅ:%s*{.-}(%d+)") or "0")
+            user.podr = rp_stats_text:match("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ:%s*{.-}(.-)\n") or ""
+            user.rangName = rp_stats_text:match("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ:%s*{.-}(.-)\n") or ""
+            user.phone = rp_stats_text:match("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ:%s*{.-}(%d+)") or ""
 
             user.fullName = (user.nick):gsub('_', ' ')
             user.name = (user.fullName):match('(.-) .-') or user.fullName
             user.family = (user.fullName):match('.- (.-)') or ""
-            user.isWork = not rp_stats_text:find("Уволен")
+            user.isWork = not rp_stats_text:find("пїЅпїЅпїЅпїЅпїЅпїЅ")
 
             local pl = user.podr:lower()
-            if pl:find("полиц") or pl:find("пд") then user.podrNum = 1
-            elseif pl:find("фсб") or pl:find("фсин") then user.podrNum = 2
-            elseif pl:find("мчс") or pl:find("больниц") or pl:find("мед") then user.podrNum = 3
-            elseif pl:find("арм") or pl:find("мо") then user.podrNum = 4
-            elseif pl:find("фбр") then user.podrNum = 5
+            if pl:find("пїЅпїЅпїЅпїЅпїЅ") or pl:find("пїЅпїЅ") then user.podrNum = 1
+            elseif pl:find("пїЅпїЅпїЅ") or pl:find("пїЅпїЅпїЅпїЅ") then user.podrNum = 2
+            elseif pl:find("пїЅпїЅпїЅ") or pl:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or pl:find("пїЅпїЅпїЅ") then user.podrNum = 3
+            elseif pl:find("пїЅпїЅпїЅ") or pl:find("пїЅпїЅ") then user.podrNum = 4
+            elseif pl:find("пїЅпїЅпїЅ") then user.podrNum = 5
             else user.podrNum = 0 end
 
             user.id = pid
-            sampAddChatMessage("[Helper] РП-данные загружены: " .. user.fullName .. " | " .. user.rangName .. " | " .. user.podr, 0x00FF00)
+            sampAddChatMessage("[Helper] пїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: " .. user.fullName .. " | " .. user.rangName .. " | " .. user.podr, 0x00FF00)
         else
-            sampAddChatMessage("[Helper] Не удалось прочитать статистику. Попробуйте /rplogin", 0xFF0000)
+            sampAddChatMessage("[Helper] пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ /rplogin", 0xFF0000)
         end
         rp_reading_stats = false
         rp_stats_step = "done"
@@ -4441,7 +4517,7 @@ local function stopRp()
         local status = rp_thread:status()
         if status ~= "dead" then
             rp_thread:terminate()
-            sampAddChatMessage("[Helper] Отыгровка остановлена", 0xFFAA00)
+            sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", 0xFFAA00)
         end
     end
     rp_settings.active[0] = false
@@ -4451,7 +4527,7 @@ end
 
 local function playRp(text, test)
     if rp_settings.active[0] then
-        lua_thread.create(function() sampAddChatMessage("[Helper] Отыгровка уже выполняется. /mmstop для остановки", 0xFF0000) end)
+        lua_thread.create(function() sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. /mmstop пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", 0xFF0000) end)
         return
     end
     rp_settings.active[0] = true
@@ -4464,7 +4540,7 @@ local function playRp(text, test)
 
         text = text .. '\n'
 
-        -- Рандомизация r:{...}{...}:r
+        -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ r:{...}{...}:r
         for line in string.gmatch(text, 'r:(.-):r') do
             local randText = {}
             for rand in string.gmatch(line, '{(.-)}') do
@@ -4476,7 +4552,7 @@ local function playRp(text, test)
             end
         end
 
-        -- Замена тегов
+        -- пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
         for i = 1, rp_sum_tegs do
             if rp_tegs[1][i] then
                 local textTeg = test and (rp_tegs[1][i][1] .. ":OK") or rp_tegs[1][i][2]()
@@ -4491,20 +4567,20 @@ local function playRp(text, test)
         end
 
         if test then
-            sampAddChatMessage("[Helper] Тест отыгровки. Теги заменены на <тег>:OK", 0x00FF00)
+            sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ <пїЅпїЅпїЅ>:OK", 0x00FF00)
         end
 
-        -- Построчная обработка
+        -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         for line in string.gmatch(text, '(.-)\n') do
             if line == '' then goto skip end
             if not rp_settings.active[0] then break end
 
-            -- Пауза <N>
+            -- пїЅпїЅпїЅпїЅпїЅ <N>
             if line:find('^<%d+>') then
                 local time = tonumber(line:match('<(%d+)>'))
                 if time == 0 then
                     rp_settings.wait = true
-                    sampAddChatMessage("[Helper] Пауза. /mmnext - продолжить, /mmstop - остановить", 0xFFAA00)
+                    sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅпїЅ. /mmnext - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, /mmstop - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", 0xFFAA00)
                     while rp_settings.wait and rp_settings.active[0] do wait(0) end
                 else
                     wait(time)
@@ -4512,7 +4588,7 @@ local function playRp(text, test)
                 goto skip
             end
 
-            -- Окно ввода #input:
+            -- пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ #input:
             if line:find('^#input:') then
                 rp_settings.window.type = 1
                 rp_settings.window.is = 1
@@ -4522,7 +4598,7 @@ local function playRp(text, test)
                 goto skip
             end
 
-            -- Окно выбора #list: {a}{b}{c}
+            -- пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ #list: {a}{b}{c}
             if line:find('^#list:') then
                 rp_settings.window.type = 2
                 rp_settings.window.is = 1
@@ -4535,13 +4611,13 @@ local function playRp(text, test)
                 goto skip
             end
 
-            -- Закрыть окно #close:
+            -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ #close:
             if line:find('^#close:') then
                 rp_settings.window.is = -1
                 goto skip
             end
 
-            -- Подстановка {w}
+            -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ {w}
             if rp_settings.window.is == 2 and line:find('{w}') then
                 if rp_settings.window.type == 1 then
                     local bufText = u8:decode(ffi.string(rp_settings.window.buf))
@@ -4551,7 +4627,7 @@ local function playRp(text, test)
                 end
             end
 
-            -- Отправка строки
+            -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
             if test then
                 sampAddChatMessage("[TEST] " .. line, 0x00FFAA)
             else
@@ -4568,46 +4644,46 @@ local function playRp(text, test)
         if not ok then
             sampAddChatMessage("[Helper] RP error: " .. tostring(err), 0xFF0000)
         elseif not test then
-            sampAddChatMessage("[Helper] Отыгровка завершена", 0x00FF00)
+            sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", 0x00FF00)
         end
     end)
 end
 
--- /mmact [id] — выбор цели для отыгровки
+-- /mmact [id] пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 local function cmdAct(text)
     local id = tonumber(text:match('(%d+)'))
     if not id then
-        sampAddChatMessage("[Helper] Используйте: /mmact [id]", 0xFFAA00)
+        sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: /mmact [id]", 0xFFAA00)
         return
     end
     local res, handle = sampGetCharHandleBySampPlayerId(id)
     if not res then
-        sampAddChatMessage("[Helper] Игрок не найден", 0xFF0000)
+        sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ", 0xFF0000)
         return
     end
     local x1, y1 = getCharCoordinates(PLAYER_PED)
     local x2, y2 = getCharCoordinates(handle)
     if math.sqrt((x1-x2)^2 + (y1-y2)^2) > 5 then
-        sampAddChatMessage("[Helper] Игрок слишком далеко. Подойдите ближе.", 0xFF0000)
+        sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ.", 0xFF0000)
         return
     end
     userTarget.id = id
     userTarget.nick = sampGetPlayerNickname(id)
     userTarget.name = userTarget.nick:gsub('_', ' ')
     rp_show_window[0] = true
-    sampAddChatMessage("[Helper] Цель: " .. userTarget.name .. " [ID:" .. id .. "]", 0x00FF00)
+    sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅ: " .. userTarget.name .. " [ID:" .. id .. "]", 0x00FF00)
 end
 
--- ===== КОНЕЦ РП-ДВИЖКА =====
+-- ===== пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ =====
 
 
--- ===== СМИ-ФУНКЦИИ =====
+-- ===== пїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅ =====
 
--- Анаграммы: список слов для радио/ТВ игр
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ/пїЅпїЅ пїЅпїЅпїЅ
 local anag_words = {
-    [1] = {"приветствие", "радиовещание", "интервью", "репортаж", "новости", "корреспондент", "студия", "микрофон", "эфир", "слушатель"},
-    [2] = {"телефон", "звонок", "абонент", "сообщение", "связь", "оператор", "мобильный", "вызов", "голос", "ответ"},
-    [3] = {"газета", "статья", "редактор", "публикация", "заголовок", "журналист", "пресса", "выпуск", "колонка", "обзор"},
+    [1] = {"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"},
+    [2] = {"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅ"},
+    [3] = {"пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", "пїЅпїЅпїЅпїЅпїЅ"},
 }
 
 local anag_active = false
@@ -4620,7 +4696,7 @@ local function createAnagram(word, separator, firstLetter)
     for i = 1, #word do
         letters[i] = word:sub(i, i)
     end
-    -- Перемешивание
+    -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     for i = 1, #letters do
         local j = math.random(#letters)
         letters[i], letters[j] = letters[j], letters[i]
@@ -4634,12 +4710,12 @@ end
 local function startAnagram(type_num)
     type_num = tonumber(type_num) or 1
     if type_num < 1 or type_num > 3 then
-        sampAddChatMessage("[Helper] Использование: /anag [1-3] (1=слова, 2=телефон, 3=газета)", 0xFFAA00)
+        sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: /anag [1-3] (1=пїЅпїЅпїЅпїЅпїЅ, 2=пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, 3=пїЅпїЅпїЅпїЅпїЅпїЅ)", 0xFFAA00)
         return
     end
     local words = anag_words[type_num]
     if not words or #words == 0 then
-        sampAddChatMessage("[Helper] Нет слов для анаграммы типа " .. type_num, 0xFF0000)
+        sampAddChatMessage("[Helper] пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ " .. type_num, 0xFF0000)
         return
     end
     local word = words[math.random(1, #words)]
@@ -4648,91 +4724,91 @@ local function startAnagram(type_num)
     anag_current_result = anagram
     anag_active = true
 
-    -- Вставляем в чат
+    -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ
     sampSetChatInputEnabled(true)
     local prefix = ""
-    if user.podr and user.podr:lower():find("радио") then
+    if user.podr and user.podr:lower():find("пїЅпїЅпїЅпїЅпїЅ") then
         prefix = "/t "
-    elseif user.podr and user.podr:lower():find("центр") then
+    elseif user.podr and user.podr:lower():find("пїЅпїЅпїЅпїЅпїЅ") then
         prefix = "/u "
     end
     sampSetChatInputText(prefix .. anagram)
-    sampAddChatMessage("[Helper] Анаграмма: " .. anagram .. " (слово: " .. word .. ")", 0x00FF00)
+    sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: " .. anagram .. " (пїЅпїЅпїЅпїЅпїЅ: " .. word .. ")", 0x00FF00)
 end
 
--- tvlift: лифт в ТВ-башне
+-- tvlift: пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ
 local tvlift_active = false
 local function cmdTvlift(floor_str)
     local floor = tonumber(floor_str)
     if not floor then
-        sampAddChatMessage("[Helper] Использование: /tvlf [этаж 1-21]", 0xFFAA00)
+        sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: /tvlf [пїЅпїЅпїЅпїЅ 1-21]", 0xFFAA00)
         return
     end
-    -- Проверка позиции (ТВ-башня в SF)
+    -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ пїЅ SF)
     local x, y, z = getCharCoordinates(PLAYER_PED)
-    -- Зона ТВ-башни: примерно 1839, -1264, 13
+    -- пїЅпїЅпїЅпїЅ пїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 1839, -1264, 13
     if not isCharInArea3d(PLAYER_PED, 1839.5557, -1264.6527, 13.4299, 1765.8602, -1319.9817, 134.1671, false) then
-        sampAddChatMessage("[Helper] Вы должны находиться рядом с лифтом ТВ-башни.", 0xFF0000)
+        sampAddChatMessage("[Helper] пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ.", 0xFF0000)
         return
     end
     if floor < 1 or floor > 21 then
-        sampAddChatMessage("[Helper] Этаж должен быть от 1 до 21.", 0xFF0000)
+        sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ 1 пїЅпїЅ 21.", 0xFF0000)
         return
     end
-    local sex = user.name and user.name:sub(-1):lower() == "а" and "ла" or "л"
-    sampSendChat("/me нажа" .. sex .. " на кнопку лифта, выбрав " .. floor .. " этаж")
+    local sex = user.name and user.name:sub(-1):lower() == "пїЅ" and "пїЅпїЅ" or "пїЅ"
+    sampSendChat("/me пїЅпїЅпїЅпїЅ" .. sex .. " пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ " .. floor .. " пїЅпїЅпїЅпїЅ")
     tvlift_active = true
     sampSendChat("/tvlift")
 end
 
--- uninvite: увольнение с РП-отыгровкой
+-- uninvite: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 local function cmdUninvite(arg)
     local id, reason = arg:match("^(%d+)%s+(.*)")
     if not id then
-        sampAddChatMessage("[Helper] Использование: /uninv [id] [причина]", 0xFFAA00)
+        sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: /uninv [id] [пїЅпїЅпїЅпїЅпїЅпїЅпїЅ]", 0xFFAA00)
         return
     end
     id = tonumber(id)
     if not sampIsPlayerConnected(id) then
-        sampAddChatMessage("[Helper] Игрок не подключен к серверу.", 0xFF0000)
+        sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.", 0xFF0000)
         return
     end
     local nick = sampGetPlayerNickname(id)
     local name = nick:gsub('_', ' ')
 
     lua_thread.create(function()
-        -- РП-отыгровка увольнения
-        sampSendChat("/me достал папку с личными делами сотрудников")
+        -- пїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+        sampSendChat("/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ")
         wait(800)
-        sampSendChat("/me открыл папку и нашёл дело " .. name)
+        sampSendChat("/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ " .. name)
         wait(800)
-        sampSendChat("/do Папка раскрыта на нужной странице")
+        sampSendChat("/do пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ")
         wait(600)
-        sampSendChat("/me выписал заявление на увольнение")
+        sampSendChat("/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ")
         wait(800)
-        sampSendChat("/me поставил подпись и печать на заявлении")
+        sampSendChat("/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ")
         wait(600)
-        sampSendChat("/me убрал папку в шкаф")
+        sampSendChat("/me пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ")
         wait(500)
-        -- Сообщение в рацию
+        -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ
         if user.podr and user.podr ~= "" then
-            sampSendChat("/r Сотрудник " .. name .. " уволен. Причина: " .. reason)
+            sampSendChat("/r пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ " .. name .. " пїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅ: " .. reason)
             wait(300)
         end
-        -- Само увольнение
+        -- пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         sampSendChat("/uninvite " .. id .. " " .. reason)
-        sampAddChatMessage("[Helper] Увольнение " .. name .. " выполнено. Причина: " .. reason, 0x00FF00)
+        sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ " .. name .. " пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅ: " .. reason, 0x00FF00)
     end)
 end
 
--- Эфир: авто-отыгровка начала/конца эфира
+-- пїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 local efir_active = false
-local efir_start_text = "/me надел наушники и настроил микрофон\n<800>\n/do Микрофон включён, наушники надеты\n<500>\n/efir"
-local efir_end_text = "/me снял наушники\n<500>\n/do Наушники сняты, микрофон выключен\n<400>\n/efir"
+local efir_start_text = "/me пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<800>\n/do пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ\n<500>\n/efir"
+local efir_end_text = "/me пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<500>\n/do пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\n<400>\n/efir"
 
 local function cmdEfir()
     if efir_active then
-        sampAddChatMessage("[Helper] Эфир уже активен. Используйте /mmstop для остановки.", 0xFFAA00)
+        sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ /mmstop пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.", 0xFFAA00)
         return
     end
     efir_active = true
@@ -4741,12 +4817,12 @@ local function cmdEfir()
     efir_stats.calls = 0
     efir_stats.lines = 0
     playRp(efir_start_text, false)
-    sampAddChatMessage("[Helper] Эфир начат. /endefir для завершения.", 0x00FF00)
+    sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ. /endefir пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.", 0x00FF00)
 end
 
 local function cmdEndEfir()
     if not efir_active then
-        sampAddChatMessage("[Helper] Эфир не активен.", 0xFFAA00)
+        sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.", 0xFFAA00)
         return
     end
     playRp(efir_end_text, false)
@@ -4755,20 +4831,20 @@ local function cmdEndEfir()
     efir_stats.sms = 0
     efir_stats.calls = 0
     efir_stats.lines = 0
-    sampAddChatMessage("[Helper] Эфир завершён.", 0x00FF00)
+    sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.", 0x00FF00)
 end
 
--- /find: поиск сотрудников с парсингом диалога
+-- /find: пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 local find_list = {}
 local find_selected = 0
 local find_show = imgui.new.bool(false)
 
 local function cmdFind()
     sampSendChat("/find")
-    sampAddChatMessage("[Helper] Ожидание диалога поиска сотрудников...", 0x00FF00)
+    sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ...", 0x00FF00)
 end
 
--- Чёрный список СМИ
+-- ЧёпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ
 local blacklist_data = {}
 local blacklist_show = imgui.new.bool(false)
 local blacklist_url = ""
@@ -4799,7 +4875,7 @@ local function addBlacklistNick(nick, reason)
     nick = nick:lower()
     blacklist_data[nick] = { reason = reason or "", added = os.date("%d.%m.%Y") }
     saveBlacklist()
-    sampAddChatMessage("[Helper] " .. nick .. " добавлен в чёрный список", 0x00FF00)
+    sampAddChatMessage("[Helper] " .. nick .. " пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ", 0x00FF00)
 end
 
 local function removeBlacklistNick(nick)
@@ -4807,9 +4883,9 @@ local function removeBlacklistNick(nick)
     if blacklist_data[nick] then
         blacklist_data[nick] = nil
         saveBlacklist()
-        sampAddChatMessage("[Helper] " .. nick .. " удалён из чёрного списка", 0x00FF00)
+        sampAddChatMessage("[Helper] " .. nick .. " пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ", 0x00FF00)
     else
-        sampAddChatMessage("[Helper] " .. nick .. " не найден в чёрном списке", 0xFFAA00)
+        sampAddChatMessage("[Helper] " .. nick .. " пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ", 0xFFAA00)
     end
 end
 
@@ -4818,61 +4894,61 @@ local function checkBlacklistNick(nick)
     return blacklist_data[nick:lower()] ~= nil
 end
 
--- Эфир-статистика
+-- пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 local efir_stats = { sms = 0, calls = 0, lines = 0, start_time = 0 }
 
 local function cmdEfirStats()
     if efir_stats.start_time == 0 then
-        sampAddChatMessage("[Helper] Эфир ещё не начат. /mmefir для старта.", 0xFFAA00)
+        sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ. /mmefir пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ.", 0xFFAA00)
         return
     end
     local elapsed = os.time() - efir_stats.start_time
     local mins = math.floor(elapsed / 60)
     local secs = elapsed % 60
-    sampAddChatMessage(string.format("[Helper] Эфир-статистика: %dм %dс | SMS: %d | Звонки: %d | Строк: %d",
+    sampAddChatMessage(string.format("[Helper] пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: %dпїЅ %dпїЅ | SMS: %d | пїЅпїЅпїЅпїЅпїЅпїЅ: %d | пїЅпїЅпїЅпїЅпїЅ: %d",
         mins, secs, efir_stats.sms, efir_stats.calls, efir_stats.lines), 0x00FFCC)
 end
 
--- Авто-ответ на звонки в эфире
+-- пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ
 local auto_answer_enabled = imgui.new.bool(false)
-local auto_answer_text = imgui.new.char[256]("")
+local auto_answer_text = imgui.new.char[257]("")
 
 local function cmdAutoAnswer(arg)
     if arg and arg ~= "" then
         safeStrCopy(auto_answer_text, u8:encode(arg, encoding.default), ffi.sizeof(auto_answer_text))
         auto_answer_enabled[0] = not auto_answer_enabled[0]
         if auto_answer_enabled[0] then
-            sampAddChatMessage("[Helper] Авто-ответ включён: " .. arg, 0x00FF00)
+            sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ: " .. arg, 0x00FF00)
         else
-            sampAddChatMessage("[Helper] Авто-ответ выключен", 0xFFAA00)
+            sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", 0xFFAA00)
         end
     else
         auto_answer_enabled[0] = not auto_answer_enabled[0]
         if auto_answer_enabled[0] then
             local txt = u8:decode(ffi.string(auto_answer_text))
-            sampAddChatMessage("[Helper] Авто-ответ включён: " .. txt, 0x00FF00)
+            sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ: " .. txt, 0x00FF00)
         else
-            sampAddChatMessage("[Helper] Авто-ответ выключен", 0xFFAA00)
+            sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", 0xFFAA00)
         end
     end
 end
 
--- ===== КОНЕЦ СМИ-ФУНКЦИЙ =====
--- СПИСОК МОДУЛЕЙ
+-- ===== пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅ =====
+-- пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 modules = {
 {
 id = "autocall_db",
-name = u8" Сбор и Обзвон",
-description = u8"Скрипт автоматически сканирует чат СМИ на сервере, извлекает ники продавцов и их номера телефонов, сохраняя их в базу.\nЗатем вы можете в 1 клик прозвонить 1-3 случайных игроков, которые сейчас ОНЛАЙН, без спама одним и тем же лицам.",
+name = u8" пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ",
+description = u8"пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ.\nпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ 1 пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 1-3 пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ.",
 enabled = false,
 drawSettings = function()
 local total_records = 0
 for _ in pairs(player_db) do total_records = total_records + 1 end
 
-imgui.TextUnformatted(u8"Статистика:")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ:")
 imgui.Bullet()
 imgui.SameLine()
-imgui.TextUnformatted(u8"Всего контактов в базе: " .. total_records)
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ: " .. total_records)
 
 if os.time() - online_list_cache_time > 3 then
     online_list_cache = getOnlinePlayersFromDb()
@@ -4881,21 +4957,21 @@ end
 local online_list = online_list_cache
 imgui.Bullet()
 imgui.SameLine()
-imgui.TextUnformatted(u8"Контактов онлайн прямо сейчас: " .. #online_list)
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ: " .. #online_list)
 
 imgui.Spacing()
 imgui.Separator()
 imgui.Spacing()
 
-imgui.TextUnformatted(u8"Настройки обзвона:")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ:")
 imgui.PushItemWidth(150)
-imgui.SliderInt(u8"Задержка вызова (мс)", call_delay, 2000, 15000)
-imgui.InputInt(u8"Лимит звонков за сессию", max_calls_session)
-imgui.InputInt(u8"Не звонить человека (часов)", call_cooldown_hours, 0, 24)
+imgui.SliderInt(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅ)", call_delay, 2000, 15000)
+imgui.InputInt(u8"пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ", max_calls_session)
+imgui.InputInt(u8"пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅ)", call_cooldown_hours, 0, 24)
 imgui.PopItemWidth()
-if imgui.Checkbox(u8"Не повторять звонки (история)", call_no_repeat) then lua_thread.create(function() saveSettings() end) end
+if imgui.Checkbox(u8"пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅ)", call_no_repeat) then lua_thread.create(function() saveSettings() end) end
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
-imgui.TextUnformatted(u8"Если включено — не звонит тем, кого уже звонил. Кулдаун игнорируется. Сброс — кнопка ниже.")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ.")
 imgui.PopStyleColor()
 
 imgui.Spacing()
@@ -4912,22 +4988,22 @@ else
     end
 end
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.7, 0.7, 1, 1))
-imgui.TextUnformatted(u8"Прогресс:")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ:")
 imgui.PopStyleColor()
 imgui.Bullet()
 imgui.SameLine()
-imgui.TextUnformatted(u8"Позвонили за время кулдауна: " .. called_recently)
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: " .. called_recently)
 
 imgui.Spacing()
-if imgui.Button(u8"Сбросить историю звонков") then
+if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ") then
 last_called_queue = {{nick = "__CLEAR__", time = 0}}
-lua_thread.create(function() saveSettings() sampAddChatMessage("[Helper] История звонков сброшена", 0x00FF00) end)
+lua_thread.create(function() saveSettings() sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", 0x00FF00) end)
 end
 imgui.SameLine()
-if imgui.Button(u8"Очистить БД") then
+if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ") then
 player_db_queue = {{sender = "__CLEAR__", phone = ""}}
 last_called_queue = {{nick = "__CLEAR__", time = 0}}
-lua_thread.create(function() saveDatabase() saveSettings() sampAddChatMessage("[Helper] БА очищена", 0x00FF00) end)
+lua_thread.create(function() saveDatabase() saveSettings() sampAddChatMessage("[Helper] пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", 0x00FF00) end)
 end
 
 imgui.Spacing()
@@ -4936,16 +5012,16 @@ imgui.Spacing()
 
 if call_active then
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0, 1, 0, 1))
-imgui.TextUnformatted(u8"Статус: Идет обзвон...")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ...")
 imgui.PopStyleColor()
-imgui.TextUnformatted(u8"Звоним: " .. u8:encode(call_current_nick) .. " (" .. call_current_phone .. ")")
-if imgui.Button(u8"Остановить обзвон") then call_active = false end
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅ: " .. u8:encode(call_current_nick) .. " (" .. call_current_phone .. ")")
+if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ") then call_active = false end
 else
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(1, 0.5, 0, 1))
-imgui.TextUnformatted(u8"Статус: Ожидание")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ")
 imgui.PopStyleColor()
 if #online_list > 0 then
-if imgui.Button(u8" Обзвонить онлайн-игроков") then
+if imgui.Button(u8" пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅ") then
 if not call_worker_running then
 call_active = true
 call_worker_running = true
@@ -4955,7 +5031,7 @@ end
 end
 else
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.6, 0.6, 0.6, 1))
-imgui.TextUnformatted(u8"Нет контактов онлайн для обзвона")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ")
 imgui.PopStyleColor()
 end
 end
@@ -4964,7 +5040,7 @@ imgui.Spacing()
 imgui.Separator()
 imgui.Spacing()
 
-imgui.TextUnformatted(u8"Последние собранные объявления:")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ:")
 -- Cache sorted list, rebuild every 3 seconds (not every frame!)
 if os.time() - db_sorted_cache_time > 3 then
     db_sorted_cache = {}
@@ -4976,7 +5052,7 @@ if os.time() - db_sorted_cache_time > 3 then
 end
 local db_show = math.min(#db_sorted_cache, 20)
 if #db_sorted_cache > 20 then
-    imgui.TextUnformatted(u8"Показано первых 20 из " .. #db_sorted_cache .. " контактов")
+    imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ 20 пїЅпїЅ " .. #db_sorted_cache .. " пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ")
 end
 imgui.Spacing()
 for i = 1, db_show do
@@ -4989,7 +5065,7 @@ imgui.Spacing()
 imgui.Separator()
 imgui.Spacing()
 
-if imgui.Button(u8"Показать историю звонков") then
+if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ") then
     call_history_show[0] = not call_history_show[0]
 end
 
@@ -4998,10 +5074,10 @@ if call_history_show[0] then
     local hist_count = 0
     for _ in pairs(last_called) do hist_count = hist_count + 1 end
     imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.7, 0.7, 1, 1))
-    imgui.TextUnformatted(u8"История звонков (" .. hist_count .. "):")
+    imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (" .. hist_count .. "):")
     imgui.PopStyleColor()
     if hist_count == 0 then
-        imgui.TextUnformatted(u8"История пуста.")
+        imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ.")
     else
         local sorted = {}
         for nick, t in pairs(last_called) do
@@ -5025,15 +5101,15 @@ end
 },
 {
 id = "auto_ad",
-name = u8" Авто-Объявления",
-description = u8"Автоматически отправляет объявления с заданным интервалом. Поддерживает шаблоны и историю.",
+name = u8" пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ",
+description = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.",
 enabled = false,
 drawSettings = function()
-    static_aad_buf = static_aad_buf or imgui.new.char[128]("")
+    static_aad_buf = static_aad_buf or imgui.new.char[129]("")
     safeStrCopy(static_aad_buf, u8:encode(aad_text), ffi.sizeof(static_aad_buf))
 static_aad_active = static_aad_active or imgui.new.bool(false)
     static_aad_active[0] = aad_active
-    if imgui.Checkbox(u8"Активировать авто-объявления##checkbox_aad", static_aad_active) then
+    if imgui.Checkbox(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ##checkbox_aad", static_aad_active) then
         aad_active = static_aad_active[0]
         if aad_active then
             aad_text = u8:decode(ffi.string(static_aad_buf))
@@ -5042,15 +5118,15 @@ static_aad_active = static_aad_active or imgui.new.bool(false)
     end
 
     imgui.PushItemWidth(350)
-    if imgui.InputText(u8"Текст объявления##input_aad", static_aad_buf, 128) then
+    if imgui.InputText(u8"пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ##input_aad", static_aad_buf, 129) then
         aad_text = u8:decode(ffi.string(static_aad_buf))
     end
-    if imgui.SliderInt(u8"Интервал между подачами (мс)##delay_aad", aad_delay, 3000, 30000) then lua_thread.create(function() saveSettings() end) end
+    if imgui.SliderInt(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅ)##delay_aad", aad_delay, 3000, 30000) then lua_thread.create(function() saveSettings() end) end
     imgui.PopItemWidth()
 
     imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
 
-    imgui.TextUnformatted(u8"-> Вы можете также использовать команду: /aad [текст]")
+    imgui.TextUnformatted(u8"-> пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ: /aad [пїЅпїЅпїЅпїЅпїЅ]")
 
     imgui.PopStyleColor()
     imgui.Spacing()
@@ -5061,11 +5137,11 @@ static_aad_active = static_aad_active or imgui.new.bool(false)
 
     imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.3, 0.8, 1, 1))
 
-    imgui.TextUnformatted(u8"Шаблоны объявлений:")
+    imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ:")
 
     imgui.PopStyleColor()
     imgui.SameLine()
-    if imgui.Button(u8"Добавить##add_tpl", imgui.ImVec2(70, 20)) then
+    if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ##add_tpl", imgui.ImVec2(70, 20)) then
         local current_str = ffi.string(static_aad_buf)  -- UTF-8 for ImGui display
         if current_str ~= "" then
             local exists = false
@@ -5083,9 +5159,9 @@ static_aad_active = static_aad_active or imgui.new.bool(false)
     if #aad_templates > 0 then
         for idx, tpl in ipairs(aad_templates) do
             imgui.PushIDStr("tpl_" .. idx)
-            if imgui.Button(u8"Выбрать") then
-                for i = 0, 127 do static_aad_buf[i] = 0 end
-                if #tpl < 127 then ffi.copy(static_aad_buf, tpl) end
+            if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ") then
+                for i = 0, 128 do static_aad_buf[i] = 0 end
+                if #tpl < 128 then ffi.copy(static_aad_buf, tpl) end
                 aad_text = u8:decode(tpl)  -- UTF-8 -> CP1251 for sending
                 lua_thread.create(function() saveSettings() end)
             end
@@ -5102,7 +5178,7 @@ static_aad_active = static_aad_active or imgui.new.bool(false)
         end
     else
         imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
-        imgui.TextUnformatted(u8"Нет сохраненных шаблонов.")
+        imgui.TextUnformatted(u8"пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.")
         imgui.PopStyleColor()
     end
     imgui.EndChild()
@@ -5111,11 +5187,11 @@ static_aad_active = static_aad_active or imgui.new.bool(false)
 
     imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(1, 0.7, 0.3, 1))
 
-    imgui.TextUnformatted(u8"История объявлений:")
+    imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ:")
 
     imgui.PopStyleColor()
     imgui.SameLine()
-    if imgui.Button(u8"Очистить##clear_hist", imgui.ImVec2(70, 20)) then
+    if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ##clear_hist", imgui.ImVec2(70, 20)) then
         aad_history = {}
         lua_thread.create(function() saveSettings() end)
     end
@@ -5124,9 +5200,9 @@ static_aad_active = static_aad_active or imgui.new.bool(false)
     if #aad_history > 0 then
         for idx, hist in ipairs(aad_history) do
             imgui.PushIDStr("hist_" .. idx)
-            if imgui.Button(u8"Выбрать") then
-                for i = 0, 127 do static_aad_buf[i] = 0 end
-                if #hist < 127 then ffi.copy(static_aad_buf, hist) end
+            if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ") then
+                for i = 0, 128 do static_aad_buf[i] = 0 end
+                if #hist < 128 then ffi.copy(static_aad_buf, hist) end
                 aad_text = u8:decode(hist)  -- UTF-8 -> CP1251 for sending
                 lua_thread.create(function() saveSettings() end)
             end
@@ -5143,7 +5219,7 @@ static_aad_active = static_aad_active or imgui.new.bool(false)
         end
     else
         imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
-        imgui.TextUnformatted(u8"История пуста.")
+        imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ.")
         imgui.PopStyleColor()
     end
     imgui.EndChild()
@@ -5155,29 +5231,29 @@ onToggle = function(state) end
 },
 {
 id = "mm_editor",
-name = u8" MM Editor (СМИ)",
-description = u8"Помощник для сотрудников радиоцентра (СМИ). Автоматически заменяет сокращения при редактировании объявлений с учетом правил ПРО (город пишется для домов/бизнесов, но стирается для автомобилей).",
+name = u8" MM Editor (пїЅпїЅпїЅ)",
+description = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ). пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ).",
 enabled = false,
 drawSettings = function()
-imgui.TextUnformatted(u8"Тег объявления:")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ:")
 imgui.SameLine()
 imgui.PushItemWidth(60)
 if imgui.InputText("##mm_tag", mm_tag, ffi.sizeof(mm_tag)) then lua_thread.create(function() saveSettings() end) end
 imgui.PopItemWidth()
 imgui.SameLine()
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
-imgui.TextUnformatted(u8"Например: LV, LS, SF, TV")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: LV, LS, SF, TV")
 imgui.PopStyleColor()
 imgui.Spacing()
-if imgui.Checkbox(u8"Авто-форматирование при открытии редактора", mm_auto_format) then lua_thread.create(function() saveSettings() end) end
-if imgui.Checkbox(u8"Авто-отправка объявлений (Auto-Edit)", mm_auto_send) then lua_thread.create(function() saveSettings() end) end
+if imgui.Checkbox(u8"пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", mm_auto_format) then lua_thread.create(function() saveSettings() end) end
+if imgui.Checkbox(u8"пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (Auto-Edit)", mm_auto_send) then lua_thread.create(function() saveSettings() end) end
 
 if mm_auto_send[0] then
 imgui.PushItemWidth(150)
-if imgui.SliderInt(u8"Задержка отправки (мс)", mm_send_delay, 500, 8000) then lua_thread.create(function() saveSettings() end) end
+if imgui.SliderInt(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅ)", mm_send_delay, 500, 8000) then lua_thread.create(function() saveSettings() end) end
 imgui.PopItemWidth()
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(1, 0.8, 0, 1))
-imgui.TextUnformatted(u8" Внимание: Используйте задержку от 2000 мс для безопасности от админов!")
+imgui.TextUnformatted(u8" пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ 2000 пїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ!")
 imgui.PopStyleColor()
 end
 
@@ -5185,20 +5261,20 @@ imgui.Spacing()
 imgui.Separator()
 imgui.Spacing()
 
-imgui.TextUnformatted(u8"Тест автозамены:")
-imgui.InputText(u8"Введите черновик", test_input, 128)
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ:")
+imgui.InputText(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", test_input, 129)
 
-if imgui.Button(u8"Проверить замену") then
+if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ") then
 local raw_text = u8:decode(ffi.string(test_input))  -- UTF-8 -> CP1251
 local fmt_ok, fmt_result = pcall(formatAdText, raw_text)
 if fmt_ok then test_output = u8:encode(fmt_result) else test_output = u8"Error: " .. tostring(fmt_result) end
 end
 
 if test_output ~= "" then
-imgui.TextUnformatted(u8"Результат:")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ:")
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0, 1, 0.8, 1))
 imgui.PushTextWrapPos(0)
-imgui.TextUnformatted(#test_output > 500 and test_output:sub(1, 500) .. "..." or test_output)
+imgui.TextUnformatted(sanitizeUtf8(#test_output > 500 and safeUtf8Truncate(test_output, 500) or test_output))
 imgui.PopTextWrapPos()
 imgui.PopStyleColor()
 end
@@ -5207,7 +5283,7 @@ imgui.Spacing()
 imgui.Separator()
 imgui.Spacing()
 
-imgui.TextUnformatted(u8"Правила замены сокращений (База):")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅ):")
 imgui.BeginChild("rules_list", imgui.ImVec2(0, 110), true)
 local max_display = 25
 local shown = 0
@@ -5215,8 +5291,8 @@ for idx, rule in ipairs(mm_rules) do
 if shown >= max_display then break end
 shown = shown + 1
 local _rule_text = u8:encode(rule.abbreviation) .. " -> " .. u8:encode(rule.replacement)
-            if #_rule_text > 80 then _rule_text = _rule_text:sub(1, 80) .. "..." end
-            imgui.TextUnformatted(_rule_text)
+            if #_rule_text > 80 then _rule_text = safeUtf8Truncate(_rule_text, 80) end
+            imgui.TextUnformatted(sanitizeUtf8(_rule_text))
 imgui.SameLine(350)
 if imgui.Button("X##" .. idx) then
 table.remove(mm_rules, idx)
@@ -5231,11 +5307,11 @@ imgui.PopStyleColor()
 end
 imgui.EndChild()
 
-static_new_abbr = static_new_abbr or imgui.new.char[32]("")
-static_new_repl = static_new_repl or imgui.new.char[128]("")
-imgui.InputText(u8"Сокращение", static_new_abbr, 32)
-imgui.InputText(u8"Замена на...", static_new_repl, 128)
-if imgui.Button(u8"Добавить правило") then
+static_new_abbr = static_new_abbr or imgui.new.char[65]("")
+static_new_repl = static_new_repl or imgui.new.char[257]("")
+imgui.InputText(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", static_new_abbr, 65)
+imgui.InputText(u8"пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ...", static_new_repl, 257)
+if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ") then
 local abbr = u8:decode(ffi.string(static_new_abbr)):lower()  -- UTF-8 -> CP1251
 local repl = u8:decode(ffi.string(static_new_repl))  -- UTF-8 -> CP1251
 if abbr ~= "" and repl ~= "" then
@@ -5250,21 +5326,21 @@ imgui.Spacing()
 imgui.Separator()
 imgui.Spacing()
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.3, 0.8, 1, 1))
-imgui.TextUnformatted(u8"Обучение (предложения из ваших правок в AutoEdit):")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ AutoEdit):")
 imgui.PopStyleColor()
 if #edit_corrections == 0 then
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
-imgui.TextUnformatted(u8"Пока нет предложений. Поправьте текст перед отправкой в окне AutoEdit - здесь появится предложение добавить правило.")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ AutoEdit - пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.")
 imgui.PopStyleColor()
 else
 imgui.BeginChild("corrections_list", imgui.ImVec2(0, 90), true)
 for idx, corr in ipairs(edit_corrections) do
 imgui.PushIDStr("corr_" .. idx)
 local _corr_text = u8:encode(corr.abbr) .. " -> " .. u8:encode(corr.repl)
-            if #_corr_text > 80 then _corr_text = _corr_text:sub(1, 80) .. "..." end
-            imgui.TextUnformatted(_corr_text)
+            if #_corr_text > 80 then _corr_text = safeUtf8Truncate(_corr_text, 80) end
+            imgui.TextUnformatted(sanitizeUtf8(_corr_text))
 imgui.SameLine(320)
-if imgui.SmallButton(u8"Использовать") then
+if imgui.SmallButton(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") then
 safeStrCopy(static_new_abbr, u8:encode(corr.abbr, encoding.default), ffi.sizeof(static_new_abbr))
 safeStrCopy(static_new_repl, u8:encode(corr.repl, encoding.default), ffi.sizeof(static_new_repl))
 end
@@ -5286,41 +5362,41 @@ onToggle = function(state) end
 {
 id = "auto_rp",
 enabled = true,
-name = u8" Авто-Отыгровки",
-description = u8"Авто-отыгровки от ИГРОВЫХ СОБЫТИЙ: достаёт/убирает оружие при смене слота, достаёт телефон при входящем звонке/SMS, отыгрывает /call, /h, /mask, /healme, /drugs. Работает автоматически — не нужно нажимать ничего дополнительно.",
+name = u8" пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ",
+description = u8"пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ/SMS, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ /call, /h, /mask, /healme, /drugs. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.",
 drawSettings = function()
-if imgui.Checkbox(u8"Отыгровка доставания/убирания оружия", rp_weapons_enabled) then lua_thread.create(function() saveSettings() end) end
+if imgui.Checkbox(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ", rp_weapons_enabled) then lua_thread.create(function() saveSettings() end) end
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
-imgui.TextUnformatted(u8"-> Доставание Deagle, M4, Shotgun, AK-47, Ножа")
+imgui.TextUnformatted(u8"-> пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ Deagle, M4, Shotgun, AK-47, пїЅпїЅпїЅпїЅ")
 imgui.PopStyleColor()
 
-if imgui.Checkbox(u8"Отыгровка звонков и сбросов телефона", rp_phone_enabled) then lua_thread.create(function() saveSettings() end) end
+if imgui.Checkbox(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", rp_phone_enabled) then lua_thread.create(function() saveSettings() end) end
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
-imgui.TextUnformatted(u8"-> Срабатывает при командах /call и /h")
+imgui.TextUnformatted(u8"-> пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ /call пїЅ /h")
 imgui.PopStyleColor()
 
-if imgui.Checkbox(u8"Отыгровка одевания маски", rp_mask_enabled) then lua_thread.create(function() saveSettings() end) end
+if imgui.Checkbox(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ", rp_mask_enabled) then lua_thread.create(function() saveSettings() end) end
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
-imgui.TextUnformatted(u8"-> Срабатывает при команде /mask")
+imgui.TextUnformatted(u8"-> пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ /mask")
 imgui.PopStyleColor()
 
-if imgui.Checkbox(u8"Отыгровка использования аптечки", rp_heal_enabled) then lua_thread.create(function() saveSettings() end) end
+if imgui.Checkbox(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", rp_heal_enabled) then lua_thread.create(function() saveSettings() end) end
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
-imgui.TextUnformatted(u8"-> Срабатывает при командах /healme и /drugs")
+imgui.TextUnformatted(u8"-> пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ /healme пїЅ /drugs")
 imgui.PopStyleColor()
 end,
 onToggle = function(state) end
 },
 {
 id = "vehicle_visuals",
-name = u8" Транспорт и Визуал",
-description = u8"Функции для водителей и визуальная кастомизация мира. Включает стробоскопы фарами, круиз-контроль, локальную смену погоды/времени и скин-ченджер.",
+name = u8" пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ",
+description = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.",
 enabled = false,
 drawSettings = function()
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0, 1, 0.7, 1))
-imgui.TextUnformatted(u8"Стробоскопы и Круиз:")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ:")
 imgui.PopStyleColor()
-if imgui.Checkbox(u8"Включить стробоскопы", strobe_enabled) then
+if imgui.Checkbox(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", strobe_enabled) then
 if strobe_enabled[0] then
 strobe_active = true
 lua_thread.create(strobeWorker)
@@ -5329,15 +5405,15 @@ strobe_active = false
 end
 end
 imgui.SameLine(220)
-        imgui.Checkbox(u8"Турбо-круиз (риск бана!)", turbo_cruise_enabled)
-        imgui.TextUnformatted(u8"Круиз: C=вкл/выкл  W=+5  S=-5")
+        imgui.Checkbox(u8"пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ!)", turbo_cruise_enabled)
+        imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅ: C=пїЅпїЅпїЅ/пїЅпїЅпїЅпїЅ  W=+5  S=-5")
 
 imgui.PushItemWidth(150)
-if imgui.SliderInt(u8"Скорость стробоскопов (мс)", strobe_speed, 50, 600) then lua_thread.create(function() saveSettings() end) end
+if imgui.SliderInt(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅ)", strobe_speed, 50, 600) then lua_thread.create(function() saveSettings() end) end
 
-local strobe_items = u8"Обе вместе" .. "\0" .. u8"Попеременно" .. "\0" .. u8"Гирлянда (по одной)" .. "\0" .. u8"Двойной лево/право" .. "\0" .. u8"Быстрый оба (3х)" .. "\0" .. u8"Очень быстрый оба (5х)" .. "\0" .. u8"Полицейский 1" .. "\0" .. u8"Полицейский 2 (3+3+обе)" .. "\0" .. u8"Полицейский 3 (быстрый)" .. "\0" .. u8"SOS (Морзе)" .. "\0" .. u8"Волна" .. "\0" .. u8"Импульс (вспышка+пауза)" .. "\0" .. u8"Двойная гирлянда" .. "\0" .. u8"Тройная вспышка (спец)" .. "\0" .. u8"Зигзаг" .. "\0" .. u8"Энергичный (2х2)" .. "\0" .. u8"Маяк (медленный)" .. "\0" .. u8"Перекрёстный" .. "\0" .. u8"Каскад (нарастающий)" .. "\0"
+local strobe_items = u8"пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ" .. "\0" .. u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ" .. "\0" .. u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ)" .. "\0" .. u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅ" .. "\0" .. u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ (3пїЅ)" .. "\0" .. u8"пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ (5пїЅ)" .. "\0" .. u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 1" .. "\0" .. u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 2 (3+3+пїЅпїЅпїЅ)" .. "\0" .. u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 3 (пїЅпїЅпїЅпїЅпїЅпїЅпїЅ)" .. "\0" .. u8"SOS (пїЅпїЅпїЅпїЅпїЅ)" .. "\0" .. u8"пїЅпїЅпїЅпїЅпїЅ" .. "\0" .. u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅ+пїЅпїЅпїЅпїЅпїЅ)" .. "\0" .. u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ" .. "\0" .. u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅ)" .. "\0" .. u8"пїЅпїЅпїЅпїЅпїЅпїЅ" .. "\0" .. u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (2пїЅ2)" .. "\0" .. u8"пїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)" .. "\0" .. u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ" .. "\0" .. u8"пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)" .. "\0"
 
-if imgui.ComboStr(u8"Режим стробоскопов", strobe_mode, strobe_items) then
+if imgui.ComboStr(u8"пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", strobe_mode, strobe_items) then
 lua_thread.create(function() saveSettings() end)
 end
 imgui.PopItemWidth()
@@ -5348,24 +5424,24 @@ imgui.Spacing()
 
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0, 1, 0.7, 1))
 
-imgui.TextUnformatted(u8"Окружение (Локально):")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ):")
 
 imgui.PopStyleColor()
 
-if imgui.Checkbox(u8"Зафиксировать погоду", weather_locked) then lua_thread.create(function() saveSettings() end) end
+if imgui.Checkbox(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ", weather_locked) then lua_thread.create(function() saveSettings() end) end
 if weather_locked[0] then
 imgui.PushItemWidth(250)
-if imgui.SliderInt(u8"ID Погоды", weather_id, 0, 45) then lua_thread.create(function() saveSettings() end) end
+if imgui.SliderInt(u8"ID пїЅпїЅпїЅпїЅпїЅпїЅ", weather_id, 0, 45) then lua_thread.create(function() saveSettings() end) end
 imgui.PopItemWidth()
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
-imgui.TextUnformatted(u8"Популярные ID: 1-2 (ясно), 8 (шторм), 9 (туман), 19 (песок)")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ ID: 1-2 (пїЅпїЅпїЅпїЅ), 8 (пїЅпїЅпїЅпїЅпїЅ), 9 (пїЅпїЅпїЅпїЅпїЅ), 19 (пїЅпїЅпїЅпїЅпїЅ)")
 imgui.PopStyleColor()
 end
 
-if imgui.Checkbox(u8"Зафиксировать время суток", time_locked) then lua_thread.create(function() saveSettings() end) end
+if imgui.Checkbox(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ", time_locked) then lua_thread.create(function() saveSettings() end) end
 if time_locked[0] then
 imgui.PushItemWidth(250)
-if imgui.SliderInt(u8"Часы", time_hour, 0, 23) then lua_thread.create(function() saveSettings() end) end
+if imgui.SliderInt(u8"пїЅпїЅпїЅпїЅ", time_hour, 0, 23) then lua_thread.create(function() saveSettings() end) end
 imgui.PopItemWidth()
 end
 
@@ -5375,18 +5451,18 @@ imgui.Spacing()
 
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0, 1, 0.7, 1))
 
-imgui.TextUnformatted(u8"Скин-Ченджер (Локально):")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ):")
 
 imgui.PopStyleColor()
 imgui.PushItemWidth(150)
-imgui.InputInt(u8"ID Скина (0-311)", skin_changer_id)
+imgui.InputInt(u8"ID пїЅпїЅпїЅпїЅпїЅ (0-311)", skin_changer_id)
 imgui.PopItemWidth()
 
-if imgui.Button(u8"Применить скин") then
+if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ") then
 applyLocalSkin(skin_changer_id[0])
 end
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
-imgui.TextUnformatted(u8"-> Вы также можете ввести команду в чат: /fskin [ID]")
+imgui.TextUnformatted(u8"-> пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ: /fskin [ID]")
 imgui.PopStyleColor()
 end,
 onToggle = function(state)
@@ -5401,11 +5477,11 @@ end
 },
 {
 id = "keybinds",
-name = u8" Горячие клавиши",
-description = u8"Привязка команд к клавишам. Нажмите клавишу - выполнится команда.\nНе срабатывает при открытом чате или диалоге.",
+name = u8" пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ",
+description = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.\nпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.",
 enabled = true,
 drawSettings = function()
-imgui.TextUnformatted(u8"Текущие бинды:")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ:")
 imgui.Spacing()
 for i, bind in ipairs(keybinds) do
 static_bind_en = static_bind_en or imgui.new.bool(false); static_bind_en[0] = bind.enabled; local en = static_bind_en
@@ -5417,7 +5493,7 @@ imgui.SameLine()
 local kname = key_names[bind.key] or ("0x" .. string.format("%02X", bind.key))
 imgui.TextUnformatted(u8:encode("[" .. kname .. "] " .. bind.name .. "  (" .. bind.command .. ")"))
 imgui.SameLine(350)
-if imgui.Button(u8"Удалить##del" .. i) then
+if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ##del" .. i) then
 table.remove(keybinds, i)
 lua_thread.create(function() saveSettings() end)
 break
@@ -5426,7 +5502,7 @@ end
 imgui.Spacing()
 imgui.Separator()
 imgui.Spacing()
-imgui.TextUnformatted(u8"Добавить новый бинд:")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ:")
 imgui.PushItemWidth(100)
 -- Key selector
 local key_opts = ""
@@ -5438,7 +5514,7 @@ table.sort(key_keys)
 for _, k in ipairs(key_keys) do
 key_opts = key_opts .. key_names[k] .. "\0"
 end
-if imgui.BeginCombo("##newkey", key_names[new_bind_key[0]] or "Выбрать") then
+if imgui.BeginCombo("##newkey", key_names[new_bind_key[0]] or "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ") then
 for _, k in ipairs(key_keys) do
 if imgui.Selectable(key_names[k], new_bind_key[0] == k) then
 new_bind_key[0] = k
@@ -5448,12 +5524,12 @@ imgui.EndCombo()
 end
 imgui.SameLine()
 imgui.PushItemWidth(150)
-imgui.InputText("##newcmd", new_bind_command, 128)
+imgui.InputText("##newcmd", new_bind_command, 129)
 imgui.SameLine()
 imgui.PushItemWidth(150)
-imgui.InputText("##newname", new_bind_name, 128)
+imgui.InputText("##newname", new_bind_name, 129)
 imgui.SameLine()
-if imgui.Button(u8" + Добавить ") then
+if imgui.Button(u8" + пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ ") then
 local cmd = u8:decode(ffi.string(new_bind_command))
 local nm = u8:decode(ffi.string(new_bind_name))
 if cmd ~= "" then
@@ -5469,20 +5545,20 @@ imgui.PopItemWidth()
 imgui.PopItemWidth()
 imgui.Spacing()
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.7, 0.7, 0.7, 1))
-imgui.TextUnformatted(u8"Формат команды: /lock, /e, /me открыл дверь и т.д.")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ: /lock, /e, /me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅ.пїЅ.")
 imgui.PopStyleColor()
 end,
 },
 {
 id = "commands_guide",
-name = u8" Справочник Команд",
-description = u8"Полный и точный список команд сервера Advance RP по фракциям. Дважды кликните по любой команде в списке, чтобы скопировать её в буфер обмена.",
+name = u8" пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ",
+description = u8"пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ Advance RP пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ.",
 enabled = true,
 drawSettings = function()
-imgui.TextUnformatted(u8"Выберите категорию фракций:")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ:")
 static_selected_cat = static_selected_cat or imgui.new.int(1)
 
-if imgui.BeginCombo(u8"Категории", advance_commands[static_selected_cat[0]].category) then
+if imgui.BeginCombo(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", advance_commands[static_selected_cat[0]].category) then
 for idx, cat_data in ipairs(advance_commands) do
 local is_selected = (static_selected_cat[0] == idx)
 if imgui.Selectable(cat_data.category, is_selected) then
@@ -5505,11 +5581,11 @@ imgui.PopStyleColor()
 
 if imgui.IsItemHovered() then
 imgui.BeginTooltip()
-imgui.TextUnformatted(u8"Двойной клик: скопировать в буфер")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ")
 imgui.EndTooltip()
 if imgui.IsMouseDoubleClicked(0) then
 setClipboardText(cmd.name)
-lua_thread.create(function() sampAddChatMessage(u8:decode("[Helper] Скопировано в буфер: " .. cmd.name), 0x00FFFF) end)
+lua_thread.create(function() sampAddChatMessage(u8:decode("[Helper] пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ: " .. cmd.name), 0x00FFFF) end)
 end
 end
 
@@ -5525,71 +5601,71 @@ onToggle = function(state) end
 },
 {
 id = "rp_engine",
-name = u8" РП-Движок (Отыгровки)",
-description = u8"Кастомные РП-отыгровки с поддержкой тегов, пауз, рандома и интерактивных окон. Команды: /mmact [id], /mmnext, /mmstop, /rpeditor, /rptest, /rplogin.",
+name = u8" пїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)",
+description = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅ: /mmact [id], /mmnext, /mmstop, /rpeditor, /rptest, /rplogin.",
 enabled = true,
 drawSettings = function()
-if imgui.Button(u8"Открыть редактор отыгровок", imgui.ImVec2(220, 30)) then rp_show_edit[0] = true end
+if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", imgui.ImVec2(220, 30)) then rp_show_edit[0] = true end
 imgui.SameLine()
-if imgui.Button(u8"Загрузить статистику", imgui.ImVec2(150, 30)) then lua_thread.create(playerLogin) end
+if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", imgui.ImVec2(150, 30)) then lua_thread.create(playerLogin) end
 imgui.Spacing()
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.8, 0.5, 1))
-imgui.TextUnformatted(u8"Игрок: " .. u8:encode(user.fullName))
-imgui.TextUnformatted(u8"Должность: " .. u8:encode(user.rangName))
-imgui.TextUnformatted(u8"Подразделение: " .. u8:encode(user.podr))
-imgui.TextUnformatted(u8"Телефон: " .. u8:encode(user.phone))
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅ: " .. u8:encode(user.fullName))
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: " .. u8:encode(user.rangName))
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: " .. u8:encode(user.podr))
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ: " .. u8:encode(user.phone))
 imgui.PopStyleColor()
 imgui.Spacing()
 imgui.Separator()
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.8, 0.7, 0.3, 1))
-imgui.TextUnformatted(u8"Команды:")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ:")
 imgui.PopStyleColor()
 imgui.Bullet()
 imgui.SameLine()
-imgui.TextUnformatted(u8"/mmact [id] — выбрать цель и открыть отыгровки")
+imgui.TextUnformatted(u8"/mmact [id] пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ")
 imgui.Bullet()
 imgui.SameLine()
-imgui.TextUnformatted(u8"/mmnext — продолжить отыгровку после паузы <0>")
+imgui.TextUnformatted(u8"/mmnext пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ <0>")
 imgui.Bullet()
 imgui.SameLine()
-imgui.TextUnformatted(u8"/mmstop — остановить отыгровку")
+imgui.TextUnformatted(u8"/mmstop пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ")
 imgui.Bullet()
 imgui.SameLine()
-imgui.TextUnformatted(u8"/rpeditor — открыть редактор отыгровок")
+imgui.TextUnformatted(u8"/rpeditor пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ")
 imgui.Bullet()
 imgui.SameLine()
-imgui.TextUnformatted(u8"/rptest — тест выбранной отыгровки")
+imgui.TextUnformatted(u8"/rptest пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ")
 imgui.Bullet()
 imgui.SameLine()
-imgui.TextUnformatted(u8"/rplogin — загрузить статистику игрока")
+imgui.TextUnformatted(u8"/rplogin пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ")
 end,
 onToggle = function(state) end
 },
 {
 id = "smi_tools",
-name = u8" СМИ-Инструменты",
-description = u8"Анаграммы, эфир, чёрный список, поиск сотрудников, лифт ТВ-башни, авто-ответ. Команды: /anag, /mmefir, /endefir, /find, /tvlf, /uninv, /autoans, /bladd, /bldel, /blcheck, /bllist, /efirstats.",
+name = u8" пїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ",
+description = u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ пїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅ: /anag, /mmefir, /endefir, /find, /tvlf, /uninv, /autoans, /bladd, /bldel, /blcheck, /bllist, /efirstats.",
 enabled = false,
 drawSettings = function()
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0, 1, 0.7, 1))
-imgui.TextUnformatted(u8"Эфир:")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅ:")
 imgui.PopStyleColor()
-if imgui.Button(u8"Начать эфир", imgui.ImVec2(120, 30)) then lua_thread.create(cmdEfir) end
+if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ", imgui.ImVec2(120, 30)) then lua_thread.create(cmdEfir) end
 imgui.SameLine()
-if imgui.Button(u8"Завершить эфир", imgui.ImVec2(120, 30)) then lua_thread.create(cmdEndEfir) end
+if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ", imgui.ImVec2(120, 30)) then lua_thread.create(cmdEndEfir) end
 imgui.SameLine()
-if imgui.Button(u8"Статистика", imgui.ImVec2(100, 30)) then lua_thread.create(cmdEfirStats) end
+if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", imgui.ImVec2(100, 30)) then lua_thread.create(cmdEfirStats) end
 
 imgui.Spacing()
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0, 1, 0.7, 1))
-imgui.TextUnformatted(u8"Авто-ответ на звонки:")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ:")
 imgui.PopStyleColor()
-if imgui.Checkbox(u8"Включить авто-ответ", auto_answer_enabled) then end
+if imgui.Checkbox(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ", auto_answer_enabled) then end
 imgui.PushItemWidth(300)
-imgui.InputText(u8"##autoans_text", auto_answer_text, 256)
+imgui.InputText(u8"##autoans_text", auto_answer_text, 257)
 imgui.PopItemWidth()
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
-imgui.TextUnformatted(u8"-> Текст будет отправлен в /t при входящем звонке во время эфира")
+imgui.TextUnformatted(u8"-> пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ /t пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ")
 imgui.PopStyleColor()
 
 imgui.Spacing()
@@ -5598,14 +5674,14 @@ imgui.Spacing()
 
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0, 1, 0.7, 1))
 
-imgui.TextUnformatted(u8"Анаграммы:")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ:")
 
 imgui.PopStyleColor()
-if imgui.Button(u8"Слова (1)", imgui.ImVec2(90, 25)) then lua_thread.create(function() startAnagram(1) end) end
+if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅ (1)", imgui.ImVec2(90, 25)) then lua_thread.create(function() startAnagram(1) end) end
 imgui.SameLine()
-if imgui.Button(u8"Телефон (2)", imgui.ImVec2(100, 25)) then lua_thread.create(function() startAnagram(2) end) end
+if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (2)", imgui.ImVec2(100, 25)) then lua_thread.create(function() startAnagram(2) end) end
 imgui.SameLine()
-if imgui.Button(u8"Газета (3)", imgui.ImVec2(90, 25)) then lua_thread.create(function() startAnagram(3) end) end
+if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅ (3)", imgui.ImVec2(90, 25)) then lua_thread.create(function() startAnagram(3) end) end
 
 imgui.Spacing()
 imgui.Separator()
@@ -5613,12 +5689,12 @@ imgui.Spacing()
 
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0, 1, 0.7, 1))
 
-imgui.TextUnformatted(u8"Чёрный список:")
+imgui.TextUnformatted(u8"ЧёпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ:")
 
 imgui.PopStyleColor()
-if imgui.Button(u8"Открыть список", imgui.ImVec2(120, 30)) then blacklist_show[0] = true end
+if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ", imgui.ImVec2(120, 30)) then blacklist_show[0] = true end
 imgui.SameLine()
-if imgui.Button(u8"Поиск сотрудников", imgui.ImVec2(150, 30)) then lua_thread.create(cmdFind) end
+if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", imgui.ImVec2(150, 30)) then lua_thread.create(cmdFind) end
 
 imgui.Spacing()
 imgui.Separator()
@@ -5626,56 +5702,56 @@ imgui.Spacing()
 
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.8, 0.7, 0.3, 1))
 
-imgui.TextUnformatted(u8"Команды:")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ:")
 
 imgui.PopStyleColor()
 imgui.Bullet()
 imgui.SameLine()
-imgui.TextUnformatted(u8"/anag [1-3] — анаграмма для радио/ТВ игр")
+imgui.TextUnformatted(u8"/anag [1-3] пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ/пїЅпїЅ пїЅпїЅпїЅ")
 imgui.Bullet()
 imgui.SameLine()
-imgui.TextUnformatted(u8"/mmefir — начать эфир (авто-РП)")
+imgui.TextUnformatted(u8"/mmefir пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅ-пїЅпїЅ)")
 imgui.Bullet()
 imgui.SameLine()
-imgui.TextUnformatted(u8"/endefir — завершить эфир (авто-РП)")
+imgui.TextUnformatted(u8"/endefir пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅ-пїЅпїЅ)")
 imgui.Bullet()
 imgui.SameLine()
-imgui.TextUnformatted(u8"/efirstats — статистика эфира")
+imgui.TextUnformatted(u8"/efirstats пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ")
 imgui.Bullet()
 imgui.SameLine()
-imgui.TextUnformatted(u8"/find — поиск сотрудников")
+imgui.TextUnformatted(u8"/find пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ")
 imgui.Bullet()
 imgui.SameLine()
-imgui.TextUnformatted(u8"/tvlf [этаж] — лифт ТВ-башни")
+imgui.TextUnformatted(u8"/tvlf [пїЅпїЅпїЅпїЅ] пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ")
 imgui.Bullet()
 imgui.SameLine()
-imgui.TextUnformatted(u8"/uninv [id] [причина] — увольнение с РП")
+imgui.TextUnformatted(u8"/uninv [id] [пїЅпїЅпїЅпїЅпїЅпїЅпїЅ] пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅ")
 imgui.Bullet()
 imgui.SameLine()
-imgui.TextUnformatted(u8"/autoans [текст] — авто-ответ на звонки")
+imgui.TextUnformatted(u8"/autoans [пїЅпїЅпїЅпїЅпїЅ] пїЅ пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ")
 imgui.Bullet()
 imgui.SameLine()
-imgui.TextUnformatted(u8"/bladd [ник] [причина] — добавить в ЧС")
+imgui.TextUnformatted(u8"/bladd [пїЅпїЅпїЅ] [пїЅпїЅпїЅпїЅпїЅпїЅпїЅ] пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅ")
 imgui.Bullet()
 imgui.SameLine()
-imgui.TextUnformatted(u8"/bldel [ник] — удалить из ЧС")
+imgui.TextUnformatted(u8"/bldel [пїЅпїЅпїЅ] пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅ")
 imgui.Bullet()
 imgui.SameLine()
-imgui.TextUnformatted(u8"/blcheck [ник] — проверить ник в ЧС")
+imgui.TextUnformatted(u8"/blcheck [пїЅпїЅпїЅ] пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ пїЅпїЅ")
 imgui.Bullet()
 imgui.SameLine()
-imgui.TextUnformatted(u8"/bllist — показать весь ЧС")
+imgui.TextUnformatted(u8"/bllist пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ")
 end,
 onToggle = function(state) end
 }
 
 }
 
--- ГЛАВНАЯ ФУНКЦИЯ (Точка входа)
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ)
 function main()
 while not isSampAvailable() do wait(100) end
 
--- Загружаем базы и настройки
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 local db_ok, db_err = pcall(loadDatabases)
 if not db_ok then sampAddChatMessage("[Helper] loadDatabases error: " .. tostring(db_err), 0xFF0000) end
 
@@ -5688,10 +5764,10 @@ end
 end
 end
 
-sampAddChatMessage("Helper Core " .. SCRIPT_VERSION .. " загружен. Меню: F11", 0x00FF00)
-sampAddChatMessage("Стробы: J=вкл/выкл, N=режим | Круиз: C, W/S=скорость | Бинды: L=/lock, K=/e", 0xFFFFFF)
+sampAddChatMessage("Helper Core " .. SCRIPT_VERSION .. " пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅ: F11", 0x00FF00)
+sampAddChatMessage("пїЅпїЅпїЅпїЅпїЅпїЅ: J=пїЅпїЅпїЅ/пїЅпїЅпїЅпїЅ, N=пїЅпїЅпїЅпїЅпїЅ | пїЅпїЅпїЅпїЅпїЅ: C, W/S=пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ | пїЅпїЅпїЅпїЅпїЅ: L=/lock, K=/e", 0xFFFFFF)
 
--- Регистрируем команду открытия меню
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 sampRegisterChatCommand("helper", function()
 show_main_window[0] = not show_main_window[0]
 end)
@@ -5700,14 +5776,14 @@ sampRegisterChatCommand("aad", function(arg)
     if aad_active then
         aad_active = false
         aad_text = ""
-        sampAddChatMessage("[Helper] Auto-Ad остановлен.", 0xFF0000)
+        sampAddChatMessage("[Helper] Auto-Ad пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.", 0xFF0000)
     else
         if not arg or arg == "" then
-            sampAddChatMessage("[Helper] Использование: /aad [текст объявления]", 0xFF0000)
+            sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: /aad [пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ]", 0xFF0000)
         else
             aad_active = true
             aad_text = arg
-            sampAddChatMessage("[Helper] Auto-Ad запущен! Текст: " .. arg, 0x00FF00)
+            sampAddChatMessage("[Helper] Auto-Ad пїЅпїЅпїЅпїЅпїЅпїЅпїЅ! пїЅпїЅпїЅпїЅпїЅ: " .. arg, 0x00FF00)
             sendAdCommand(aad_text)
         end
     end
@@ -5715,21 +5791,21 @@ end)
 
 
 
--- Регистрируем команду смены скина
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 sampRegisterChatCommand("fskin", function(arg)
 local id = tonumber(arg)
 if id and id >= 0 and id <= 311 then
 skin_changer_id[0] = id
 applyLocalSkin(id)
 else
-sampAddChatMessage("[Helper] Использование: /fskin [0-311]", 0xFF0000)
+sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: /fskin [0-311]", 0xFF0000)
 end
 end)
 
--- РЕГИСТРАЦИЯ КОМАНД ДЛЯ АВТО-ОТЫГРОВОК
--- RP отыгровки теперь через sampev.onSendChat (см. ниже)
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+-- RP пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ sampev.onSendChat (пїЅпїЅ. пїЅпїЅпїЅпїЅ)
 
--- РП-ДВИЖОК: кастомные отыгровки
+-- пїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 loadRpSettings()
 sampRegisterChatCommand('rplogin', function() playerLogin() end)
 sampRegisterChatCommand('mmact', cmdAct)
@@ -5744,7 +5820,7 @@ sampRegisterChatCommand('rptest', function()
   end
 end)
 
--- СМИ-ФУНКЦИИ: регистрация команд
+-- пїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 loadBlacklist()
 sampRegisterChatCommand('anag', function(arg) startAnagram(arg) end)
 sampRegisterChatCommand('tvlf', cmdTvlift)
@@ -5756,36 +5832,36 @@ sampRegisterChatCommand('efirstats', cmdEfirStats)
 sampRegisterChatCommand('autoans', cmdAutoAnswer)
 sampRegisterChatCommand('bladd', function(arg)
   local nick, reason = arg:match('^(%S+)%s*(.*)')
-  if nick then addBlacklistNick(nick, reason) else sampAddChatMessage('[Helper] /bladd [ник] [причина]', 0xFFAA00) end
+  if nick then addBlacklistNick(nick, reason) else sampAddChatMessage('[Helper] /bladd [пїЅпїЅпїЅ] [пїЅпїЅпїЅпїЅпїЅпїЅпїЅ]', 0xFFAA00) end
 end)
 sampRegisterChatCommand('bldel', function(arg)
-  if arg and arg ~= '' then removeBlacklistNick(arg) else sampAddChatMessage('[Helper] /bldel [ник]', 0xFFAA00) end
+  if arg and arg ~= '' then removeBlacklistNick(arg) else sampAddChatMessage('[Helper] /bldel [пїЅпїЅпїЅ]', 0xFFAA00) end
 end)
 sampRegisterChatCommand('blcheck', function(arg)
   if arg and arg ~= '' then
-    if checkBlacklistNick(arg) then sampAddChatMessage('[Helper] ' .. arg .. ' В чёрном списке!', 0xFF0000)
-    else sampAddChatMessage('[Helper] ' .. arg .. ' не в чёрном списке', 0x00FF00) end
-  else sampAddChatMessage('[Helper] /blcheck [ник]', 0xFFAA00) end
+    if checkBlacklistNick(arg) then sampAddChatMessage('[Helper] ' .. arg .. ' пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ!', 0xFF0000)
+    else sampAddChatMessage('[Helper] ' .. arg .. ' пїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ', 0x00FF00) end
+  else sampAddChatMessage('[Helper] /blcheck [пїЅпїЅпїЅ]', 0xFFAA00) end
 end)
 sampRegisterChatCommand('bllist', function()
   local count = 0
   for nick, data in pairs(blacklist_data) do
     count = count + 1
-    sampAddChatMessage('  ' .. nick .. ' — ' .. (data.reason or 'нет причины') .. ' (' .. (data.added or '?') .. ')', 0xCECECE)
+    sampAddChatMessage('  ' .. nick .. ' пїЅ ' .. (data.reason or 'пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ') .. ' (' .. (data.added or '?') .. ')', 0xCECECE)
   end
-  if count == 0 then sampAddChatMessage('[Helper] Чёрный список пуст', 0xFFAA00)
-  else sampAddChatMessage('[Helper] Всего в ЧС: ' .. count, 0x00FF00) end
+  if count == 0 then sampAddChatMessage('[Helper] ЧёпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ', 0xFFAA00)
+  else sampAddChatMessage('[Helper] пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅ: ' .. count, 0x00FF00) end
 end)
 
--- Запуск потоков
+-- пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 lua_thread.create(factionScannerWorker)
 lua_thread.create(weaponTrackWorker)
 lua_thread.create(cruiseControlWorker)
 lua_thread.create(environmentWorker)
 
--- Парсер чата в главном цикле (безопасно)
+-- пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
 
--- Авто-загрузка РП-данных через 3 сек после старта
+-- пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ 3 пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 lua_thread.create(function() wait(3000) playerLogin() end)
 -- Online nicks cache initialized from main loop, not from thread (avoids coroutine crash)
 
@@ -5809,23 +5885,23 @@ chatScanner_processed = {}
 chatScanner_processed_count = 0
 end
 
-local sender, phone = text:match("Отправитель:%s*([A-Za-z0-9_]+).-[Тт]ел%s*:%s*(%d+)")
+local sender, phone = text:match("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ:%s*([A-Za-z0-9_]+).-[пїЅпїЅ]пїЅпїЅ%s*:%s*(%d+)")
 if not sender or not phone then
-sender, phone = text:match("([A-Za-z0-9_]+)%s*%.%s*[Тт]ел%s*:%s*(%d+)")
+sender, phone = text:match("([A-Za-z0-9_]+)%s*%.%s*[пїЅпїЅ]пїЅпїЅ%s*:%s*(%d+)")
 end
 local text_utf8 = u8:encode(text, encoding.default)
 
 if sender and phone then
-local ad_text = text_utf8:match("Объявление:%s*(.-)%s*Отправитель:") or ""
+local ad_text = text_utf8:match("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ:%s*(.-)%s*пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ:") or ""
 table.insert(player_db_queue, {sender = sender, phone = phone, ad = ad_text})
-sampAddChatMessage(u8:decode("[Helper DB] Добавлен контакт: " .. sender .. " (Тел: " .. phone .. ")"), 0x00FF90)
+sampAddChatMessage(u8:decode("[Helper DB] пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ: " .. sender .. " (пїЅпїЅпїЅ: " .. phone .. ")"), 0x00FF90)
 end
 end
 end
 end
 
 
--- Поток отслеживания диалоговых окон (альтернатива onShowDialog без SAMP.Lua)
+-- пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ onShowDialog пїЅпїЅпїЅ SAMP.Lua)
 
 while true do
 wait(0)
@@ -5885,38 +5961,38 @@ if ae_open_queue then
     ae_esc_was_down = true  -- Esc may be held from chat, wait for release
 end
 
--- Клавиша F11
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅ F11
 if wasKeyPressed(0x7A) and not sampIsChatInputActive() and not sampIsDialogActive() then
 show_main_window[0] = not show_main_window[0]
 end
 
--- Клавиша J для стробоскопов в машине
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅ J пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 if wasKeyPressed(0x4A) and isCharInAnyCar(PLAYER_PED) and not sampIsChatInputActive() and not sampIsDialogActive() then -- J
 strobe_enabled[0] = not strobe_enabled[0]
 strobe_active = strobe_enabled[0]
 if strobe_active then
 lua_thread.create(strobeWorker)
 end
-sampAddChatMessage(u8:decode("[Helper] Стробоскопы: " .. (strobe_enabled[0] and "{00FF00}ВКЛ{FFFFFF} (выкл - J)" or "{FF0000}ВЫКЛ")), 0xFFFFFF)
+sampAddChatMessage(u8:decode("[Helper] пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: " .. (strobe_enabled[0] and "{00FF00}пїЅпїЅпїЅ{FFFFFF} (пїЅпїЅпїЅпїЅ - J)" or "{FF0000}пїЅпїЅпїЅпїЅ")), 0xFFFFFF)
 end
 
--- Клавиша N для смены режима стробоскопов (только если включены и в машине)
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅ N пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ)
 if wasKeyPressed(0x4E) and isCharInAnyCar(PLAYER_PED) and strobe_enabled[0] and not sampIsChatInputActive() and not sampIsDialogActive() then -- N
 local strobe_mode_names = {
-    [1]="Мигающие", [2]="Попеременно", [3]="Вспышки (обе)", [4]="Бегущий Л/П",
-    [5]="Бегущий 3шт", [6]="Бегущий 5шт", [7]="Сирена 1", [8]="Сирена 2 (3+3+обе)",
-    [9]="Сирена 3 (классика)", [10]="SOS (морзе)", [11]="Гирлянда", [12]="Двойной (лево+право)",
-    [13]="Двойной попеременно", [14]="Двойной бегущий (волна)", [15]="Маяк", [16]="Частые (2х2)",
-    [17]="Ритм (ускоренный)", [18]="Перекрёсток", [19]="Патруль (мигалка)",
+    [1]="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", [2]="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", [3]="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ)", [4]="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ/пїЅ",
+    [5]="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ 3пїЅпїЅ", [6]="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ 5пїЅпїЅ", [7]="пїЅпїЅпїЅпїЅпїЅпїЅ 1", [8]="пїЅпїЅпїЅпїЅпїЅпїЅ 2 (3+3+пїЅпїЅпїЅ)",
+    [9]="пїЅпїЅпїЅпїЅпїЅпїЅ 3 (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)", [10]="SOS (пїЅпїЅпїЅпїЅпїЅ)", [11]="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", [12]="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅ+пїЅпїЅпїЅпїЅпїЅ)",
+    [13]="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", [14]="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅ)", [15]="пїЅпїЅпїЅпїЅ", [16]="пїЅпїЅпїЅпїЅпїЅпїЅ (2пїЅ2)",
+    [17]="пїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)", [18]="пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", [19]="пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅ)",
 }
 strobe_mode[0] = strobe_mode[0] + 1
 if strobe_mode[0] > 19 then strobe_mode[0] = 1 end
 saveSettings()
 local mname = strobe_mode_names[strobe_mode[0]] or ("#" .. strobe_mode[0])
-sampAddChatMessage(u8:decode("[Helper] Стробоскоп режим: {00FF00}" .. mname .. " {FFFFFF}(N - следующий)"), 0xFFFFFF)
+sampAddChatMessage(u8:decode("[Helper] пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ: {00FF00}" .. mname .. " {FFFFFF}(N - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)"), 0xFFFFFF)
 end
 
--- Обработка биндов клавиш на команды
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 if not sampIsChatInputActive() and not sampIsDialogActive() then
 for _, bind in ipairs(keybinds) do
 if bind.enabled and wasKeyPressed(bind.key) then
@@ -5929,18 +6005,18 @@ end
 end
 end
 
--- ПОТОК ДЛЯ СКАНИРОВАНИЯ ИГРОВОГО ЧАТА (без SAMP.Lua)
--- СКАНЕР ФРАКЦИЙ (для авто-отыгровки)
+-- пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ SAMP.Lua)
+-- пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
 factionScannerWorker = function()
     local last_dialog_id = -1
     local faction_names = {
-        [1] = "МВД (Полиция)",
-        [2] = "МЗ (Больница/МЧС)",
-        [3] = "МО (Армия)",
-        [4] = "Мэрия (Администрация)",
-        [5] = "СМИ (Журналисты)",
-        [6] = "Банды (Гетто)",
-        [7] = "Мафии"
+        [1] = "пїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅ)",
+        [2] = "пїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅ)",
+        [3] = "пїЅпїЅ (пїЅпїЅпїЅпїЅпїЅ)",
+        [4] = "пїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)",
+        [5] = "пїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)",
+        [6] = "пїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅ)",
+        [7] = "пїЅпїЅпїЅпїЅпїЅ"
     }
 
     while true do
@@ -5951,27 +6027,27 @@ factionScannerWorker = function()
                 last_dialog_id = current_dialog_id
                 local title = sampGetDialogCaption() or ""
                 local text = sampGetDialogText() or ""
-                if title:find("Организация") or title:find("Паспорт") or title:find("Удостоверение") or text:find("Подразделение:") then
+                if title:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or title:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or title:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or text:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ:") then
                     local detected_faction = nil
-                    if text:find("МВД") or text:find("Полиция") or text:find("Департамент") or text:find("Шерифа") then
+                    if text:find("пїЅпїЅпїЅ") or text:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or text:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or text:find("пїЅпїЅпїЅпїЅпїЅпїЅ") then
                         detected_faction = 1
-                    elseif text:find("Больница") or text:find("МЧС") or text:find("Медик") or text:find("Санитар") or text:find("Врач") then
+                    elseif text:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or text:find("пїЅпїЅпїЅ") or text:find("пїЅпїЅпїЅпїЅпїЅ") or text:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or text:find("пїЅпїЅпїЅпїЅ") then
                         detected_faction = 2
-                    elseif text:find("Армия") or text:find("МО") or text:find("Военком") then
+                    elseif text:find("пїЅпїЅпїЅпїЅпїЅ") or text:find("пїЅпїЅ") or text:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ") then
                         detected_faction = 3
-                    elseif text:find("Мэрия") or text:find("Администрация") or text:find("Мэр") or text:find("Депутат") or text:find("Прокурор") then
+                    elseif text:find("пїЅпїЅпїЅпїЅпїЅ") or text:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or text:find("пїЅпїЅпїЅ") or text:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or text:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") then
                         detected_faction = 4
-                    elseif text:find("СМИ") or text:find("Журналист") or text:find("Радио") or text:find("Телевидение") then
+                    elseif text:find("пїЅпїЅпїЅ") or text:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or text:find("пїЅпїЅпїЅпїЅпїЅ") or text:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") then
                         detected_faction = 5
-                    elseif text:find("Grove") or text:find("Гроув") or text:find("Ballas") or text:find("Баллас") or text:find("Vagos") or text:find("Вагос") or text:find("Aztec") or text:find("Ацтек") or text:find("Rifa") or text:find("Рифа") then
+                    elseif text:find("Grove") or text:find("пїЅпїЅпїЅпїЅпїЅ") or text:find("Ballas") or text:find("пїЅпїЅпїЅпїЅпїЅпїЅ") or text:find("Vagos") or text:find("пїЅпїЅпїЅпїЅпїЅ") or text:find("Aztec") or text:find("пїЅпїЅпїЅпїЅпїЅ") or text:find("Rifa") or text:find("пїЅпїЅпїЅпїЅ") then
                         detected_faction = 6
-                    elseif text:find("Мафия") or text:find("Бандит") or text:find("Yakuza") or text:find("La Cosa Nostra") or text:find("LCN") or text:find("Картель") or text:find("Триада") then
+                    elseif text:find("пїЅпїЅпїЅпїЅпїЅ") or text:find("пїЅпїЅпїЅпїЅпїЅпїЅ") or text:find("Yakuza") or text:find("La Cosa Nostra") or text:find("LCN") or text:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or text:find("пїЅпїЅпїЅпїЅпїЅпїЅ") then
                         detected_faction = 7
                     end
                     if detected_faction and selected_faction[0] ~= detected_faction then
                         selected_faction[0] = detected_faction
                         saveSettings()
-                        sampAddChatMessage("[Helper] Определена фракция: {00FF00}" .. faction_names[detected_faction] .. "{FFFFFF}. Настройки обновлены.", 0xFFFFFF)
+                        sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ: {00FF00}" .. faction_names[detected_faction] .. "{FFFFFF}. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.", 0xFFFFFF)
                     end
                 end
             end
@@ -5981,7 +6057,7 @@ factionScannerWorker = function()
     end
 end
 
--- Проверка включен ли модуль
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 isModuleEnabled = function(id)
     if not modules then return false end
     for _, mod in ipairs(modules) do
@@ -5992,7 +6068,7 @@ isModuleEnabled = function(id)
     return false
 end
 
--- Отправка объявления
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 sendAdCommand = function(text)
     if text and text ~= "" then
         sampSendChat("/ad " .. text)
@@ -6008,8 +6084,8 @@ sendAdCommand = function(text)
     end
 end
 
--- Перехват команд для авто-РП отыгровок
--- Добавляет /me перед серверными командами
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ-пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ /me пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 function sampev.onSendChat(message)
     if isModuleEnabled("auto_rp") and not call_worker_running then
         local cmd = message:match("^/(%w+)")
@@ -6019,38 +6095,38 @@ function sampev.onSendChat(message)
                 local arg = message:match("^/call%s+(.+)") or message:match("^/c%s+(.+)")
                 if arg and arg ~= "" then
                     lua_thread.create(function()
-                        sampSendChat(u8:decode("/me достал мобильный телефон и набрал номер " .. arg))
+                        sampSendChat(u8:decode("/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ " .. arg))
                         wait(100)
                     end)
                 end
             -- /h or /hangup
             elseif (cmd == "h" or cmd == "hangup") and rp_phone_enabled[0] then
                 lua_thread.create(function()
-                    sampSendChat(u8:decode("/me закрыл телефон и убрал его в карман"))
+                    sampSendChat(u8:decode("/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"))
                     wait(100)
                 end)
             -- /mask
             elseif cmd == "mask" and rp_mask_enabled[0] then
                 lua_thread.create(function()
-                    sampSendChat(u8:decode("/me надел на лицо маску и скрыл свое лицо"))
+                    sampSendChat(u8:decode("/me пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ"))
                     wait(100)
                 end)
             -- /healme
             elseif cmd == "healme" and rp_heal_enabled[0] then
                 lua_thread.create(function()
-                    sampSendChat(u8:decode("/me достал аптечку, открыл ее и применил"))
+                    sampSendChat(u8:decode("/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"))
                     wait(100)
                 end)
             -- /drugs
             elseif cmd == "drugs" and rp_heal_enabled[0] then
                 lua_thread.create(function()
-                    sampSendChat(u8:decode("/me достал шприц и сделал укол"))
+                    sampSendChat(u8:decode("/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ"))
                     wait(100)
                 end)
             -- /e (engine)
             elseif cmd == "e" and rp_weapons_enabled[0] then
                 lua_thread.create(function()
-                    sampSendChat(u8:decode("/me завел двигатель"))
+                    sampSendChat(u8:decode("/me пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"))
                     wait(100)
                 end)
             end
@@ -6059,28 +6135,28 @@ function sampev.onSendChat(message)
     return true  -- let the message go to server
 end
 
--- Блокируем серверную синхронизацию времени и погоды
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 function sampev.onSetPlayerTime(hour, minute)
     if time_locked[0] then
-        return false  -- блокируем сервер, не меняем время
+        return false  -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
     end
 end
 
 function sampev.onSetWeather(weatherId)
     if weather_locked[0] then
-        return false  -- блокируем сервер, не меняем погоду
+        return false  -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
     end
 end
 
--- Обработчик сообщений сервера (SAMP events)
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (SAMP events)
 function sampev.onServerMessage(color, text)
-    -- Ищем в оригинальном CP1251 тексте
-    local sender, phone = text:match("Отправил%s+([A-Za-z0-9_]+)%[%d+%]%s+%(тел%.%s*(%d+)%)")
+    -- пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ CP1251 пїЅпїЅпїЅпїЅпїЅпїЅ
+    local sender, phone = text:match("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ%s+([A-Za-z0-9_]+)%[%d+%]%s+%(пїЅпїЅпїЅ%.%s*(%d+)%)")
     if not sender or not phone then
-        sender, phone = text:match("([A-Za-z0-9_]+)%[%d+%]%s+%(тел%.%s*(%d+)%)")
+        sender, phone = text:match("([A-Za-z0-9_]+)%[%d+%]%s+%(пїЅпїЅпїЅ%.%s*(%d+)%)")
     end
     if not sender or not phone then
-        sender, phone = text:match("([A-Za-z0-9_]+).-%(тел%.%s*(%d+)%)")
+        sender, phone = text:match("([A-Za-z0-9_]+).-%(пїЅпїЅпїЅ%.%s*(%d+)%)")
     end
     local text_utf8 = u8:encode(text, encoding.default)
 
@@ -6093,7 +6169,7 @@ function sampev.onServerMessage(color, text)
 
             if sender_cp == my_name then
                 if aad_active and aad_text ~= "" then
-                    sampAddChatMessage("[Helper] Объявление опубликовано. Следующая подача через " .. (aad_delay[0]/1000) .. " сек...", 0x00FFFF)
+                    sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ " .. (aad_delay[0]/1000) .. " пїЅпїЅпїЅ...", 0x00FFFF)
                     wait(aad_delay[0])
                     if aad_active and aad_text ~= "" then
                         sendAdCommand(aad_text)
@@ -6103,74 +6179,74 @@ function sampev.onServerMessage(color, text)
                 -- Queue the change instead of modifying player_db directly
                 -- (ImGui render thread might be iterating player_db right now)
                 table.insert(player_db_queue, {sender = sender_cp, phone = phone_cp})
-                sampAddChatMessage("[Helper DB] Новый контакт: " .. sender_cp .. " (Тел: " .. phone_cp .. ")", 0x00FF90)
+                sampAddChatMessage("[Helper DB] пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ: " .. sender_cp .. " (пїЅпїЅпїЅ: " .. phone_cp .. ")", 0x00FF90)
             end
         end)
     end
-    -- АВТО-ОТЫГРОВКИ ОТ СОБЫТИЙ СЕРВЕРА (модуль auto_rp)
-    -- Отключены во время обзвона чтобы не плодить потоки с sampSendChat
+    -- пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅ auto_rp)
+    -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ sampSendChat
     if isModuleEnabled("auto_rp") and not call_worker_running then
         local lower = text:lower()
-        -- Входящий звонок: сервер пишет "Вам звонит" или "Входящий вызов"
-        if rp_phone_enabled[0] and (lower:find("вам звонит") or lower:find("входящий вызов") or lower:find("входящий звонок")) then
+        -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ "пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ" пїЅпїЅпїЅ "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"
+        if rp_phone_enabled[0] and (lower:find("пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ") or lower:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ") or lower:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ")) then
             lua_thread.create(function()
                 wait(200)
-                sampSendChat(u8:decode("/me достал мобильный телефон из кармана"))
+                sampSendChat(u8:decode("/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"))
                 wait(600)
-                sampSendChat(u8:decode("/me посмотрел на экран телефона, увидел входящий вызов"))
+                sampSendChat(u8:decode("/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"))
                 wait(400)
-                sampSendChat(u8:decode("/do Телефон в руке, экран подсвечен входящим вызовом"))
+                sampSendChat(u8:decode("/do пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"))
             end)
         end
-        -- Звонок завершён / сброшен
-        if rp_phone_enabled[0] and (lower:find("звонок завершен") or lower:find("звонок завершён") or lower:find("вы сбросили") or lower:find("разговор окончен") or lower:find("собеседник сбросил")) then
+        -- пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ / пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+        if rp_phone_enabled[0] and (lower:find("пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or lower:find("пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or lower:find("пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or lower:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or lower:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ")) then
             lua_thread.create(function()
                 wait(200)
-                sampSendChat(u8:decode("/me нажал кнопку сброса на телефоне"))
+                sampSendChat(u8:decode("/me пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"))
                 wait(500)
-                sampSendChat(u8:decode("/me убрал мобильный телефон в карман"))
+                sampSendChat(u8:decode("/me пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"))
             end)
         end
-        -- SMS пришло
-        if rp_phone_enabled[0] and (lower:find("sms:") or lower:find("смс:") or lower:find("вам пришло сообщение") or lower:find("новое сообщение")) then
+        -- SMS пїЅпїЅпїЅпїЅпїЅпїЅ
+        if rp_phone_enabled[0] and (lower:find("sms:") or lower:find("пїЅпїЅпїЅ:") or lower:find("пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or lower:find("пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ")) then
             lua_thread.create(function()
                 wait(300)
-                sampSendChat(u8:decode("/me достал мобильный телефон из кармана"))
+                sampSendChat(u8:decode("/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ"))
                 wait(500)
-                sampSendChat(u8:decode("/me прочитал сообщение на экране телефона"))
+                sampSendChat(u8:decode("/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"))
                 wait(800)
-                sampSendChat(u8:decode("/me убрал мобильный телефон в карман"))
+                sampSendChat(u8:decode("/me пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"))
             end)
         end
-        -- Игрок сел в машину (через проверку isCharInAnyCar — делается в потоке, не здесь)
-        -- Игрок арестован / посажен в КПЗ
-        if rp_heal_enabled[0] and (lower:find("вы арестованы") or lower:find("посажен в кпз") or lower:find("отправлен в камеру")) then
+        -- пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ isCharInAnyCar пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ)
+        -- пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ / пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ
+        if rp_heal_enabled[0] and (lower:find("пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or lower:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ") or lower:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ")) then
             lua_thread.create(function()
                 wait(500)
-                sampSendChat(u8:decode("/me опустил голову, принимая своё положение"))
+                sampSendChat(u8:decode("/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"))
                 wait(600)
-                sampSendChat(u8:decode("/do Выражение лица — подавленное"))
+                sampSendChat(u8:decode("/do пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"))
             end)
         end
-        -- Игрок вылечен
-        if rp_heal_enabled[0] and (lower:find("вы вылечены") or lower:find("здоровие восстановлено") or lower:find("здоровье восстановлено")) then
+        -- пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+        if rp_heal_enabled[0] and (lower:find("пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or lower:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or lower:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ")) then
             lua_thread.create(function()
                 wait(300)
-                sampSendChat(u8:decode("/me облегчённо выдохнул, почувствовав облегчение"))
+                sampSendChat(u8:decode("/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"))
                 wait(400)
-                sampSendChat(u8:decode("/do Самочувствие улучшилось"))
+                sampSendChat(u8:decode("/do пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"))
             end)
         end
     end
 
-    -- Эфир-статистика: подсчёт SMS, звонков, строк эфира
+    -- пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅпїЅ SMS, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
     if efir_active then
-        if text:find("SMS") or text:find("смс") or text:find("СМС") then
+        if text:find("SMS") or text:find("пїЅпїЅпїЅ") or text:find("пїЅпїЅпїЅ") then
             efir_stats.sms = efir_stats.sms + 1
         end
-        if text:find("звон") or text:find("Звон") or text:find("вызов") or text:find("Вызов") then
+        if text:find("пїЅпїЅпїЅпїЅ") or text:find("пїЅпїЅпїЅпїЅ") or text:find("пїЅпїЅпїЅпїЅпїЅ") or text:find("пїЅпїЅпїЅпїЅпїЅ") then
             efir_stats.calls = efir_stats.calls + 1
-            -- Авто-ответ на звонок
+            -- пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
             if auto_answer_enabled[0] then
                 local answer = u8:decode(ffi.string(auto_answer_text))
                 if answer ~= "" then
@@ -6181,7 +6257,7 @@ function sampev.onServerMessage(color, text)
                 end
             end
         end
-        -- Подсчёт строк эфира (сообщения с /t или /u)
+        -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ /t пїЅпїЅпїЅ /u)
         efir_stats.lines = efir_stats.lines + 1
     end
 end
@@ -6203,23 +6279,23 @@ function sampev.onPlayerQuit(playerId, reason)
 end
 
 function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
--- Перехват статистики для playerLogin (РП-движок)
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ playerLogin (пїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ)
     if rp_reading_stats then
-        -- Диалог статистики — читаем и закрываем
-        if title:find("Статистика") or title:find("статистика") then
+        -- пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+        if title:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or title:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") then
             rp_stats_text = text
             rp_stats_step = "done"
             sampSendDialogResponse(dialogId, 1, -1, -1)
             return false
         end
-        -- Главное меню — нажимаем кнопку "Статистика" (обычно listitem 0 или 1)
-        if title:find("Меню") or title:find("меню") or title:find("Главное") then
+        -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ" (пїЅпїЅпїЅпїЅпїЅпїЅ listitem 0 пїЅпїЅпїЅ 1)
+        if title:find("пїЅпїЅпїЅпїЅ") or title:find("пїЅпїЅпїЅпїЅ") or title:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ") then
             rp_stats_step = "menu"
-            -- Ищем пункт "Статистика" в тексте диалога
+            -- пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ "пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ" пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             local stats_item = -1
             local idx = 0
             for line in string.gmatch(text, "[^\n]+") do
-                if line:find("Статистика") or line:find("статистика") or line:find("Стат") then
+                if line:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or line:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or line:find("пїЅпїЅпїЅпїЅ") then
                     stats_item = idx
                     break
                 end
@@ -6228,25 +6304,25 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
             if stats_item >= 0 then
                 sampSendDialogResponse(dialogId, 1, stats_item, -1)
             else
-                -- Если не нашли — нажимаем пункт 0 (обычно статистика первая)
+                -- пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ 0 (пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ)
                 sampSendDialogResponse(dialogId, 1, 0, -1)
             end
             rp_stats_step = "stats"
             return false
         end
-        -- Диалог лицензий — переходим дальше (на некоторых серверах статистика через лицензии)
-        if title:find("Лицензии") or title:find("лицензии") or title:find("Документы") then
+        -- пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
+        if title:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or title:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or title:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") then
             sampSendDialogResponse(dialogId, 1, 0, -1)
             rp_stats_step = "stats"
             return false
         end
     end
-    -- Перехват /find: поиск сотрудников
-    if title:find("Поиск") or title:find("поиск") or title:find("Сотрудники") then
+    -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ /find: пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    if title:find("пїЅпїЅпїЅпїЅпїЅ") or title:find("пїЅпїЅпїЅпїЅпїЅ") or title:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") then
         find_list = {}
         local i = 0
         for line in string.gmatch(text, "[^\n]+") do
-            local nick, id, rang, podr, phone = line:match("(%d+)%..-(.-)%[(%d+)%].-(%d+)%s*ранг%s*(.-)%s+(%d+)")
+            local nick, id, rang, podr, phone = line:match("(%d+)%..-(.-)%[(%d+)%].-(%d+)%s*пїЅпїЅпїЅпїЅ%s*(.-)%s+(%d+)")
             if nick then
                 i = i + 1
                 find_list[i] = {
@@ -6260,7 +6336,7 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
         end
         find_selected = 0
         find_show[0] = true
-        sampAddChatMessage("[Helper] Найдено сотрудников: " .. #find_list, 0x00FF00)
+        sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: " .. #find_list, 0x00FF00)
         return false
     end
 
@@ -6268,8 +6344,8 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
         return
     end
     -- text is CP1251 from SAMP, patterns are CP1251 in this file
-    if title:find("публикац") or title:find("объявлен") or text:find("Текст:") then
-        local original = text:match("Текст:(.-)Введите") or text:match("Текст:%s*(.+)") or ""
+    if title:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or title:find("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or text:find("пїЅпїЅпїЅпїЅпїЅ:") then
+        local original = text:match("пїЅпїЅпїЅпїЅпїЅ:(.-)пїЅпїЅпїЅпїЅпїЅпїЅпїЅ") or text:match("пїЅпїЅпїЅпїЅпїЅ:%s*(.+)") or ""
         original = original:gsub("{%x+}", "")
         original = original:gsub("^%s+", ""):gsub("%s+$", "")
         if original ~= "" then
@@ -6292,25 +6368,25 @@ loadAllModelsNow()
 if isModelAvailable(skinId) then
 local charPtr = getCharPointer(PLAYER_PED)
 if charPtr and charPtr >= 1 then
--- CPed::SetModel - функция по адресу 0x5E4880
+-- CPed::SetModel - пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ 0x5E4880
 -- void __thiscall SetModel(int thisPtr, int modelId)
 ffi.cast("void (__thiscall *)(int, int)", 0x5E4880)(charPtr, skinId)
 clearCharTasks(PLAYER_PED)
 markModelAsNoLongerNeeded(skinId)
-sampAddChatMessage("[Helper] Скин успешно изменен на ID: " .. skinId, 0x00FF00)
+sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ ID: " .. skinId, 0x00FF00)
 else
-sampAddChatMessage("[Helper] Не удалось получить указатель на персонажа.", 0xFF0000)
+sampAddChatMessage("[Helper] пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.", 0xFF0000)
 end
 else
-sampAddChatMessage("[Helper] Ошибка загрузки модели скина.", 0xFF0000)
+sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ.", 0xFF0000)
 end
 else
-sampAddChatMessage("[Helper] Некорректный ID скина (допустимо 0-311, кроме 74).", 0xFF0000)
+sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ ID пїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 0-311, пїЅпїЅпїЅпїЅпїЅ 74).", 0xFF0000)
 end
 end)
 end
 
--- РАБОТА С ПОГОДОЙ И ВРЕМЕНЕМ
+-- пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 function environmentWorker()
 while memory == nil do wait(500) end
 local last_w = -1
@@ -6341,76 +6417,76 @@ end
 end
 end
 
--- РАБОТА СТРОБОСКОПОВ
--- Последовательности мигания фар для стробоскопа
--- Каждый шаг: {left_light_state, right_light_state}
--- 0 = выключена, 2 = включена (значения для setCarLightDamageStatus)
--- Последовательности мигания фар для стробоскопа
--- Каждый шаг: {left_light, right_light}
--- 0 = фара ВКЛ (целая, светит), 1 = фара ВЫКЛ (повреждена, не светит)
--- Индексы фар GTA SA: 0=перед-лево, 1=перед-право, 2=зад-лево, 3=зад-право
--- Последовательности мигания фар для стробоскопа
--- Каждый шаг: {left_light, right_light}
--- 0 = фара ВКЛ (целая, светит), 1 = фара ВЫКЛ (повреждена, не светит)
--- 0 = фара ВКЛ (целая, светит), 1 = фара ВЫКЛ (повреждена, не светит)
--- {left, right} - состояние левой и правой передней фары
+-- пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+-- пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ: {left_light_state, right_light_state}
+-- 0 = пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, 2 = пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ setCarLightDamageStatus)
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+-- пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ: {left_light, right_light}
+-- 0 = пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ), 1 = пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ)
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ GTA SA: 0=пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅ, 1=пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ, 2=пїЅпїЅпїЅ-пїЅпїЅпїЅпїЅ, 3=пїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+-- пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ: {left_light, right_light}
+-- 0 = пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ), 1 = пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ)
+-- 0 = пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ), 1 = пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ)
+-- {left, right} - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 local strobe_sequences = {
-    -- Базовые режимы
-    [0] = {{0, 0}, {1, 1}, {0, 0}, {1, 1}},                                      -- Обе вместе
-    [1] = {{0, 1}, {1, 0}, {0, 1}, {1, 0}},                                      -- Попеременно (лево-право)
-    [2] = {{0, 1}, {1, 0}, {0, 1}, {1, 0}, {0, 1}, {1, 0}, {0, 1}, {1, 0}},      -- Гирлянда (быстро по одной)
+    -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+    [0] = {{0, 0}, {1, 1}, {0, 0}, {1, 1}},                                      -- пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+    [1] = {{0, 1}, {1, 0}, {0, 1}, {1, 0}},                                      -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ)
+    [2] = {{0, 1}, {1, 0}, {0, 1}, {1, 0}, {0, 1}, {1, 0}, {0, 1}, {1, 0}},      -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ)
 
-    -- Многократные вспышки
-    [3] = {{0, 1}, {0, 1}, {1, 0}, {1, 0}},                                      -- Двойной лево, двойной право
-    [4] = {{0, 0}, {1, 1}, {0, 0}, {1, 1}, {0, 0}, {1, 1}},                      -- Быстрый оба (тройной)
-    [5] = {{0, 0}, {1, 1}, {0, 0}, {1, 1}, {0, 0}, {1, 1}, {0, 0}, {1, 1}, {0, 0}, {1, 1}}, -- Очень быстрый оба
+    -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    [3] = {{0, 1}, {0, 1}, {1, 0}, {1, 0}},                                      -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+    [4] = {{0, 0}, {1, 1}, {0, 0}, {1, 1}, {0, 0}, {1, 1}},                      -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
+    [5] = {{0, 0}, {1, 1}, {0, 0}, {1, 1}, {0, 0}, {1, 1}, {0, 0}, {1, 1}, {0, 0}, {1, 1}}, -- пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ
 
-    -- Полицейский стиль
-    [6] = {{0, 1}, {1, 0}, {0, 1}, {1, 0}, {0, 0}, {1, 1}, {0, 0}, {1, 1}},      -- Полицейский (попеременно + обе)
-    [7] = {{0, 1}, {0, 1}, {0, 1}, {1, 0}, {1, 0}, {1, 0}, {0, 0}, {1, 1}},      -- Полицейский 2 (3х лево, 3х право, обе)
-    [8] = {{0, 1}, {1, 0}, {0, 1}, {1, 0}, {0, 1}, {1, 0}, {0, 0}, {0, 0}, {1, 1}, {1, 1}}, -- Полицейский 3 (быстро попеременно + двойной обе)
+    -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+    [6] = {{0, 1}, {1, 0}, {0, 1}, {1, 0}, {0, 0}, {1, 1}, {0, 0}, {1, 1}},      -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ + пїЅпїЅпїЅ)
+    [7] = {{0, 1}, {0, 1}, {0, 1}, {1, 0}, {1, 0}, {1, 0}, {0, 0}, {1, 1}},      -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 2 (3пїЅ пїЅпїЅпїЅпїЅ, 3пїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ)
+    [8] = {{0, 1}, {1, 0}, {0, 1}, {1, 0}, {0, 1}, {1, 0}, {0, 0}, {0, 0}, {1, 1}, {1, 1}}, -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 3 (пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ + пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ)
 
-    -- SOS (азбука Морзе: ... --- ...)
-    -- ... = 3 коротких, --- = 3 длинных, ... = 3 коротких
-    -- Короткий = 1 шаг ВКЛ, 1 шаг ВЫКЛ
-    -- Длинный = 3 шага ВКЛ, 1 шаг ВЫКЛ
-    -- Пауза между буквами = 3 шага ВЫКЛ
+    -- SOS (пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ: ... --- ...)
+    -- ... = 3 пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, --- = 3 пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, ... = 3 пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ = 1 пїЅпїЅпїЅ пїЅпїЅпїЅ, 1 пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+    -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅ = 3 пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ, 1 пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+    -- пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ = 3 пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
     [9] = {
         {0, 0}, {1, 1}, {0, 0}, {1, 1}, {0, 0}, {1, 1},  -- S: . . .
-        {1, 1}, {1, 1}, {1, 1},                            -- пауза
-        {0, 0}, {0, 0}, {0, 0}, {1, 1},                    -- O: - (длинный)
+        {1, 1}, {1, 1}, {1, 1},                            -- пїЅпїЅпїЅпїЅпїЅ
+        {0, 0}, {0, 0}, {0, 0}, {1, 1},                    -- O: - (пїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
         {0, 0}, {0, 0}, {0, 0}, {1, 1},                    -- O: -
         {0, 0}, {0, 0}, {0, 0}, {1, 1},                    -- O: -
-        {1, 1}, {1, 1}, {1, 1},                            -- пауза
+        {1, 1}, {1, 1}, {1, 1},                            -- пїЅпїЅпїЅпїЅпїЅ
         {0, 0}, {1, 1}, {0, 0}, {1, 1}, {0, 0}, {1, 1},  -- S: . . .
-        {1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1},            -- длинная пауза
+        {1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1},            -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
     },
 
-    -- Волна (плавное перетекание лево -> обе -> право -> обе -> ...)
+    -- пїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ -> пїЅпїЅпїЅ -> пїЅпїЅпїЅпїЅпїЅ -> пїЅпїЅпїЅ -> ...)
     [10] = {{0, 1}, {0, 0}, {1, 0}, {0, 0}, {0, 1}, {0, 0}, {1, 0}, {0, 0}},
 
-    -- Импульс (короткие яркие вспышки с длинными паузами)
-    [11] = {{0, 0}, {1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}},  -- Одна вспышка + длинная пауза
+    -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
+    [11] = {{0, 0}, {1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}},  -- пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ + пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 
-    -- Двойная гирлянда (по одной, но с паузой между парами)
+    -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ)
     [12] = {{0, 1}, {1, 0}, {1, 1}, {0, 1}, {1, 0}, {1, 1}},
 
-    -- Тройная вспышка (как у спецтранспорта)
+    -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
     [13] = {{0, 0}, {1, 1}, {0, 0}, {1, 1}, {0, 0}, {1, 1}, {1, 1}, {1, 1}, {1, 1}},
 
-    -- Зигзаг (лево-обе-право-обе-лево-обе-право-обе быстро)
+    -- пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅ-пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ)
     [14] = {{0, 1}, {0, 0}, {1, 0}, {0, 0}, {0, 1}, {0, 0}, {1, 0}, {0, 0}, {0, 1}, {0, 0}, {1, 0}, {0, 0}},
 
-    -- Энергичный (быстрые двойные вспышки по сторонам)
+    -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
     [15] = {{0, 1}, {0, 1}, {1, 1}, {1, 0}, {1, 0}, {1, 1}},
 
-    -- Маяк (медленные одиночные вспышки обеими)
+    -- пїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ)
     [16] = {{0, 0}, {1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}},
 
-    -- Перекрёстный (лево-право-обе-пауза, быстро)
+    -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ)
     [17] = {{0, 1}, {1, 0}, {0, 0}, {1, 1}, {0, 1}, {1, 0}, {0, 0}, {1, 1}},
 
-    -- Каскад (нарастающая частота)
+    -- пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
     [18] = {{0, 0}, {1, 1}, {1, 1}, {1, 1},
             {0, 0}, {1, 1}, {1, 1},
             {0, 0}, {1, 1},
@@ -6419,15 +6495,15 @@ local strobe_sequences = {
             {0, 0}, {1, 1}, {1, 1}, {1, 1}},
 }
 
--- Загружаем memory и bit для прямого доступа к CDamageManager
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ memory пїЅ bit пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ CDamageManager
 local has_memory, memory = pcall(require, 'memory')
 local has_bit, bit = pcall(require, 'bit')
 
--- Установить состояние фар через прямую запись в память
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 -- CAutomobile + 0x5A0 = m_damageManager (CDamageManager)
--- CDamageManager + 0x10 = m_nLightsStatus (uint32, 2 бита на фару)
--- LIGHT_FRONT_LEFT  = bits 0-1 (0 = OK/светит, 2 = damaged/не светит)
--- LIGHT_FRONT_RIGHT = bits 2-3 (0 = OK/светит, 2 = damaged/не светит)
+-- CDamageManager + 0x10 = m_nLightsStatus (uint32, 2 пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ)
+-- LIGHT_FRONT_LEFT  = bits 0-1 (0 = OK/пїЅпїЅпїЅпїЅпїЅпїЅ, 2 = damaged/пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ)
+-- LIGHT_FRONT_RIGHT = bits 2-3 (0 = OK/пїЅпїЅпїЅпїЅпїЅпїЅ, 2 = damaged/пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ)
 -- LIGHT_REAR_RIGHT  = bits 4-5
 -- LIGHT_REAR_LEFT   = bits 6-7
 local function setLightState(car, leftOn, rightOn)
@@ -6440,27 +6516,27 @@ local function setLightState(car, leftOn, rightOn)
         setCarLightsOn(car, leftOn or rightOn)
         return
     end
-    -- Адрес m_nLightsStatus: carPtr + 0x5A0 + 0x10 = carPtr + 0x5B0
+    -- пїЅпїЅпїЅпїЅпїЅ m_nLightsStatus: carPtr + 0x5A0 + 0x10 = carPtr + 0x5B0
     local lightAddr = carPtr + 0x5B0
-    -- Читаем текущее состояние (4 байта, true = virtual protect)
+    -- пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (4 пїЅпїЅпїЅпїЅпїЅ, true = virtual protect)
     local lightVal = memory.read(lightAddr, 4, true) or 0
-    -- Сбрасываем биты передних фар (bits 0-3)
+    -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ (bits 0-3)
     lightVal = bit.band(lightVal, 0xFFFFFFF0)
-    -- Устанавливаем: 2 = DAMSTATE_DAMAGED (не светит)
+    -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: 2 = DAMSTATE_DAMAGED (пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ)
     if not leftOn then lightVal = bit.bor(lightVal, 0x02) end   -- bits 0-1 = 2 (front-left damaged)
     if not rightOn then lightVal = bit.bor(lightVal, 0x08) end  -- bits 2-3 = 2 (front-right damaged)
-    -- Пишем обратно (4 байта, true = virtual protect)
+    -- пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (4 пїЅпїЅпїЅпїЅпїЅ, true = virtual protect)
     if memory then memory.write(lightAddr, lightVal, 4, true) end
 end
 
--- Восстановить все фары (все целые = 0)
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ = 0)
 local function restoreAllLights(car)
     if has_memory and has_bit then
         local carPtr = getCarPointer(car)
         if carPtr and carPtr ~= 0 then
             local lightAddr = carPtr + 0x5B0
             local lightVal = memory.read(lightAddr, 4, false) or 0
-            -- Сбрасываем все 8 бит (4 фары * 2 бита)
+            -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ 8 пїЅпїЅпїЅ (4 пїЅпїЅпїЅпїЅ * 2 пїЅпїЅпїЅпїЅ)
             lightVal = bit.band(lightVal, 0xFFFFFF00)
             if memory then memory.write(lightAddr, lightVal, 4, false) end
             return
@@ -6484,7 +6560,7 @@ function strobeWorker()
         if isCharInAnyCar(PLAYER_PED) then
             local car = storeCarCharIsInNoSave(PLAYER_PED)
             if car and doesVehicleExist(car) then
-                -- Включаем базовые фары при входе в машину (один раз)
+                -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ)
                 if not lights_initialized or car ~= last_car then
                     setCarLightsOn(car, true)
                     lights_initialized = true
@@ -6518,7 +6594,7 @@ function strobeWorker()
 
     strobe_active = false
 
-    -- Восстанавливаем фары при выходе
+    -- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
     if last_car and doesVehicleExist(last_car) then
         restoreAllLights(last_car)
     end
@@ -6526,7 +6602,7 @@ end
 
 
 function getActiveVehicleSpeed(car)
-    -- getCarVelocity не существует в MoonLoader, используем getCarSpeed
+    -- getCarVelocity пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ MoonLoader, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ getCarSpeed
     local spd = getCarSpeed(car)
     local angle = getCarHeading(car)
     local rad = math.rad(angle)
@@ -6535,7 +6611,7 @@ function getActiveVehicleSpeed(car)
     return x, y, 0
 end
 
--- СЛЕЖЕНИЕ ЗА ОРУЖИЕМ
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 local engine_debug_done = false
 function isCarEngineOn(car)
     if not has_memory then
@@ -6738,7 +6814,7 @@ local weapon_names = {
 [30] = "AK-47",
 [25] = "Shotgun",
 [29] = "MP5",
-[4] = "нож"
+[4] = "пїЅпїЅпїЅ"
 }
 
 while true do
@@ -6750,11 +6826,11 @@ if new_weapon ~= current_weapon then
 if current_weapon ~= 0 and weapon_names[current_weapon] then
 local weapon_name = weapon_names[current_weapon]
 if current_weapon == 24 then
-sampSendChat(u8:decode("/me поставил пистолет \"" .. weapon_name .. "\" на предохранитель и убрал в кобуру"))
+sampSendChat(u8:decode("/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"" .. weapon_name .. "\" пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"))
 elseif current_weapon == 4 then
-sampSendChat(u8:decode("/me убрал \"" .. weapon_name .. "\" в ножны на поясе"))
+sampSendChat(u8:decode("/me пїЅпїЅпїЅпїЅпїЅ \"" .. weapon_name .. "\" пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"))
 else
-sampSendChat(u8:decode("/me повесил автомат \"" .. weapon_name .. "\" на плечо"))
+sampSendChat(u8:decode("/me пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"" .. weapon_name .. "\" пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"))
 end
 wait(500)
 end
@@ -6762,11 +6838,11 @@ end
 if new_weapon ~= 0 and weapon_names[new_weapon] then
 local weapon_name = weapon_names[new_weapon]
 if new_weapon == 24 then
-sampSendChat(u8:decode("/me резким движением выхватил пистолет \"" .. weapon_name .. "\" из кобуры"))
+sampSendChat(u8:decode("/me пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"" .. weapon_name .. "\" пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ"))
 elseif new_weapon == 4 then
-sampSendChat(u8:decode("/me вынул \"" .. weapon_name .. "\" из ножен на поясе"))
+sampSendChat(u8:decode("/me пїЅпїЅпїЅпїЅпїЅ \"" .. weapon_name .. "\" пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ"))
 else
-sampSendChat(u8:decode("/me снял автомат \"" .. weapon_name .. "\" с плеча и снял с предохранителя"))
+sampSendChat(u8:decode("/me пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ \"" .. weapon_name .. "\" пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"))
 end
 end
 current_weapon = new_weapon
@@ -6776,7 +6852,7 @@ end
 end
 end
 
--- АСИНХРОННЫЙ ОБЗВОН ОНЛАЙН ИГРОКОВ
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 function onlineCallWorker(online_list)
 local called_count = 0
 local limit = max_calls_session[0]
@@ -6787,8 +6863,8 @@ call_worker_running = false
 return
 end
 
--- Защита: если с прошлой сессии (или краша) остался незавершённый звонок,
--- сбрасываем его перед стартом, чтобы не было конфликта состояний
+-- пїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ) пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ,
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 sampSendChat("/h")
 wait(300)
 
@@ -6813,7 +6889,7 @@ if can_call then
 call_current_nick = target.nick
 call_current_phone = target.phone
 
-sampAddChatMessage(u8:decode("[Helper] Обзвон: Звоним " .. target.nick .. " (Тел: " .. target.phone .. ") [" .. (called_count+1) .. "/" .. limit .. "]"), 0xFFFF00)
+sampAddChatMessage(u8:decode("[Helper] пїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅ " .. target.nick .. " (пїЅпїЅпїЅ: " .. target.phone .. ") [" .. (called_count+1) .. "/" .. limit .. "]"), 0xFFFF00)
 wait(500)
 
 -- /c is same as /call on Advance RP
@@ -6828,9 +6904,9 @@ wait(100)
 timeLeft = timeLeft - 100
 end
 
--- Вешаем трубку в любом случае: и если время вышло само, и если сессию
--- остановили вручную кнопкой "Стоп" посреди звонка (раньше в этом случае
--- /h не отправлялся, и звонок оставался висеть на сервере)
+-- пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ: пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ "пїЅпїЅпїЅпїЅ" пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+-- /h пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
 if isSampAvailable() then
 sampSendChat("/h")
 end
@@ -6846,11 +6922,11 @@ call_worker_running = false
 call_current_nick = ""
 call_current_phone = ""
 saveSettings()
-sampAddChatMessage(u8:decode("[Helper] Сессия обзвона завершена. Обзвонили игроков: " .. called_count), 0x00FF00)
+sampAddChatMessage(u8:decode("[Helper] пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ: " .. called_count), 0x00FF00)
 end
 
 -- ==========================================
--- ОТРИСОВКА ИНТЕРФЕЙСА (MIMGUI)
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (MIMGUI)
 -- ==========================================
 local function applyCustomStyle()
 local style = imgui.GetStyle()
@@ -6888,8 +6964,8 @@ function(player)
 imgui.SetNextWindowSize(imgui.ImVec2(820, 560), imgui.Cond.FirstUseEver)
 imgui.Begin(WINDOW_TITLE, show_main_window, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
 
--- Верхняя панель: Переключатель серверов
-imgui.TextUnformatted(u8"Выбор текущего сервера:")
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ:")
 imgui.SameLine()
 imgui.PushItemWidth(150)
 if imgui.BeginCombo("##ServerSelector", server_names[current_server_idx[0] + 1]) then
@@ -6897,7 +6973,7 @@ for idx, srv_name in ipairs(server_names) do
 local is_selected = (current_server_idx[0] == idx - 1)
 if imgui.Selectable(srv_name, is_selected) then
 current_server_idx[0] = idx - 1
-lua_thread.create(function() saveSettings() sampAddChatMessage(u8:decode("[Helper] Сервер изменен на: " .. server_names[current_server_idx[0] + 1]), 0x00FF90) end)
+lua_thread.create(function() saveSettings() sampAddChatMessage(u8:decode("[Helper] пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ: " .. server_names[current_server_idx[0] + 1]), 0x00FF90) end)
 end
 end
 imgui.EndCombo()
@@ -6908,9 +6984,9 @@ imgui.Spacing()
 imgui.Separator()
 imgui.Spacing()
 
--- Левая колонка: Навигационная панель
+-- пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 imgui.BeginChild("navigation_panel", imgui.ImVec2(220, 0), true)
-imgui.TextUnformatted(u8" Доступные Модули")
+imgui.TextUnformatted(u8" пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ")
 imgui.Separator()
 imgui.Spacing()
 
@@ -6935,7 +7011,7 @@ imgui.EndChild()
 
 imgui.SameLine()
 
--- Правая колонка: Настройки модуля
+-- пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 imgui.BeginChild("content_panel", imgui.ImVec2(0, 0), true)
 local active_module = modules[active_module_idx]
 if active_module then
@@ -6955,7 +7031,7 @@ imgui.Spacing()
 if active_module.id ~= "commands_guide" then
 static_module_enabled = static_module_enabled or imgui.new.bool(false)
 static_module_enabled[0] = active_module.enabled
-if imgui.Checkbox(u8"Активировать модуль", static_module_enabled) then
+if imgui.Checkbox(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ", static_module_enabled) then
 active_module.enabled = static_module_enabled[0]
 lua_thread.create(function() saveSettings() end)
 if active_module.onToggle then
@@ -6976,7 +7052,7 @@ imgui.PopStyleColor()
 end
 end
 else
-imgui.TextUnformatted(u8"Выберите модуль слева.")
+imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ.")
 end
 imgui.EndChild()
 imgui.End()
@@ -6984,17 +7060,17 @@ end
 )
 
 
--- РП-ДВИЖОК: Окно выбора отыгровки (для /mmact)
+-- пїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ /mmact)
 imgui.OnFrame(
     function() return rp_show_window[0] end,
     function()
         local display = imgui.GetIO().DisplaySize
         imgui.SetNextWindowPos(imgui.ImVec2(display.x / 2, display.y / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
         imgui.SetNextWindowSize(imgui.ImVec2(500, 400), imgui.Cond.FirstUseEver)
-        imgui.Begin(u8"РП-отыгровки (цель: " .. u8:encode(userTarget.name) .. ")", rp_show_window, imgui.WindowFlags.NoCollapse)
+        imgui.Begin(u8"пїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅ: " .. u8:encode(userTarget.name) .. ")", rp_show_window, imgui.WindowFlags.NoCollapse)
 
-        local chapters = {u8"Общие", u8"Мои отыгровки", u8"Для цели"}
-        imgui.TextUnformatted(u8"Глава:")
+        local chapters = {u8"пїЅпїЅпїЅпїЅпїЅ", u8"пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", u8"пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ"}
+        imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅ:")
         imgui.SameLine()
         imgui.PushItemWidth(200)
         if imgui.ComboStr("##rp_chapter", rp_settings.setList, table.concat(chapters, "\0") .. "\0") then
@@ -7009,47 +7085,47 @@ imgui.OnFrame(
         imgui.BeginChild("##rp_list", imgui.ImVec2(0, 250), true)
         if #list > 0 then
             for i, rp in ipairs(list) do
-                local name = (rp.name and rp.name ~= "") and u8:encode(rp.name) or u8"(без названия)"
+                local name = (rp.name and rp.name ~= "") and u8:encode(rp.name) or u8"(пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)"
                 if imgui.Selectable(name, rp_settings.selected == i) then
                     rp_settings.selected = i
                 end
             end
         else
             imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
-            imgui.TextUnformatted(u8"Нет отыгровок. Откройте /rpeditor для создания.")
+            imgui.TextUnformatted(u8"пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ /rpeditor пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.")
             imgui.PopStyleColor()
         end
         imgui.EndChild()
 
         if #list > 0 and rp_settings.selected <= #list then
-            if imgui.Button(u8"Запустить", imgui.ImVec2(120, 30)) then
+            if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", imgui.ImVec2(120, 30)) then
                 playRp(list[rp_settings.selected].text, false)
                 rp_show_window[0] = false
             end
             imgui.SameLine()
-            if imgui.Button(u8"Тест", imgui.ImVec2(80, 30)) then
+            if imgui.Button(u8"пїЅпїЅпїЅпїЅ", imgui.ImVec2(80, 30)) then
                 playRp(list[rp_settings.selected].text, true)
             end
             imgui.SameLine()
         end
-        if imgui.Button(u8"Закрыть", imgui.ImVec2(80, 30)) then
+        if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", imgui.ImVec2(80, 30)) then
             rp_show_window[0] = false
         end
         imgui.End()
     end
 )
 
--- РП-ДВИЖОК: Окно редактора отыгровок (/rpeditor)
+-- пїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (/rpeditor)
 imgui.OnFrame(
     function() return rp_show_edit[0] end,
     function()
         local display = imgui.GetIO().DisplaySize
         imgui.SetNextWindowPos(imgui.ImVec2(display.x / 2, display.y / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
         imgui.SetNextWindowSize(imgui.ImVec2(700, 550), imgui.Cond.FirstUseEver)
-        imgui.Begin(u8"РП-Редактор отыгровок", rp_show_edit, imgui.WindowFlags.NoCollapse)
+        imgui.Begin(u8"пїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", rp_show_edit, imgui.WindowFlags.NoCollapse)
 
-        local chapters = {u8"Общие", u8"Мои отыгровки", u8"Для цели"}
-        imgui.TextUnformatted(u8"Глава:")
+        local chapters = {u8"пїЅпїЅпїЅпїЅпїЅ", u8"пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", u8"пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ"}
+        imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅ:")
         imgui.SameLine()
         imgui.PushItemWidth(200)
         if imgui.ComboStr("##rp_edit_chapter", rp_settings.setList, table.concat(chapters, "\0") .. "\0") then
@@ -7058,7 +7134,7 @@ imgui.OnFrame(
         end
         imgui.PopItemWidth()
         imgui.SameLine()
-        if imgui.Button(u8"+ Добавить") then
+        if imgui.Button(u8"+ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") then
             local chapter = rp_settings.setList[0] + 1
             if not rp_settings.set[chapter] then rp_settings.set[chapter] = {} end
             table.insert(rp_settings.set[chapter], {name = "", text = ""})
@@ -7075,7 +7151,7 @@ imgui.OnFrame(
 
         imgui.BeginChild("##rp_edit_list", imgui.ImVec2(200, 350), true)
         for i, rp in ipairs(list) do
-            local name = (rp.name and rp.name ~= "") and u8:encode(rp.name) or u8"(без названия #" .. i .. ")"
+            local name = (rp.name and rp.name ~= "") and u8:encode(rp.name) or u8"(пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ #" .. i .. ")"
             if imgui.Selectable(name, rp_edit_index == i) then
                 rp_edit_index = i
                 safeStrCopy(rp_settings.temp.name, u8:encode(rp.name or ""), ffi.sizeof(rp_settings.temp.name))
@@ -7087,41 +7163,41 @@ imgui.OnFrame(
         imgui.SameLine()
         imgui.BeginChild("##rp_edit_form", imgui.ImVec2(0, 350), true)
         if rp_edit_index > 0 and list[rp_edit_index] then
-            imgui.TextUnformatted(u8"Название:")
+            imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ:")
             imgui.PushItemWidth(-1)
             imgui.InputText("##rp_name", rp_settings.temp.name, 64)
             imgui.PopItemWidth()
 
-            imgui.TextUnformatted(u8"Текст отыгровки:")
+            imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ:")
             imgui.PushItemWidth(-1)
             imgui.InputTextMultiline("##rp_text", rp_settings.temp.text, 16384, imgui.ImVec2(0, 200))
             imgui.PopItemWidth()
 
             imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.8, 0.5, 1))
 
-            imgui.TextUnformatted(u8"Теги: <myFio> <myName> <myRang> <myPodr> <myId> <myPhone> <time> <date>")
+            imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅ: <myFio> <myName> <myRang> <myPodr> <myId> <myPhone> <time> <date>")
 
             imgui.PopStyleColor()
             imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.8, 0.5, 1))
-            imgui.TextUnformatted(u8"Цель: <tFio> <tName> <tNick> <tId>")
+            imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅ: <tFio> <tName> <tNick> <tId>")
             imgui.PopStyleColor()
             imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.8, 0.7, 0.3, 1))
-            imgui.TextUnformatted(u8"Пауза: <1000> (мс) или <0> (до /mmnext)")
+            imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅ: <1000> (пїЅпїЅ) пїЅпїЅпїЅ <0> (пїЅпїЅ /mmnext)")
             imgui.PopStyleColor()
             imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.8, 0.7, 0.3, 1))
-            imgui.TextUnformatted(u8"Рандом: r:{вариант1}{вариант2}:r")
+            imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅ: r:{пїЅпїЅпїЅпїЅпїЅпїЅпїЅ1}{пїЅпїЅпїЅпїЅпїЅпїЅпїЅ2}:r")
             imgui.PopStyleColor()
             imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.8, 0.7, 0.3, 1))
-            imgui.TextUnformatted(u8"Ввод: #input: | Выбор: #list: {a}{b} | Подстановка: {w}")
+            imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅ: #input: | пїЅпїЅпїЅпїЅпїЅ: #list: {a}{b} | пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: {w}")
             imgui.PopStyleColor()
 
-            if imgui.Button(u8"Сохранить", imgui.ImVec2(100, 30)) then
+            if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", imgui.ImVec2(100, 30)) then
                 list[rp_edit_index].name = u8:decode(ffi.string(rp_settings.temp.name))
                 list[rp_edit_index].text = u8:decode(ffi.string(rp_settings.temp.text))
-                lua_thread.create(function() saveRpSettings() sampAddChatMessage("[Helper] Отыгровка сохранена", 0x00FF00) end)
+                lua_thread.create(function() saveRpSettings() sampAddChatMessage("[Helper] пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", 0x00FF00) end)
             end
             imgui.SameLine()
-            if imgui.Button(u8"Удалить", imgui.ImVec2(100, 30)) then
+            if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", imgui.ImVec2(100, 30)) then
                 table.remove(list, rp_edit_index)
                 rp_edit_index = 0
                 imgui.StrCopy(rp_settings.temp.name, "")
@@ -7129,36 +7205,36 @@ imgui.OnFrame(
                 lua_thread.create(function() saveRpSettings() end)
             end
             imgui.SameLine()
-            if imgui.Button(u8"Тест", imgui.ImVec2(80, 30)) then
+            if imgui.Button(u8"пїЅпїЅпїЅпїЅ", imgui.ImVec2(80, 30)) then
                 local testText = u8:decode(ffi.string(rp_settings.temp.text))
                 playRp(testText, true)
             end
         else
             imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
-            imgui.TextUnformatted(u8"Выберите отыгровку слева или нажмите '+ Добавить'")
+            imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ '+ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ'")
             imgui.PopStyleColor()
         end
         imgui.EndChild()
 
         imgui.Separator()
-        if imgui.Button(u8"Закрыть", imgui.ImVec2(100, 30)) then
+        if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", imgui.ImVec2(100, 30)) then
             rp_show_edit[0] = false
         end
         imgui.End()
     end
 )
 
--- РП-ДВИЖОК: Окно ввода/выбора (для #input: и #list:)
+-- пїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ #input: пїЅ #list:)
 imgui.OnFrame(
     function() return rp_settings.window.is == 1 end,
     function()
         local display = imgui.GetIO().DisplaySize
         imgui.SetNextWindowPos(imgui.ImVec2(display.x / 2, display.y / 2), imgui.Cond.Always, imgui.ImVec2(0.5, 0.5))
         imgui.SetNextWindowSize(imgui.ImVec2(400, 150), imgui.Cond.Always)
-        imgui.Begin(u8"РП-Ввод", nil, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
+        imgui.Begin(u8"пїЅпїЅ-пїЅпїЅпїЅпїЅ", nil, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
 
         if rp_settings.window.type == 1 then
-            imgui.TextUnformatted(u8"Введите текст:")
+            imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ:")
             imgui.PushItemWidth(-1)
             if imgui.InputText("##rp_input_w", rp_settings.window.buf, 256, imgui.InputTextFlags.EnterReturnsTrue) then
                 rp_settings.window.is = 2
@@ -7169,7 +7245,7 @@ imgui.OnFrame(
                 rp_settings.window.is = 2
             end
         elseif rp_settings.window.type == 2 then
-            imgui.TextUnformatted(u8"Выберите вариант:")
+            imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ:")
             for i, item in ipairs(rp_settings.window.list) do
                 if imgui.Button(u8:encode(item), imgui.ImVec2(-1, 0)) then
                     rp_settings.window.select = i
@@ -7182,29 +7258,29 @@ imgui.OnFrame(
 )
 
 
--- СМИ: Окно /find (список найденных сотрудников)
+-- пїЅпїЅпїЅ: пїЅпїЅпїЅпїЅ /find (пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
 imgui.OnFrame(
     function() return find_show[0] end,
     function()
         local display = imgui.GetIO().DisplaySize
         imgui.SetNextWindowPos(imgui.ImVec2(display.x / 2, display.y / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
         imgui.SetNextWindowSize(imgui.ImVec2(600, 400), imgui.Cond.FirstUseEver)
-        imgui.Begin(u8"Поиск сотрудников (/find)", find_show, imgui.WindowFlags.NoCollapse)
+        imgui.Begin(u8"пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (/find)", find_show, imgui.WindowFlags.NoCollapse)
 
         if #find_list > 0 then
             imgui.Columns(5, nil, false)
             imgui.SetColumnWidth(0, 30)
-            imgui.CenterColumnText(u8"№")
+            imgui.CenterColumnText(u8"пїЅ")
             imgui.NextColumn()
-            imgui.CenterColumnText(u8"Ник")
+            imgui.CenterColumnText(u8"пїЅпїЅпїЅ")
             imgui.NextColumn()
             imgui.SetColumnWidth(0, 50)
             imgui.CenterColumnText(u8"ID")
             imgui.NextColumn()
             imgui.SetColumnWidth(0, 50)
-            imgui.CenterColumnText(u8"Ранг")
+            imgui.CenterColumnText(u8"пїЅпїЅпїЅпїЅ")
             imgui.NextColumn()
-            imgui.CenterColumnText(u8"Подразделение")
+            imgui.CenterColumnText(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ")
             imgui.NextColumn()
             imgui.Separator()
 
@@ -7225,21 +7301,21 @@ imgui.OnFrame(
             imgui.Columns(1)
         else
             imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
-            imgui.TextUnformatted(u8"Список пуст. Используйте /find")
+            imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ /find")
             imgui.PopStyleColor()
         end
 
         imgui.Separator()
         if find_selected > 0 and find_list[find_selected] then
             local p = find_list[find_selected]
-            if imgui.Button(u8"Позвонить", imgui.ImVec2(100, 30)) then
+            if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", imgui.ImVec2(100, 30)) then
                 local phone = p.phone
                 lua_thread.create(function() sampSendChat("/call " .. phone) end)
             end
             imgui.SameLine()
-            if imgui.Button(u8"В ЧС", imgui.ImVec2(80, 30)) then
+            if imgui.Button(u8"пїЅ пїЅпїЅ", imgui.ImVec2(80, 30)) then
                 local nick = p.nick
-                lua_thread.create(function() addBlacklistNick(nick, "из /find") end)
+                lua_thread.create(function() addBlacklistNick(nick, "пїЅпїЅ /find") end)
             end
             imgui.SameLine()
             if imgui.Button(u8"mmact", imgui.ImVec2(80, 30)) then
@@ -7248,27 +7324,27 @@ imgui.OnFrame(
             end
         end
         imgui.SameLine()
-        if imgui.Button(u8"Закрыть", imgui.ImVec2(80, 30)) then
+        if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", imgui.ImVec2(80, 30)) then
             find_show[0] = false
         end
         imgui.End()
     end
 )
 
--- СМИ: Окно чёрного списка
+-- пїЅпїЅпїЅ: пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 imgui.OnFrame(
     function() return blacklist_show[0] end,
     function()
         local display = imgui.GetIO().DisplaySize
         imgui.SetNextWindowPos(imgui.ImVec2(display.x / 2, display.y / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
         imgui.SetNextWindowSize(imgui.ImVec2(500, 400), imgui.Cond.FirstUseEver)
-        imgui.Begin(u8"Чёрный список СМИ", blacklist_show, imgui.WindowFlags.NoCollapse)
+        imgui.Begin(u8"ЧёпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ", blacklist_show, imgui.WindowFlags.NoCollapse)
 
         local count = 0
         for nick, data in pairs(blacklist_data) do
             count = count + 1
         end
-        imgui.TextUnformatted(u8"Всего в списке: " .. count)
+        imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ: " .. count)
         imgui.Separator()
 
         imgui.BeginChild("##bl_list", imgui.ImVec2(0, 280), true)
@@ -7290,14 +7366,14 @@ imgui.OnFrame(
         end
         imgui.EndChild()
 
-        if imgui.Button(u8"Закрыть", imgui.ImVec2(100, 30)) then
+        if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", imgui.ImVec2(100, 30)) then
             blacklist_show[0] = false
         end
         imgui.End()
     end
 )
 
--- Подгружаем библиотеки для работы с буфером ввода ImGui (FFI)
+-- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ ImGui (FFI)
 local ffi = require 'ffi'
 
 -- AutoEdit ImGui Window
@@ -7307,9 +7383,9 @@ imgui.OnFrame(
         local display = imgui.GetIO().DisplaySize
         imgui.SetNextWindowSize(imgui.ImVec2(600, 280), imgui.Cond.FirstUseEver)
         imgui.SetNextWindowPos(imgui.ImVec2(display.x / 2, display.y / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
-        imgui.Begin(u8"AutoEdit - Редактор объявления", nil, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
+        imgui.Begin(u8"AutoEdit - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ", nil, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
 
-        imgui.TextUnformatted(u8"Оригинальный текст:")
+        imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ:")
         imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.7, 0.7, 0.7, 1))
         imgui.PushTextWrapPos(0)
         imgui.TextUnformatted(ae_original_text)
@@ -7317,7 +7393,7 @@ imgui.OnFrame(
         imgui.PopStyleColor()
         imgui.Separator()
 
-        imgui.TextUnformatted(u8"Отформатированный результат:")
+        imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ:")
         imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.0, 0.8, 0.5, 1))
         imgui.PushTextWrapPos(0)
         imgui.TextUnformatted(ae_formatted_text)
@@ -7325,7 +7401,7 @@ imgui.OnFrame(
         imgui.PopStyleColor()
         imgui.Separator()
 
-        imgui.TextUnformatted(u8"Редактировать:")
+        imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ:")
         imgui.PushItemWidth(-1)
         if ae_focus then imgui.SetKeyboardFocusHere(0) end
         local ae_enter = imgui.InputText("##ae_input", ae_input_buf, ffi.sizeof(ae_input_buf), imgui.InputTextFlags.EnterReturnsTrue)
@@ -7340,11 +7416,11 @@ imgui.OnFrame(
             if cur ~= "" then cur = cur .. " " .. phrase else cur = phrase end
             safeStrCopy(ae_input_buf, u8:encode(cur, encoding.default), ffi.sizeof(ae_input_buf))
         end
-        if imgui.SmallButton(u8"+ Цена договорная") then aeQuickInsert("Цена договорная") end
+        if imgui.SmallButton(u8"+ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") then aeQuickInsert("пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ") end
         imgui.SameLine()
-        if imgui.SmallButton(u8"+ Доплата (моя)") then aeQuickInsert("Доплата с моей стороны") end
+        if imgui.SmallButton(u8"+ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ)") then aeQuickInsert("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ") end
         imgui.SameLine()
-        if imgui.SmallButton(u8"+ Доплата (ваша)") then aeQuickInsert("Доплата с вашей стороны") end
+        if imgui.SmallButton(u8"+ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅ)") then aeQuickInsert("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ") end
 
         -- Grace period: ignore Enter until the key is released after opening.
         -- The Enter key from sending /edit in chat may still be held down.
@@ -7370,7 +7446,7 @@ imgui.OnFrame(
 
         imgui.Spacing()
 
-        if ae_enter or imgui.Button(u8"Отправить##send", imgui.ImVec2(120, 30)) then
+        if ae_enter or imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ##send", imgui.ImVec2(120, 30)) then
             if ae_dialog_id >= 0 then
                 local input_text = u8:decode(ffi.string(ae_input_buf))
                 addAdToHistory(input_text)
@@ -7415,12 +7491,12 @@ imgui.OnFrame(
         end
         imgui.SameLine()
 
-        if imgui.Button(u8"Отклонить (ПРО)", imgui.ImVec2(160, 30)) or (not ae_esc_was_down and imgui.GetIO().KeysDown[0x1B]) then
+        if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ)", imgui.ImVec2(160, 30)) or (not ae_esc_was_down and imgui.GetIO().KeysDown[0x1B]) then
             if ae_dialog_id >= 0 then
                 local tag = u8:decode(ffi.string(mm_tag))
-                local reject_text = "ПРО"
+                local reject_text = "пїЅпїЅпїЅ"
                 if tag and tag ~= "" then
-                    reject_text = tag .. " | ПРО"
+                    reject_text = tag .. " | пїЅпїЅпїЅ"
                 end
                 safeStrCopy(ae_input_buf, u8:encode(reject_text, encoding.default), ffi.sizeof(ae_input_buf))
                 local dlg_id = ae_dialog_id
@@ -7432,15 +7508,15 @@ imgui.OnFrame(
         
         imgui.SameLine()
 
-        if imgui.Button(u8"История", imgui.ImVec2(100, 30)) then
+        if imgui.Button(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", imgui.ImVec2(100, 30)) then
             ae_show_history[0] = not ae_show_history[0]
         end
 
         if ae_show_history[0] and #ad_history > 0 then
             imgui.Separator()
-            imgui.TextUnformatted(u8"Последние объявления:")
+            imgui.TextUnformatted(u8"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ:")
             for i, h in ipairs(ad_history) do
-                if imgui.Button(u8:encode(h:sub(1, 60) .. (h:len() > 60 and "..." or "")), imgui.ImVec2(-1, 0)) then
+                if imgui.Button(sanitizeUtf8(u8:encode(h:sub(1, 60) .. (h:len() > 60 and "..." or ""))), imgui.ImVec2(-1, 0)) then
                     safeStrCopy(ae_input_buf, u8:encode(h, encoding.default), ffi.sizeof(ae_input_buf))
                 end
             end
