@@ -1,110 +1,46 @@
-# Universal Helper Platform v0.8
+# Universal Helper Platform v2.6
 
 Universal game helper for **GTA San Andreas — SA-MP** (Advance RP servers).  
 Built on **MoonLoader** (Lua) with **mimgui** GUI, **SAMP.Lua** events, and **SAMPFUNCS**.
+
+[Русская версия](README.md) | [Roadmap](ROADMAP.md) | [Инструкция по эксплуатации](INSTRUCTION_RU.md)
 
 ---
 
 ## Features
 
-### Cruise Control
-- **Normal mode** — simulates gas pedal with hysteresis (smooth, reliable)
-- **Turbo mode** — speedhack via `setCarForwardSpeed` with safety:
-  - Crash detection (speed drop > 40% → 3s pause)
-  - Smooth ramp-up (+3 → +20 per frame)
-  - Engine state check (won't accelerate with engine off)
-  - In-air detection (won't apply mid-jump)
-- **Controls:** `C` = toggle, `W` = +5, `S` = -5
+### `/location` Scene Builder — Free *TitanLocation* Alternative (`location_builder`)
+- **522-Object Catalog (`/loc 1` / `/tloc 1`)**: all 522 official IDs from `adv-rp.com/decor` across 7 categories, ID/name search, sorting, favorites, recents, compact/card toggle, and optional JPG preview cache (`config/decor_cache/`)
+- **Precision Overlay Editor (`/tedit`, `/tcopy`, `/tpaste`, `/tdup`)**: live local preview via `sampGetObjectHandleBySampId`, `setObjectCoordinates`, `setObjectRotation`; axis nudge `X/Y/Z` (`0.01–2.0`), rotation `RX/RY/RZ` (`1°–90°`), Undo/Redo, full/Z-only/rot-only/offset copy-paste, and object duplication
+- **Saved Location Registry (`/loc 2` / `/tloc 2`)**: persists saved objects per server & character in `helper_locations.json` upon server save (`response == 1`), mid-list edit/delete recovery guide, and JSON blueprint export/import (auto-falls back to `/tloc` if `/loc` conflicts)
 
-### Strobe Lights (19 modes)
-- Memory-based headlight control via `CDamageManager`
-- Modes: flashing, alternating, running, sirens, SOS, garland, mayak, patrol, etc.
-- **Controls:** `J` = toggle on/off, `N` = next mode
+### MVD, Medic & Senior Staff (`faction_tools`, `lecturer`, `gnews`)
+- **MVD (`/suw [ID]`)**: customizable UK/AK codex (`helper_codex.json`) with Blue/Red/Green/Chocolate presets, 1-click RP + `/su` or `/ticket` (leaves manual `/su` untouched), optional Auto-RP for `/cuff`/`/uncuff`/`/search`/`/putpl`/`/arrest`, 4 megaphone `/m` presets
+- **Medic (`/medui [ID]`)**: configurable ECP price table, 1-click RP + `/medhelp`, `/heal`, `/medcard`, `/analysis`, optional Auto-RP on `/medhelp`/`/heal`
+- **Opt-in Local Damage Informer (`/dmglog`)**: disabled by default; HUD readout + 25-entry hit log via `onSendGiveDamage`/`onSendTakeDamage`
+- **Scheduled GNEWS (`HH:MM:SS`) & `/l` Booking**: HUD countdown, 15s alert, 1-click wave booking in `/l`
+- **Lecturer & Interviews (`/lect`, `/lectstop`)**: 7 editable multi-line templates with `<0>` pause & timers (`helper_lecturer.json`)
 
-### Keybinds System
-- Bind any key to any chat command
-- Defaults: `L` = `/lock`, `K` = `/e`
-- Add/edit/remove via UI
-- Saved to `helper_settings.json`
-- Won't trigger while typing in chat or dialog open
-
-### Auto-Call & Database
-- Tracks players from chat, stores nick + phone number
-- Auto-call online players from DB
-- Configurable delay and max calls per session
-
-### Auto-Advertisement
-- Automatically posts ads with configurable delay
-
-### MM Editor (Skins)
-- Change player skin by model ID (0–311)
-
-### Auto-RP
-- Automated RP actions (weapons, healing) based on faction
-
-### Faction Scanner
-- Detects faction from dialog, sets skin automatically
-
-### Commands Guide
-- Built-in reference for Advance RP commands by category
+### Menus, Vehicles, Chat, AutoEdit, Quiz, GPS & Utilities
+- **MMB Quick Menu (`/wheelmenu`) & Target Menu (`RMB + X/R/E`)**: cursor-anchored RP Engine favorites + MVD/MZ/history target actions with optional Auto-RP
+- **Vehicles**: siren-linked auto-strobes (`isCarSirenOn`), Sport-mode (`Alt+W` / `Shift+W`) & cruise (`C`/`W`/`S`) with turn/brake assist *(ban-risk warning kept)*, plus opt-in **Drone Free Camera (`/cam`)** off by default using GTA camera opcodes
+- **Chat & QoL**: post-parser anti-spam chat filter, word-boundary auto line-wrap, `/rec`, `/hist`, opt-in `/buyfast`, opt-in AFK/session HUD tracker, layout fixer (`F2`), radio auto-tag, friendlist, `/ss`, `/clog`, finance tracker, `/wp` GPS, 6 faction presets, **Export/Import v2 (`helper_export.json`)**
+- **AutoEdit v2 & SMI**: single-pass engine (`1971` rules), `270+` non-repeating anagrams (`/anag [0-5]`), Quiz Director (`/quiz`), fixed `/find` vs `/gps`, online phonebook (`/calln`, `/smsn`, `/lsms`), `/hud`, `/calc`
+- **LuaJIT headroom**: top-level locals kept well under compile limits (`< 60 / 200`).
 
 ---
 
 ## Installation
 
-1. Install **MoonLoader v0.26+**
-2. Install required libraries: `mimgui`, `ffi`, `encoding`, `json`, `lib.samp.events`, `memory`, `bit`
+1. Install **CLEO 4** and **SAMPFUNCS**
+2. Install **MoonLoader v0.26+** (full bundle with `mimgui`, `SAMP.Lua`, `memory`, `bit`, `encoding`, `json`, `ffi`)
 3. Copy `helper_core.lua` to `GTA San Andreas/moonloader/`
-4. Launch game, press **F11** or type `/helper` to open menu
+4. Launch the game and press **F11** or type `/helper`
 
 ---
-
-## Hotkeys
-
-| Key | Action |
-|-----|--------|
-| `F11` | Open/close main menu |
-| `C` | Toggle cruise control (in vehicle) |
-| `W` / `S` | Increase / decrease cruise target speed |
-| `J` | Toggle strobe lights (in vehicle) |
-| `N` | Next strobe mode (in vehicle) |
-| `L` | `/lock` (lock/unlock vehicle) |
-| `K` | `/e` (engine on/off) |
-
-All hotkeys are disabled while typing in chat or when a dialog is open.
-
----
-
-## Configuration
-
-Settings are saved to `moonloader/config/helper_settings.json`:
-- Module enable/disable states
-- Strobe mode and speed
-- Cruise turbo mode toggle
-- Custom keybinds
-
----
-
-## Requirements
-
-- GTA San Andreas v1.0
-- SA-MP client
-- MoonLoader v0.26+
-- Libraries: mimgui, sampfuncs, memory, bit, encoding, json
-
----
-
-## Version History
-
-- **v0.8** (27.06.2026) — Turbo cruise redesign, keybinds system, strobe mode key, engine check, debug cleanup
-- **v0.7** — Initial SAMP.Lua integration, faction scanner, auto-call DB
-
----
-
-## License
-
-Personal use. See repository for details.
 
 ## Links
 
 - [Repository](https://github.com/estatyq/advancelua)
+- [Roadmap](ROADMAP.md)
+- [Русская версия](README.md)
