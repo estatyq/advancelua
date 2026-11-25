@@ -23,7 +23,7 @@ script_description("Universal Helper Platform for Advance RP")
 script_dependencies("SAMP.Lua", "mimgui")
 script_properties("work-in-pause")
 
-local SCRIPT_VERSION = 'v1.7 (05.07.2026)'
+local SCRIPT_VERSION = 'v1.8 (25.11.2026)'
 jit.off()
 
 -- ============================================================================
@@ -58,6 +58,35 @@ local task_queue = {}
 function queueTask(fn)
     if type(fn) == "function" then
         task_queue[#task_queue + 1] = fn
+    end
+end
+
+local scheduled_tasks = {}
+function scheduleTask(delay_ms, fn)
+    if type(fn) ~= "function" then return end
+    local d = tonumber(delay_ms) or 0
+    if d < 0 then d = 0 end
+    scheduled_tasks[#scheduled_tasks + 1] = {
+        run_at = os.clock() + (d / 1000.0),
+        fn = fn
+    }
+end
+
+function sendChatSequence(steps)
+    if type(steps) ~= "table" then return end
+    local total_ms = 0
+    for _, step in ipairs(steps) do
+        if type(step) == "table" then
+            total_ms = total_ms + math.max(0, tonumber(step.delay_ms) or 0)
+            local msg = step.msg
+            if type(msg) == "string" and msg ~= "" then
+                scheduleTask(total_ms, function()
+                    if isSampAvailable() then
+                        sampSendChat(msg)
+                    end
+                end)
+            end
+        end
     end
 end
 
@@ -136,79 +165,211 @@ local encoding = require 'encoding'
 local json = nil
 local ok_json = pcall(function() json = require 'json' end)
 if not ok_json or not json then
--- Minimal JSON fallback for save/load
+-- Safe built-in JSON fallback for save/load
 json = {
 encode = function(t)
+local seen = {}
+local function escapeStr(str)
+    local out = str:gsub('\\', '\\\\')
+        :gsub('"', '\\"')
+        :gsub('\b', '\\b')
+        :gsub('\f', '\\f')
+        :gsub('\n', '\\n')
+        :gsub('\r', '\\r')
+        :gsub('\t', '\\t')
+        :gsub('[%z\1-\31]', function(c)
+            return string.format('\\u%04x', c:byte())
+        end)
+    return '"' .. out .. '"'
+end
 local function enc(v)
-if type(v) == 'string' then
-return '"' .. v:gsub('"', '\\"') .. '"'
-elseif type(v) == 'number' then
-return tostring(v)
-elseif type(v) == 'boolean' then
-return v and 'true' or 'false'
-elseif type(v) == 'table' then
-local is_array = true
-local arr = {}
-local obj = {}
-for k, val in pairs(v) do
-if type(k) == 'number' then
-arr[k] = enc(val)
-else
-is_array = false
-obj[#obj+1] = '"' .. tostring(k) .. '": ' .. enc(val)
-end
-end
-if is_array and #arr > 0 then
-return '[' .. table.concat(arr, ',') .. ']'
-else
-return '{' .. table.concat(obj, ',') .. '}'
-end
-end
-return 'null'
+    local tv = type(v)
+    if tv == 'string' then
+        return escapeStr(v)
+    elseif tv == 'number' then
+        if v ~= v or v == math.huge or v == -math.huge then return '0' end
+        return tostring(v)
+    elseif tv == 'boolean' then
+        return v and 'true' or 'false'
+    elseif tv == 'table' then
+        if seen[v] then return 'null' end
+        seen[v] = true
+        local max_idx, count = 0, 0
+        local is_array = true
+        for k, _ in pairs(v) do
+            if type(k) == 'number' and k >= 1 and math.floor(k) == k then
+                if k > max_idx then max_idx = k end
+                count = count + 1
+            else
+                is_array = false
+                break
+            end
+        end
+        local res
+        if is_array and count > 0 and max_idx == count then
+            local arr = {}
+            for i = 1, max_idx do
+                arr[i] = enc(v[i])
+            end
+            res = '[' .. table.concat(arr, ',') .. ']'
+        else
+            local obj = {}
+            for k, val in pairs(v) do
+                if type(k) == 'string' or type(k) == 'number' then
+                    obj[#obj + 1] = escapeStr(tostring(k)) .. ':' .. enc(val)
+                end
+            end
+            res = '{' .. table.concat(obj, ',') .. '}'
+        end
+        seen[v] = nil
+        return res
+    end
+    return 'null'
 end
 return enc(t)
 end,
 decode = function(s)
--- Simple JSON decoder
+if type(s) ~= 'string' then return nil end
+local len = #s
 local pos = 1
-local function val()
-local c = s:match('^%s*([%[{"])', pos)
-if c == '{' then
-pos = pos + 1
-local t = {}
-while true do
-pos = s:match('^%s*', pos):len() + pos
-if s:sub(pos, pos) == '}' then pos = pos + 1 break end
-local key = s:match('^"([^"]*)"', pos)
-pos = s:match('^"[^"]*"%s*:%s*', pos):len() + pos
-t[key] = val()
-pos = s:match('^%s*,%s*', pos) and pos + s:match('^%s*,%s*', pos):len() or pos
+local function skipWs()
+    local _, next_end = s:find('^[ \t\r\n]+', pos)
+    if next_end then pos = next_end + 1 end
 end
-return t
-elseif c == '[' then
-pos = pos + 1
-local t = {}
-while true do
-pos = s:match('^%s*', pos):len() + pos
-if s:sub(pos, pos) == ']' then pos = pos + 1 break end
-t[#t+1] = val()
-pos = s:match('^%s*,%s*', pos) and pos + s:match('^%s*,%s*', pos):len() or pos
+local function codepointToUtf8(cp)
+    if cp < 0x80 then
+        return string.char(cp)
+    elseif cp < 0x800 then
+        return string.char(0xC0 + math.floor(cp / 64), 0x80 + (cp % 64))
+    else
+        return string.char(0xE0 + math.floor(cp / 4096), 0x80 + (math.floor(cp / 64) % 64), 0x80 + (cp % 64))
+    end
 end
-return t
-elseif c == '"' then
-local str = s:match('^"([^"]*)"', pos)
-pos = s:match('^"[^"]*"', pos):len() + pos
-return str
-else
-local num = s:match('^%-?%d+%.?%d*', pos)
-if num then pos = pos + num:len() return tonumber(num) end
-local bool = s:match('^(true|false)', pos)
-if bool then pos = pos + bool:len() return bool == 'true' end
-pos = pos + 4
-return nil
+local function parseString()
+    if s:sub(pos, pos) ~= '"' then return nil, false end
+    pos = pos + 1
+    local parts = {}
+    local esc_map = {['"'] = '"', ['\\'] = '\\', ['/'] = '/', ['b'] = '\b', ['f'] = '\f', ['n'] = '\n', ['r'] = '\r', ['t'] = '\t'}
+    while pos <= len do
+        local ch = s:sub(pos, pos)
+        if ch == '"' then
+            pos = pos + 1
+            return table.concat(parts), true
+        elseif ch == '\\' then
+            pos = pos + 1
+            if pos > len then return nil, false end
+            local esc = s:sub(pos, pos)
+            if esc_map[esc] then
+                parts[#parts + 1] = esc_map[esc]
+                pos = pos + 1
+            elseif esc == 'u' then
+                local hex = s:sub(pos + 1, pos + 4)
+                if #hex == 4 and hex:match('^%x%x%x%x$') then
+                    local cp = tonumber(hex, 16)
+                    parts[#parts + 1] = codepointToUtf8(cp)
+                    pos = pos + 5
+                else
+                    return nil, false
+                end
+            else
+                parts[#parts + 1] = esc
+                pos = pos + 1
+            end
+        else
+            parts[#parts + 1] = ch
+            pos = pos + 1
+        end
+    end
+    return nil, false
 end
+local parseValue
+local function parseObject()
+    pos = pos + 1
+    local t = {}
+    skipWs()
+    if pos <= len and s:sub(pos, pos) == '}' then
+        pos = pos + 1
+        return t, true
+    end
+    while pos <= len do
+        skipWs()
+        local key, ok_k = parseString()
+        if not ok_k then return nil, false end
+        skipWs()
+        if s:sub(pos, pos) ~= ':' then return nil, false end
+        pos = pos + 1
+        local v, ok_v = parseValue()
+        if not ok_v then return nil, false end
+        t[key] = v
+        skipWs()
+        local sep = s:sub(pos, pos)
+        if sep == '}' then
+            pos = pos + 1
+            return t, true
+        elseif sep == ',' then
+            pos = pos + 1
+        else
+            return nil, false
+        end
+    end
+    return nil, false
 end
-return val()
+local function parseArray()
+    pos = pos + 1
+    local t = {}
+    skipWs()
+    if pos <= len and s:sub(pos, pos) == ']' then
+        pos = pos + 1
+        return t, true
+    end
+    while pos <= len do
+        local v, ok_v = parseValue()
+        if not ok_v then return nil, false end
+        t[#t + 1] = v
+        skipWs()
+        local sep = s:sub(pos, pos)
+        if sep == ']' then
+            pos = pos + 1
+            return t, true
+        elseif sep == ',' then
+            pos = pos + 1
+        else
+            return nil, false
+        end
+    end
+    return nil, false
+end
+parseValue = function()
+    skipWs()
+    if pos > len then return nil, false end
+    local c = s:sub(pos, pos)
+    if c == '{' then
+        return parseObject()
+    elseif c == '[' then
+        return parseArray()
+    elseif c == '"' then
+        return parseString()
+    elseif s:sub(pos, pos + 3) == 'true' then
+        pos = pos + 4
+        return true, true
+    elseif s:sub(pos, pos + 4) == 'false' then
+        pos = pos + 5
+        return false, true
+    elseif s:sub(pos, pos + 3) == 'null' then
+        pos = pos + 4
+        return nil, true
+    else
+        local num = s:match('^%-?%d+%.?%d*[eE]?[+-]?%d*', pos)
+        if num and num ~= '' and tonumber(num) ~= nil then
+            pos = pos + #num
+            return tonumber(num), true
+        end
+    end
+    return nil, false
+end
+local res, ok_val = parseValue()
+if not ok_val then return nil end
+return res
 end
 }
 print('[helper_core] json library not found, using built-in fallback')
@@ -343,12 +504,12 @@ end
 local mm_auto_format = imgui.new.bool(true)
 local mm_auto_send = imgui.new.bool(false)
 local mm_send_delay = imgui.new.int(3000)
-local mm_tag = imgui.new.char[8]("LV")
+local mm_tag = imgui.new.char[9]("LV")
 local ae_active = imgui.new.bool(false)
 local ae_dialog_id = -1
 local ae_original_text = ""
 local ae_formatted_text = ""
-local ae_input_buf = imgui.new.char[1024]("")
+local ae_input_buf = imgui.new.char[1025]("")
 local ae_focus = false
 local ae_ignore_enter = 0  -- grace period frames to ignore stale Enter from chat command
 local ae_enter_was_down = false  -- track Enter key release before allowing send
@@ -357,6 +518,8 @@ local ad_history = {}
 local ad_history_path = getFolderPath(0x1C) .. "\\helper_ad_history.json"
 local ae_show_history = imgui.new.bool(false)
 local ae_open_queue = nil  -- queued dialog open from onShowDialog (processed in main loop to avoid race with render thread)
+local ae_autosend_deadline = nil
+local ae_last_buf_snapshot = ""
 
 function loadAdHistory()
 local parsed = readJsonFile(ad_history_path)
@@ -450,7 +613,7 @@ local mm_rule_revision = 0
 local mm_rule_filter_cache = {query = nil, revision = -1, count = -1, indices = {}}
 local mm_last_deleted_rule = nil
 local mm_rule_status = ""
-mm_ui_page = 0
+mm_ui_page = 1
 mm_pending_ui_page = nil
 mm_ui_last_logged_page = -1
 local mm_rules = {
@@ -689,8 +852,6 @@ local mm_rules = {
 {abbreviation = "файрберда", replacement = "а/м марки \"Phoenix\""},
 {abbreviation = "чирок", replacement = "а/м марки \"Cheetah\""},
 {abbreviation = "чирока", replacement = "а/м марки \"Cheetah\""},
-{abbreviation = "банка", replacement = "а/м марки \"Banshee\""},
-{abbreviation = "банку", replacement = "а/м марки \"Banshee\""},
 {abbreviation = "шевроле", replacement = "а/м марки \"Chevrolet\""},
 {abbreviation = "шевролеа", replacement = "а/м марки \"Chevrolet\""},
 {abbreviation = "ламбо", replacement = "а/м марки \"Lamborghini\""},
@@ -759,18 +920,14 @@ local mm_rules = {
 {abbreviation = "авто", replacement = "а/м"},
 {abbreviation = "автоа", replacement = "а/м"},
 {abbreviation = "лодка", replacement = "лодку"},
-{abbreviation = "лодку", replacement = "лодку"},
 {abbreviation = "лодки", replacement = "лодку"},
 {abbreviation = "лодке", replacement = "лодку"},
 {abbreviation = "яхта", replacement = "яхту"},
-{abbreviation = "яхту", replacement = "яхту"},
 {abbreviation = "яхты", replacement = "яхту"},
 {abbreviation = "яхте", replacement = "яхту"},
 {abbreviation = "самолет", replacement = "самолёт"},
-{abbreviation = "самолёт", replacement = "самолёт"},
 {abbreviation = "самолёта", replacement = "самолёт"},
 {abbreviation = "вертолет", replacement = "вертолёт"},
-{abbreviation = "вертолёт", replacement = "вертолёт"},
 {abbreviation = "вертолёта", replacement = "вертолёт"},
 -- Мото
 {abbreviation = "нрг", replacement = "мото марки \"NRG-500\""},
@@ -813,7 +970,6 @@ local mm_rules = {
 {abbreviation = "велик", replacement = "велосипед"},
 {abbreviation = "велика", replacement = "велосипед"},
 {abbreviation = "велику", replacement = "велосипед"},
-{abbreviation = "велосипед", replacement = "велосипед"},
 {abbreviation = "велосипеда", replacement = "велосипед"},
 -- Города
 {abbreviation = "лс", replacement = "Los Santos"},
@@ -824,7 +980,6 @@ local mm_rules = {
 {abbreviation = "лв", replacement = "Las Venturas"},
 {abbreviation = "las venturas", replacement = "Las Venturas"},
 {abbreviation = "lv", replacement = "Las Venturas"},
-{abbreviation = "штат", replacement = "штат"},
 {abbreviation = "штата", replacement = "штат"},
 -- Районы
 {abbreviation = "гетто", replacement = "East Los Santos"},
@@ -896,7 +1051,6 @@ local mm_rules = {
 {abbreviation = "тиера", replacement = "Tierra Robada"},
 {abbreviation = "робада", replacement = "Tierra Robada"},
 {abbreviation = "ангел пайн", replacement = "Angel Pine"},
-{abbreviation = "ангел", replacement = "Angel Pine"},
 {abbreviation = "норт рок", replacement = "North Rock"},
 {abbreviation = "норт", replacement = "North Rock"},
 {abbreviation = "эшберри", replacement = "Ashberry"},
@@ -941,21 +1095,16 @@ local mm_rules = {
 {abbreviation = "пирата", replacement = "Pirates in Mens Pants"},
 {abbreviation = "визаж", replacement = "Visage"},
 {abbreviation = "визажа", replacement = "Visage"},
-
 -- Недвижимость
 {abbreviation = "кв", replacement = "квартиру"},
 {abbreviation = "квартира", replacement = "квартиру"},
-{abbreviation = "квартиру", replacement = "квартиру"},
 {abbreviation = "квартиры", replacement = "квартиру"},
-{abbreviation = "особняк", replacement = "особняк"},
 {abbreviation = "особняка", replacement = "особняк"},
 {abbreviation = "особняку", replacement = "особняк"},
-{abbreviation = "виллу", replacement = "виллу"},
 {abbreviation = "вилла", replacement = "виллу"},
 {abbreviation = "виллы", replacement = "виллу"},
 {abbreviation = "биз", replacement = "бизнес"},
 {abbreviation = "бизик", replacement = "бизнес"},
-{abbreviation = "бизнес", replacement = "бизнес"},
 {abbreviation = "бизнеса", replacement = "бизнес"},
 {abbreviation = "бизнесу", replacement = "бизнес"},
 {abbreviation = "завод", replacement = "производство"},
@@ -970,24 +1119,19 @@ local mm_rules = {
 {abbreviation = "азс", replacement = "АЗС"},
 {abbreviation = "заправку", replacement = "АЗС"},
 {abbreviation = "бензоль", replacement = "АЗС"},
-{abbreviation = "отель", replacement = "отель"},
 {abbreviation = "мотель", replacement = "отель"},
 {abbreviation = "отеля", replacement = "отель"},
 {abbreviation = "мотеля", replacement = "отель"},
 {abbreviation = "маг", replacement = "магазин"},
-{abbreviation = "магазин", replacement = "магазин"},
 {abbreviation = "магазина", replacement = "магазин"},
 {abbreviation = "хатка", replacement = "магазин"},
 {abbreviation = "хатку", replacement = "магазин"},
 {abbreviation = "хатки", replacement = "магазин"},
-{abbreviation = "барах", replacement = "барах"},
 {abbreviation = "бараху", replacement = "барах"},
 {abbreviation = "барахи", replacement = "барах"},
 {abbreviation = "барахе", replacement = "барах"},
-{abbreviation = "клуб", replacement = "клуб"},
 {abbreviation = "клуба", replacement = "клуб"},
 {abbreviation = "клубу", replacement = "клуб"},
-{abbreviation = "казино", replacement = "казино"},
 {abbreviation = "казик", replacement = "казино"},
 {abbreviation = "казика", replacement = "казино"},
 {abbreviation = "казику", replacement = "казино"},
@@ -999,63 +1143,40 @@ local mm_rules = {
 {abbreviation = "спортзала", replacement = "тренажёрный зал"},
 {abbreviation = "зал", replacement = "тренажёрный зал"},
 {abbreviation = "закусочная", replacement = "закусочную"},
-{abbreviation = "закусочную", replacement = "закусочную"},
 {abbreviation = "столовая", replacement = "столовую"},
-{abbreviation = "столовую", replacement = "столовую"},
-{abbreviation = "бар", replacement = "бар"},
 {abbreviation = "бара", replacement = "бар"},
 {abbreviation = "бару", replacement = "бар"},
-{abbreviation = "ресторан", replacement = "ресторан"},
 {abbreviation = "ресторана", replacement = "ресторан"},
-{abbreviation = "кафе", replacement = "кафе"},
 {abbreviation = "аптека", replacement = "аптеку"},
-{abbreviation = "аптеку", replacement = "аптеку"},
 {abbreviation = "аптеки", replacement = "аптеку"},
-{abbreviation = "склад", replacement = "склад"},
 {abbreviation = "склада", replacement = "склад"},
 {abbreviation = "складу", replacement = "склад"},
-{abbreviation = "ангар", replacement = "ангар"},
 {abbreviation = "ангара", replacement = "ангар"},
-{abbreviation = "причал", replacement = "причал"},
 {abbreviation = "причала", replacement = "причал"},
 {abbreviation = "ферма", replacement = "ферму"},
-{abbreviation = "ферму", replacement = "ферму"},
 {abbreviation = "фермы", replacement = "ферму"},
 {abbreviation = "шахта", replacement = "шахту"},
-{abbreviation = "шахту", replacement = "шахту"},
 {abbreviation = "шахты", replacement = "шахту"},
 {abbreviation = "лесопилка", replacement = "лесопилку"},
-{abbreviation = "лесопилку", replacement = "лесопилку"},
-{abbreviation = "порт", replacement = "порт"},
 {abbreviation = "порта", replacement = "порт"},
 {abbreviation = "порту", replacement = "порт"},
-{abbreviation = "верфь", replacement = "верфь"},
 {abbreviation = "верфи", replacement = "верфь"},
-{abbreviation = "хранилище", replacement = "хранилище"},
 {abbreviation = "хранилища", replacement = "хранилище"},
 {abbreviation = "электростанция", replacement = "электростанцию"},
-{abbreviation = "электростанцию", replacement = "электростанцию"},
 {abbreviation = "мэрия", replacement = "мэрию"},
-{abbreviation = "мэрию", replacement = "мэрию"},
 {abbreviation = "мэрии", replacement = "мэрию"},
 {abbreviation = "мэрие", replacement = "мэрию"},
 {abbreviation = "мерия", replacement = "мэрию"},
 {abbreviation = "мерию", replacement = "мэрию"},
 {abbreviation = "полиция", replacement = "полицию"},
-{abbreviation = "полицию", replacement = "полицию"},
 {abbreviation = "полиции", replacement = "полицию"},
 {abbreviation = "больница", replacement = "больницу"},
-{abbreviation = "больницу", replacement = "больницу"},
 {abbreviation = "больницы", replacement = "больницу"},
 {abbreviation = "школа", replacement = "школу"},
-{abbreviation = "школу", replacement = "школу"},
 {abbreviation = "школы", replacement = "школу"},
-{abbreviation = "церковь", replacement = "церковь"},
 {abbreviation = "церкви", replacement = "церковь"},
-{abbreviation = "банк", replacement = "банк"},
 {abbreviation = "банка", replacement = "банк"},
 {abbreviation = "банку", replacement = "банк"},
-{abbreviation = "стадион", replacement = "стадион"},
 {abbreviation = "стадиона", replacement = "стадион"},
 {abbreviation = "стадиону", replacement = "стадион"},
 -- Предметы
@@ -1064,17 +1185,14 @@ local mm_rules = {
 {abbreviation = "симку", replacement = "SIM-card"},
 {abbreviation = "симки", replacement = "SIM-card"},
 {abbreviation = "тел", replacement = "телефон"},
-{abbreviation = "телефон", replacement = "телефон"},
 {abbreviation = "телефона", replacement = "телефон"},
 {abbreviation = "номер", replacement = "тел. номер"},
 {abbreviation = "номера", replacement = "тел. номер"},
-{abbreviation = "одежду", replacement = "одежду"},
 {abbreviation = "одежда", replacement = "одежду"},
 {abbreviation = "одежды", replacement = "одежду"},
 {abbreviation = "скин", replacement = "одежду"},
 {abbreviation = "скина", replacement = "одежду"},
 {abbreviation = "скину", replacement = "одежду"},
-{abbreviation = "аксессуар", replacement = "аксессуар"},
 {abbreviation = "аксесуар", replacement = "аксессуар"},
 {abbreviation = "аксессуара", replacement = "аксессуар"},
 {abbreviation = "меч", replacement = "аксессуар \"Меч\""},
@@ -1092,29 +1210,18 @@ local mm_rules = {
 {abbreviation = "бинты", replacement = "аптечку"},
 {abbreviation = "бинтов", replacement = "аптечку"},
 {abbreviation = "аптечка", replacement = "аптечку"},
-{abbreviation = "аптечку", replacement = "аптечку"},
-{abbreviation = "аптеки", replacement = "аптечку"},
 {abbreviation = "еда", replacement = "еду"},
-{abbreviation = "еду", replacement = "еду"},
 {abbreviation = "еды", replacement = "еду"},
 {abbreviation = "вода", replacement = "воду"},
-{abbreviation = "воду", replacement = "воду"},
 {abbreviation = "воды", replacement = "воду"},
-{abbreviation = "бронежилет", replacement = "бронежилет"},
 {abbreviation = "бронежилета", replacement = "бронежилет"},
-{abbreviation = "бинокль", replacement = "бинокль"},
 {abbreviation = "бинокля", replacement = "бинокль"},
-{abbreviation = "фонарик", replacement = "фонарик"},
 {abbreviation = "фонарика", replacement = "фонарик"},
-{abbreviation = "радио", replacement = "радио"},
 {abbreviation = "радиоа", replacement = "радио"},
 {abbreviation = "гитара", replacement = "гитару"},
-{abbreviation = "гитару", replacement = "гитару"},
 {abbreviation = "гитары", replacement = "гитару"},
-{abbreviation = "мяч", replacement = "мяч"},
 {abbreviation = "мяча", replacement = "мяч"},
 {abbreviation = "удочка", replacement = "удочку"},
-{abbreviation = "удочку", replacement = "удочку"},
 {abbreviation = "удочки", replacement = "удочку"},
 -- Оружие
 {abbreviation = "дигл", replacement = "оружие \"Desert Eagle\""},
@@ -1154,47 +1261,33 @@ local mm_rules = {
 -- Деньги
 {abbreviation = "кк", replacement = ".000.000$"},
 {abbreviation = "млн", replacement = ".000.000$"},
-{abbreviation = "ккк", replacement = ".000.000$"},
 {abbreviation = "миллиард", replacement = ".000.000.000$"},
 {abbreviation = "млрд", replacement = ".000.000.000$"},
 {abbreviation = "миллиарда", replacement = ".000.000.000$"},
 {abbreviation = "миллион", replacement = ".000.000$"},
 {abbreviation = "миллиона", replacement = ".000.000$"},
 -- Цена
-{abbreviation = "обмен", replacement = "обмен"},
 {abbreviation = "бартер", replacement = "обмен"},
 {abbreviation = "дешево", replacement = "по низкой цене"},
 {abbreviation = "дёшево", replacement = "по низкой цене"},
 {abbreviation = "недорого", replacement = "по низкой цене"},
 -- Услуги
 {abbreviation = "услуг", replacement = "услуги"},
-{abbreviation = "услуги", replacement = "услуги"},
 {abbreviation = "перевозк", replacement = "перевозки"},
-{abbreviation = "перевозки", replacement = "перевозки"},
-{abbreviation = "доставка", replacement = "доставка"},
 {abbreviation = "доставку", replacement = "доставка"},
-{abbreviation = "такси", replacement = "такси"},
-{abbreviation = "эвакуатор", replacement = "эвакуатор"},
 {abbreviation = "эвакуатора", replacement = "эвакуатор"},
-{abbreviation = "ремонт", replacement = "ремонт"},
 {abbreviation = "ремонта", replacement = "ремонт"},
-{abbreviation = "тюнинг", replacement = "тюнинг"},
 {abbreviation = "тюнинга", replacement = "тюнинг"},
-{abbreviation = "покраска", replacement = "покраска"},
 {abbreviation = "покраску", replacement = "покраска"},
-{abbreviation = "охрана", replacement = "охрана"},
 {abbreviation = "охрану", replacement = "охрана"},
 -- Семья
-{abbreviation = "семья", replacement = "семья"},
 {abbreviation = "семью", replacement = "семья"},
 {abbreviation = "семьи", replacement = "семья"},
-{abbreviation = "родственников", replacement = "родственников"},
 {abbreviation = "родня", replacement = "родственников"},
 {abbreviation = "родню", replacement = "родственников"},
 -- Лицензии
 {abbreviation = "права", replacement = "вод. права"},
 {abbreviation = "прав", replacement = "вод. права"},
-{abbreviation = "лицензия", replacement = "лицензия"},
 {abbreviation = "лицензию", replacement = "лицензия"},
 {abbreviation = "лицензии", replacement = "лицензия"},
 {abbreviation = "лиц", replacement = "лицензия"},
@@ -1203,243 +1296,38 @@ local mm_rules = {
 -- Работа/Организации
 {abbreviation = "сми", replacement = "СМИ"},
 {abbreviation = "смиа", replacement = "СМИ"},
-{abbreviation = "собеседование", replacement = "собеседование"},
 {abbreviation = "собеседованиеа", replacement = "собеседование"},
 {abbreviation = "фбр", replacement = "ФБР"},
 {abbreviation = "фбра", replacement = "ФБР"},
 {abbreviation = "мчс", replacement = "МЧС"},
 {abbreviation = "мчса", replacement = "МЧС"},
 {abbreviation = "армия", replacement = "армию"},
-{abbreviation = "армию", replacement = "армию"},
 {abbreviation = "армии", replacement = "армию"},
 {abbreviation = "инструктор", replacement = "инструктора"},
-{abbreviation = "инструктора", replacement = "инструктора"},
 {abbreviation = "работа", replacement = "работу"},
-{abbreviation = "работу", replacement = "работу"},
 {abbreviation = "работы", replacement = "работу"},
 {abbreviation = "вакансия", replacement = "вакансию"},
-{abbreviation = "вакансию", replacement = "вакансию"},
 {abbreviation = "вакансии", replacement = "вакансию"},
-{abbreviation = "набор", replacement = "набор"},
 {abbreviation = "набора", replacement = "набор"},
 {abbreviation = "собеседования", replacement = "собеседование"},
 -- Транспорт
-{abbreviation = "поезд", replacement = "поезд"},
 {abbreviation = "поезда", replacement = "поезд"},
 {abbreviation = "поезду", replacement = "поезд"},
-{abbreviation = "автобус", replacement = "автобус"},
 {abbreviation = "автобуса", replacement = "автобус"},
 {abbreviation = "автобусу", replacement = "автобус"},
-{abbreviation = "трамвай", replacement = "трамвай"},
 {abbreviation = "трамвая", replacement = "трамвай"},
 {abbreviation = "трамваю", replacement = "трамвай"},
-{abbreviation = "грузовик", replacement = "грузовик"},
 {abbreviation = "грузовика", replacement = "грузовик"},
 {abbreviation = "грузовику", replacement = "грузовик"},
 {abbreviation = "фура", replacement = "грузовик"},
 {abbreviation = "фуру", replacement = "грузовик"},
 {abbreviation = "фуры", replacement = "грузовик"},
-{abbreviation = "тягач", replacement = "тягач"},
 {abbreviation = "тягача", replacement = "тягач"},
-{abbreviation = "сэлбрайт", replacement = "а/м марки \"Sultan\""},
-{abbreviation = "ковбой", replacement = "а/м марки \"Clover\""},
-{abbreviation = "чирок", replacement = "а/м марки \"Cheetah\""},
-{abbreviation = "банка", replacement = "а/м марки \"Banshee\""},
-{abbreviation = "файрберд", replacement = "а/м марки \"Phoenix\""},
-{abbreviation = "октан", replacement = "а/м марки \"Uranus\""},
-{abbreviation = "зр350", replacement = "а/м марки \"ZR-350\""},
-{abbreviation = "зр", replacement = "а/м марки \"ZR-350\""},
-{abbreviation = "инфернус", replacement = "а/м марки \"Infernus\""},
-{abbreviation = "инфернуса", replacement = "а/м марки \"Infernus\""},
-{abbreviation = "буллет", replacement = "а/м марки \"Bullet\""},
-{abbreviation = "буллета", replacement = "а/м марки \"Bullet\""},
-{abbreviation = "турисмо", replacement = "а/м марки \"Turismo\""},
 {abbreviation = "ковер", replacement = "а/м марки \"Clover\""},
-{abbreviation = "элегант", replacement = "а/м марки \"Elegant\""},
-{abbreviation = "элеганта", replacement = "а/м марки \"Elegant\""},
-{abbreviation = "фортуне", replacement = "а/м марки \"Fortune\""},
-{abbreviation = "тампико", replacement = "а/м марки \"Tampa\""},
-{abbreviation = "глендейл", replacement = "а/м марки \"Glendale\""},
-{abbreviation = "глендейла", replacement = "а/м марки \"Glendale\""},
-{abbreviation = "эмперор", replacement = "а/м марки \"Emperor\""},
-{abbreviation = "эмперора", replacement = "а/м марки \"Emperor\""},
-{abbreviation = "невада", replacement = "а/м марки \"Nevada\""},
-{abbreviation = "неваду", replacement = "а/м марки \"Nevada\""},
-{abbreviation = "примо", replacement = "а/м марки \"Primo\""},
-{abbreviation = "маджестик", replacement = "а/м марки \"Majestic\""},
-{abbreviation = "маджестика", replacement = "а/м марки \"Majestic\""},
-{abbreviation = "винвуд", replacement = "а/м марки \"Willard\""},
-{abbreviation = "винвуда", replacement = "а/м марки \"Willard\""},
-{abbreviation = "вашингтон", replacement = "а/м марки \"Washington\""},
-{abbreviation = "вашингтона", replacement = "а/м марки \"Washington\""},
-{abbreviation = "адмирал", replacement = "а/м марки \"Admiral\""},
-{abbreviation = "адмирала", replacement = "а/м марки \"Admiral\""},
-{abbreviation = "ранчер", replacement = "а/м марки \"Rancher\""},
-{abbreviation = "ранчера", replacement = "а/м марки \"Rancher\""},
-{abbreviation = "ранчо", replacement = "а/м марки \"Rancher\""},
-{abbreviation = "бобкэт", replacement = "а/м марки \"Bobcat\""},
-{abbreviation = "бобкэта", replacement = "а/м марки \"Bobcat\""},
-{abbreviation = "йосемити", replacement = "а/м марки \"Yosemite\""},
 {abbreviation = "валдшнеп", replacement = "а/м марки \"Walton\""},
 {abbreviation = "валдшнепа", replacement = "а/м марки \"Walton\""},
-{abbreviation = "торнадо", replacement = "а/м марки \"Tornado\""},
-{abbreviation = "торнадоа", replacement = "а/м марки \"Tornado\""},
-{abbreviation = "блейд", replacement = "а/м марки \"Blade\""},
-{abbreviation = "блейда", replacement = "а/м марки \"Blade\""},
-{abbreviation = "тампла", replacement = "а/м марки \"Tampa\""},
-{abbreviation = "тамплу", replacement = "а/м марки \"Tampa\""},
-{abbreviation = "альфа", replacement = "а/м марки \"Alpha\""},
-{abbreviation = "альфу", replacement = "а/м марки \"Alpha\""},
-{abbreviation = "комета", replacement = "а/м марки \"Comet\""},
-{abbreviation = "комету", replacement = "а/м марки \"Comet\""},
-{abbreviation = "стингер", replacement = "а/м марки \"Stinger\""},
-{abbreviation = "стингера", replacement = "а/м марки \"Stinger\""},
-{abbreviation = "супергт", replacement = "а/м марки \"Super GT\""},
-{abbreviation = "супергта", replacement = "а/м марки \"Super GT\""},
-{abbreviation = "чампион", replacement = "а/м марки \"Champion\""},
-{abbreviation = "чампиона", replacement = "а/м марки \"Champion\""},
-{abbreviation = "букер", replacement = "а/м марки \"Buccaneer\""},
-{abbreviation = "букера", replacement = "а/м марки \"Buccaneer\""},
-{abbreviation = "хёрмит", replacement = "а/м марки \"Hermes\""},
-{abbreviation = "хёрмита", replacement = "а/м марки \"Hermes\""},
-{abbreviation = "сентинел", replacement = "а/м марки \"Sentinel\""},
-{abbreviation = "сентинела", replacement = "а/м марки \"Sentinel\""},
-{abbreviation = "фортун", replacement = "а/м марки \"Fortune\""},
-{abbreviation = "фортуна", replacement = "а/м марки \"Fortune\""},
-{abbreviation = "фортуну", replacement = "а/м марки \"Fortune\""},
-{abbreviation = "блиста", replacement = "а/м марки \"Blista\""},
-{abbreviation = "блисту", replacement = "а/м марки \"Blista\""},
-{abbreviation = "манана", replacement = "а/м марки \"Manana\""},
-{abbreviation = "манану", replacement = "а/м марки \"Manana\""},
-{abbreviation = "пикап", replacement = "а/м марки \"Picador\""},
-{abbreviation = "пикапа", replacement = "а/м марки \"Picador\""},
-{abbreviation = "соляр", replacement = "а/м марки \"Solair\""},
-{abbreviation = "соляра", replacement = "а/м марки \"Solair\""},
-{abbreviation = "винсаг", replacement = "а/м марки \"Windsor\""},
-{abbreviation = "винсага", replacement = "а/м марки \"Windsor\""},
-{abbreviation = "шафтер", replacement = "а/м марки \"Stafford\""},
-{abbreviation = "шафтера", replacement = "а/м марки \"Stafford\""},
-{abbreviation = "хантер", replacement = "а/м марки \"Huntley\""},
-{abbreviation = "хантера", replacement = "а/м марки \"Huntley\""},
-{abbreviation = "патриот", replacement = "а/м марки \"Patriot\""},
-{abbreviation = "патриота", replacement = "а/м марки \"Patriot\""},
-{abbreviation = "монстр", replacement = "а/м марки \"Monster\""},
-{abbreviation = "монстра", replacement = "а/м марки \"Monster\""},
-{abbreviation = "бандито", replacement = "а/м марки \"Bandito\""},
-{abbreviation = "бандита", replacement = "а/м марки \"Bandito\""},
-{abbreviation = "кальцо", replacement = "а/м марки \"Calcium\""},
-{abbreviation = "кальция", replacement = "а/м марки \"Calcium\""},
-{abbreviation = "хотринг", replacement = "а/м марки \"Hotring\""},
-{abbreviation = "хотринга", replacement = "а/м марки \"Hotring\""},
-{abbreviation = "хотрингер", replacement = "а/м марки \"Hotring\""},
-{abbreviation = "багги", replacement = "а/м марки \"Bandito\""},
-{abbreviation = "крэйг", replacement = "а/м марки \"Crane\""},
-{abbreviation = "стретч", replacement = "а/м марки \"Stretch\""},
-{abbreviation = "стретча", replacement = "а/м марки \"Stretch\""},
-{abbreviation = "премьер", replacement = "а/м марки \"Premier\""},
-{abbreviation = "премьера", replacement = "а/м марки \"Premier\""},
-{abbreviation = "бравура", replacement = "а/м марки \"Bravura\""},
-{abbreviation = "бравуру", replacement = "а/м марки \"Bravura\""},
-{abbreviation = "сламван", replacement = "а/м марки \"Slamvan\""},
-{abbreviation = "сламвана", replacement = "а/м марки \"Slamvan\""},
-{abbreviation = "ремингтон", replacement = "а/м марки \"Remington\""},
-{abbreviation = "ремингтона", replacement = "а/м марки \"Remington\""},
-{abbreviation = "флеш", replacement = "а/м марки \"Flash\""},
-{abbreviation = "флеша", replacement = "а/м марки \"Flash\""},
-{abbreviation = "джестер", replacement = "а/м марки \"Jester\""},
-{abbreviation = "джестера", replacement = "а/м марки \"Jester\""},
-{abbreviation = "стратум", replacement = "а/м марки \"Stratum\""},
-{abbreviation = "стратума", replacement = "а/м марки \"Stratum\""},
-{abbreviation = "уран", replacement = "а/м марки \"Uranus\""},
-{abbreviation = "урана", replacement = "а/м марки \"Uranus\""},
-{abbreviation = "салат", replacement = "а/м марки \"Sultan RS\""},
-{abbreviation = "салата", replacement = "а/м марки \"Sultan RS\""},
-{abbreviation = "стрикер", replacement = "а/м марки \"Sultan RS\""},
-{abbreviation = "адреналин", replacement = "а/м марки \"Sultan RS\""},
-{abbreviation = "адреналина", replacement = "а/м марки \"Sultan RS\""},
-{abbreviation = "хоткнайф", replacement = "а/м марки \"Hotknife\""},
-{abbreviation = "хоткнайфа", replacement = "а/м марки \"Hotknife\""},
-{abbreviation = "дюна", replacement = "а/м марки \"Dune\""},
-{abbreviation = "дюну", replacement = "а/м марки \"Dune\""},
-{abbreviation = "дюны", replacement = "а/м марки \"Dune\""},
-{abbreviation = "сабре", replacement = "а/м марки \"Sabre\""},
-{abbreviation = "сабра", replacement = "а/м марки \"Sabre\""},
-{abbreviation = "сабру", replacement = "а/м марки \"Sabre\""},
-{abbreviation = "вуду", replacement = "а/м марки \"Voodoo\""},
-{abbreviation = "кловер", replacement = "а/м марки \"Clover\""},
-{abbreviation = "кловера", replacement = "а/м марки \"Clover\""},
-{abbreviation = "булка", replacement = "а/м марки \"Bullet\""},
-{abbreviation = "булку", replacement = "а/м марки \"Bullet\""},
-{abbreviation = "булки", replacement = "а/м марки \"Bullet\""},
-{abbreviation = "инф", replacement = "а/м марки \"Infernus\""},
-{abbreviation = "инфу", replacement = "а/м марки \"Infernus\""},
-{abbreviation = "туризмо", replacement = "а/м марки \"Turismo\""},
-{abbreviation = "турик", replacement = "а/м марки \"Turismo\""},
-{abbreviation = "банши", replacement = "а/м марки \"Banshee\""},
-{abbreviation = "баншу", replacement = "а/м марки \"Banshee\""},
-{abbreviation = "чито", replacement = "а/м марки \"Cheetah\""},
-{abbreviation = "читу", replacement = "а/м марки \"Cheetah\""},
-{abbreviation = "феникс", replacement = "а/м марки \"Phoenix\""},
-{abbreviation = "феникса", replacement = "а/м марки \"Phoenix\""},
 {abbreviation = "тахома", replacement = "а/м марки \"Tahoma\""},
 {abbreviation = "тахому", replacement = "а/м марки \"Tahoma\""},
-{abbreviation = "султан", replacement = "а/м марки \"Sultan\""},
-{abbreviation = "султана", replacement = "а/м марки \"Sultan\""},
-{abbreviation = "султану", replacement = "а/м марки \"Sultan\""},
-{abbreviation = "сультан", replacement = "а/м марки \"Sultan\""},
-{abbreviation = "елегию", replacement = "а/м марки \"Elegy\""},
-{abbreviation = "еледжи", replacement = "а/м марки \"Elegy\""},
-{abbreviation = "елеги", replacement = "а/м марки \"Elegy\""},
-{abbreviation = "елегия", replacement = "а/м марки \"Elegy\""},
-{abbreviation = "нрг", replacement = "мото марки \"NRG-500\""},
-{abbreviation = "нргу", replacement = "мото марки \"NRG-500\""},
-{abbreviation = "нрга", replacement = "мото марки \"NRG-500\""},
-{abbreviation = "нрге", replacement = "мото марки \"NRG-500\""},
-{abbreviation = "фрей", replacement = "мото марки \"Freeway\""},
-{abbreviation = "фрея", replacement = "мото марки \"Freeway\""},
-{abbreviation = "фрею", replacement = "мото марки \"Freeway\""},
-{abbreviation = "вейб", replacement = "мото марки \"Wayfarer\""},
-{abbreviation = "вейба", replacement = "мото марки \"Wayfarer\""},
-{abbreviation = "санч", replacement = "мото марки \"Sanchez\""},
-{abbreviation = "санчез", replacement = "мото марки \"Sanchez\""},
-{abbreviation = "санча", replacement = "мото марки \"Sanchez\""},
-{abbreviation = "санчу", replacement = "мото марки \"Sanchez\""},
-{abbreviation = "пжж", replacement = "мото марки \"PCJ-600\""},
-{abbreviation = "пжжа", replacement = "мото марки \"PCJ-600\""},
-{abbreviation = "фцз", replacement = "мото марки \"FCR-900\""},
-{abbreviation = "фцза", replacement = "мото марки \"FCR-900\""},
-{abbreviation = "фаггио", replacement = "мото марки \"Faggio\""},
-{abbreviation = "фагио", replacement = "мото марки \"Faggio\""},
-{abbreviation = "бф", replacement = "мото марки \"BF-400\""},
-{abbreviation = "эндюро", replacement = "мото марки \"Enduro\""},
-{abbreviation = "ангел", replacement = "мото марки \"Angel\""},
-{abbreviation = "меч", replacement = "аксессуар \"Меч\""},
-{abbreviation = "рюкзак", replacement = "аксессуар \"Рюкзак\""},
-{abbreviation = "часы", replacement = "аксессуар \"Часы\""},
-{abbreviation = "очки", replacement = "аксессуар \"Очки\""},
-{abbreviation = "шляпу", replacement = "аксессуар \"Шляпа\""},
-{abbreviation = "маску", replacement = "аксессуар \"Маска\""},
-{abbreviation = "парашют", replacement = "аксессуар \"Парашют\""},
-{abbreviation = "дигл", replacement = "оружие \"Desert Eagle\""},
-{abbreviation = "дигла", replacement = "оружие \"Desert Eagle\""},
-{abbreviation = "шотган", replacement = "оружие \"Shotgun\""},
-{abbreviation = "дробовик", replacement = "оружие \"Shotgun\""},
-{abbreviation = "м4", replacement = "оружие \"M4\""},
-{abbreviation = "ак", replacement = "оружие \"AK-47\""},
-{abbreviation = "смг", replacement = "оружие \"SMG\""},
-{abbreviation = "узи", replacement = "оружие \"Uzi\""},
-{abbreviation = "тэк", replacement = "оружие \"TEC-9\""},
-{abbreviation = "снайпа", replacement = "оружие \"Sniper Rifle\""},
-{abbreviation = "снайперку", replacement = "оружие \"Sniper Rifle\""},
-{abbreviation = "нож", replacement = "оружие \"Knife\""},
-{abbreviation = "биту", replacement = "оружие \"Baseball Bat\""},
-{abbreviation = "пистолет", replacement = "оружие \"Pistol\""},
-{abbreviation = "револьвер", replacement = "оружие \"Desert Eagle\""},
-{abbreviation = "катана", replacement = "аксессуар \"Katana\""},
-{abbreviation = "катану", replacement = "аксессуар \"Katana\""},
-{abbreviation = "гранату", replacement = "оружие \"Grenade\""},
-{abbreviation = "тазер", replacement = "оружие \"Taser\""},
-{abbreviation = "бмх", replacement = "велосипед марки \"BMX\""},
 {abbreviation = "гринвуд", replacement = "а/м марки \"Greenwood\""},
 {abbreviation = "гринвуда", replacement = "а/м марки \"Greenwood\""},
 {abbreviation = "гринвуду", replacement = "а/м марки \"Greenwood\""},
@@ -1491,8 +1379,6 @@ local mm_rules = {
 {abbreviation = "дум", replacement = "а/м марки \"Dune\""},
 {abbreviation = "дума", replacement = "а/м марки \"Dune\""},
 {abbreviation = "думу", replacement = "а/м марки \"Dune\""},
-{abbreviation = "хантер2", replacement = "а/м марки \"Hunter\""},
-{abbreviation = "хантера2", replacement = "а/м марки \"Hunter\""},
 {abbreviation = "сиспарроу", replacement = "а/м марки \"Sparrow\""},
 {abbreviation = "сиспарроуа", replacement = "а/м марки \"Sparrow\""},
 {abbreviation = "спарроу", replacement = "а/м марки \"Sparrow\""},
@@ -1506,7 +1392,6 @@ local mm_rules = {
 {abbreviation = "небула", replacement = "а/м марки \"Nebula\""},
 {abbreviation = "небулу", replacement = "а/м марки \"Nebula\""},
 {abbreviation = "небулы", replacement = "а/м марки \"Nebula\""},
-{abbreviation = "зомби2", replacement = "а/м марки \"Zombie\""},
 {abbreviation = "зомбиа", replacement = "а/м марки \"Zombie\""},
 {abbreviation = "файр", replacement = "а/м марки \"Firetruck\""},
 {abbreviation = "файра", replacement = "а/м марки \"Firetruck\""},
@@ -1526,8 +1411,6 @@ local mm_rules = {
 {abbreviation = "астра", replacement = "а/м марки \"Astro\""},
 {abbreviation = "астру", replacement = "а/м марки \"Astro\""},
 {abbreviation = "астры", replacement = "а/м марки \"Astro\""},
-{abbreviation = "вуду2", replacement = "а/м марки \"Voodoo\""},
-{abbreviation = "вуды2", replacement = "а/м марки \"Voodoo\""},
 {abbreviation = "карма", replacement = "а/м марки \"Karma\""},
 {abbreviation = "карму", replacement = "а/м марки \"Karma\""},
 {abbreviation = "кармы", replacement = "а/м марки \"Karma\""},
@@ -1569,8 +1452,6 @@ local mm_rules = {
 {abbreviation = "элфуэго", replacement = "El Fuego"},
 {abbreviation = "бэйсайда", replacement = "Bayside"},
 {abbreviation = "бэйсайду", replacement = "Bayside"},
-{abbreviation = "крэйг", replacement = "Craig"},
-{abbreviation = "крэйга", replacement = "Craig"},
 {abbreviation = "честнат", replacement = "Chestnut"},
 {abbreviation = "честната", replacement = "Chestnut"},
 {abbreviation = "хайланд", replacement = "Highland"},
@@ -1589,11 +1470,7 @@ local mm_rules = {
 {abbreviation = "тиерра", replacement = "Tierra Robada"},
 {abbreviation = "тиерраа", replacement = "Tierra Robada"},
 {abbreviation = "тиерры", replacement = "Tierra Robada"},
-{abbreviation = "флинт2", replacement = "Flint County"},
 {abbreviation = "флинт2а", replacement = "Flint County"},
-{abbreviation = "вайтвуд2", replacement = "Whitewood"},
-{abbreviation = "рокшор2", replacement = "Rockshore"},
-{abbreviation = "рокшора2", replacement = "Rockshore"},
 {abbreviation = "рокшору", replacement = "Rockshore"},
 {abbreviation = "рокшоры", replacement = "Rockshore"},
 {abbreviation = "спринг", replacement = "Springfield"},
@@ -1605,8 +1482,6 @@ local mm_rules = {
 {abbreviation = "док", replacement = "Dock"},
 {abbreviation = "дока", replacement = "Dock"},
 {abbreviation = "доки", replacement = "Dock"},
-{abbreviation = "порт2", replacement = "Port"},
-{abbreviation = "порта2", replacement = "Port"},
 {abbreviation = "бэй", replacement = "Bay"},
 {abbreviation = "бэя", replacement = "Bay"},
 {abbreviation = "бэйс", replacement = "Bays"},
@@ -1638,49 +1513,36 @@ local mm_rules = {
 {abbreviation = "барбершоп", replacement = "парикмахерскую"},
 {abbreviation = "барбершопа", replacement = "парикмахерскую"},
 {abbreviation = "парикмахерская", replacement = "парикмахерскую"},
-{abbreviation = "парикмахерскую", replacement = "парикмахерскую"},
 {abbreviation = "салон", replacement = "салон красоты"},
 {abbreviation = "салона", replacement = "салон красоты"},
 {abbreviation = "салону", replacement = "салон красоты"},
 {abbreviation = "тату", replacement = "тату-салон"},
-{abbreviation = "тату-салон", replacement = "тату-салон"},
 {abbreviation = "тату-салона", replacement = "тату-салон"},
 {abbreviation = "пиццерия", replacement = "пиццерию"},
-{abbreviation = "пиццерию", replacement = "пиццерию"},
 {abbreviation = "пиццерии", replacement = "пиццерию"},
 {abbreviation = "пицца", replacement = "пиццерию"},
 {abbreviation = "пиццы", replacement = "пиццерию"},
-{abbreviation = "бордель", replacement = "бордель"},
 {abbreviation = "борделя", replacement = "бордель"},
 {abbreviation = "борделю", replacement = "бордель"},
 {abbreviation = "стриптиз", replacement = "стриптиз-клуб"},
-{abbreviation = "стриптиз-клуб", replacement = "стриптиз-клуб"},
 {abbreviation = "стриптиз-клуба", replacement = "стриптиз-клуб"},
 {abbreviation = "джентльмен", replacement = "стриптиз-клуб"},
 {abbreviation = "автомойка", replacement = "автомойку"},
-{abbreviation = "автомойку", replacement = "автомойку"},
 {abbreviation = "автомойки", replacement = "автомойку"},
 {abbreviation = "мойка", replacement = "автомойку"},
 {abbreviation = "мойку", replacement = "автомойку"},
-{abbreviation = "шиномонтаж", replacement = "шиномонтаж"},
 {abbreviation = "шиномонтажа", replacement = "шиномонтаж"},
 {abbreviation = "сто", replacement = "СТО"},
 {abbreviation = "стоа", replacement = "СТО"},
-{abbreviation = "техцентр", replacement = "техцентр"},
 {abbreviation = "техцентра", replacement = "техцентр"},
-{abbreviation = "автосервис", replacement = "автосервис"},
 {abbreviation = "автосервиса", replacement = "автосервис"},
 {abbreviation = "шиномонтажка", replacement = "шиномонтаж"},
 {abbreviation = "шиномонтажку", replacement = "шиномонтаж"},
 {abbreviation = "прачечная", replacement = "прачечную"},
-{abbreviation = "прачечную", replacement = "прачечную"},
 {abbreviation = "прачечной", replacement = "прачечную"},
 {abbreviation = "химчистка", replacement = "химчистку"},
-{abbreviation = "химчистку", replacement = "химчистку"},
 {abbreviation = "химчистки", replacement = "химчистку"},
-{abbreviation = "пункт", replacement = "пункт"},
 {abbreviation = "пункта", replacement = "пункт"},
-{abbreviation = "ломбард", replacement = "ломбард"},
 {abbreviation = "ломбарда", replacement = "ломбард"},
 {abbreviation = "ломбарду", replacement = "ломбард"},
 {abbreviation = "ювелирный", replacement = "ювелирный магазин"},
@@ -1694,13 +1556,11 @@ local mm_rules = {
 {abbreviation = "оружейку", replacement = "оружейный магазин"},
 {abbreviation = "оружейки", replacement = "оружейный магазин"},
 {abbreviation = "электро", replacement = "электронику"},
-{abbreviation = "электронику", replacement = "электронику"},
 {abbreviation = "электроники", replacement = "электронику"},
 {abbreviation = "компьютерный", replacement = "компьютерный магазин"},
 {abbreviation = "компьютерного", replacement = "компьютерный магазин"},
 {abbreviation = "комп", replacement = "компьютерный магазин"},
 {abbreviation = "компа", replacement = "компьютерный магазин"},
-{abbreviation = "спорттовары", replacement = "спорттовары"},
 {abbreviation = "спорттоваров", replacement = "спорттовары"},
 {abbreviation = "хозяйственный", replacement = "хозяйственный магазин"},
 {abbreviation = "хозяйственного", replacement = "хозяйственный магазин"},
@@ -1711,156 +1571,86 @@ local mm_rules = {
 {abbreviation = "продуктового", replacement = "продуктовый магазин"},
 {abbreviation = "продмаг", replacement = "продуктовый магазин"},
 {abbreviation = "продмага", replacement = "продуктовый магазин"},
-{abbreviation = "супермаркет", replacement = "супермаркет"},
 {abbreviation = "супермаркета", replacement = "супермаркет"},
 {abbreviation = "супермаркету", replacement = "супермаркет"},
 {abbreviation = "мини", replacement = "мини-маркет"},
-{abbreviation = "мини-маркет", replacement = "мини-маркет"},
 {abbreviation = "мини-маркета", replacement = "мини-маркет"},
-{abbreviation = "ларек", replacement = "ларек"},
 {abbreviation = "ларька", replacement = "ларек"},
 {abbreviation = "ларьку", replacement = "ларек"},
-{abbreviation = "киоск", replacement = "киоск"},
 {abbreviation = "киоска", replacement = "киоск"},
 {abbreviation = "палатка", replacement = "палатку"},
-{abbreviation = "палатку", replacement = "палатку"},
 {abbreviation = "палатки", replacement = "палатку"},
-{abbreviation = "тент", replacement = "тент"},
 {abbreviation = "тента", replacement = "тент"},
-{abbreviation = "навес", replacement = "навес"},
 {abbreviation = "навеса", replacement = "навес"},
-{abbreviation = "гараж", replacement = "гараж"},
 {abbreviation = "гаража", replacement = "гараж"},
 {abbreviation = "гаражу", replacement = "гараж"},
 {abbreviation = "гаражи", replacement = "гараж"},
-{abbreviation = "бункер", replacement = "бункер"},
 {abbreviation = "бункера", replacement = "бункер"},
 {abbreviation = "бункеру", replacement = "бункер"},
-{abbreviation = "подвал", replacement = "подвал"},
 {abbreviation = "подвала", replacement = "подвал"},
-{abbreviation = "чердак", replacement = "чердак"},
 {abbreviation = "чердака", replacement = "чердак"},
 {abbreviation = "мансарда", replacement = "мансарду"},
-{abbreviation = "мансарду", replacement = "мансарду"},
 {abbreviation = "мансарды", replacement = "мансарду"},
 {abbreviation = "дача", replacement = "дачу"},
-{abbreviation = "дачу", replacement = "дачу"},
 {abbreviation = "дачи", replacement = "дачу"},
-{abbreviation = "коттедж", replacement = "коттедж"},
 {abbreviation = "коттеджа", replacement = "коттедж"},
 {abbreviation = "коттеджу", replacement = "коттедж"},
-{abbreviation = "таунхаус", replacement = "таунхаус"},
 {abbreviation = "таунхауса", replacement = "таунхаус"},
 {abbreviation = "таунхаусу", replacement = "таунхаус"},
-{abbreviation = "бунгало", replacement = "бунгало"},
 {abbreviation = "бунгалоа", replacement = "бунгало"},
 {abbreviation = "времянка", replacement = "времянку"},
-{abbreviation = "времянку", replacement = "времянку"},
 {abbreviation = "времянки", replacement = "времянку"},
 {abbreviation = "халупа", replacement = "халупу"},
-{abbreviation = "халупу", replacement = "халупу"},
 {abbreviation = "халупы", replacement = "халупу"},
 {abbreviation = "лачуга", replacement = "лачугу"},
-{abbreviation = "лачугу", replacement = "лачугу"},
 {abbreviation = "лачуги", replacement = "лачугу"},
-{abbreviation = "шалаш", replacement = "шалаш"},
 {abbreviation = "шалаша", replacement = "шалаш"},
 {abbreviation = "земля", replacement = "землю"},
-{abbreviation = "землю", replacement = "землю"},
 {abbreviation = "земли", replacement = "землю"},
-{abbreviation = "участок", replacement = "участок"},
 {abbreviation = "участка", replacement = "участок"},
 {abbreviation = "участку", replacement = "участок"},
 {abbreviation = "территория", replacement = "территорию"},
-{abbreviation = "территорию", replacement = "территорию"},
 {abbreviation = "территории", replacement = "территорию"},
-{abbreviation = "площадь", replacement = "площадь"},
 {abbreviation = "площади", replacement = "площадь"},
-{abbreviation = "патроны", replacement = "патроны"},
 {abbreviation = "патронов", replacement = "патроны"},
 {abbreviation = "обойма", replacement = "обойму"},
-{abbreviation = "обойму", replacement = "обойму"},
-{abbreviation = "прицел", replacement = "прицел"},
 {abbreviation = "прицела", replacement = "прицел"},
-{abbreviation = "глушитель", replacement = "глушитель"},
 {abbreviation = "глушителя", replacement = "глушитель"},
-{abbreviation = "фонарик2", replacement = "фонарик"},
-{abbreviation = "компас", replacement = "компас"},
 {abbreviation = "компаса", replacement = "компас"},
-{abbreviation = "карта", replacement = "карту"},
-{abbreviation = "карту", replacement = "карту"},
 {abbreviation = "карты", replacement = "карту"},
-{abbreviation = "бинокль2", replacement = "бинокль"},
-{abbreviation = "термос", replacement = "термос"},
 {abbreviation = "термоса", replacement = "термос"},
 {abbreviation = "зажигалка", replacement = "зажигалку"},
-{abbreviation = "зажигалку", replacement = "зажигалку"},
 {abbreviation = "зажигалки", replacement = "зажигалку"},
-{abbreviation = "сигареты", replacement = "сигареты"},
 {abbreviation = "сигарет", replacement = "сигареты"},
-{abbreviation = "алкоголь", replacement = "алкоголь"},
 {abbreviation = "алкоголя", replacement = "алкоголь"},
-{abbreviation = "пиво", replacement = "пиво"},
 {abbreviation = "пива", replacement = "пиво"},
 {abbreviation = "водка", replacement = "водку"},
-{abbreviation = "водку", replacement = "водку"},
 {abbreviation = "водки", replacement = "водку"},
-{abbreviation = "виски", replacement = "виски"},
 {abbreviation = "вискиа", replacement = "виски"},
-{abbreviation = "вино", replacement = "вино"},
 {abbreviation = "вина", replacement = "вино"},
-{abbreviation = "кофе", replacement = "кофе"},
 {abbreviation = "кофеа", replacement = "кофе"},
-{abbreviation = "чай", replacement = "чай"},
 {abbreviation = "чая", replacement = "чай"},
-{abbreviation = "сок", replacement = "сок"},
 {abbreviation = "сока", replacement = "сок"},
-{abbreviation = "молоко", replacement = "молоко"},
 {abbreviation = "молока", replacement = "молоко"},
-{abbreviation = "хлеб", replacement = "хлеб"},
 {abbreviation = "хлеба", replacement = "хлеб"},
-{abbreviation = "мясо", replacement = "мясо"},
 {abbreviation = "мяса", replacement = "мясо"},
 {abbreviation = "рыба", replacement = "рыбу"},
-{abbreviation = "рыбу", replacement = "рыбу"},
 {abbreviation = "рыбы", replacement = "рыбу"},
-{abbreviation = "фрукты", replacement = "фрукты"},
 {abbreviation = "фруктов", replacement = "фрукты"},
-{abbreviation = "овощи", replacement = "овощи"},
 {abbreviation = "овощей", replacement = "овощи"},
-{abbreviation = "конфеты", replacement = "конфеты"},
 {abbreviation = "конфет", replacement = "конфеты"},
-{abbreviation = "шоколад", replacement = "шоколад"},
 {abbreviation = "шоколада", replacement = "шоколад"},
-{abbreviation = "печенье", replacement = "печенье"},
 {abbreviation = "печенья", replacement = "печенье"},
-{abbreviation = "торт", replacement = "торт"},
 {abbreviation = "торта", replacement = "торт"},
-{abbreviation = "мороженое", replacement = "мороженое"},
 {abbreviation = "мороженого", replacement = "мороженое"},
-{abbreviation = "пицца2", replacement = "пиццу"},
-{abbreviation = "пиццу", replacement = "пиццу"},
-{abbreviation = "бургер", replacement = "бургер"},
 {abbreviation = "бургера", replacement = "бургер"},
-{abbreviation = "гамбургер", replacement = "гамбургер"},
 {abbreviation = "гамбургера", replacement = "гамбургер"},
-{abbreviation = "хотдог2", replacement = "хотдог"},
-{abbreviation = "хотдога2", replacement = "хотдог"},
-{abbreviation = "сэндвич", replacement = "сэндвич"},
 {abbreviation = "сэндвича", replacement = "сэндвич"},
-{abbreviation = "салат", replacement = "салат"},
-{abbreviation = "салата", replacement = "салат"},
-{abbreviation = "суши", replacement = "суши"},
-{abbreviation = "роллы", replacement = "роллы"},
 {abbreviation = "роллов", replacement = "роллы"},
 {abbreviation = "лапша", replacement = "лапшу"},
-{abbreviation = "лапшу", replacement = "лапшу"},
 {abbreviation = "лапши", replacement = "лапшу"},
-{abbreviation = "пельмени", replacement = "пельмени"},
 {abbreviation = "пельменей", replacement = "пельмени"},
-{abbreviation = "борщ", replacement = "борщ"},
 {abbreviation = "борща", replacement = "борщ"},
-{abbreviation = "суп", replacement = "суп"},
 {abbreviation = "супа", replacement = "суп"},
 {abbreviation = "обрез", replacement = "оружие \"Sawn-off Shotgun\""},
 {abbreviation = "обреза", replacement = "оружие \"Sawn-off Shotgun\""},
@@ -1890,7 +1680,6 @@ local mm_rules = {
 {abbreviation = "слон", replacement = "оружие \"Desert Eagle\""},
 {abbreviation = "слона", replacement = "оружие \"Desert Eagle\""},
 {abbreviation = "калаш", replacement = "оружие \"AK-47\""},
-{abbreviation = "калаша", replacement = "оружие \"AK-47\""},
 {abbreviation = "калаша", replacement = "оружие \"AK-47\""},
 {abbreviation = "м16", replacement = "оружие \"M4\""},
 {abbreviation = "м16а", replacement = "оружие \"M4\""},
@@ -1928,215 +1717,116 @@ local mm_rules = {
 {abbreviation = "огнемета", replacement = "оружие \"Flamethrower\""},
 {abbreviation = "миниган", replacement = "оружие \"Minigun\""},
 {abbreviation = "минигана", replacement = "оружие \"Minigun\""},
-{abbreviation = "мини", replacement = "оружие \"Minigun\""},
 {abbreviation = "миниа", replacement = "оружие \"Minigun\""},
-{abbreviation = "массаж", replacement = "массаж"},
 {abbreviation = "массажа", replacement = "массаж"},
 {abbreviation = "стрижка", replacement = "стрижку"},
-{abbreviation = "стрижку", replacement = "стрижку"},
 {abbreviation = "стрижки", replacement = "стрижку"},
-{abbreviation = "маникюр", replacement = "маникюр"},
 {abbreviation = "маникюра", replacement = "маникюр"},
-{abbreviation = "педикюр", replacement = "педикюр"},
 {abbreviation = "педикюра", replacement = "педикюр"},
-{abbreviation = "бритье", replacement = "бритье"},
 {abbreviation = "бритья", replacement = "бритье"},
 {abbreviation = "укладка", replacement = "укладку"},
-{abbreviation = "укладку", replacement = "укладку"},
 {abbreviation = "окраска", replacement = "окраску"},
-{abbreviation = "окраску", replacement = "окраску"},
 {abbreviation = "окраски", replacement = "окраску"},
-{abbreviation = "наращивание", replacement = "наращивание"},
 {abbreviation = "наращивания", replacement = "наращивание"},
-{abbreviation = "пирсинг", replacement = "пирсинг"},
 {abbreviation = "пирсинга", replacement = "пирсинг"},
 {abbreviation = "татуировка", replacement = "татуировку"},
-{abbreviation = "татуировку", replacement = "татуировку"},
 {abbreviation = "татуировки", replacement = "татуировку"},
 {abbreviation = "репетитор", replacement = "репетитора"},
-{abbreviation = "репетитора", replacement = "репетитора"},
-{abbreviation = "обучение", replacement = "обучение"},
 {abbreviation = "обучения", replacement = "обучение"},
-{abbreviation = "курсы", replacement = "курсы"},
 {abbreviation = "курсов", replacement = "курсы"},
-{abbreviation = "тренинг", replacement = "тренинг"},
 {abbreviation = "тренинга", replacement = "тренинг"},
 {abbreviation = "тренинги", replacement = "тренинг"},
-{abbreviation = "семинар", replacement = "семинар"},
 {abbreviation = "семинара", replacement = "семинар"},
 {abbreviation = "лекция", replacement = "лекцию"},
-{abbreviation = "лекцию", replacement = "лекцию"},
 {abbreviation = "лекции", replacement = "лекцию"},
 {abbreviation = "консультация", replacement = "консультацию"},
-{abbreviation = "консультацию", replacement = "консультацию"},
 {abbreviation = "консультации", replacement = "консультацию"},
-{abbreviation = "лечение", replacement = "лечение"},
 {abbreviation = "лечения", replacement = "лечение"},
 {abbreviation = "терапия", replacement = "терапию"},
-{abbreviation = "терапию", replacement = "терапию"},
 {abbreviation = "диагностика", replacement = "диагностику"},
-{abbreviation = "диагностику", replacement = "диагностику"},
 {abbreviation = "диагностики", replacement = "диагностику"},
-{abbreviation = "ремонт2", replacement = "ремонт"},
 {abbreviation = "настройка", replacement = "настройку"},
-{abbreviation = "настройку", replacement = "настройку"},
 {abbreviation = "настройки", replacement = "настройку"},
 {abbreviation = "установка", replacement = "установку"},
-{abbreviation = "установку", replacement = "установку"},
 {abbreviation = "установки", replacement = "установку"},
-{abbreviation = "монтаж", replacement = "монтаж"},
 {abbreviation = "монтажа", replacement = "монтаж"},
-{abbreviation = "демонтаж", replacement = "демонтаж"},
 {abbreviation = "демонтажа", replacement = "демонтаж"},
 {abbreviation = "перевозка", replacement = "перевозку"},
-{abbreviation = "перевозку", replacement = "перевозку"},
 {abbreviation = "перевозки", replacement = "перевозку"},
-{abbreviation = "грузоперевозки", replacement = "грузоперевозки"},
 {abbreviation = "грузоперевозок", replacement = "грузоперевозки"},
 {abbreviation = "логистика", replacement = "логистику"},
-{abbreviation = "логистику", replacement = "логистику"},
-{abbreviation = "склад2", replacement = "складирование"},
-{abbreviation = "хранение", replacement = "хранение"},
 {abbreviation = "хранения", replacement = "хранение"},
-{abbreviation = "охрана2", replacement = "охрана"},
-{abbreviation = "охрану2", replacement = "охрану"},
 {abbreviation = "сигнализация", replacement = "сигнализацию"},
-{abbreviation = "сигнализацию", replacement = "сигнализацию"},
 {abbreviation = "сигнализации", replacement = "сигнализацию"},
-{abbreviation = "видеонаблюдение", replacement = "видеонаблюдение"},
 {abbreviation = "видеонаблюдения", replacement = "видеонаблюдение"},
 {abbreviation = "уборка", replacement = "уборку"},
-{abbreviation = "уборку", replacement = "уборку"},
 {abbreviation = "уборки", replacement = "уборку"},
-{abbreviation = "клининг", replacement = "клининг"},
 {abbreviation = "клининга", replacement = "клининг"},
 {abbreviation = "стирка", replacement = "стирку"},
-{abbreviation = "стирку", replacement = "стирку"},
 {abbreviation = "стирки", replacement = "стирку"},
-{abbreviation = "химчистка2", replacement = "химчистку"},
 {abbreviation = "глажка", replacement = "глажку"},
-{abbreviation = "глажку", replacement = "глажку"},
 {abbreviation = "глажки", replacement = "глажку"},
-{abbreviation = "ремонт3", replacement = "починку"},
-{abbreviation = "починку", replacement = "починку"},
 {abbreviation = "починки", replacement = "починку"},
 {abbreviation = "наладка", replacement = "наладку"},
-{abbreviation = "наладку", replacement = "наладку"},
 {abbreviation = "наладки", replacement = "наладку"},
-{abbreviation = "заправка2", replacement = "заправку"},
-{abbreviation = "заправку2", replacement = "заправку"},
 {abbreviation = "дозаправка", replacement = "дозаправку"},
-{abbreviation = "дозаправку", replacement = "дозаправку"},
-{abbreviation = "эвакуатор2", replacement = "эвакуатор"},
 {abbreviation = "буксировка", replacement = "буксировку"},
-{abbreviation = "буксировку", replacement = "буксировку"},
 {abbreviation = "буксировки", replacement = "буксировку"},
 {abbreviation = "запуск", replacement = "запуск двигателя"},
 {abbreviation = "запуска", replacement = "запуск двигателя"},
-{abbreviation = "прикуривание", replacement = "прикуривание"},
 {abbreviation = "прикуривания", replacement = "прикуривание"},
 {abbreviation = "замена", replacement = "замену"},
-{abbreviation = "замену", replacement = "замену"},
 {abbreviation = "замены", replacement = "замену"},
 {abbreviation = "масло", replacement = "замену масла"},
 {abbreviation = "масла", replacement = "замену масла"},
-{abbreviation = "фильтр", replacement = "фильтр"},
 {abbreviation = "фильтра", replacement = "фильтр"},
-{abbreviation = "шины", replacement = "шины"},
 {abbreviation = "шин", replacement = "шины"},
-{abbreviation = "покрышки", replacement = "покрышки"},
 {abbreviation = "покрышек", replacement = "покрышки"},
-{abbreviation = "диски", replacement = "диски"},
 {abbreviation = "дисков", replacement = "диски"},
-{abbreviation = "колеса", replacement = "колеса"},
 {abbreviation = "колес", replacement = "колеса"},
-{abbreviation = "аккумулятор", replacement = "аккумулятор"},
 {abbreviation = "аккумулятора", replacement = "аккумулятор"},
-{abbreviation = "телефон2", replacement = "телефон"},
-{abbreviation = "телефона2", replacement = "телефон"},
-{abbreviation = "смартфон", replacement = "смартфон"},
 {abbreviation = "смартфона", replacement = "смартфон"},
 {abbreviation = "айфон", replacement = "смартфон"},
 {abbreviation = "айфона", replacement = "смартфон"},
 {abbreviation = "андроид", replacement = "смартфон"},
-{abbreviation = "планшет", replacement = "планшет"},
 {abbreviation = "планшета", replacement = "планшет"},
-{abbreviation = "ноутбук", replacement = "ноутбук"},
 {abbreviation = "ноутбука", replacement = "ноутбук"},
-{abbreviation = "компьютер", replacement = "компьютер"},
 {abbreviation = "компьютера", replacement = "компьютер"},
-{abbreviation = "монитор", replacement = "монитор"},
 {abbreviation = "монитора", replacement = "монитор"},
 {abbreviation = "клавиатура", replacement = "клавиатуру"},
-{abbreviation = "клавиатуру", replacement = "клавиатуру"},
-{abbreviation = "мышь", replacement = "мышь"},
 {abbreviation = "мыши", replacement = "мышь"},
-{abbreviation = "принтер", replacement = "принтер"},
 {abbreviation = "принтера", replacement = "принтер"},
-{abbreviation = "наушники", replacement = "наушники"},
 {abbreviation = "наушников", replacement = "наушники"},
 {abbreviation = "колонка", replacement = "колонку"},
-{abbreviation = "колонку", replacement = "колонку"},
 {abbreviation = "колонки", replacement = "колонку"},
-{abbreviation = "микрофон", replacement = "микрофон"},
 {abbreviation = "микрофона", replacement = "микрофон"},
 {abbreviation = "камера", replacement = "камеру"},
-{abbreviation = "камеру", replacement = "камеру"},
 {abbreviation = "камеры", replacement = "камеру"},
-{abbreviation = "фотоаппарат", replacement = "фотоаппарат"},
 {abbreviation = "фотоаппарата", replacement = "фотоаппарат"},
-{abbreviation = "объектив", replacement = "объектив"},
 {abbreviation = "объектива", replacement = "объектив"},
-{abbreviation = "штатив", replacement = "штатив"},
 {abbreviation = "штатива", replacement = "штатив"},
-{abbreviation = "очки2", replacement = "очки"},
-{abbreviation = "линзы", replacement = "линзы"},
 {abbreviation = "линзов", replacement = "линзы"},
 {abbreviation = "сумка", replacement = "сумку"},
-{abbreviation = "сумку", replacement = "сумку"},
 {abbreviation = "сумки", replacement = "сумку"},
-{abbreviation = "рюкзак2", replacement = "рюкзак"},
-{abbreviation = "рюкзака2", replacement = "рюкзак"},
-{abbreviation = "чемодан", replacement = "чемодан"},
 {abbreviation = "чемодана", replacement = "чемодан"},
-{abbreviation = "портфель", replacement = "портфель"},
 {abbreviation = "портфеля", replacement = "портфель"},
-{abbreviation = "кошелек", replacement = "кошелек"},
 {abbreviation = "кошелька", replacement = "кошелек"},
-{abbreviation = "зонт", replacement = "зонт"},
 {abbreviation = "зонта", replacement = "зонт"},
-{abbreviation = "ключ", replacement = "ключ"},
 {abbreviation = "ключа", replacement = "ключ"},
-{abbreviation = "ключи", replacement = "ключи"},
 {abbreviation = "ключей", replacement = "ключи"},
-{abbreviation = "замок", replacement = "замок"},
 {abbreviation = "замка", replacement = "замок"},
-{abbreviation = "цепь", replacement = "цепь"},
 {abbreviation = "цепи", replacement = "цепь"},
-{abbreviation = "цепь2", replacement = "цепь"},
-{abbreviation = "брелок", replacement = "брелок"},
 {abbreviation = "брелока", replacement = "брелок"},
-{abbreviation = "значок", replacement = "значок"},
 {abbreviation = "значка", replacement = "значок"},
-{abbreviation = "медаль", replacement = "медаль"},
 {abbreviation = "медали", replacement = "медаль"},
-{abbreviation = "кубок", replacement = "кубок"},
 {abbreviation = "кубка", replacement = "кубок"},
 {abbreviation = "грамота", replacement = "грамоту"},
-{abbreviation = "грамоту", replacement = "грамоту"},
-{abbreviation = "диплом", replacement = "диплом"},
 {abbreviation = "диплома", replacement = "диплом"},
-{abbreviation = "сертификат", replacement = "сертификат"},
 {abbreviation = "сертификата", replacement = "сертификат"},
-{abbreviation = "купон", replacement = "купон"},
 {abbreviation = "купона", replacement = "купон"},
-{abbreviation = "ваучер", replacement = "ваучер"},
 {abbreviation = "ваучера", replacement = "ваучер"},
-{abbreviation = "билет", replacement = "билет"},
 {abbreviation = "билета", replacement = "билет"},
-{abbreviation = "абонемент", replacement = "абонемент"},
 {abbreviation = "абонемента", replacement = "абонемент"},
-{abbreviation = "пропуск", replacement = "пропуск"},
 {abbreviation = "пропуска", replacement = "пропуск"},
 {abbreviation = "бенсон", replacement = "а/м марки \"Benson\""},
 {abbreviation = "бенсона", replacement = "а/м марки \"Benson\""},
@@ -2149,12 +1839,8 @@ local mm_rules = {
 {abbreviation = "калвера", replacement = "а/м марки \"Culver\""},
 {abbreviation = "дюнес", replacement = "а/м марки \"Dunes\""},
 {abbreviation = "дюнеса", replacement = "а/м марки \"Dunes\""},
-{abbreviation = "форд2", replacement = "а/м марки \"Ford\""},
-{abbreviation = "форда2", replacement = "а/м марки \"Ford\""},
 {abbreviation = "ханли", replacement = "а/м марки \"Hanley\""},
 {abbreviation = "ханлиа", replacement = "а/м марки \"Hanley\""},
-{abbreviation = "хантер3", replacement = "а/м марки \"Hunter\""},
-{abbreviation = "хантера3", replacement = "а/м марки \"Hunter\""},
 {abbreviation = "ларго", replacement = "а/м марки \"Largo\""},
 {abbreviation = "ларгоа", replacement = "а/м марки \"Largo\""},
 {abbreviation = "локус", replacement = "а/м марки \"Locust\""},
@@ -2169,8 +1855,6 @@ local mm_rules = {
 {abbreviation = "нэссона", replacement = "а/м марки \"Nesson\""},
 {abbreviation = "полар", replacement = "а/м марки \"Polar\""},
 {abbreviation = "полара", replacement = "а/м марки \"Polar\""},
-{abbreviation = "рэнчер2", replacement = "а/м марки \"Rancher\""},
-{abbreviation = "рэнчера2", replacement = "а/м марки \"Rancher\""},
 {abbreviation = "санчо", replacement = "а/м марки \"Sanchez\""},
 {abbreviation = "санчоа", replacement = "а/м марки \"Sanchez\""},
 {abbreviation = "симплон", replacement = "а/м марки \"Simpleon\""},
@@ -2178,7 +1862,6 @@ local mm_rules = {
 {abbreviation = "симпл", replacement = "а/м марки \"Simpleon\""},
 {abbreviation = "спринтер", replacement = "а/м марки \"Sprinter\""},
 {abbreviation = "спринтера", replacement = "а/м марки \"Sprinter\""},
-{abbreviation = "сток", replacement = "а/м марки \"Stock\""},
 {abbreviation = "стока", replacement = "а/м марки \"Stock\""},
 {abbreviation = "трэш", replacement = "а/м марки \"Trash\""},
 {abbreviation = "трэша", replacement = "а/м марки \"Trash\""},
@@ -2196,43 +1879,10 @@ local mm_rules = {
 {abbreviation = "вэнсона", replacement = "а/м марки \"Venson\""},
 {abbreviation = "йолк", replacement = "а/м марки \"Yolk\""},
 {abbreviation = "йолка", replacement = "а/м марки \"Yolk\""},
-{abbreviation = "зомби3", replacement = "а/м марки \"Zombie\""},
-{abbreviation = "зомбиа3", replacement = "а/м марки \"Zombie\""},
-{abbreviation = "буллет2", replacement = "а/м марки \"Bullet\""},
-{abbreviation = "буллета2", replacement = "а/м марки \"Bullet\""},
-{abbreviation = "инфернус2", replacement = "а/м марки \"Infernus\""},
-{abbreviation = "инфернуса2", replacement = "а/м марки \"Infernus\""},
-{abbreviation = "турисмо2", replacement = "а/м марки \"Turismo\""},
-{abbreviation = "турисмоа2", replacement = "а/м марки \"Turismo\""},
-{abbreviation = "чирок2", replacement = "а/м марки \"Cheetah\""},
-{abbreviation = "чирока2", replacement = "а/м марки \"Cheetah\""},
-{abbreviation = "банши2", replacement = "а/м марки \"Banshee\""},
 {abbreviation = "банши2а", replacement = "а/м марки \"Banshee\""},
-{abbreviation = "феникс2", replacement = "а/м марки \"Phoenix\""},
-{abbreviation = "феникса2", replacement = "а/м марки \"Phoenix\""},
-{abbreviation = "супергт2", replacement = "а/м марки \"Super GT\""},
-{abbreviation = "супергта2", replacement = "а/м марки \"Super GT\""},
-{abbreviation = "стингер2", replacement = "а/м марки \"Stinger\""},
-{abbreviation = "стингера2", replacement = "а/м марки \"Stinger\""},
-{abbreviation = "комета2", replacement = "а/м марки \"Comet\""},
-{abbreviation = "комету2", replacement = "а/м марки \"Comet\""},
-{abbreviation = "бмх2", replacement = "велосипед марки \"BMX\""},
-{abbreviation = "бмха2", replacement = "велосипед марки \"BMX\""},
-{abbreviation = "бмху2", replacement = "велосипед марки \"BMX\""},
-{abbreviation = "байк2", replacement = "велосипед марки \"BMX\""},
-{abbreviation = "байка2", replacement = "велосипед марки \"BMX\""},
-{abbreviation = "велика2", replacement = "велосипед"},
-{abbreviation = "велику2", replacement = "велосипед"},
-{abbreviation = "велик2", replacement = "велосипед"},
 {abbreviation = "катер", replacement = "лодку"},
 {abbreviation = "катера", replacement = "лодку"},
 {abbreviation = "катеру", replacement = "лодку"},
-{abbreviation = "лодка2", replacement = "лодку"},
-{abbreviation = "лодку2", replacement = "лодку"},
-{abbreviation = "лодки2", replacement = "лодку"},
-{abbreviation = "яхта2", replacement = "яхту"},
-{abbreviation = "яхту2", replacement = "яхту"},
-{abbreviation = "яхты2", replacement = "яхту"},
 {abbreviation = "баркас", replacement = "лодку"},
 {abbreviation = "баркаса", replacement = "лодку"},
 {abbreviation = "шлюпка", replacement = "лодку"},
@@ -2243,13 +1893,6 @@ local mm_rules = {
 {abbreviation = "каноэа", replacement = "лодку"},
 {abbreviation = "плот", replacement = "лодку"},
 {abbreviation = "плота", replacement = "лодку"},
-{abbreviation = "вертолет2", replacement = "вертолёт"},
-{abbreviation = "вертолёт2", replacement = "вертолёт"},
-{abbreviation = "вертолёта2", replacement = "вертолёт"},
-{abbreviation = "самолет2", replacement = "самолёт"},
-{abbreviation = "самолёт2", replacement = "самолёт"},
-{abbreviation = "самолёта2", replacement = "самолёт"},
-{abbreviation = "самолёту2", replacement = "самолёт"},
 {abbreviation = "кукурузник", replacement = "самолёт"},
 {abbreviation = "кукурузника", replacement = "самолёт"},
 {abbreviation = "кукурузнику", replacement = "самолёт"},
@@ -2257,30 +1900,17 @@ local mm_rules = {
 {abbreviation = "истребителя", replacement = "самолёт"},
 {abbreviation = "бомбардировщик", replacement = "самолёт"},
 {abbreviation = "бомбардировщика", replacement = "самолёт"},
-{abbreviation = "дирижабль", replacement = "дирижабль"},
 {abbreviation = "дирижабля", replacement = "дирижабль"},
 {abbreviation = "воздушный", replacement = "шар"},
-{abbreviation = "шар", replacement = "шар"},
 {abbreviation = "шара", replacement = "шар"},
-{abbreviation = "парашют2", replacement = "аксессуар \"Парашют\""},
-{abbreviation = "парашюты2", replacement = "аксессуар \"Парашют\""},
-{abbreviation = "дельтаплан", replacement = "дельтаплан"},
 {abbreviation = "дельтаплана", replacement = "дельтаплан"},
 {abbreviation = "эхо", replacement = "East Los Santos"},
 {abbreviation = "эхоа", replacement = "East Los Santos"},
 {abbreviation = "эхо парк", replacement = "East Los Santos"},
 {abbreviation = "айдинлвуд", replacement = "Idlewood"},
 {abbreviation = "айдинлвуда", replacement = "Idlewood"},
-{abbreviation = "джеф2", replacement = "Jefferson"},
 {abbreviation = "джеф2а", replacement = "Jefferson"},
-{abbreviation = "глен2", replacement = "Glen Park"},
-{abbreviation = "глена2", replacement = "Glen Park"},
-{abbreviation = "виллоуфилд2", replacement = "Willowfield"},
-{abbreviation = "элкорона2", replacement = "El Corona"},
 {abbreviation = "элкорона2а", replacement = "El Corona"},
-{abbreviation = "коммерс2", replacement = "Commerce"},
-{abbreviation = "маркет2", replacement = "Market"},
-{abbreviation = "маркета2", replacement = "Market"},
 {abbreviation = "конференс", replacement = "Conference Center"},
 {abbreviation = "конференса", replacement = "Conference Center"},
 {abbreviation = "персхинг", replacement = "Pershing Square"},
@@ -2288,74 +1918,16 @@ local mm_rules = {
 {abbreviation = "першинг", replacement = "Pershing Square"},
 {abbreviation = "першинга", replacement = "Pershing Square"},
 {abbreviation = "сити", replacement = "City Hall"},
-{abbreviation = "сити2", replacement = "City Hall"},
 {abbreviation = "таун", replacement = "Downtown"},
 {abbreviation = "тауна", replacement = "Downtown"},
 {abbreviation = "даунтаун", replacement = "Downtown"},
 {abbreviation = "даунтауна", replacement = "Downtown"},
-{abbreviation = "плаза2", replacement = "Pershing Square"},
-{abbreviation = "гарсия2", replacement = "Garcia"},
-{abbreviation = "гарсии2", replacement = "Garcia"},
-{abbreviation = "хашбери2", replacement = "Hashbury"},
-{abbreviation = "хашбериа2", replacement = "Hashbury"},
-{abbreviation = "дохерти2", replacement = "Doherty"},
-{abbreviation = "дохертиа2", replacement = "Doherty"},
-{abbreviation = "кингс2", replacement = "Kings"},
-{abbreviation = "кингса2", replacement = "Kings"},
-{abbreviation = "парадизо2", replacement = "Paradiso"},
-{abbreviation = "парадизоа2", replacement = "Paradiso"},
-{abbreviation = "квартал2", replacement = "Queens"},
-{abbreviation = "квартала2", replacement = "Queens"},
-{abbreviation = "сантафлора2", replacement = "Santa Flora"},
-{abbreviation = "санта2", replacement = "Santa Flora"},
 {abbreviation = "фостер", replacement = "Foster Valley"},
 {abbreviation = "фостера", replacement = "Foster Valley"},
-{abbreviation = "фостер2", replacement = "Foster Valley"},
-{abbreviation = "фостера2", replacement = "Foster Valley"},
 {abbreviation = "гарберри", replacement = "Garberry"},
 {abbreviation = "гарберриа", replacement = "Garberry"},
-{abbreviation = "эшберри2", replacement = "Ashberry"},
 {abbreviation = "эшберри2а", replacement = "Ashberry"},
-{abbreviation = "бэйсайд2", replacement = "Bayside"},
 {abbreviation = "бэйсайд2а", replacement = "Bayside"},
-{abbreviation = "бэйсайду2", replacement = "Bayside"},
-{abbreviation = "стрип2", replacement = "The Strip"},
-{abbreviation = "стрипа2", replacement = "The Strip"},
-{abbreviation = "пилон2", replacement = "Pilgrim"},
-{abbreviation = "пилона2", replacement = "Pilgrim"},
-{abbreviation = "авалон2", replacement = "Avalon"},
-{abbreviation = "авалона2", replacement = "Avalon"},
-{abbreviation = "драгон2", replacement = "Dragons Dojo"},
-{abbreviation = "драгона2", replacement = "Dragons Dojo"},
-{abbreviation = "прайм2", replacement = "Prickle Pine"},
-{abbreviation = "прикл2", replacement = "Prickle Pine"},
-{abbreviation = "вайтвуда2", replacement = "Whitewood"},
-{abbreviation = "пилбокс2", replacement = "Pilbox"},
-{abbreviation = "пилбокса2", replacement = "Pilbox"},
-{abbreviation = "ройал2", replacement = "Royal Casino"},
-{abbreviation = "калигула2", replacement = "Caligulas Palace"},
-{abbreviation = "пират2", replacement = "Pirates in Mens Pants"},
-{abbreviation = "визаж2", replacement = "Visage"},
-{abbreviation = "флинт3", replacement = "Flint County"},
-{abbreviation = "флинта3", replacement = "Flint County"},
-{abbreviation = "пк2", replacement = "Palomino Creek"},
-{abbreviation = "паломино2", replacement = "Palomino Creek"},
-{abbreviation = "монтгомери2", replacement = "Montgomery"},
-{abbreviation = "диллимор2", replacement = "Dillimore"},
-{abbreviation = "блюбери2", replacement = "Blueberry"},
-{abbreviation = "бляберри2", replacement = "Blueberry"},
-{abbreviation = "форт2", replacement = "Fort Carson"},
-{abbreviation = "карсон2", replacement = "Fort Carson"},
-{abbreviation = "тиера2", replacement = "Tierra Robada"},
-{abbreviation = "робада2", replacement = "Tierra Robada"},
-{abbreviation = "ангел2", replacement = "Angel Pine"},
-{abbreviation = "норт2", replacement = "North Rock"},
-{abbreviation = "валле2", replacement = "Valle Ocultado"},
-{abbreviation = "арко2", replacement = "Arco del Oeste"},
-{abbreviation = "грин2", replacement = "Green Palms"},
-{abbreviation = "палмс2", replacement = "Green Palms"},
-{abbreviation = "юнион2", replacement = "Union Station"},
-{abbreviation = "крик2", replacement = "Palomino Creek"},
 {abbreviation = "элькебрадос", replacement = "El Quebrados"},
 {abbreviation = "элькуебрадос", replacement = "El Quebrados"},
 {abbreviation = "аэропорт", replacement = "Airport"},
@@ -2363,8 +1935,6 @@ local mm_rules = {
 {abbreviation = "аэропорту", replacement = "Airport"},
 {abbreviation = "аэро", replacement = "Airport"},
 {abbreviation = "аэроа", replacement = "Airport"},
-{abbreviation = "порт3", replacement = "Port"},
-{abbreviation = "порта3", replacement = "Port"},
 {abbreviation = "вокзал", replacement = "Station"},
 {abbreviation = "вокзала", replacement = "Station"},
 {abbreviation = "станция", replacement = "Station"},
@@ -2373,465 +1943,224 @@ local mm_rules = {
 {abbreviation = "метро", replacement = "Metro"},
 {abbreviation = "метроа", replacement = "Metro"},
 {abbreviation = "остановка", replacement = "остановку"},
-{abbreviation = "остановку", replacement = "остановку"},
-{abbreviation = "перекресток", replacement = "перекресток"},
 {abbreviation = "перекрестка", replacement = "перекресток"},
 {abbreviation = "развязка", replacement = "развязку"},
-{abbreviation = "развязку", replacement = "развязку"},
-{abbreviation = "мост", replacement = "мост"},
 {abbreviation = "моста", replacement = "мост"},
-{abbreviation = "тоннель", replacement = "тоннель"},
 {abbreviation = "тоннеля", replacement = "тоннель"},
 {abbreviation = "трасса", replacement = "трассу"},
-{abbreviation = "трассу", replacement = "трассу"},
-{abbreviation = "шоссе", replacement = "шоссе"},
 {abbreviation = "шоссеа", replacement = "шоссе"},
 {abbreviation = "автострада", replacement = "автостраду"},
-{abbreviation = "автостраду", replacement = "автостраду"},
 {abbreviation = "дорога", replacement = "дорогу"},
-{abbreviation = "дорогу", replacement = "дорогу"},
 {abbreviation = "улица", replacement = "улицу"},
-{abbreviation = "улицу", replacement = "улицу"},
-{abbreviation = "переулок", replacement = "переулок"},
 {abbreviation = "переулка", replacement = "переулок"},
-{abbreviation = "проспект", replacement = "проспект"},
 {abbreviation = "проспекта", replacement = "проспект"},
-{abbreviation = "бульвар", replacement = "бульвар"},
 {abbreviation = "бульвара", replacement = "бульвар"},
 {abbreviation = "набережная", replacement = "набережную"},
-{abbreviation = "набережную", replacement = "набережную"},
-{abbreviation = "пляж", replacement = "пляж"},
 {abbreviation = "пляжа", replacement = "пляж"},
-{abbreviation = "берег", replacement = "берег"},
 {abbreviation = "берега", replacement = "берег"},
-{abbreviation = "остров", replacement = "остров"},
 {abbreviation = "острова", replacement = "остров"},
-{abbreviation = "полуостров", replacement = "полуостров"},
 {abbreviation = "полуострова", replacement = "полуостров"},
-{abbreviation = "залив", replacement = "залив"},
 {abbreviation = "залива", replacement = "залив"},
 {abbreviation = "бухта", replacement = "бухту"},
-{abbreviation = "бухту", replacement = "бухту"},
-{abbreviation = "мыс", replacement = "мыс"},
 {abbreviation = "мыса", replacement = "мыс"},
 {abbreviation = "гора", replacement = "гору"},
-{abbreviation = "гору", replacement = "гору"},
-{abbreviation = "холм", replacement = "холм"},
 {abbreviation = "холма", replacement = "холм"},
 {abbreviation = "долина", replacement = "долину"},
-{abbreviation = "долину", replacement = "долину"},
 {abbreviation = "пустыня", replacement = "пустыню"},
-{abbreviation = "пустыню", replacement = "пустыню"},
-{abbreviation = "лес", replacement = "лес"},
 {abbreviation = "леса", replacement = "лес"},
-{abbreviation = "поле", replacement = "поле"},
 {abbreviation = "поля", replacement = "поле"},
-{abbreviation = "озеро", replacement = "озеро"},
 {abbreviation = "озера", replacement = "озеро"},
 {abbreviation = "река", replacement = "реку"},
-{abbreviation = "реку", replacement = "реку"},
-{abbreviation = "канал", replacement = "канал"},
 {abbreviation = "канала", replacement = "канал"},
-{abbreviation = "водопад", replacement = "водопад"},
 {abbreviation = "водопада", replacement = "водопад"},
-{abbreviation = "каньон", replacement = "каньон"},
 {abbreviation = "каньона", replacement = "каньон"},
-{abbreviation = "ущелье", replacement = "ущелье"},
 {abbreviation = "ущелья", replacement = "ущелье"},
 {abbreviation = "пещера", replacement = "пещеру"},
-{abbreviation = "пещеру", replacement = "пещеру"},
-{abbreviation = "руины", replacement = "руины"},
 {abbreviation = "руин", replacement = "руины"},
-{abbreviation = "крепость", replacement = "крепость"},
 {abbreviation = "крепости", replacement = "крепость"},
 {abbreviation = "башня", replacement = "башню"},
-{abbreviation = "башню", replacement = "башню"},
-{abbreviation = "колокол", replacement = "колокол"},
 {abbreviation = "колокола", replacement = "колокол"},
-{abbreviation = "маяк", replacement = "маяк"},
 {abbreviation = "маяка", replacement = "маяк"},
 {abbreviation = "плотина", replacement = "плотину"},
-{abbreviation = "плотину", replacement = "плотину"},
-{abbreviation = "шлюз", replacement = "шлюз"},
 {abbreviation = "шлюза", replacement = "шлюз"},
 {abbreviation = "мельница", replacement = "мельницу"},
-{abbreviation = "мельницу", replacement = "мельницу"},
-{abbreviation = "фабрика2", replacement = "фабрику"},
-{abbreviation = "завод2", replacement = "завод"},
-{abbreviation = "шахта2", replacement = "шахту"},
-{abbreviation = "карьер", replacement = "карьер"},
 {abbreviation = "карьера", replacement = "карьер"},
-{abbreviation = "рудник", replacement = "рудник"},
 {abbreviation = "рудника", replacement = "рудник"},
-{abbreviation = "шахта3", replacement = "шахту"},
-{abbreviation = "барбершоп2", replacement = "парикмахерскую"},
 {abbreviation = "барбер", replacement = "парикмахерскую"},
 {abbreviation = "цирюльня", replacement = "парикмахерскую"},
 {abbreviation = "цирюльню", replacement = "парикмахерскую"},
-{abbreviation = "парикмахерская2", replacement = "парикмахерскую"},
-{abbreviation = "салон2", replacement = "салон красоты"},
-{abbreviation = "салона2", replacement = "салон красоты"},
 {abbreviation = "спа", replacement = "СПА"},
 {abbreviation = "спаа", replacement = "СПА"},
 {abbreviation = "бани", replacement = "баню"},
-{abbreviation = "баню", replacement = "баню"},
 {abbreviation = "бanya", replacement = "баню"},
 {abbreviation = "сауна", replacement = "сауну"},
-{abbreviation = "сауну", replacement = "сауну"},
 {abbreviation = "сауны", replacement = "сауну"},
-{abbreviation = "бассейн", replacement = "бассейн"},
 {abbreviation = "бассейна", replacement = "бассейн"},
-{abbreviation = "аквапарк", replacement = "аквапарк"},
 {abbreviation = "аквапарка", replacement = "аквапарк"},
-{abbreviation = "парк2", replacement = "парк"},
-{abbreviation = "парка2", replacement = "парк"},
-{abbreviation = "сквер2", replacement = "сквер"},
-{abbreviation = "сквера2", replacement = "сквер"},
-{abbreviation = "сад", replacement = "сад"},
 {abbreviation = "сада", replacement = "сад"},
-{abbreviation = "огород", replacement = "огород"},
 {abbreviation = "огорода", replacement = "огород"},
 {abbreviation = "теплица", replacement = "теплицу"},
-{abbreviation = "теплицу", replacement = "теплицу"},
 {abbreviation = "оранжерея", replacement = "оранжерею"},
-{abbreviation = "оранжерею", replacement = "оранжерею"},
-{abbreviation = "питомник", replacement = "питомник"},
 {abbreviation = "питомника", replacement = "питомник"},
-{abbreviation = "зоопарк", replacement = "зоопарк"},
 {abbreviation = "зоопарка", replacement = "зоопарк"},
 {abbreviation = "конюшня", replacement = "конюшню"},
-{abbreviation = "конюшню", replacement = "конюшню"},
-{abbreviation = "ферма2", replacement = "ферму"},
-{abbreviation = "ферму2", replacement = "ферму"},
 {abbreviation = "пасека", replacement = "пасеку"},
-{abbreviation = "пасеку", replacement = "пасеку"},
 {abbreviation = "ульи", replacement = "пасеку"},
-{abbreviation = "пасека2", replacement = "пасеку"},
-{abbreviation = "рыбхоз", replacement = "рыбхоз"},
 {abbreviation = "рыбхоза", replacement = "рыбхоз"},
-{abbreviation = "пруд", replacement = "пруд"},
 {abbreviation = "пруда", replacement = "пруд"},
-{abbreviation = "озеро2", replacement = "озеро"},
-{abbreviation = "пляж2", replacement = "пляж"},
-{abbreviation = "причал2", replacement = "причал"},
-{abbreviation = "якорь2", replacement = "причал"},
-{abbreviation = "верфь2", replacement = "верфь"},
-{abbreviation = "док2", replacement = "док"},
-{abbreviation = "склад2", replacement = "склад"},
-{abbreviation = "склада2", replacement = "склад"},
-{abbreviation = "ангар2", replacement = "ангар"},
-{abbreviation = "ангара2", replacement = "ангар"},
-{abbreviation = "депо", replacement = "депо"},
 {abbreviation = "депоа", replacement = "депо"},
-{abbreviation = "гараж2", replacement = "гараж"},
-{abbreviation = "гаража2", replacement = "гараж"},
 {abbreviation = "стоянка", replacement = "стоянку"},
-{abbreviation = "стоянку", replacement = "стоянку"},
 {abbreviation = "парковка", replacement = "парковку"},
-{abbreviation = "парковку", replacement = "парковку"},
 {abbreviation = "автостоянка", replacement = "автостоянку"},
-{abbreviation = "автостоянку", replacement = "автостоянку"},
-{abbreviation = "мойка2", replacement = "автомойку"},
-{abbreviation = "мойку2", replacement = "автомойку"},
-{abbreviation = "шиномонтаж2", replacement = "шиномонтаж"},
-{abbreviation = "сто2", replacement = "СТО"},
-{abbreviation = "техцентр2", replacement = "техцентр"},
-{abbreviation = "автосервис2", replacement = "автосервис"},
 {abbreviation = "ремзона", replacement = "ремзону"},
-{abbreviation = "ремзону", replacement = "ремзону"},
-{abbreviation = "пункт2", replacement = "пункт"},
-{abbreviation = "пункта2", replacement = "пункт"},
-{abbreviation = "офис", replacement = "офис"},
 {abbreviation = "офиса", replacement = "офис"},
 {abbreviation = "офису", replacement = "офис"},
 {abbreviation = "контора", replacement = "контору"},
-{abbreviation = "контору", replacement = "контору"},
 {abbreviation = "конторы", replacement = "контору"},
-{abbreviation = "бюро", replacement = "бюро"},
 {abbreviation = "бюроа", replacement = "бюро"},
-{abbreviation = "агентство", replacement = "агентство"},
 {abbreviation = "агентства", replacement = "агентство"},
-{abbreviation = "представительство", replacement = "представительство"},
 {abbreviation = "представительства", replacement = "представительство"},
-{abbreviation = "отделение", replacement = "отделение"},
 {abbreviation = "отделения", replacement = "отделение"},
-{abbreviation = "филиал", replacement = "филиал"},
 {abbreviation = "филиала", replacement = "филиал"},
-{abbreviation = "цех", replacement = "цех"},
 {abbreviation = "цеха", replacement = "цех"},
 {abbreviation = "лаборатория", replacement = "лабораторию"},
-{abbreviation = "лабораторию", replacement = "лабораторию"},
 {abbreviation = "мастерская", replacement = "мастерскую"},
-{abbreviation = "мастерскую", replacement = "мастерскую"},
 {abbreviation = "мастерские", replacement = "мастерскую"},
-{abbreviation = "ателье", replacement = "ателье"},
 {abbreviation = "ательеа", replacement = "ателье"},
 {abbreviation = "студия", replacement = "студию"},
-{abbreviation = "студию", replacement = "студию"},
 {abbreviation = "студии", replacement = "студию"},
 {abbreviation = "фотостудия", replacement = "фотостудию"},
-{abbreviation = "фотостудию", replacement = "фотостудию"},
 {abbreviation = "музыкальная", replacement = "музыкальную студию"},
 {abbreviation = "танцевальная", replacement = "танцевальную студию"},
 {abbreviation = "тренажерный", replacement = "тренажёрный зал"},
 {abbreviation = "тренажёрный", replacement = "тренажёрный зал"},
-{abbreviation = "спортзал2", replacement = "тренажёрный зал"},
-{abbreviation = "качалка2", replacement = "тренажёрный зал"},
-{abbreviation = "качалку2", replacement = "тренажёрный зал"},
 {abbreviation = "фитнес", replacement = "фитнес-клуб"},
 {abbreviation = "фитнеса", replacement = "фитнес-клуб"},
-{abbreviation = "фитнес-клуб", replacement = "фитнес-клуб"},
 {abbreviation = "фитнес-клуба", replacement = "фитнес-клуб"},
-{abbreviation = "кроссфит", replacement = "кроссфит"},
 {abbreviation = "йога", replacement = "йога-студию"},
-{abbreviation = "йога-студию", replacement = "йога-студию"},
 {abbreviation = "пилатес", replacement = "студию пилатеса"},
 {abbreviation = "единоборства", replacement = "зал единоборств"},
 {abbreviation = "бокс", replacement = "боксерский зал"},
 {abbreviation = "боксерский", replacement = "боксерский зал"},
 {abbreviation = "спорт", replacement = "спортзал"},
 {abbreviation = "спорта", replacement = "спортзал"},
-{abbreviation = "школа2", replacement = "школу"},
-{abbreviation = "школу2", replacement = "школу"},
-{abbreviation = "училище", replacement = "училище"},
 {abbreviation = "училища", replacement = "училище"},
-{abbreviation = "колледж", replacement = "колледж"},
 {abbreviation = "колледжа", replacement = "колледж"},
-{abbreviation = "университет", replacement = "университет"},
 {abbreviation = "университета", replacement = "университет"},
-{abbreviation = "институт", replacement = "институт"},
 {abbreviation = "института", replacement = "институт"},
 {abbreviation = "академия", replacement = "академию"},
-{abbreviation = "академию", replacement = "академию"},
-{abbreviation = "лицей2", replacement = "лицей"},
 {abbreviation = "лицея", replacement = "лицей"},
 {abbreviation = "детсад", replacement = "детский сад"},
 {abbreviation = "детский", replacement = "детский сад"},
-{abbreviation = "ясли", replacement = "ясли"},
 {abbreviation = "яслей", replacement = "ясли"},
-{abbreviation = "хоспис", replacement = "хоспис"},
 {abbreviation = "хосписа", replacement = "хоспис"},
-{abbreviation = "санаторий", replacement = "санаторий"},
 {abbreviation = "санатория", replacement = "санаторий"},
-{abbreviation = "пансионат", replacement = "пансионат"},
 {abbreviation = "пансионата", replacement = "пансионат"},
-{abbreviation = "курорт", replacement = "курорт"},
 {abbreviation = "курорта", replacement = "курорт"},
 {abbreviation = "турбаза", replacement = "турбазу"},
-{abbreviation = "турбазу", replacement = "турбазу"},
-{abbreviation = "кемпинг", replacement = "кемпинг"},
 {abbreviation = "кемпинга", replacement = "кемпинг"},
-{abbreviation = "мотель2", replacement = "отель"},
-{abbreviation = "отель2", replacement = "отель"},
 {abbreviation = "гостиница", replacement = "гостиницу"},
-{abbreviation = "гостиницу", replacement = "гостиницу"},
-{abbreviation = "хостел", replacement = "хостел"},
 {abbreviation = "хостела", replacement = "хостел"},
-{abbreviation = "общежитие", replacement = "общежитие"},
 {abbreviation = "общежития", replacement = "общежитие"},
-{abbreviation = "квартира2", replacement = "квартиру"},
-{abbreviation = "квартиру2", replacement = "квартиру"},
-{abbreviation = "студия2", replacement = "квартиру-студию"},
 {abbreviation = "комната", replacement = "комнату"},
-{abbreviation = "комнату", replacement = "комнату"},
 {abbreviation = "комнаты", replacement = "комнату"},
 {abbreviation = "койка", replacement = "койко-место"},
 {abbreviation = "койку", replacement = "койко-место"},
 {abbreviation = "койки", replacement = "койко-место"},
-{abbreviation = "койко-место", replacement = "койко-место"},
 {abbreviation = "спальня", replacement = "спальню"},
-{abbreviation = "спальню", replacement = "спальню"},
 {abbreviation = "гостиная", replacement = "гостиную"},
-{abbreviation = "гостиную", replacement = "гостиную"},
 {abbreviation = "кухня", replacement = "кухню"},
-{abbreviation = "кухню", replacement = "кухню"},
 {abbreviation = "ванная", replacement = "ванную"},
-{abbreviation = "ванную", replacement = "ванную"},
-{abbreviation = "балкон", replacement = "балкон"},
 {abbreviation = "балкона", replacement = "балкон"},
 {abbreviation = "терраса", replacement = "террасу"},
-{abbreviation = "террасу", replacement = "террасу"},
 {abbreviation = "веранда", replacement = "веранду"},
-{abbreviation = "веранду", replacement = "веранду"},
 {abbreviation = "беседка", replacement = "беседку"},
-{abbreviation = "беседку", replacement = "беседку"},
-{abbreviation = "навес2", replacement = "навес"},
-{abbreviation = "тент2", replacement = "тент"},
-{abbreviation = "сарай", replacement = "сарай"},
 {abbreviation = "сарая", replacement = "сарай"},
-{abbreviation = "амбар", replacement = "амбар"},
 {abbreviation = "амбара", replacement = "амбар"},
-{abbreviation = "хлев", replacement = "хлев"},
 {abbreviation = "хлева", replacement = "хлев"},
-{abbreviation = "курятник", replacement = "курятник"},
 {abbreviation = "курятника", replacement = "курятник"},
 {abbreviation = "конура", replacement = "конуру"},
-{abbreviation = "конуру", replacement = "конуру"},
 {abbreviation = "будка", replacement = "будку"},
-{abbreviation = "будку", replacement = "будку"},
-{abbreviation = "колодец", replacement = "колодец"},
 {abbreviation = "колодца", replacement = "колодец"},
 {abbreviation = "скважина", replacement = "скважину"},
-{abbreviation = "скважину", replacement = "скважину"},
-{abbreviation = "септик", replacement = "септик"},
 {abbreviation = "септика", replacement = "септик"},
 {abbreviation = "канализация", replacement = "канализацию"},
-{abbreviation = "канализацию", replacement = "канализацию"},
-{abbreviation = "электричество", replacement = "электричество"},
 {abbreviation = "электричества", replacement = "электричество"},
-{abbreviation = "генератор", replacement = "генератор"},
 {abbreviation = "генератора", replacement = "генератор"},
 {abbreviation = "солнечная", replacement = "солнечную панель"},
-{abbreviation = "ветряк", replacement = "ветряк"},
 {abbreviation = "ветряка", replacement = "ветряк"},
 {abbreviation = "турбина", replacement = "турбину"},
-{abbreviation = "турбину", replacement = "турбину"},
 {abbreviation = "футболка", replacement = "футболку"},
-{abbreviation = "футболку", replacement = "футболку"},
 {abbreviation = "майка", replacement = "майку"},
-{abbreviation = "майку", replacement = "майку"},
 {abbreviation = "рубашка", replacement = "рубашку"},
-{abbreviation = "рубашку", replacement = "рубашку"},
-{abbreviation = "брюки", replacement = "брюки"},
 {abbreviation = "брюк", replacement = "брюки"},
-{abbreviation = "джинсы", replacement = "джинсы"},
 {abbreviation = "джинсов", replacement = "джинсы"},
-{abbreviation = "шорты", replacement = "шорты"},
 {abbreviation = "шорт", replacement = "шорты"},
 {abbreviation = "юбка", replacement = "юбку"},
-{abbreviation = "юбку", replacement = "юбку"},
-{abbreviation = "платье", replacement = "платье"},
 {abbreviation = "платья", replacement = "платье"},
-{abbreviation = "костюм", replacement = "костюм"},
 {abbreviation = "костюма", replacement = "костюм"},
-{abbreviation = "пиджак", replacement = "пиджак"},
 {abbreviation = "пиджака", replacement = "пиджак"},
-{abbreviation = "жилет", replacement = "жилет"},
 {abbreviation = "жилета", replacement = "жилет"},
-{abbreviation = "свитер", replacement = "свитер"},
 {abbreviation = "свитера", replacement = "свитер"},
 {abbreviation = "кофта", replacement = "кофту"},
-{abbreviation = "кофту", replacement = "кофту"},
 {abbreviation = "куртка", replacement = "куртку"},
-{abbreviation = "куртку", replacement = "куртку"},
-{abbreviation = "пальто", replacement = "пальто"},
 {abbreviation = "пальтоа", replacement = "пальто"},
 {abbreviation = "шуба", replacement = "шубу"},
-{abbreviation = "шубу", replacement = "шубу"},
 {abbreviation = "дубленка", replacement = "дубленку"},
-{abbreviation = "дубленку", replacement = "дубленку"},
-{abbreviation = "пуховик", replacement = "пуховик"},
 {abbreviation = "пуховика", replacement = "пуховик"},
 {abbreviation = "ветровка", replacement = "ветровку"},
-{abbreviation = "ветровку", replacement = "ветровку"},
-{abbreviation = "парка", replacement = "парку"},
-{abbreviation = "парку", replacement = "парку"},
-{abbreviation = "тренч", replacement = "тренч"},
 {abbreviation = "тренча", replacement = "тренч"},
-{abbreviation = "плащ", replacement = "плащ"},
 {abbreviation = "плаща", replacement = "плащ"},
-{abbreviation = "галстук", replacement = "галстук"},
 {abbreviation = "галстука", replacement = "галстук"},
 {abbreviation = "бабочка", replacement = "бабочку"},
-{abbreviation = "бабочку", replacement = "бабочку"},
-{abbreviation = "ремень", replacement = "ремень"},
 {abbreviation = "ремня", replacement = "ремень"},
-{abbreviation = "пояс", replacement = "пояс"},
 {abbreviation = "пояса", replacement = "пояс"},
-{abbreviation = "шарф", replacement = "шарф"},
 {abbreviation = "шарфа", replacement = "шарф"},
-{abbreviation = "перчатки", replacement = "перчатки"},
 {abbreviation = "перчаток", replacement = "перчатки"},
-{abbreviation = "варежки", replacement = "варежки"},
 {abbreviation = "варежек", replacement = "варежки"},
-{abbreviation = "носки", replacement = "носки"},
 {abbreviation = "носков", replacement = "носки"},
-{abbreviation = "чулки", replacement = "чулки"},
 {abbreviation = "чулок", replacement = "чулки"},
-{abbreviation = "колготки", replacement = "колготки"},
 {abbreviation = "колготок", replacement = "колготки"},
-{abbreviation = "трусы", replacement = "трусы"},
 {abbreviation = "трусов", replacement = "трусы"},
-{abbreviation = "бюстгальтер", replacement = "бюстгальтер"},
 {abbreviation = "бра", replacement = "бюстгальтер"},
 {abbreviation = "нижнее", replacement = "нижнее белье"},
 {abbreviation = "белье", replacement = "нижнее белье"},
 {abbreviation = "белья", replacement = "нижнее белье"},
 {abbreviation = "пижама", replacement = "пижаму"},
-{abbreviation = "пижаму", replacement = "пижаму"},
-{abbreviation = "халат", replacement = "халат"},
 {abbreviation = "халата", replacement = "халат"},
-{abbreviation = "купальник", replacement = "купальник"},
 {abbreviation = "купальника", replacement = "купальник"},
-{abbreviation = "бикини", replacement = "бикини"},
 {abbreviation = "бикиниа", replacement = "бикини"},
-{abbreviation = "сланцы", replacement = "сланцы"},
 {abbreviation = "сланцев", replacement = "сланцы"},
-{abbreviation = "шлепанцы", replacement = "шлепанцы"},
 {abbreviation = "шлепанцев", replacement = "шлепанцы"},
-{abbreviation = "вьетнамки", replacement = "вьетнамки"},
 {abbreviation = "вьетнамок", replacement = "вьетнамки"},
-{abbreviation = "босоножки", replacement = "босоножки"},
 {abbreviation = "босоножек", replacement = "босоножки"},
-{abbreviation = "сандалии", replacement = "сандалии"},
 {abbreviation = "сандалий", replacement = "сандалии"},
-{abbreviation = "кеды", replacement = "кеды"},
 {abbreviation = "кедов", replacement = "кеды"},
-{abbreviation = "кроссовки", replacement = "кроссовки"},
 {abbreviation = "кроссовок", replacement = "кроссовки"},
-{abbreviation = "туфли", replacement = "туфли"},
 {abbreviation = "туфель", replacement = "туфли"},
-{abbreviation = "ботинки", replacement = "ботинки"},
 {abbreviation = "ботинок", replacement = "ботинки"},
-{abbreviation = "сапоги", replacement = "сапоги"},
 {abbreviation = "сапог", replacement = "сапоги"},
-{abbreviation = "валенки", replacement = "валенки"},
 {abbreviation = "валенок", replacement = "валенки"},
-{abbreviation = "угги", replacement = "угги"},
 {abbreviation = "уггов", replacement = "угги"},
-{abbreviation = "мокасины", replacement = "мокасины"},
 {abbreviation = "мокасин", replacement = "мокасины"},
-{abbreviation = "лоферы", replacement = "лоферы"},
 {abbreviation = "лоферов", replacement = "лоферы"},
-{abbreviation = "эспадрильи", replacement = "эспадрильи"},
 {abbreviation = "эспадрилий", replacement = "эспадрильи"},
-{abbreviation = "обувь", replacement = "обувь"},
 {abbreviation = "обуви", replacement = "обувь"},
 {abbreviation = "кросовки", replacement = "кроссовки"},
 {abbreviation = "кросовок", replacement = "кроссовки"},
-{abbreviation = "часы2", replacement = "аксессуар \"Часы\""},
-{abbreviation = "часов2", replacement = "аксессуар \"Часы\""},
-{abbreviation = "браслет", replacement = "браслет"},
 {abbreviation = "браслета", replacement = "браслет"},
-{abbreviation = "кольцо", replacement = "кольцо"},
 {abbreviation = "кольца", replacement = "кольцо"},
-{abbreviation = "серьги", replacement = "серьги"},
 {abbreviation = "серег", replacement = "серьги"},
 {abbreviation = "цепочка", replacement = "цепочку"},
-{abbreviation = "цепочку", replacement = "цепочку"},
-{abbreviation = "кулон", replacement = "кулон"},
 {abbreviation = "кулона", replacement = "кулон"},
-{abbreviation = "брошь", replacement = "брошь"},
 {abbreviation = "броши", replacement = "брошь"},
 {abbreviation = "заколка", replacement = "заколку"},
-{abbreviation = "заколку", replacement = "заколку"},
-{abbreviation = "обруч", replacement = "обруч"},
 {abbreviation = "обруча", replacement = "обруч"},
 {abbreviation = "корона", replacement = "корону"},
-{abbreviation = "корону", replacement = "корону"},
 {abbreviation = "диадема", replacement = "диадему"},
-{abbreviation = "диадему", replacement = "диадему"},
-{abbreviation = "галстук2", replacement = "галстук"},
-{abbreviation = "зажим", replacement = "зажим"},
 {abbreviation = "зажима", replacement = "зажим"},
 {abbreviation = "портупея", replacement = "портупею"},
-{abbreviation = "портупею", replacement = "портупею"},
-{abbreviation = "подтяжки", replacement = "подтяжки"},
 {abbreviation = "подтяжек", replacement = "подтяжки"},
-{abbreviation = "телефон3", replacement = "телефон"},
-{abbreviation = "смартфон2", replacement = "смартфон"},
-{abbreviation = "айфон2", replacement = "смартфон"},
-{abbreviation = "айфона2", replacement = "смартфон"},
 {abbreviation = "самсунг", replacement = "смартфон"},
 {abbreviation = "самсунга", replacement = "смартфон"},
 {abbreviation = "нокиа", replacement = "смартфон"},
@@ -2839,51 +2168,39 @@ local mm_rules = {
 {abbreviation = "сяоми", replacement = "смартфон"},
 {abbreviation = "хонор", replacement = "смартфон"},
 {abbreviation = "хуавей", replacement = "смартфон"},
-{abbreviation = "планшет2", replacement = "планшет"},
 {abbreviation = "айпад", replacement = "планшет"},
 {abbreviation = "айпада", replacement = "планшет"},
 {abbreviation = "лэптоп", replacement = "ноутбук"},
 {abbreviation = "лэптопа", replacement = "ноутбук"},
 {abbreviation = "макбук", replacement = "ноутбук"},
 {abbreviation = "макбука", replacement = "ноутбук"},
-{abbreviation = "пк", replacement = "компьютер"},
 {abbreviation = "пка", replacement = "компьютер"},
 {abbreviation = "системник", replacement = "компьютер"},
 {abbreviation = "системника", replacement = "компьютер"},
-{abbreviation = "процессор", replacement = "процессор"},
 {abbreviation = "процессора", replacement = "процессор"},
 {abbreviation = "видеокарта", replacement = "видеокарту"},
-{abbreviation = "видеокарту", replacement = "видеокарту"},
 {abbreviation = "озу", replacement = "оперативную память"},
 {abbreviation = "оперативная", replacement = "оперативную память"},
-{abbreviation = "память", replacement = "память"},
 {abbreviation = "памяти", replacement = "память"},
 {abbreviation = "жесткий", replacement = "жесткий диск"},
-{abbreviation = "диск", replacement = "диск"},
 {abbreviation = "диска", replacement = "диск"},
 {abbreviation = "ссд", replacement = "SSD накопитель"},
 {abbreviation = "ссда", replacement = "SSD накопитель"},
 {abbreviation = "хард", replacement = "жесткий диск"},
 {abbreviation = "харда", replacement = "жесткий диск"},
 {abbreviation = "флешка", replacement = "флешку"},
-{abbreviation = "флешку", replacement = "флешку"},
 {abbreviation = "флешки", replacement = "флешку"},
 {abbreviation = "флэшка", replacement = "флешку"},
 {abbreviation = "флэшку", replacement = "флешку"},
 {abbreviation = "юзб", replacement = "USB-накопитель"},
 {abbreviation = "юсб", replacement = "USB-накопитель"},
-{abbreviation = "роутер", replacement = "роутер"},
 {abbreviation = "роутера", replacement = "роутер"},
-{abbreviation = "модем", replacement = "модем"},
 {abbreviation = "модема", replacement = "модем"},
 {abbreviation = "свитч", replacement = "коммутатор"},
 {abbreviation = "хаб", replacement = "концентратор"},
 {abbreviation = "патч", replacement = "патч-корд"},
-{abbreviation = "кабель", replacement = "кабель"},
 {abbreviation = "кабеля", replacement = "кабель"},
-{abbreviation = "провод", replacement = "провод"},
 {abbreviation = "провода", replacement = "провод"},
-{abbreviation = "удлинитель", replacement = "удлинитель"},
 {abbreviation = "удлинителя", replacement = "удлинитель"},
 {abbreviation = "сетевой", replacement = "сетевой фильтр"},
 {abbreviation = "блок", replacement = "блок питания"},
@@ -2892,458 +2209,242 @@ local mm_rules = {
 {abbreviation = "бпа", replacement = "блок питания"},
 {abbreviation = "куллер", replacement = "кулер"},
 {abbreviation = "кулера", replacement = "кулер"},
-{abbreviation = "кулер", replacement = "кулер"},
 {abbreviation = "куллеры", replacement = "кулер"},
 {abbreviation = "термопаста", replacement = "термопасту"},
-{abbreviation = "термопасту", replacement = "термопасту"},
 {abbreviation = "материнка", replacement = "материнскую плату"},
 {abbreviation = "материнскую", replacement = "материнскую плату"},
 {abbreviation = "плата", replacement = "плату"},
-{abbreviation = "плату", replacement = "плату"},
 {abbreviation = "платы", replacement = "плату"},
 {abbreviation = "звуковая", replacement = "звуковую карту"},
 {abbreviation = "сетевая", replacement = "сетевую карту"},
 {abbreviation = "твтюнер", replacement = "ТВ-тюнер"},
 {abbreviation = "вебка", replacement = "веб-камеру"},
-{abbreviation = "веб-камеру", replacement = "веб-камеру"},
 {abbreviation = "веб-камера", replacement = "веб-камеру"},
 {abbreviation = "вебкамера", replacement = "веб-камеру"},
-{abbreviation = "телевизор", replacement = "телевизор"},
 {abbreviation = "телевизора", replacement = "телевизор"},
 {abbreviation = "тв", replacement = "телевизор"},
 {abbreviation = "тва", replacement = "телевизор"},
 {abbreviation = "яндекств", replacement = "телевизор"},
 {abbreviation = "смарттв", replacement = "телевизор"},
-{abbreviation = "холодильник", replacement = "холодильник"},
 {abbreviation = "холодильника", replacement = "холодильник"},
 {abbreviation = "морозилка", replacement = "морозилку"},
-{abbreviation = "морозилку", replacement = "морозилку"},
 {abbreviation = "стиралка", replacement = "стиральную машину"},
 {abbreviation = "стиральная", replacement = "стиральную машину"},
 {abbreviation = "стиральную", replacement = "стиральную машину"},
 {abbreviation = "посудомойка", replacement = "посудомойку"},
-{abbreviation = "посудомойку", replacement = "посудомойку"},
 {abbreviation = "посудомоечная", replacement = "посудомойку"},
-{abbreviation = "печь", replacement = "печь"},
 {abbreviation = "печи", replacement = "печь"},
 {abbreviation = "духовка", replacement = "духовку"},
-{abbreviation = "духовку", replacement = "духовку"},
 {abbreviation = "плита", replacement = "плиту"},
-{abbreviation = "плиту", replacement = "плиту"},
 {abbreviation = "варочная", replacement = "варочную панель"},
 {abbreviation = "микроволновка", replacement = "микроволновку"},
-{abbreviation = "микроволновку", replacement = "микроволновку"},
 {abbreviation = "микроволновая", replacement = "микроволновку"},
-{abbreviation = "миксер", replacement = "миксер"},
 {abbreviation = "миксера", replacement = "миксер"},
-{abbreviation = "блендер", replacement = "блендер"},
 {abbreviation = "блендера", replacement = "блендер"},
 {abbreviation = "комбайн", replacement = "кухонный комбайн"},
-{abbreviation = "тостер", replacement = "тостер"},
 {abbreviation = "тостера", replacement = "тостер"},
 {abbreviation = "кофеварка", replacement = "кофеварку"},
-{abbreviation = "кофеварку", replacement = "кофеварку"},
 {abbreviation = "кофемашина", replacement = "кофемашину"},
-{abbreviation = "кофемашину", replacement = "кофемашину"},
-{abbreviation = "чайник", replacement = "чайник"},
 {abbreviation = "чайника", replacement = "чайник"},
-{abbreviation = "кипятильник", replacement = "кипятильник"},
-{abbreviation = "термос2", replacement = "термос"},
-{abbreviation = "термоса2", replacement = "термос"},
-{abbreviation = "пылесос", replacement = "пылесос"},
 {abbreviation = "пылесоса", replacement = "пылесос"},
 {abbreviation = "робот", replacement = "робот-пылесос"},
 {abbreviation = "робота", replacement = "робот-пылесос"},
 {abbreviation = "швабра", replacement = "швабру"},
-{abbreviation = "швабру", replacement = "швабру"},
-{abbreviation = "ведро", replacement = "ведро"},
 {abbreviation = "ведра", replacement = "ведро"},
 {abbreviation = "щетка", replacement = "щетку"},
-{abbreviation = "щетку", replacement = "щетку"},
-{abbreviation = "совок", replacement = "совок"},
 {abbreviation = "совка", replacement = "совок"},
-{abbreviation = "утюг", replacement = "утюг"},
 {abbreviation = "утюга", replacement = "утюг"},
-{abbreviation = "парогенератор", replacement = "парогенератор"},
 {abbreviation = "парогенератора", replacement = "парогенератор"},
-{abbreviation = "кондиционер", replacement = "кондиционер"},
 {abbreviation = "кондиционера", replacement = "кондиционер"},
-{abbreviation = "обогреватель", replacement = "обогреватель"},
 {abbreviation = "обогревателя", replacement = "обогреватель"},
-{abbreviation = "радиатор", replacement = "радиатор"},
 {abbreviation = "радиатора", replacement = "радиатор"},
 {abbreviation = "батарея", replacement = "батарею"},
-{abbreviation = "батарею", replacement = "батарею"},
-{abbreviation = "камин", replacement = "камин"},
 {abbreviation = "камина", replacement = "камин"},
 {abbreviation = "печка", replacement = "печку"},
-{abbreviation = "печку", replacement = "печку"},
 {abbreviation = "буржуйка", replacement = "буржуйку"},
-{abbreviation = "буржуйку", replacement = "буржуйку"},
 {abbreviation = "люстра", replacement = "люстру"},
-{abbreviation = "люстру", replacement = "люстру"},
 {abbreviation = "лампа", replacement = "лампу"},
-{abbreviation = "лампу", replacement = "лампу"},
 {abbreviation = "лампы", replacement = "лампу"},
-{abbreviation = "торшер", replacement = "торшер"},
 {abbreviation = "торшера", replacement = "торшер"},
-{abbreviation = "бра2", replacement = "светильник"},
-{abbreviation = "светильник", replacement = "светильник"},
 {abbreviation = "светильника", replacement = "светильник"},
-{abbreviation = "фонарь", replacement = "фонарь"},
 {abbreviation = "фонаря", replacement = "фонарь"},
-{abbreviation = "прожектор", replacement = "прожектор"},
 {abbreviation = "прожектора", replacement = "прожектор"},
 {abbreviation = "гирлянда", replacement = "гирлянду"},
-{abbreviation = "гирлянду", replacement = "гирлянду"},
 {abbreviation = "диско", replacement = "диско-шар"},
-{abbreviation = "шар2", replacement = "диско-шар"},
-{abbreviation = "диван", replacement = "диван"},
 {abbreviation = "дивана", replacement = "диван"},
-{abbreviation = "кресло", replacement = "кресло"},
 {abbreviation = "кресла", replacement = "кресло"},
-{abbreviation = "стул", replacement = "стул"},
 {abbreviation = "стула", replacement = "стул"},
-{abbreviation = "стулья", replacement = "стулья"},
 {abbreviation = "стульев", replacement = "стулья"},
-{abbreviation = "табурет", replacement = "табурет"},
 {abbreviation = "табурета", replacement = "табурет"},
 {abbreviation = "табуретка", replacement = "табуретку"},
-{abbreviation = "табуретку", replacement = "табуретку"},
-{abbreviation = "стол", replacement = "стол"},
 {abbreviation = "стола", replacement = "стол"},
-{abbreviation = "столы", replacement = "столы"},
 {abbreviation = "столов", replacement = "столы"},
 {abbreviation = "журнальный", replacement = "журнальный столик"},
-{abbreviation = "столик", replacement = "столик"},
 {abbreviation = "столика", replacement = "столик"},
 {abbreviation = "тумба", replacement = "тумбу"},
-{abbreviation = "тумбу", replacement = "тумбу"},
 {abbreviation = "тумбы", replacement = "тумбу"},
-{abbreviation = "комод", replacement = "комод"},
 {abbreviation = "комода", replacement = "комод"},
-{abbreviation = "шкаф", replacement = "шкаф"},
 {abbreviation = "шкафа", replacement = "шкаф"},
-{abbreviation = "шкафы", replacement = "шкафы"},
 {abbreviation = "шкафов", replacement = "шкафы"},
-{abbreviation = "гардероб", replacement = "гардероб"},
 {abbreviation = "гардероба", replacement = "гардероб"},
 {abbreviation = "вешалка", replacement = "вешалку"},
-{abbreviation = "вешалку", replacement = "вешалку"},
 {abbreviation = "полка", replacement = "полку"},
-{abbreviation = "полку", replacement = "полку"},
 {abbreviation = "полки", replacement = "полку"},
-{abbreviation = "стеллаж", replacement = "стеллаж"},
 {abbreviation = "стеллажа", replacement = "стеллаж"},
 {abbreviation = "этажерка", replacement = "этажерку"},
-{abbreviation = "этажерку", replacement = "этажерку"},
-{abbreviation = "кровать", replacement = "кровать"},
 {abbreviation = "кровати", replacement = "кровать"},
 {abbreviation = "кроватей", replacement = "кровать"},
-{abbreviation = "матрас", replacement = "матрас"},
 {abbreviation = "матраса", replacement = "матрас"},
 {abbreviation = "матрац", replacement = "матрас"},
 {abbreviation = "матраца", replacement = "матрас"},
 {abbreviation = "подушка", replacement = "подушку"},
-{abbreviation = "подушку", replacement = "подушку"},
 {abbreviation = "подушки", replacement = "подушку"},
-{abbreviation = "одеяло", replacement = "одеяло"},
 {abbreviation = "одеяла", replacement = "одеяло"},
-{abbreviation = "плед", replacement = "плед"},
 {abbreviation = "пледа", replacement = "плед"},
-{abbreviation = "покрывало", replacement = "покрывало"},
 {abbreviation = "покрывала", replacement = "покрывало"},
 {abbreviation = "простыня", replacement = "простыню"},
-{abbreviation = "простыню", replacement = "простыню"},
-{abbreviation = "пододеяльник", replacement = "пододеяльник"},
 {abbreviation = "пододеяльника", replacement = "пододеяльник"},
 {abbreviation = "наволочка", replacement = "наволочку"},
-{abbreviation = "наволочку", replacement = "наволочку"},
-{abbreviation = "зеркало", replacement = "зеркало"},
 {abbreviation = "зеркала", replacement = "зеркало"},
 {abbreviation = "картина", replacement = "картину"},
-{abbreviation = "картину", replacement = "картину"},
-{abbreviation = "постер", replacement = "постер"},
 {abbreviation = "постера", replacement = "постер"},
-{abbreviation = "ковер", replacement = "ковер"},
 {abbreviation = "ковра", replacement = "ковер"},
-{abbreviation = "ковры", replacement = "ковры"},
 {abbreviation = "ковров", replacement = "ковры"},
-{abbreviation = "палас", replacement = "палас"},
 {abbreviation = "паласа", replacement = "палас"},
 {abbreviation = "дорожка", replacement = "дорожку"},
-{abbreviation = "дорожку", replacement = "дорожку"},
 {abbreviation = "циновка", replacement = "циновку"},
-{abbreviation = "циновку", replacement = "циновку"},
 {abbreviation = "штора", replacement = "штору"},
-{abbreviation = "штору", replacement = "штору"},
-{abbreviation = "шторы", replacement = "шторы"},
 {abbreviation = "штор", replacement = "шторы"},
-{abbreviation = "жалюзи", replacement = "жалюзи"},
 {abbreviation = "жалюзиа", replacement = "жалюзи"},
-{abbreviation = "карниз", replacement = "карниз"},
 {abbreviation = "карниза", replacement = "карниз"},
-{abbreviation = "подушка2", replacement = "подушку"},
-{abbreviation = "декор", replacement = "декор"},
 {abbreviation = "декора", replacement = "декор"},
-{abbreviation = "сувенир", replacement = "сувенир"},
 {abbreviation = "сувенира", replacement = "сувенир"},
 {abbreviation = "статуэтка", replacement = "статуэтку"},
-{abbreviation = "статуэтку", replacement = "статуэтку"},
 {abbreviation = "ваза", replacement = "вазу"},
-{abbreviation = "вазу", replacement = "вазу"},
 {abbreviation = "вазы", replacement = "вазу"},
-{abbreviation = "горшок", replacement = "горшок"},
 {abbreviation = "горшка", replacement = "горшок"},
-{abbreviation = "вазон", replacement = "вазон"},
 {abbreviation = "вазона", replacement = "вазон"},
-{abbreviation = "цветок", replacement = "цветок"},
 {abbreviation = "цветка", replacement = "цветок"},
-{abbreviation = "растение", replacement = "растение"},
 {abbreviation = "растения", replacement = "растение"},
-{abbreviation = "букет", replacement = "букет"},
 {abbreviation = "букета", replacement = "букет"},
-{abbreviation = "медикаменты", replacement = "медикаменты"},
-{abbreviation = "лекарства", replacement = "лекарства"},
 {abbreviation = "лекарств", replacement = "лекарства"},
-{abbreviation = "таблетки", replacement = "таблетки"},
 {abbreviation = "таблеток", replacement = "таблетки"},
-{abbreviation = "антибиотик", replacement = "антибиотик"},
 {abbreviation = "антибиотика", replacement = "антибиотик"},
-{abbreviation = "витамины", replacement = "витамины"},
 {abbreviation = "витаминов", replacement = "витамины"},
-{abbreviation = "анальгин", replacement = "анальгин"},
 {abbreviation = "анальгина", replacement = "анальгин"},
-{abbreviation = "аспирин", replacement = "аспирин"},
 {abbreviation = "аспирина", replacement = "аспирин"},
 {abbreviation = "ношпа", replacement = "ношпу"},
-{abbreviation = "ношпу", replacement = "ношпу"},
 {abbreviation = "активированный", replacement = "активированный уголь"},
 {abbreviation = "уголь", replacement = "активированный уголь"},
 {abbreviation = "угля", replacement = "активированный уголь"},
-{abbreviation = "йод", replacement = "йод"},
 {abbreviation = "йода", replacement = "йод"},
 {abbreviation = "зеленка", replacement = "зеленку"},
-{abbreviation = "зеленку", replacement = "зеленку"},
-{abbreviation = "перекись", replacement = "перекись"},
 {abbreviation = "перекиси", replacement = "перекись"},
-{abbreviation = "пластырь", replacement = "пластырь"},
 {abbreviation = "пластыря", replacement = "пластырь"},
-{abbreviation = "бинт", replacement = "бинт"},
 {abbreviation = "бинта", replacement = "бинт"},
 {abbreviation = "марля", replacement = "марлю"},
-{abbreviation = "марлю", replacement = "марлю"},
-{abbreviation = "шприц", replacement = "шприц"},
 {abbreviation = "шприца", replacement = "шприц"},
-{abbreviation = "мазь", replacement = "мазь"},
 {abbreviation = "мази", replacement = "мазь"},
-{abbreviation = "крем", replacement = "крем"},
 {abbreviation = "крема", replacement = "крем"},
-{abbreviation = "гель", replacement = "гель"},
 {abbreviation = "геля", replacement = "гель"},
-{abbreviation = "спрей", replacement = "спрей"},
 {abbreviation = "спрея", replacement = "спрей"},
-{abbreviation = "молоток", replacement = "молоток"},
 {abbreviation = "молотка", replacement = "молоток"},
 {abbreviation = "отвертка", replacement = "отвертку"},
-{abbreviation = "отвертку", replacement = "отвертку"},
-{abbreviation = "плоскогубцы", replacement = "плоскогубцы"},
-{abbreviation = "пассатижи", replacement = "пассатижи"},
-{abbreviation = "кусачки", replacement = "кусачки"},
-{abbreviation = "ключ2", replacement = "ключ"},
 {abbreviation = "гаечный", replacement = "гаечный ключ"},
 {abbreviation = "торцевой", replacement = "торцевой ключ"},
 {abbreviation = "разводной", replacement = "разводной ключ"},
-{abbreviation = "трещотка2", replacement = "трещотку"},
-{abbreviation = "трещотку", replacement = "трещотку"},
 {abbreviation = "пила", replacement = "пилу"},
-{abbreviation = "пилу", replacement = "пилу"},
 {abbreviation = "ножовка", replacement = "ножовку"},
-{abbreviation = "ножовку", replacement = "ножовку"},
 {abbreviation = "болгарка", replacement = "болгарку"},
-{abbreviation = "болгарку", replacement = "болгарку"},
-{abbreviation = "дрель", replacement = "дрель"},
 {abbreviation = "дрели", replacement = "дрель"},
-{abbreviation = "шуруповерт", replacement = "шуруповерт"},
 {abbreviation = "шуруповерта", replacement = "шуруповерт"},
-{abbreviation = "перфоратор", replacement = "перфоратор"},
 {abbreviation = "перфоратора", replacement = "перфоратор"},
-{abbreviation = "гвоздодер", replacement = "гвоздодер"},
-{abbreviation = "лом", replacement = "лом"},
 {abbreviation = "лома", replacement = "лом"},
-{abbreviation = "топор", replacement = "топор"},
 {abbreviation = "топора", replacement = "топор"},
-{abbreviation = "колун", replacement = "колун"},
 {abbreviation = "колуна", replacement = "колун"},
 {abbreviation = "кувалда", replacement = "кувалду"},
-{abbreviation = "кувалду", replacement = "кувалду"},
-{abbreviation = "зубило", replacement = "зубило"},
 {abbreviation = "зубила", replacement = "зубило"},
-{abbreviation = "напильник", replacement = "напильник"},
 {abbreviation = "напильника", replacement = "напильник"},
 {abbreviation = "наждачка", replacement = "наждачку"},
-{abbreviation = "наждачку", replacement = "наждачку"},
-{abbreviation = "рулетка2", replacement = "рулетку"},
-{abbreviation = "рулетку2", replacement = "рулетку"},
-{abbreviation = "уровень", replacement = "уровень"},
 {abbreviation = "уровня", replacement = "уровень"},
-{abbreviation = "отвес", replacement = "отвес"},
 {abbreviation = "отвеса", replacement = "отвес"},
-{abbreviation = "угольник", replacement = "угольник"},
 {abbreviation = "угольника", replacement = "угольник"},
-{abbreviation = "штангенциркуль", replacement = "штангенциркуль"},
-{abbreviation = "микрометр", replacement = "микрометр"},
 {abbreviation = "лестница", replacement = "лестницу"},
-{abbreviation = "лестницу", replacement = "лестницу"},
 {abbreviation = "стремянка", replacement = "стремянку"},
-{abbreviation = "стремянку", replacement = "стремянку"},
 {abbreviation = "тали", replacement = "таль"},
-{abbreviation = "таль", replacement = "таль"},
-{abbreviation = "домкрат", replacement = "домкрат"},
 {abbreviation = "домкрата", replacement = "домкрат"},
-{abbreviation = "тиски", replacement = "тиски"},
 {abbreviation = "тисков", replacement = "тиски"},
 {abbreviation = "наковальня", replacement = "наковальню"},
-{abbreviation = "наковальню", replacement = "наковальню"},
-{abbreviation = "горн", replacement = "горн"},
 {abbreviation = "горна", replacement = "горн"},
-{abbreviation = "паяльник", replacement = "паяльник"},
 {abbreviation = "паяльника", replacement = "паяльник"},
 {abbreviation = "тестер", replacement = "мультиметр"},
-{abbreviation = "мультиметр", replacement = "мультиметр"},
 {abbreviation = "мультиметра", replacement = "мультиметр"},
-{abbreviation = "осциллограф", replacement = "осциллограф"},
-{abbreviation = "гвозди", replacement = "гвозди"},
 {abbreviation = "гвоздей", replacement = "гвозди"},
-{abbreviation = "шурупы", replacement = "шурупы"},
 {abbreviation = "шурупов", replacement = "шурупы"},
-{abbreviation = "саморезы", replacement = "саморезы"},
 {abbreviation = "саморезов", replacement = "саморезы"},
-{abbreviation = "болты", replacement = "болты"},
 {abbreviation = "болтов", replacement = "болты"},
-{abbreviation = "гайки", replacement = "гайки"},
 {abbreviation = "гаек", replacement = "гайки"},
-{abbreviation = "шайбы", replacement = "шайбы"},
 {abbreviation = "шайб", replacement = "шайбы"},
-{abbreviation = "гровер", replacement = "гровер"},
 {abbreviation = "гровера", replacement = "гровер"},
-{abbreviation = "анкер", replacement = "анкер"},
 {abbreviation = "анкера", replacement = "анкер"},
-{abbreviation = "дюбель", replacement = "дюбель"},
 {abbreviation = "дюбеля", replacement = "дюбель"},
 {abbreviation = "заклепка", replacement = "заклепку"},
-{abbreviation = "заклепку", replacement = "заклепку"},
 {abbreviation = "проволока", replacement = "проволоку"},
-{abbreviation = "проволоку", replacement = "проволоку"},
 {abbreviation = "веревка", replacement = "веревку"},
-{abbreviation = "веревку", replacement = "веревку"},
-{abbreviation = "шнур", replacement = "шнур"},
 {abbreviation = "шнура", replacement = "шнур"},
-{abbreviation = "цепь3", replacement = "цепь"},
-{abbreviation = "цепи3", replacement = "цепь"},
-{abbreviation = "трос", replacement = "трос"},
 {abbreviation = "троса", replacement = "трос"},
 {abbreviation = "лента", replacement = "ленту"},
-{abbreviation = "ленту", replacement = "ленту"},
-{abbreviation = "скотч", replacement = "скотч"},
 {abbreviation = "скотча", replacement = "скотч"},
 {abbreviation = "изолента", replacement = "изоленту"},
-{abbreviation = "изоленту", replacement = "изоленту"},
-{abbreviation = "герметик", replacement = "герметик"},
 {abbreviation = "герметика", replacement = "герметик"},
-{abbreviation = "клей", replacement = "клей"},
 {abbreviation = "клея", replacement = "клей"},
-{abbreviation = "цемент", replacement = "цемент"},
 {abbreviation = "цемента", replacement = "цемент"},
-{abbreviation = "бетон", replacement = "бетон"},
 {abbreviation = "бетона", replacement = "бетон"},
-{abbreviation = "кирпич", replacement = "кирпич"},
 {abbreviation = "кирпича", replacement = "кирпич"},
-{abbreviation = "блок", replacement = "блок"},
-{abbreviation = "блока2", replacement = "блок"},
-{abbreviation = "плита2", replacement = "плиту"},
-{abbreviation = "панель", replacement = "панель"},
 {abbreviation = "панели", replacement = "панель"},
-{abbreviation = "гипс", replacement = "гипс"},
 {abbreviation = "гипса", replacement = "гипс"},
 {abbreviation = "штукатурка", replacement = "штукатурку"},
-{abbreviation = "штукатурку", replacement = "штукатурку"},
 {abbreviation = "шпатлевка", replacement = "шпатлевку"},
-{abbreviation = "шпатлевку", replacement = "шпатлевку"},
 {abbreviation = "грунтовка", replacement = "грунтовку"},
-{abbreviation = "грунтовку", replacement = "грунтовку"},
 {abbreviation = "краска", replacement = "краску"},
-{abbreviation = "краску", replacement = "краску"},
-{abbreviation = "краски2", replacement = "краску"},
-{abbreviation = "эмаль", replacement = "эмаль"},
 {abbreviation = "эмали", replacement = "эмаль"},
-{abbreviation = "лак", replacement = "лак"},
 {abbreviation = "лака", replacement = "лак"},
 {abbreviation = "морилка", replacement = "морилку"},
-{abbreviation = "морилку", replacement = "морилку"},
-{abbreviation = "антисептик", replacement = "антисептик"},
 {abbreviation = "антисептика", replacement = "антисептик"},
 {abbreviation = "пена", replacement = "монтажную пену"},
 {abbreviation = "монтажная", replacement = "монтажную пену"},
 {abbreviation = "монтажную", replacement = "монтажную пену"},
 {abbreviation = "пену", replacement = "монтажную пену"},
-{abbreviation = "утеплитель", replacement = "утеплитель"},
 {abbreviation = "утеплителя", replacement = "утеплитель"},
 {abbreviation = "изоляция", replacement = "изоляцию"},
-{abbreviation = "изоляцию", replacement = "изоляцию"},
 {abbreviation = "пленка", replacement = "пленку"},
-{abbreviation = "пленку", replacement = "пленку"},
-{abbreviation = "рубероид", replacement = "рубероид"},
 {abbreviation = "рубероида", replacement = "рубероид"},
-{abbreviation = "шифер", replacement = "шифер"},
 {abbreviation = "шифера", replacement = "шифер"},
 {abbreviation = "черепица", replacement = "черепицу"},
-{abbreviation = "черепицу", replacement = "черепицу"},
 {abbreviation = "металлочерепица", replacement = "металлочерепицу"},
-{abbreviation = "профнастил", replacement = "профнастил"},
-{abbreviation = "сайдинг", replacement = "сайдинг"},
 {abbreviation = "сайдинга", replacement = "сайдинг"},
 {abbreviation = "вагонка", replacement = "вагонку"},
-{abbreviation = "вагонку", replacement = "вагонку"},
 {abbreviation = "доска", replacement = "доску"},
-{abbreviation = "доску", replacement = "доску"},
-{abbreviation = "брус", replacement = "брус"},
 {abbreviation = "бруса", replacement = "брус"},
-{abbreviation = "бревно", replacement = "бревно"},
 {abbreviation = "бревна", replacement = "бревно"},
 {abbreviation = "фанера", replacement = "фанеру"},
-{abbreviation = "фанеру", replacement = "фанеру"},
 {abbreviation = "дсп", replacement = "ДСП"},
 {abbreviation = "двп", replacement = "ДВП"},
 {abbreviation = "мдф", replacement = "МДФ"},
 {abbreviation = "осб", replacement = "ОСБ"},
-{abbreviation = "оргалит", replacement = "оргалит"},
 {abbreviation = "оргалита", replacement = "оргалит"},
-{abbreviation = "стекло", replacement = "стекло"},
 {abbreviation = "стекла", replacement = "стекло"},
-{abbreviation = "зеркало2", replacement = "зеркало"},
-{abbreviation = "пластик", replacement = "пластик"},
 {abbreviation = "пластика", replacement = "пластик"},
-{abbreviation = "металл", replacement = "металл"},
 {abbreviation = "металла", replacement = "металл"},
-{abbreviation = "алюминий", replacement = "алюминий"},
 {abbreviation = "алюминия", replacement = "алюминий"},
-{abbreviation = "медь", replacement = "медь"},
 {abbreviation = "меди", replacement = "медь"},
-{abbreviation = "латунь", replacement = "латунь"},
 {abbreviation = "латуни", replacement = "латунь"},
 {abbreviation = "бронза", replacement = "бронзу"},
-{abbreviation = "бронзу", replacement = "бронзу"},
-{abbreviation = "чугун", replacement = "чугун"},
 {abbreviation = "чугуна", replacement = "чугун"},
-{abbreviation = "сталь", replacement = "сталь"},
 {abbreviation = "стали", replacement = "сталь"},
-{abbreviation = "железо", replacement = "железо"},
 {abbreviation = "железа", replacement = "железо"},
-{abbreviation = "свинец", replacement = "свинец"},
 {abbreviation = "свинца", replacement = "свинец"},
 {abbreviation = "оцинковка", replacement = "оцинковку"},
-{abbreviation = "оцинковку", replacement = "оцинковку"},
 {abbreviation = "24/7", replacement = "магазин \"24/7\""},
 {abbreviation = "24-7", replacement = "магазин \"24/7\""},
 {abbreviation = "247", replacement = "магазин \"24/7\""},
@@ -3352,18 +2453,10 @@ local mm_rules = {
 {abbreviation = "кругосут", replacement = "магазин \"24/7\""},
 {abbreviation = "св", replacement = "а/м марки \"Sultan\""},
 {abbreviation = "закуп", replacement = "закупка"},
-{abbreviation = "закупка", replacement = "закупка"},
 {abbreviation = "закупки", replacement = "закупка"},
-{abbreviation = "закупаю", replacement = "закупаю"},
-{abbreviation = "закупаешь", replacement = "закупаешь"},
-{abbreviation = "скупаю", replacement = "скупаю"},
-{abbreviation = "скупка", replacement = "скупка"},
 {abbreviation = "скупки", replacement = "скупка"},
 {abbreviation = "принимаю", replacement = "принимаю заказы"},
-{abbreviation = "заказы", replacement = "заказы"},
 {abbreviation = "заказов", replacement = "заказы"},
-{abbreviation = "на заказ", replacement = "на заказ"},
-{abbreviation = "под заказ", replacement = "под заказ"},
 {abbreviation = "рп", replacement = "RP"},
 {abbreviation = "рпа", replacement = "RP"},
 {abbreviation = "дрп", replacement = "DRP"},
@@ -3381,37 +2474,25 @@ local mm_rules = {
 {abbreviation = "пг", replacement = "PG"},
 {abbreviation = "рк", replacement = "RK"},
 {abbreviation = "автошкола", replacement = "автошколу"},
-{abbreviation = "автошколу", replacement = "автошколу"},
 {abbreviation = "школа вождения", replacement = "автошколу"},
 {abbreviation = "страйкбол", replacement = "страйкбольный клуб"},
 {abbreviation = "пейнтбол", replacement = "пейнтбольный клуб"},
-{abbreviation = "лазертаг", replacement = "лазертаг"},
 {abbreviation = "квест", replacement = "квест-комнату"},
 {abbreviation = "квесты", replacement = "квест-комнаты"},
 {abbreviation = "квестов", replacement = "квест-комнаты"},
 {abbreviation = "квестовая", replacement = "квест-комнату"},
-{abbreviation = "квартира3", replacement = "квартиру"},
-{abbreviation = "апартаменты", replacement = "апартаменты"},
 {abbreviation = "апартаментов", replacement = "апартаменты"},
-{abbreviation = "пентхаус", replacement = "пентхаус"},
 {abbreviation = "пентхауса", replacement = "пентхаус"},
-{abbreviation = "лофт", replacement = "лофт"},
 {abbreviation = "лофта", replacement = "лофт"},
-{abbreviation = "студия3", replacement = "студию"},
 {abbreviation = "резиденция", replacement = "резиденцию"},
-{abbreviation = "резиденцию", replacement = "резиденцию"},
-{abbreviation = "поместье", replacement = "поместье"},
 {abbreviation = "поместья", replacement = "поместье"},
 {abbreviation = "усадьба", replacement = "усадьбу"},
-{abbreviation = "усадьбу", replacement = "усадьбу"},
-{abbreviation = "дворец", replacement = "дворец"},
 {abbreviation = "дворца", replacement = "дворец"},
 {abbreviation = "тазик", replacement = "а/м"},
 {abbreviation = "тазика", replacement = "а/м"},
 {abbreviation = "коробка", replacement = "а/м"},
 {abbreviation = "коробку", replacement = "а/м"},
 {abbreviation = "ведро", replacement = "а/м"},
-{abbreviation = "ведра", replacement = "а/м"},
 {abbreviation = "корыто", replacement = "а/м"},
 {abbreviation = "корыта", replacement = "а/м"},
 {abbreviation = "селедка", replacement = "а/м"},
@@ -3428,127 +2509,60 @@ local mm_rules = {
 {abbreviation = "пушку", replacement = "а/м"},
 {abbreviation = "ласточка", replacement = "а/м"},
 {abbreviation = "ласточку", replacement = "а/м"},
-{abbreviation = "рублей", replacement = "рублей"},
 {abbreviation = "рубля", replacement = "рублей"},
 {abbreviation = "баксов", replacement = "$"},
 {abbreviation = "бакса", replacement = "$"},
 {abbreviation = "зеленых", replacement = "$"},
-{abbreviation = "зеленых2", replacement = "$"},
 {abbreviation = "тугриков", replacement = "$"},
 {abbreviation = "монет", replacement = "$"},
 {abbreviation = "кредитов", replacement = "$"},
-{abbreviation = "денег", replacement = "денег"},
-{abbreviation = "бюджет", replacement = "бюджет"},
 {abbreviation = "бюджета", replacement = "бюджет"},
-{abbreviation = "бюджет2", replacement = "бюджет"},
-{abbreviation = "сумма", replacement = "сумма"},
 {abbreviation = "суммы", replacement = "сумма"},
-{abbreviation = "стоимость", replacement = "стоимость"},
 {abbreviation = "стоимости", replacement = "стоимость"},
-{abbreviation = "прайс", replacement = "прайс"},
 {abbreviation = "прайса", replacement = "прайс"},
-{abbreviation = "расценки", replacement = "расценки"},
 {abbreviation = "расценок", replacement = "расценки"},
-{abbreviation = "тариф", replacement = "тариф"},
 {abbreviation = "тарифа", replacement = "тариф"},
-{abbreviation = "тарифы", replacement = "тарифы"},
 {abbreviation = "тарифов", replacement = "тарифы"},
-{abbreviation = "срочно", replacement = "срочно"},
-{abbreviation = "срочная", replacement = "срочная"},
-{abbreviation = "срочную", replacement = "срочную"},
-{abbreviation = "срочное", replacement = "срочное"},
-{abbreviation = "быстро", replacement = "быстро"},
-{abbreviation = "недорого2", replacement = "по доступной цене"},
-{abbreviation = "выгодно", replacement = "выгодно"},
-{abbreviation = "дешево2", replacement = "по низкой цене"},
-{abbreviation = "дёшево2", replacement = "по низкой цене"},
-{abbreviation = "оптом", replacement = "оптом"},
-{abbreviation = "в розницу", replacement = "в розницу"},
 {abbreviation = "розницу", replacement = "в розницу"},
-{abbreviation = "в наличии", replacement = "в наличии"},
 {abbreviation = "наличии", replacement = "в наличии"},
-{abbreviation = "под заказ2", replacement = "под заказ"},
-{abbreviation = "предзаказ", replacement = "предзаказ"},
 {abbreviation = "предзаказа", replacement = "предзаказ"},
-{abbreviation = "резерв", replacement = "резерв"},
 {abbreviation = "резерва", replacement = "резерв"},
-{abbreviation = "бронь", replacement = "бронь"},
 {abbreviation = "брони", replacement = "бронь"},
-{abbreviation = "брони2", replacement = "бронь"},
-{abbreviation = "участок2", replacement = "участок"},
-{abbreviation = "участка2", replacement = "участок"},
-{abbreviation = "надел", replacement = "надел"},
 {abbreviation = "надела", replacement = "надел"},
 {abbreviation = "паевой", replacement = "паевой взнос"},
-{abbreviation = "пай", replacement = "пай"},
 {abbreviation = "пая", replacement = "пай"},
 {abbreviation = "доля", replacement = "долю"},
-{abbreviation = "долю", replacement = "долю"},
 {abbreviation = "доли", replacement = "долю"},
-{abbreviation = "часть", replacement = "часть"},
 {abbreviation = "части", replacement = "часть"},
 {abbreviation = "акция", replacement = "акцию"},
-{abbreviation = "акцию", replacement = "акцию"},
 {abbreviation = "акции", replacement = "акцию"},
 {abbreviation = "акций", replacement = "акции"},
-{abbreviation = "дивиденды", replacement = "дивиденды"},
 {abbreviation = "дивидендов", replacement = "дивиденды"},
-{abbreviation = "бизнес2", replacement = "бизнес"},
-{abbreviation = "доля2", replacement = "долю в бизнесе"},
 {abbreviation = "франшиза", replacement = "франшизу"},
-{abbreviation = "франшизу", replacement = "франшизу"},
 {abbreviation = "франшизы", replacement = "франшизу"},
-{abbreviation = "лицензия2", replacement = "лицензию"},
-{abbreviation = "разрешение", replacement = "разрешение"},
 {abbreviation = "разрешения", replacement = "разрешение"},
-{abbreviation = "патент", replacement = "патент"},
 {abbreviation = "патента", replacement = "патент"},
-{abbreviation = "сертификат2", replacement = "сертификат"},
-{abbreviation = "свидетельство", replacement = "свидетельство"},
 {abbreviation = "свидетельства", replacement = "свидетельство"},
-{abbreviation = "договор2", replacement = "договор"},
-{abbreviation = "договора2", replacement = "договор"},
-{abbreviation = "контракт", replacement = "контракт"},
 {abbreviation = "контракта", replacement = "контракт"},
 {abbreviation = "аренда", replacement = "аренду"},
-{abbreviation = "аренду", replacement = "аренду"},
 {abbreviation = "аренды", replacement = "аренду"},
-{abbreviation = "сдаю", replacement = "сдаю"},
-{abbreviation = "сдается", replacement = "сдается"},
-{abbreviation = "сниму", replacement = "сниму"},
-{abbreviation = "ищу2", replacement = "ищу"},
-{abbreviation = "предлагаю", replacement = "предлагаю"},
-{abbreviation = "предлагаем", replacement = "предлагаем"},
-{abbreviation = "распродаю", replacement = "распродаю"},
-{abbreviation = "распродажа", replacement = "распродажа"},
 {abbreviation = "распродажи", replacement = "распродажа"},
-{abbreviation = "ликвидация", replacement = "ликвидация"},
 {abbreviation = "ликвидации", replacement = "ликвидация"},
-{abbreviation = "закрытие", replacement = "закрытие"},
 {abbreviation = "закрытия", replacement = "закрытие"},
-{abbreviation = "переезд", replacement = "переезд"},
 {abbreviation = "переезда", replacement = "переезд"},
 {abbreviation = "фт", replacement = "FT"},
 -- Бизнесы
-{abbreviation = "одежда", replacement = "магазин одежды"},
-{abbreviation = "одежды", replacement = "магазин одежды"},
 {abbreviation = "магазин оружия", replacement = "оружейный магазин"},
 {abbreviation = "париках", replacement = "салон красоты"},
 {abbreviation = "парикам", replacement = "салон красоты"},
 {abbreviation = "парикахма", replacement = "салон красоты"},
 {abbreviation = "парикахмерская", replacement = "салон красоты"},
-{abbreviation = "салон красоты", replacement = "салон красоты"},
-{abbreviation = "закусочная", replacement = "закусочная"},
-{abbreviation = "ресторан", replacement = "закусочная"},
 {abbreviation = "бургер", replacement = "Burger Shot"},
 {abbreviation = "клаш", replacement = "Clucking Bell"},
 {abbreviation = "клакинг", replacement = "Clucking Bell"},
 {abbreviation = "тюнинг", replacement = "тюнинг-центр"},
 {abbreviation = "тюнинг центр", replacement = "тюнинг-центр"},
-{abbreviation = "визаж", replacement = "отель Visage"},
-{abbreviation = "пират", replacement = "отель Пират"},
 {abbreviation = "секс шоп", replacement = "секс-шоп"},
-{abbreviation = "секс-шоп", replacement = "секс-шоп"},
 {abbreviation = "пиротехника", replacement = "магазин пиротехники"},
 {abbreviation = "пиро", replacement = "магазин пиротехники"},
 {abbreviation = "развлекательный", replacement = "развлекательный центр"},
@@ -3557,44 +2571,29 @@ local mm_rules = {
 {abbreviation = "риелторское", replacement = "риелторское агентство"},
 {abbreviation = "риелторск", replacement = "риелторское агентство"},
 {abbreviation = "статистики", replacement = "управление статистики"},
-{abbreviation = "управление статистики", replacement = "управление статистики"},
 {abbreviation = "мебель", replacement = "мебельный салон"},
 {abbreviation = "мебельный", replacement = "мебельный салон"},
 {abbreviation = "сантехника", replacement = "салон сантехники"},
 {abbreviation = "сантех", replacement = "салон сантехники"},
 {abbreviation = "стройматериалы", replacement = "магазин стройматериалов"},
 {abbreviation = "строймат", replacement = "магазин стройматериалов"},
-{abbreviation = "хиппи", replacement = "хиппи"},
 {abbreviation = "аренда авто", replacement = "аренда эксклюзивных авто"},
-{abbreviation = "аренда", replacement = "аренда эксклюзивных авто"},
-{abbreviation = "хранение транспорта", replacement = "хранение транспорта"},
 {abbreviation = "хранение тс", replacement = "хранение транспорта"},
-{abbreviation = "парковка", replacement = "хранение транспорта"},
-{abbreviation = "хранение аксессуаров", replacement = "хранение аксессуаров"},
 {abbreviation = "хранение акс", replacement = "хранение аксессуаров"},
-{abbreviation = "склад", replacement = "хранение аксессуаров"},
 -- Государственные организации
-{abbreviation = "мэрия", replacement = "мэрия"},
-{abbreviation = "мерия", replacement = "мэрия"},
 {abbreviation = "мерии", replacement = "мэрия"},
 {abbreviation = "администрация", replacement = "администрация президента"},
 {abbreviation = "президента", replacement = "администрация президента"},
-{abbreviation = "больница", replacement = "больница"},
 {abbreviation = "болница", replacement = "больница"},
-{abbreviation = "телецентр", replacement = "телецентр"},
-{abbreviation = "радиоцентр", replacement = "радиоцентр"},
 -- Банды и мафии
 {abbreviation = "балас", replacement = "Ballas"},
 {abbreviation = "баллас", replacement = "Ballas"},
-{abbreviation = "баллы", replacement = "Ballas"},
 {abbreviation = "гров", replacement = "Grove Street"},
 {abbreviation = "гроув", replacement = "Grove Street"},
 {abbreviation = "азтек", replacement = "Aztecas"},
 {abbreviation = "азтекс", replacement = "Aztecas"},
 {abbreviation = "вагос", replacement = "Vagos"},
 {abbreviation = "вагоз", replacement = "Vagos"},
-{abbreviation = "русская", replacement = "русская мафия"},
-{abbreviation = "русская мафия", replacement = "русская мафия"},
 {abbreviation = "рус маф", replacement = "русская мафия"},
 {abbreviation = "лакоста", replacement = "La Cosa Nostra"},
 {abbreviation = "ла коста", replacement = "La Cosa Nostra"},
@@ -3603,16 +2602,14 @@ local mm_rules = {
 {abbreviation = "якуца", replacement = "Yakuza"},
 {abbreviation = "якудзы", replacement = "Yakuza"},
 -- Правоохранительные органы
-{abbreviation = "фбр", replacement = "FBI"},
-{abbreviation = "полиция", replacement = "LVPD"},
-{abbreviation = "полицейские", replacement = "LVPD"},
 {abbreviation = "лвпд", replacement = "LVPD"},
 {abbreviation = "lspd", replacement = "LSPD"},
 {abbreviation = "sfpd", replacement = "SFPD"},
 -- Армия
 {abbreviation = "ввс", replacement = "ВВС"},
-{abbreviation = "св", replacement = "СВ"},
 {abbreviation = "вмф", replacement = "ВМФ"},
+-- Дополнения Advance RP
+{abbreviation = "дог", replacement = "договорная"},
 }
 
 -- Переменные для модуля "Авто-отыгровки (Auto-RP)"
@@ -3620,12 +2617,52 @@ local rp_weapons_enabled = imgui.new.bool(true)
 local rp_phone_enabled = imgui.new.bool(true)
 local rp_mask_enabled = imgui.new.bool(true)
 local rp_heal_enabled = imgui.new.bool(true)
+local rp_engine_enabled = imgui.new.bool(true)
+local rp_docs_enabled = imgui.new.bool(true)
+local rp_gender = imgui.new.int(0) -- 0 = Мужской, 1 = Женский
+local rp_current_weapon_id = 0
+local rp_sending_internal = false
+local rp_event_cooldowns = {}
+local aad_next_scheduled = false
+
+local function rpVerb(male, female)
+    return rp_gender[0] == 1 and female or male
+end
+
+local weapon_info = {
+    [1]  = { name = "кастет",                 kind = "pocket" },
+    [2]  = { name = "клюшку",                 kind = "back" },
+    [3]  = { name = "дубинку",                kind = "belt" },
+    [4]  = { name = "нож",                    kind = "sheath" },
+    [5]  = { name = "биту",                   kind = "back" },
+    [6]  = { name = "лопату",                 kind = "back" },
+    [7]  = { name = "кий",                    kind = "back" },
+    [8]  = { name = "катану",                 kind = "back" },
+    [9]  = { name = "бензопилу",              kind = "back" },
+    [22] = { name = "Colt 45",                kind = "pistol" },
+    [23] = { name = "пистолет с глушителем",  kind = "pistol" },
+    [24] = { name = "Desert Eagle",           kind = "pistol" },
+    [25] = { name = "Shotgun",                kind = "shotgun" },
+    [26] = { name = "Sawn-off Shotgun",       kind = "shotgun" },
+    [27] = { name = "Combat Shotgun",         kind = "shotgun" },
+    [28] = { name = "Micro Uzi",              kind = "smg" },
+    [29] = { name = "MP5",                    kind = "smg" },
+    [30] = { name = 'автомат "AK-47"',        kind = "rifle" },
+    [31] = { name = 'автомат "M4"',           kind = "rifle" },
+    [32] = { name = "Tec-9",                  kind = "smg" },
+    [33] = { name = "винтовку",               kind = "rifle" },
+    [34] = { name = "снайперскую винтовку",   kind = "rifle" },
+    [41] = { name = "баллончик с краской",    kind = "pocket" },
+    [42] = { name = "огнетушитель",           kind = "back" },
+    [43] = { name = "фотоаппарат",            kind = "neck" },
+}
 
 -- Переменные для модуля "Транспорт и Визуал (Vehicles & Visuals)"
 local strobe_enabled = imgui.new.bool(false)
 local strobe_speed = imgui.new.int(150)
-local strobe_mode = imgui.new.int(1)
+local strobe_mode = imgui.new.int(0)
 local strobe_active = false
+local strobe_worker_running = false
 local cruise_enabled = imgui.new.bool(false)
 local turbo_cruise_enabled = imgui.new.bool(false)
 local cruise_active = false
@@ -3658,6 +2695,121 @@ local time_hour = imgui.new.int(12)
 
 -- Визуальный скин-ченджер
 local skin_changer_id = imgui.new.int(0)
+
+-- Компактный HUD (время, PayDay, FPS/Ping, статусы)
+local hud_enabled = imgui.new.bool(false)
+local hud_cache = {
+    time_str = "00:00:00",
+    payday_str = "00м 00с",
+    ping = 0,
+    last_update = 0
+}
+
+-- Безопасный арифметический парсер для /calc (без loadstring)
+local calc_multipliers = {
+    ["kkk"] = 1000000000, ["ккк"] = 1000000000, ["млрд"] = 1000000000,
+    ["kk"] = 1000000, ["кк"] = 1000000, ["млн"] = 1000000,
+    ["k"] = 1000, ["к"] = 1000, ["тыс"] = 1000,
+}
+
+local function evalCalcExpr(expr)
+    if type(expr) ~= "string" then return nil, "Пустое выражение" end
+    local s = cp1251_lower(expr):gsub("%s+", "")
+    if s == "" then return nil, "Пустое выражение" end
+
+    local tokens = {}
+    local i = 1
+    local len = #s
+    while i <= len do
+        local ch = s:sub(i, i)
+        if ch == "+" or ch == "-" or ch == "*" or ch == "/" or ch == "(" or ch == ")" then
+            tokens[#tokens + 1] = {kind = "op", val = ch}
+            i = i + 1
+        elseif ch:match("%d") then
+            local num_str = s:match("^%d+[%.%,]?%d*", i)
+            if not num_str then return nil, "Ошибка числа" end
+            i = i + #num_str
+            local val = tonumber((num_str:gsub(",", ".")))
+            if not val then return nil, "Ошибка числа" end
+            local suf = s:match("^[a-z88492-­]+", i)
+            if suf then
+                local mult = calc_multipliers[suf]
+                if not mult then return nil, "Неизвестный суффикс: " .. suf end
+                val = val * mult
+                i = i + #suf
+            end
+            tokens[#tokens + 1] = {kind = "num", val = val}
+        else
+            return nil, "Недопустимый символ: " .. ch
+        end
+    end
+
+    local pos = 1
+    local parseExpr
+
+    local function parseFactor()
+        local tok = tokens[pos]
+        if not tok then return nil, "Неожиданный конец выражения" end
+        if tok.kind == "op" and (tok.val == "+" or tok.val == "-") then
+            pos = pos + 1
+            local v, err = parseFactor()
+            if not v then return nil, err end
+            return tok.val == "-" and -v or v
+        elseif tok.kind == "op" and tok.val == "(" then
+            pos = pos + 1
+            local v, err = parseExpr()
+            if not v then return nil, err end
+            if not tokens[pos] or tokens[pos].kind ~= "op" or tokens[pos].val ~= ")" then
+                return nil, "Не закрыта скобка ')'"
+            end
+            pos = pos + 1
+            return v
+        elseif tok.kind == "num" then
+            pos = pos + 1
+            return tok.val
+        end
+        return nil, "Ошибка синтаксиса"
+    end
+
+    local function parseTerm()
+        local left, err = parseFactor()
+        if not left then return nil, err end
+        while tokens[pos] and tokens[pos].kind == "op" and (tokens[pos].val == "*" or tokens[pos].val == "/") do
+            local op = tokens[pos].val
+            pos = pos + 1
+            local right, rerr = parseFactor()
+            if not right then return nil, rerr end
+            if op == "*" then
+                left = left * right
+            else
+                if right == 0 then return nil, "Деление на ноль" end
+                left = left / right
+            end
+        end
+        return left
+    end
+
+    parseExpr = function()
+        local left, err = parseTerm()
+        if not left then return nil, err end
+        while tokens[pos] and tokens[pos].kind == "op" and (tokens[pos].val == "+" or tokens[pos].val == "-") do
+            local op = tokens[pos].val
+            pos = pos + 1
+            local right, rerr = parseTerm()
+            if not right then return nil, rerr end
+            left = op == "+" and (left + right) or (left - right)
+        end
+        return left
+    end
+
+    local res, err = parseExpr()
+    if not res then return nil, err end
+    if pos <= #tokens then return nil, "Лишние символы в конце выражения" end
+    if res ~= res or res == math.huge or res == -math.huge then
+        return nil, "Переполнение результата"
+    end
+    return res
+end
 
 -- Переменные для модуля "Авто-объявления (Auto-Ad)"
 local aad_active = false
@@ -3771,16 +2923,6 @@ cmds = {
 
 -- Загрузка баз
 function loadDatabases()
--- Auto-resume AAD if it was active before reload
-if aad_active and aad_text ~= "" then
-lua_thread.create(function()
-wait(3000)  -- wait for SAMP to be ready
-if aad_active and aad_text ~= "" then
-sampAddChatMessage("[Helper] Авто-реклама возобновлена", 0x00FF00)
-sendAdCommand(aad_text)
-end
-end)
-end
 if not doesDirectoryExist(getWorkingDirectory() .. "/config") then
 createDirectory(getWorkingDirectory() .. "/config")
 end
@@ -3809,6 +2951,9 @@ if type(parsed.rp_weapons) == "boolean" then rp_weapons_enabled[0] = parsed.rp_w
 if type(parsed.rp_phone) == "boolean" then rp_phone_enabled[0] = parsed.rp_phone end
 if type(parsed.rp_mask) == "boolean" then rp_mask_enabled[0] = parsed.rp_mask end
 if type(parsed.rp_heal) == "boolean" then rp_heal_enabled[0] = parsed.rp_heal end
+if type(parsed.rp_engine) == "boolean" then rp_engine_enabled[0] = parsed.rp_engine end
+if type(parsed.rp_docs) == "boolean" then rp_docs_enabled[0] = parsed.rp_docs end
+if type(parsed.rp_gender) == "number" then rp_gender[0] = (parsed.rp_gender == 1) and 1 or 0 end
 if type(parsed.mm_auto_format) == "boolean" then mm_auto_format[0] = parsed.mm_auto_format end
 if type(parsed.mm_auto_send) == "boolean" then mm_auto_send[0] = parsed.mm_auto_send end
 if type(parsed.mm_send_delay) == "number" then mm_send_delay[0] = math.max(500, math.min(8000, math.floor(parsed.mm_send_delay))) end
@@ -3817,7 +2962,9 @@ local tagOk, encodedTag = pcall(function() return u8:encode(parsed.mm_tag, encod
 if tagOk and type(encodedTag) == "string" then safeStrCopy(mm_tag, encodedTag, ffi.sizeof(mm_tag)) end
 end
 if type(parsed.strobe_speed) == "number" then strobe_speed[0] = math.max(1, math.min(1000, math.floor(parsed.strobe_speed))) end
-if type(parsed.strobe_mode) == "number" then strobe_mode[0] = math.max(0, math.min(10, math.floor(parsed.strobe_mode))) end
+if type(parsed.strobe_mode) == "number" then strobe_mode[0] = math.max(0, math.min(18, math.floor(parsed.strobe_mode))) end
+if type(parsed.turbo_cruise) == "boolean" then turbo_cruise_enabled[0] = parsed.turbo_cruise end
+if type(parsed.hud_enabled) == "boolean" then hud_enabled[0] = parsed.hud_enabled end
 if type(parsed.weather_locked) == "boolean" then weather_locked[0] = parsed.weather_locked end
 if type(parsed.weather_id) == "number" then weather_id[0] = math.max(0, math.min(255, math.floor(parsed.weather_id))) end
 if type(parsed.time_locked) == "boolean" then time_locked[0] = parsed.time_locked end
@@ -3911,6 +3058,16 @@ if aad_history then
     end
 end
 end
+
+-- Auto-resume AAD AFTER settings are loaded
+if aad_active and aad_text ~= "" then
+    scheduleTask(3000, function()
+        if aad_active and aad_text ~= "" and isSampAvailable() then
+            sampAddChatMessage("[Helper] Авто-реклама возобновлена", 0x00FF00)
+            sendAdCommand(aad_text)
+        end
+    end)
+end
 end
 
 -- Сохранение настроек
@@ -3934,12 +3091,17 @@ rp_weapons = rp_weapons_enabled[0],
 rp_phone = rp_phone_enabled[0],
 rp_mask = rp_mask_enabled[0],
 rp_heal = rp_heal_enabled[0],
+rp_engine = rp_engine_enabled[0],
+rp_docs = rp_docs_enabled[0],
+rp_gender = rp_gender[0],
 mm_auto_format = mm_auto_format[0],
 mm_auto_send = mm_auto_send[0],
 mm_send_delay = mm_send_delay[0],
-mm_tag = u8:decode(ffi.string(mm_tag)),
+mm_tag = decodeUtf8Safe(ffi.string(mm_tag)),
 strobe_speed = strobe_speed[0],
 strobe_mode = strobe_mode[0],
+turbo_cruise = turbo_cruise_enabled[0],
+hud_enabled = hud_enabled[0],
 weather_locked = weather_locked[0],
 weather_id = weather_id[0],
 time_locked = time_locked[0],
@@ -4099,307 +3261,441 @@ function decodeUtf8Safe(value)
     return result:gsub("%z", "")
 end
 
-function formatAdText(text)
-local formatted = text
-local lower = cp1251_lower(formatted)
+local mm_rule_index = {revision = -1, count = -1, exact = {}, base_map = {}, multi_by_first = {}}
 
--- Strip SAMP color codes
-formatted = formatted:gsub("{%x+}", "")
-
--- Detect and extract existing tag prefix (LV |, LS |, SF |, TV |, MM |, etc.)
-local detected_tag = nil
-local tag_match = formatted:match("^%s*([A-Za-z%A-Z%d]+)%s*|%s*")
-if tag_match then
-detected_tag = tag_match:gsub("%s+", "")
-formatted = formatted:gsub("^%s*[A-Za-z%A-Z%d]+%s*|%s*", "")
+local function isWordByte(b)
+    if not b then return false end
+    return (b >= 48 and b <= 57) or (b >= 65 and b <= 90) or (b >= 97 and b <= 122)
+        or b == 95 or b == 47 or b == 168 or b == 184 or (b >= 192 and b <= 255)
 end
 
--- Recompute lower after tag extraction
-lower = cp1251_lower(formatted)
-
--- Detect car keywords (to skip city removal for cars)
-local is_car = false
-local car_keywords = {"булк", "инф", "туризм", "турик", "кловер", "хоткнайф", "дюн", "сультан", "султан", "елег", "банш", "чито", "феникс", "тахом", "премьер", "стретч", "бравур", "сабре", "вуду", "сламван", "ремингтон", "флеш", "джестер", "стратум", "уран", "блист", "баффал", "зомби", "ламбо", "бмв", "мерс", "тойот", "монстр", "бандит", "комет", "стингер", "супергт", "манан", "пикап", "соляр", "винсаг", "шафтер", "альпин", "беггал", "кальц", "салат", "стрикер", "адреналин", "нрг", "фрей", "вейб", "санч", "пжж", "фцз", "фаггио", "фагио", "бмх", "эндюро", "мото", "машин", "а/м", "м/ц", "тачк", "таз", "байк", "велосипед", "велик"}
-for _, word in ipairs(car_keywords) do
-if lower:find(word, 1, true) then
-is_car = true
-break
-end
-end
-
--- Convert numbers with slang: 50kk -> 50.000.000$, 5mln -> 5.000.000$, 1kkk -> 1.000.000.000$
-formatted = formatted:gsub("(%d+)%s*[кk][кk]", "%1.000.000$")
-formatted = formatted:gsub("(%d+)%s*[кk][кk][кk]", "%1.000.000.000$")
-formatted = formatted:gsub("(%d+)%s*[мm][лl][нn]", "%1.000.000$")
-formatted = formatted:gsub("(%d+)%s*[мm][лl][рp][дd]", "%1.000.000.000$")
-formatted = formatted:gsub("(%d+)%s*[мm][иi][лl][лl][иi][аa][рp][дd]", "%1.000.000.000$")
-formatted = formatted:gsub("(%d+)%s*[мm][иi][лl][лl][иi][оo][нn]", "%1.000.000$")
-
--- Apply replacement rules
-local searchText = cp1251_lower(formatted)
-for _, rule in ipairs(mm_rules) do
-if type(rule) == "table" and type(rule.abbreviation) == "string" and type(rule.replacement) == "string" and rule.abbreviation ~= "" then
-local abbr = rule.abbreviation
-local stem = abbr
-if abbr:len() > 3 then stem = abbr:sub(1, -2) end
-local normalizedStem = cp1251_lower(stem)
-if searchText:find(normalizedStem, 1, true) then
-local abbr_esc = escapePattern(abbr)
-local stem_esc = escapePattern(stem)
-local pattern
-if abbr:len() <= 2 then
-pattern = "([%s%,%.])" .. abbr_esc .. "([%s%,%.])"
-else
-pattern = "([%s%,%.])" .. stem_esc .. "[^%s%,%.]*([%s%,%.])"
-end
-formatted = (" " .. formatted .. " "):gsub(pattern, function(left, right)
-return left .. rule.replacement .. right
-end)
-formatted = formatted:sub(2, -2)
-if abbr:len() <= 2 then
-if cp1251_lower(formatted) == cp1251_lower(abbr) then formatted = rule.replacement end
-elseif cp1251_lower(formatted):match("^%s*" .. stem_esc .. "[^%s%,%.]*%s*$") then
-formatted = rule.replacement
-end
-searchText = cp1251_lower(formatted)
-end
-end
-end
--- Safety: limit output length to prevent ImGui render overflow
-if #formatted > 1000 then formatted = formatted:sub(1, 1000) end
-
--- Fix declension after prepositions
--- Generic rules above replace all forms with accusative (мэрию, полицию, etc.)
--- but after prepositions, other cases are grammatically required.
-local prep_fixes = {
--- мэрия
-{preposition="у", acc="мэрию", correct="мэрии"},
-{preposition="возле", acc="мэрию", correct="мэрии"},
-{preposition="около", acc="мэрию", correct="мэрии"},
-{preposition="от", acc="мэрию", correct="мэрии"},
-{preposition="из", acc="мэрию", correct="мэрии"},
-{preposition="к", acc="мэрию", correct="мэрии"},
-{preposition="за", acc="мэрию", correct="мэрией"},
-{preposition="под", acc="мэрию", correct="мэрией"},
-{preposition="над", acc="мэрию", correct="мэрией"},
-{preposition="перед", acc="мэрию", correct="мэрией"},
-{preposition="в", acc="мэрию", correct="мэрии"},
-{preposition="на", acc="мэрию", correct="мэрии"},
--- полиция
-{preposition="у", acc="полицию", correct="полиции"},
-{preposition="возле", acc="полицию", correct="полиции"},
-{preposition="около", acc="полицию", correct="полиции"},
-{preposition="от", acc="полицию", correct="полиции"},
-{preposition="из", acc="полицию", correct="полиции"},
-{preposition="к", acc="полицию", correct="полиции"},
-{preposition="за", acc="полицию", correct="полицией"},
-{preposition="под", acc="полицию", correct="полицией"},
-{preposition="над", acc="полицию", correct="полицией"},
-{preposition="перед", acc="полицию", correct="полицией"},
-{preposition="в", acc="полицию", correct="полиции"},
-{preposition="на", acc="полицию", correct="полиции"},
--- больница
-{preposition="у", acc="больницу", correct="больницы"},
-{preposition="возле", acc="больницу", correct="больницы"},
-{preposition="около", acc="больницу", correct="больницы"},
-{preposition="от", acc="больницу", correct="больницы"},
-{preposition="из", acc="больницу", correct="больницы"},
-{preposition="к", acc="больницу", correct="больнице"},
-{preposition="за", acc="больницу", correct="больницей"},
-{preposition="под", acc="больницу", correct="больницей"},
-{preposition="над", acc="больницу", correct="больницей"},
-{preposition="перед", acc="больницу", correct="больницей"},
-{preposition="в", acc="больницу", correct="больнице"},
-{preposition="на", acc="больницу", correct="больнице"},
--- школа
-{preposition="у", acc="школу", correct="школы"},
-{preposition="возле", acc="школу", correct="школы"},
-{preposition="около", acc="школу", correct="школы"},
-{preposition="от", acc="школу", correct="школы"},
-{preposition="из", acc="школу", correct="школы"},
-{preposition="к", acc="школу", correct="школе"},
-{preposition="за", acc="школу", correct="школой"},
-{preposition="под", acc="школу", correct="школой"},
-{preposition="над", acc="школу", correct="школой"},
-{preposition="перед", acc="школу", correct="школой"},
-{preposition="в", acc="школу", correct="школе"},
-{preposition="на", acc="школу", correct="школе"},
--- церковь
-{preposition="у", acc="церковь", correct="церкви"},
-{preposition="возле", acc="церковь", correct="церкви"},
-{preposition="около", acc="церковь", correct="церкви"},
-{preposition="от", acc="церковь", correct="церкви"},
-{preposition="из", acc="церковь", correct="церкви"},
-{preposition="к", acc="церковь", correct="церкви"},
-{preposition="за", acc="церковь", correct="церковью"},
-{preposition="под", acc="церковь", correct="церковью"},
-{preposition="над", acc="церковь", correct="церковью"},
-{preposition="перед", acc="церковь", correct="церковью"},
-{preposition="в", acc="церковь", correct="церкви"},
-{preposition="на", acc="церковь", correct="церкви"},
--- электростанция
-{preposition="у", acc="электростанцию", correct="электростанции"},
-{preposition="возле", acc="электростанцию", correct="электростанции"},
-{preposition="около", acc="электростанцию", correct="электростанции"},
-{preposition="от", acc="электростанцию", correct="электростанции"},
-{preposition="из", acc="электростанцию", correct="электростанции"},
-{preposition="к", acc="электростанцию", correct="электростанции"},
-{preposition="за", acc="электростанцию", correct="электростанцией"},
-{preposition="под", acc="электростанцию", correct="электростанцией"},
-{preposition="над", acc="электростанцию", correct="электростанцией"},
-{preposition="перед", acc="электростанцию", correct="электростанцией"},
-{preposition="в", acc="электростанцию", correct="электростанции"},
-{preposition="на", acc="электростанцию", correct="электростанции"},
--- банк (муж.род: им.=вин.)
-{preposition="у", acc="банк", correct="банка"},
-{preposition="возле", acc="банк", correct="банка"},
-{preposition="около", acc="банк", correct="банка"},
-{preposition="от", acc="банк", correct="банка"},
-{preposition="из", acc="банк", correct="банка"},
-{preposition="к", acc="банк", correct="банку"},
-{preposition="за", acc="банк", correct="банком"},
-{preposition="под", acc="банк", correct="банком"},
-{preposition="над", acc="банк", correct="банком"},
-{preposition="перед", acc="банк", correct="банком"},
-{preposition="в", acc="банк", correct="банке"},
-{preposition="на", acc="банк", correct="банке"},
--- стадион (муж.род: им.=вин.)
-{preposition="у", acc="стадион", correct="стадиона"},
-{preposition="возле", acc="стадион", correct="стадиона"},
-{preposition="около", acc="стадион", correct="стадиона"},
-{preposition="от", acc="стадион", correct="стадиона"},
-{preposition="из", acc="стадион", correct="стадиона"},
-{preposition="к", acc="стадион", correct="стадиону"},
-{preposition="за", acc="стадион", correct="стадионом"},
-{preposition="под", acc="стадион", correct="стадионом"},
-{preposition="над", acc="стадион", correct="стадионом"},
-{preposition="перед", acc="стадион", correct="стадионом"},
-{preposition="в", acc="стадион", correct="стадионе"},
-{preposition="на", acc="стадион", correct="стадионе"},
-}
-formatted = " " .. formatted .. " "
-for _, fix in ipairs(prep_fixes) do
-formatted = formatted:gsub("(%s)" .. escapePattern(fix.preposition) .. "%s+" .. escapePattern(fix.acc) .. "([%s%,%.])", "%1" .. fix.preposition .. " " .. fix.correct .. "%2")
-end
-formatted = formatted:gsub("^%s+", ""):gsub("%s+$", "")
--- Auto-add location for "kuplyu" if no location mentioned
-local has_location = false
-local loc_words = {"Los Santos", "San Fierro", "Las Venturas", "East", "Ganton", "Idlewood", "Jefferson", "Glen", "Willowfield", "El Corona", "Commerce", "Market", "Verona", "Chinatown", "Palomino", "Montgomery", "Dillimore", "Blueberry", "Flint", "Fort Carson", "Tierra", "Angel", "Bayside", "North Rock", "Valle", "Arco", "Green Palms", "Union", "Strip", "Rockshore", "Pilgrim", "Avalon", "Prickle", "Whitewood", "Pilbox", "Doherty", "Kings", "Paradiso", "Queens", "Hashbury", "Garcia", "Santa Flora", "Foster", "Venturas", "штат", "город", "район", "районе", "района", "гетто"}
-for _, word in ipairs(loc_words) do
-if cp1251_lower(formatted):find(word:lower(), 1, true) then
-has_location = true
-break
-end
-end
-
--- Detect action type from original text
-local is_buy = lower:find("^куплю") ~= nil
-local is_sell = lower:find("^продам") ~= nil
-local is_trade = lower:find("^обменяю") ~= nil
-local is_rent_out = lower:find("^сдам") ~= nil
-local is_rent_seek = lower:find("^сниму") ~= nil
-local is_ad = is_buy or is_sell or is_trade or is_rent_out or is_rent_seek or lower:find("^распродаю") ~= nil or lower:find("^скуп") ~= nil or lower:find("^закуп") ~= nil
-
--- Add location for "kuplyu" without location
-if (is_buy or is_rent_seek) and not has_location then
-formatted = formatted:gsub("^(Куплю%s+[^%.%d]+)%s*$", "%1 в любой точке штата")
-if not cp1251_lower(formatted):find("в любой точке") then
-formatted = formatted:gsub("^(Куплю%s+[^%.%d]+)(%s+бюджет.*)", "%1 в любой точке штата.%2")
-end
-if not cp1251_lower(formatted):find("в любой точке") then
-formatted = formatted .. " в любой точке штата"
-end
-end
-
--- Clean up whitespace
-formatted = formatted:gsub("%s+", " ")
-formatted = formatted:gsub("^%s+", "")
-formatted = formatted:gsub("%s+$", "")
-
--- Add period before бюджет
-formatted = formatted:gsub("%s+(бюджет)", ". %1")
-
--- Add "Цена: " before dollar amounts if not already present
-formatted = formatted:gsub("([%s])(%d+%.%d+%$)", "%1Цена %2")
-formatted = formatted:gsub("^(%d+%.%d+%$)", "Цена %1")
-
--- Check if has price already
-local fl = cp1251_lower(formatted)
-local has_price = false
-if fl:find("%$") or fl:find("цена") or fl:find("дог") or fl:find("торг") or fl:find("обмен") or fl:find("бартер") or fl:find("бесплатн") or fl:find("бюджет") then
-has_price = true
-end
-
--- Auto-add price if buy/sell but no price (NOT for trade/obmen)
-if (is_buy or is_sell or is_rent_out or is_rent_seek) and not has_price then
-formatted = formatted .. ". Цена договорная"
-end
-
--- Нормализация доплаты при обмене (чья сторона доплачивает)
-if is_trade and fl:find("доплат") and not (fl:find("доплата с мо") or fl:find("доплата с ваш")) then
-local doplata_mine = fl:find("мо[йяеиёю]") or fl:find("мен[яе]") or fl:find("доплачива")
-local doplata_theirs = fl:find("ваш") or fl:find("вас")
-if doplata_theirs and not doplata_mine then
-formatted = formatted .. ". Доплата с вашей стороны"
-elseif doplata_mine and not doplata_theirs then
-formatted = formatted .. ". Доплата с моей стороны"
-end
-end
-
--- Fix double periods and spaces
-formatted = formatted:gsub("%.+%.", ".")
-formatted = formatted:gsub("%. %.", ".")
-formatted = formatted:gsub("%s+$", "")
-formatted = formatted:gsub("%s+%.", ".")
-
--- Add server tag prefix
-local tag = detected_tag or u8:decode(ffi.string(mm_tag))
-if tag and tag ~= "" then
-formatted = tag .. " | " .. formatted
-end
-
--- Capitalize first letter after "TAG | "
-local pipe_pos = formatted:find(" | ")
-if pipe_pos then
-local after_pipe = pipe_pos + 3
-if after_pipe <= #formatted then
-formatted = formatted:sub(1, after_pipe - 1) .. cp1251_upper(formatted:sub(after_pipe, after_pipe)) .. formatted:sub(after_pipe + 1)
-end
-else
-if #formatted > 0 then
-formatted = cp1251_upper(formatted:sub(1, 1)) .. formatted:sub(2)
-end
-end
-
--- SAMP ad character limit: trim if too long
-local MAX_AD_LEN = 250
-if #formatted > MAX_AD_LEN then
-    -- Try removing auto-added suffixes first
-    formatted = formatted:gsub(string.char(0x2E) .. string.char(0x20) .. string.char(0xD6,0xE5,0xED,0xE0,0x20,0xE4,0xEE,0xE3,0xEE,0xE2,0xEE,0xF0,0xED,0xE0,0xFF) .. "$", "")
-    formatted = formatted:gsub(string.char(0x20,0xE2,0x20,0xEB,0xFE,0xE1,0xEE,0xE9,0x20,0xF2,0xEE,0xF7,0xEA,0xE5,0x20,0xF8,0xF2,0xE0,0xF2,0xE0) .. string.char(0x2E,0x3F), "")
-    -- If still too long, hard truncate at last space before limit
-    if #formatted > MAX_AD_LEN then
-        local tag_part = ""
-        local body = formatted
-        local pipe_pos = formatted:find(" | ")
-        if pipe_pos then
-            tag_part = formatted:sub(1, pipe_pos + 2)
-            body = formatted:sub(pipe_pos + 3)
-        end
-        local max_body = MAX_AD_LEN - #tag_part
-        if #body > max_body then
-            local cut = body:sub(1, max_body)
-            local last_space = cut:match(".*%s%S*$")
-            if last_space and #last_space < max_body then
-                body = body:sub(1, #last_space - 1)
-            else
-                body = cut
+local function tokenizeAd(s)
+    local tokens = {}
+    local len = #s
+    local i = 1
+    while i <= len do
+        local b = s:byte(i)
+        if isWordByte(b) then
+            local j = i + 1
+            while j <= len do
+                local nb = s:byte(j)
+                if isWordByte(nb) or (nb == 45 and j < len and isWordByte(s:byte(j - 1)) and isWordByte(s:byte(j + 1))) then
+                    j = j + 1
+                else
+                    break
+                end
             end
-            formatted = tag_part .. body
+            local tok = s:sub(i, j - 1)
+            tokens[#tokens + 1] = {is_word = true, text = tok, lower = cp1251_lower(tok)}
+            i = j
+        else
+            local j = i + 1
+            while j <= len and not isWordByte(s:byte(j)) do
+                j = j + 1
+            end
+            tokens[#tokens + 1] = {is_word = false, text = s:sub(i, j - 1)}
+            i = j
         end
     end
+    return tokens
 end
-return formatted
+
+local function splitWordsLower(s)
+    local words = {}
+    local tokens = tokenizeAd(s)
+    for _, tok in ipairs(tokens) do
+        if tok.is_word then
+            words[#words + 1] = tok.lower
+        end
+    end
+    return words
+end
+
+local function buildRuleIndex()
+    if mm_rule_index.revision == mm_rule_revision and mm_rule_index.count == #mm_rules then
+        return mm_rule_index
+    end
+    local exact = {}
+    local base_map = {}
+    local multi_by_first = {}
+    local vowel_bytes = {[224]=true, [243]=true, [229]=true, [251]=true, [232]=true, [255]=true, [254]=true}
+
+    for _, rule in ipairs(mm_rules) do
+        if type(rule) == "table" and type(rule.abbreviation) == "string" and type(rule.replacement) == "string" and rule.abbreviation ~= "" then
+            local words = splitWordsLower(rule.abbreviation)
+            if #words == 1 then
+                local w = words[1]
+                exact[w] = rule.replacement
+                if #w >= 5 and vowel_bytes[w:byte(#w)] then
+                    local stem = w:sub(1, -2)
+                    if #stem >= 4 and not base_map[stem] then
+                        base_map[stem] = rule.replacement
+                    end
+                end
+            elseif #words >= 2 then
+                local first = words[1]
+                multi_by_first[first] = multi_by_first[first] or {}
+                multi_by_first[first][#multi_by_first[first] + 1] = {words = words, repl = rule.replacement}
+            end
+        end
+    end
+
+    for _, list in pairs(multi_by_first) do
+        table.sort(list, function(a, b) return #a.words > #b.words end)
+    end
+
+    mm_rule_index = {
+        revision = mm_rule_revision,
+        count = #mm_rules,
+        exact = exact,
+        base_map = base_map,
+        multi_by_first = multi_by_first,
+    }
+    return mm_rule_index
+end
+
+local ru_endings = {"ой", "ей", "ом", "ем", "ам", "ям", "ах", "ях", "ов", "ев", "а", "у", "е", "ы", "и", "о", "я", "ю"}
+
+local function applyRulesSinglePass(text)
+    local idx = buildRuleIndex()
+    local tokens = tokenizeAd(text)
+    local out = {}
+    local i = 1
+    local n = #tokens
+
+    while i <= n do
+        local tok = tokens[i]
+        if not tok.is_word then
+            out[#out + 1] = tok.text
+            i = i + 1
+        else
+            local matched_multi = nil
+            local matched_end_i = nil
+            local mlist = idx.multi_by_first[tok.lower]
+            if mlist then
+                for _, entry in ipairs(mlist) do
+                    local wcount = #entry.words
+                    local ti = i
+                    local ok = true
+                    for wi = 2, wcount do
+                        local sep = tokens[ti + 1]
+                        local nxt = tokens[ti + 2]
+                        if not sep or sep.is_word or not sep.text:match("^%s+$") or not nxt or not nxt.is_word or nxt.lower ~= entry.words[wi] then
+                            ok = false
+                            break
+                        end
+                        ti = ti + 2
+                    end
+                    if ok then
+                        matched_multi = entry.repl
+                        matched_end_i = ti
+                        break
+                    end
+                end
+            end
+
+            if matched_multi then
+                out[#out + 1] = matched_multi
+                i = matched_end_i + 1
+            elseif idx.exact[tok.lower] then
+                out[#out + 1] = idx.exact[tok.lower]
+                i = i + 1
+            elseif #tok.lower >= 5 then
+                local w = tok.lower
+                local stem_repl = nil
+                for _, suf in ipairs(ru_endings) do
+                    local slen = #suf
+                    if #w - slen >= 4 and w:sub(#w - slen + 1) == suf then
+                        local base = w:sub(1, #w - slen)
+                        stem_repl = idx.exact[base] or idx.base_map[base]
+                        if stem_repl then break end
+                    end
+                end
+                out[#out + 1] = stem_repl or tok.text
+                i = i + 1
+            else
+                out[#out + 1] = tok.text
+                i = i + 1
+            end
+        end
+    end
+
+    return table.concat(out)
+end
+
+local function formatNumberWithDots(num)
+    local n = math.floor((tonumber(num) or 0) + 0.5)
+    local s = string.format("%.0f", n)
+    while true do
+        local next_s, count = s:gsub("^(%-?%d+)(%d%d%d)", "%1.%2")
+        s = next_s
+        if count == 0 then break end
+    end
+    return s
+end
+
+local slang_money_units = {
+    ["ккк"] = 1000000000, ["kkk"] = 1000000000, ["ккk"] = 1000000000, ["кkк"] = 1000000000, ["kкк"] = 1000000000,
+    ["млрд"] = 1000000000, ["mlrd"] = 1000000000, ["миллиард"] = 1000000000, ["миллиарда"] = 1000000000, ["миллиардов"] = 1000000000,
+    ["кк"] = 1000000, ["kk"] = 1000000, ["кk"] = 1000000, ["kк"] = 1000000,
+    ["млн"] = 1000000, ["mln"] = 1000000, ["миллион"] = 1000000, ["миллиона"] = 1000000, ["миллионов"] = 1000000,
+    ["к"] = 1000, ["k"] = 1000, ["тыс"] = 1000, ["tys"] = 1000,
+}
+
+local function replaceAllSlangMoney(str)
+    local pat = "([^A-Za-z0-9_\168\184\192-\255])(%d+[%.%,]?%d*)(%s*)([A-Za-z\168\184\192-\255]+)([^A-Za-z0-9_\168\184\192-\255])"
+    local out = {}
+    local pos = 1
+    while true do
+        local s_i, e_i, pre, numStr, sp, unit, post = str:find(pat, pos)
+        if not s_i then
+            out[#out + 1] = str:sub(pos)
+            break
+        end
+        out[#out + 1] = str:sub(pos, s_i - 1)
+        local mult = slang_money_units[cp1251_lower(unit)]
+        local val = mult and tonumber((numStr:gsub(",", "."))) or nil
+        if mult and val then
+            out[#out + 1] = pre .. formatNumberWithDots(val * mult) .. "$"
+        else
+            out[#out + 1] = pre .. numStr .. sp .. unit
+        end
+        pos = e_i
+    end
+    return table.concat(out)
+end
+
+local ae_prep_fix_map = {
+    ["у"]      = {["мэрию"]="мэрии", ["полицию"]="полиции", ["больницу"]="больницы", ["школу"]="школы", ["церковь"]="церкви", ["электростанцию"]="электростанции", ["банк"]="банка", ["стадион"]="стадиона"},
+    ["возле"]  = {["мэрию"]="мэрии", ["полицию"]="полиции", ["больницу"]="больницы", ["школу"]="школы", ["церковь"]="церкви", ["электростанцию"]="электростанции", ["банк"]="банка", ["стадион"]="стадиона"},
+    ["около"]  = {["мэрию"]="мэрии", ["полицию"]="полиции", ["больницу"]="больницы", ["школу"]="школы", ["церковь"]="церкви", ["электростанцию"]="электростанции", ["банк"]="банка", ["стадион"]="стадиона"},
+    ["от"]     = {["мэрию"]="мэрии", ["полицию"]="полиции", ["больницу"]="больницы", ["школу"]="школы", ["церковь"]="церкви", ["электростанцию"]="электростанции", ["банк"]="банка", ["стадион"]="стадиона"},
+    ["из"]     = {["мэрию"]="мэрии", ["полицию"]="полиции", ["больницу"]="больницы", ["школу"]="школы", ["церковь"]="церкви", ["электростанцию"]="электростанции", ["банк"]="банка", ["стадион"]="стадиона"},
+    ["к"]      = {["мэрию"]="мэрии", ["полицию"]="полиции", ["больницу"]="больнице", ["школу"]="школе", ["церковь"]="церкви", ["электростанцию"]="электростанции", ["банк"]="банку", ["стадион"]="стадиону"},
+    ["за"]     = {["мэрию"]="мэрией", ["полицию"]="полицией", ["больницу"]="больницей", ["школу"]="школой", ["церковь"]="церковью", ["электростанцию"]="электростанцией", ["банк"]="банком", ["стадион"]="стадионом"},
+    ["под"]    = {["мэрию"]="мэрией", ["полицию"]="полицией", ["больницу"]="больницей", ["школу"]="школой", ["церковь"]="церковью", ["электростанцию"]="электростанцией", ["банк"]="банком", ["стадион"]="стадионом"},
+    ["над"]    = {["мэрию"]="мэрией", ["полицию"]="полицией", ["больницу"]="больницей", ["школу"]="школой", ["церковь"]="церковью", ["электростанцию"]="электростанцией", ["банк"]="банком", ["стадион"]="стадионом"},
+    ["перед"]  = {["мэрию"]="мэрией", ["полицию"]="полицией", ["больницу"]="больницей", ["школу"]="школой", ["церковь"]="церковью", ["электростанцию"]="электростанцией", ["банк"]="банком", ["стадион"]="стадионом"},
+    ["в"]      = {["мэрию"]="мэрии", ["полицию"]="полиции", ["больницу"]="больнице", ["школу"]="школе", ["церковь"]="церкви", ["электростанцию"]="электростанции", ["банк"]="банке", ["стадион"]="стадионе"},
+    ["на"]     = {["мэрию"]="мэрии", ["полицию"]="полиции", ["больницу"]="больнице", ["школу"]="школе", ["церковь"]="церкви", ["электростанцию"]="электростанции", ["банк"]="банке", ["стадион"]="стадионе"},
+}
+
+local ae_car_keywords = {"булк", "инф", "туризм", "турик", "кловер", "хоткнайф", "дюн", "сультан", "султан", "елег", "элеги", "банш", "чито", "чит", "феникс", "тахом", "премьер", "стретч", "бравур", "сабре", "вуду", "сламван", "ремингтон", "флеш", "джестер", "стратум", "уран", "блист", "баффал", "зомби", "ламбо", "бмв", "мерс", "тойот", "монстр", "бандит", "комет", "стингер", "супергт", "манан", "пикап", "соляр", "винсаг", "шафтер", "альпин", "беггал", "кальц", "салат", "стрикер", "адреналин", "нрг", "фрей", "вейб", "санч", "пжж", "фцз", "фаггио", "фагио", "бмх", "эндюро", "мото", "машин", "а/м", "м/ц", "тачк", "таз", "байк", "велосипед", "велик", "лодк", "яхт", "самол", "вертол", "грузовик", "тягач"}
+local ae_realestate_keywords = {"дом", "жиль", "квартир", "особняк", "вилл", "времянк", "бизнес", "азс", "магазин", "отель", "казино", "бар", "закусочн", "столов", "ресторан", "кафе", "аптек", "гараж", "ферм", "клуб", "зал", "парковк", "салон", "предприят", "склад", "шахт", "завод", "производств"}
+local ae_loc_words = {"los santos", "san fierro", "las venturas", "east", "ganton", "idlewood", "jefferson", "glen", "willowfield", "el corona", "commerce", "market", "verona", "chinatown", "palomino", "montgomery", "dillimore", "blueberry", "flint", "fort carson", "tierra", "angel", "bayside", "north rock", "valle", "arco", "green palms", "union", "strip", "rockshore", "pilgrim", "avalon", "prickle", "whitewood", "pilbox", "doherty", "kings", "paradiso", "queens", "hashbury", "garcia", "santa flora", "foster", "venturas", "штат", "город", "район", "гетто"}
+
+function formatAdText(text)
+    local formatted = type(text) == "string" and text or ""
+
+    -- Strip SAMP color codes and trim
+    formatted = formatted:gsub("{%x+}", "")
+    formatted = formatted:gsub("^%s+", ""):gsub("%s+$", "")
+    if formatted == "" then return "" end
+
+    -- Extract tag prefix only if <= 12 bytes and no spaces (avoids corrupting ads with "|" in body)
+    local detected_tag = nil
+    local tag_match = formatted:match("^%s*([A-Za-z%d_%-\168\184\192-\255]+)%s*|%s*")
+    if tag_match and #tag_match <= 12 then
+        detected_tag = tag_match
+        formatted = formatted:gsub("^%s*[A-Za-z%d_%-\168\184\192-\255]+%s*|%s*", "", 1)
+    end
+
+    local lower = cp1251_lower(formatted)
+
+    -- Convert slang money amounts (case-insensitive, word-boundary safe)
+    formatted = " " .. formatted .. " "
+    formatted = replaceAllSlangMoney(formatted)
+    formatted = formatted:sub(2, -2)
+
+    -- Single-pass tokenized rules replacement (prevents cascading corruption)
+    formatted = applyRulesSinglePass(formatted)
+    if #formatted > 1000 then formatted = formatted:sub(1, 1000) end
+
+    -- Normalize case-insensitive Russian prepositions + nouns
+    formatted = " " .. formatted .. " "
+    for _ = 1, 2 do
+        formatted = formatted:gsub("(%s)([^%s%,%.]+)%s+([^%s%,%.]+)([%s%,%.])", function(sp, prep, word, tail)
+            local pmap = ae_prep_fix_map[cp1251_lower(prep)]
+            if pmap then
+                local repl = pmap[cp1251_lower(word)]
+                if repl then
+                    return sp .. prep .. " " .. repl .. tail
+                end
+            end
+            return sp .. prep .. " " .. word .. tail
+        end)
+    end
+    formatted = formatted:gsub("^%s+", ""):gsub("%s+$", "")
+
+    -- Normalize leading ALL-CAPS action verb
+    local action_verbs = {
+        ["продам"] = "Продам",
+        ["куплю"] = "Куплю",
+        ["обменяю"] = "Обменяю",
+        ["сдам"] = "Сдам",
+        ["сниму"] = "Сниму",
+    }
+    local first_word = formatted:match("^(%S+)")
+    if first_word then
+        local norm_verb = action_verbs[cp1251_lower(first_word)]
+        if norm_verb then
+            formatted = norm_verb .. formatted:sub(#first_word + 1)
+        end
+    end
+
+    -- Detect intent and item categories on both original and formatted text
+    local fmt_lower = cp1251_lower(formatted)
+    local is_buy = lower:find("^куплю") ~= nil
+    local is_sell = lower:find("^продам") ~= nil
+    local is_trade = lower:find("^обменяю") ~= nil
+    local is_rent_out = lower:find("^сдам") ~= nil
+    local is_rent_seek = lower:find("^сниму") ~= nil
+
+    local is_car = false
+    for _, word in ipairs(ae_car_keywords) do
+        if lower:find(word, 1, true) or fmt_lower:find(word, 1, true) then
+            is_car = true
+            break
+        end
+    end
+
+    local is_realestate = false
+    for _, word in ipairs(ae_realestate_keywords) do
+        if lower:find(word, 1, true) or fmt_lower:find(word, 1, true) then
+            is_realestate = true
+            break
+        end
+    end
+
+    local has_location = false
+    for _, word in ipairs(ae_loc_words) do
+        if fmt_lower:find(word, 1, true) then
+            has_location = true
+            break
+        end
+    end
+
+    -- Clean up whitespace before structural punctuation rules
+    formatted = formatted:gsub("%s+", " "):gsub("^%s+", ""):gsub("%s+$", "")
+
+    -- Add "в любой точке штата" ONLY for real estate buy/rent-seek without location
+    if (is_buy or is_rent_seek) and is_realestate and not is_car and not has_location then
+        local b_pos = cp1251_lower(formatted):find("%s+бюджет[%s:%.,]")
+        if not b_pos then
+            b_pos = cp1251_lower(formatted):find("%s+бюджет$")
+        end
+        if b_pos then
+            formatted = formatted:sub(1, b_pos - 1) .. " в любой точке штата" .. formatted:sub(b_pos)
+        else
+            formatted = formatted .. " в любой точке штата"
+        end
+    end
+
+    -- Insert period before "бюджет" and capitalize consistently
+    formatted = formatted:gsub("([^%.%!%?%s])%s+[Бб][Юю][Дд][Жж][Ее][Тт]([%s:%.,])", "%1. Бюджет%2")
+    formatted = formatted:gsub("([^%.%!%?%s])%s+[Бб][Юю][Дд][Жж][Ее][Тт]$", "%1. Бюджет")
+    formatted = formatted:gsub("([%.%!%?])%s+[Бб][Юю][Дд][Жж][Ее][Тт]([%s:%.,])", "%1 Бюджет%2")
+    formatted = formatted:gsub("^(%s*)[Бб][Юю][Дд][Жж][Ее][Тт]([%s:%.,])", "%1Бюджет%2")
+
+    -- Normalize "договорная" / "цена договорная"
+    formatted = formatted:gsub("([^%.%!%?%s])%s+[Цц][Ее][Нн][Аа]%s+[Дд][Оо][Гг][Оо][Вв][Оо][Рр][Нн][Аа][Яя]([%s%.%,]*)$", "%1. Цена договорная")
+    formatted = formatted:gsub("(%S+)%s+[Дд][Оо][Гг][Оо][Вв][Оо][Рр][Нн][Аа][Яя]([%s%.%,]*)$", function(prev, tail)
+        local pl = cp1251_lower(prev)
+        if pl == "цена" or pl == "цена:" then
+            return prev .. " договорная"
+        elseif prev:sub(-1) == "." then
+            return prev .. " Цена договорная"
+        end
+        return prev .. ". Цена договорная"
+    end)
+
+    -- Add "Цена " before bare dollar amount (unless preceded by цена/бюджет/доплата/от/до)
+    formatted = " " .. formatted
+    formatted = formatted:gsub("(%S*)%s+(%d[%d%.]*%$)", function(prev_raw, amt)
+        local pw = cp1251_lower(prev_raw)
+        if pw == "" then
+            return " Цена " .. amt
+        elseif pw == "цена" or pw == "цена:" or pw == "бюджет" or pw == "бюджет:" or pw == "доплата" or pw == "от" or pw == "до" then
+            return prev_raw .. " " .. amt
+        elseif prev_raw:sub(-1) == "." then
+            return prev_raw .. " Цена " .. amt
+        else
+            return prev_raw .. ". Цена " .. amt
+        end
+    end)
+    formatted = formatted:gsub("^%s+", "")
+    formatted = formatted:gsub("([^%.%!%?%s])%s+[Цц][Ее][Нн][Аа]%s+(%d[%d%.]*%$)", "%1. Цена %2")
+    formatted = formatted:gsub("([%.%!%?])%s+[Цц][Ее][Нн][Аа]([%s:%.,])", "%1 Цена%2")
+
+    -- Check if ad already specifies price
+    local fl = cp1251_lower(formatted)
+    local has_price = fl:find("%$") or fl:find("цена") or fl:find("дог") or fl:find("торг") or fl:find("обмен") or fl:find("бартер") or fl:find("бесплатн") or fl:find("бюджет")
+    if (is_buy or is_sell or is_rent_out or is_rent_seek) and not has_price then
+        formatted = formatted .. ". Цена договорная"
+    end
+
+    -- Trade surcharge normalization
+    if is_trade and fl:find("доплат") and not (fl:find("доплата с мо") or fl:find("доплата с ваш")) then
+        local doplata_mine = fl:find("мо[йяеиёю]") or fl:find("мен[яе]") or fl:find("доплачива")
+        local doplata_theirs = fl:find("ваш") or fl:find("вас")
+        if doplata_theirs and not doplata_mine then
+            formatted = formatted .. ". Доплата с вашей стороны"
+        elseif doplata_mine and not doplata_theirs then
+            formatted = formatted .. ". Доплата с моей стороны"
+        end
+    end
+
+    -- Cleanup periods and spacing
+    formatted = formatted:gsub("%.+", ".")
+    formatted = formatted:gsub("%. %.", ".")
+    formatted = formatted:gsub("%s+%.", ".")
+    formatted = formatted:gsub("%s+", " "):gsub("^%s+", ""):gsub("%s+$", "")
+
+    -- Add server tag prefix
+    local tag = detected_tag or decodeUtf8Safe(ffi.string(mm_tag))
+    if tag and tag ~= "" then
+        formatted = tag .. " | " .. formatted
+    end
+
+    -- Capitalize first letter after "TAG | "
+    local pipe_pos = formatted:find(" | ", 1, true)
+    if pipe_pos then
+        local after_pipe = pipe_pos + 3
+        if after_pipe <= #formatted then
+            formatted = formatted:sub(1, after_pipe - 1) .. cp1251_upper(formatted:sub(after_pipe, after_pipe)) .. formatted:sub(after_pipe + 1)
+        end
+    elseif #formatted > 0 then
+        formatted = cp1251_upper(formatted:sub(1, 1)) .. formatted:sub(2)
+    end
+
+    -- Trim to SAMP /edit limit while keeping whole words
+    local MAX_AD_LEN = 144
+    if #formatted > MAX_AD_LEN then
+        formatted = formatted:gsub("%. Цена договорная$", "")
+        formatted = formatted:gsub(" в любой точке штата%.?", "")
+        if #formatted > MAX_AD_LEN then
+            local tag_part = ""
+            local body = formatted
+            local pp = formatted:find(" | ", 1, true)
+            if pp then
+                tag_part = formatted:sub(1, pp + 2)
+                body = formatted:sub(pp + 3)
+            end
+            local max_body = MAX_AD_LEN - #tag_part
+            if max_body > 0 and #body > max_body then
+                local cut = body:sub(1, max_body)
+                local trimmed = cut:match("^(.*)%s+%S*$")
+                if trimmed and #trimmed > 0 then
+                    body = trimmed
+                else
+                    body = cut
+                end
+                formatted = tag_part .. body
+            end
+        end
+    end
+
+    return formatted
 end
 
 -- Проверка онлайна (Встроенными методами)
@@ -4447,14 +3743,14 @@ local rp_settings = {
     -- Окно ввода/выбора
     window = {
         type = 0, list = {},
-        buf = imgui.new.char[256](""),
+        buf = imgui.new.char[257](""),
         select = 0, is = -1,
     },
     -- Редактирование
     temp = {
-        name = imgui.new.char[64](""),
-        text = imgui.new.char[16384](""),
-        cmd = imgui.new.char[32](""),
+        name = imgui.new.char[65](""),
+        text = imgui.new.char[16385](""),
+        cmd = imgui.new.char[33](""),
     },
 }
 
@@ -4661,7 +3957,7 @@ function loadRpSettings()
             if chapter and chapter >= 1 and chapter <= 100 and type(values) == "table" then
                 local cleaned = {}
                 for _, value in ipairs(values) do
-                    if type(value) == "table" and type(value.name) == "string" and type(value.text) == "string" and not value.name:find("%z") and not value.text:find("%z") and #value.name <= 256 and #value.text <= 8192 then
+                    if type(value) == "table" and type(value.name) == "string" and type(value.text) == "string" and not value.name:find("%z") and not value.text:find("%z") and #value.name <= 256 and #value.text <= 16384 then
                         cleaned[#cleaned + 1] = {name = value.name, text = value.text}
                         if #cleaned >= 500 then break end
                     end
@@ -4708,7 +4004,11 @@ function playerLogin()
 
         if rp_stats_text ~= "" then
             local id_ok2, pid = sampGetPlayerIdByCharHandle(PLAYER_PED)
-            if not id_ok2 then return end
+            if not id_ok2 then
+                rp_reading_stats = false
+                rp_stats_step = "done"
+                return
+            end
             user.nick = sampGetPlayerNickname(pid)
             user.rang = tonumber(rp_stats_text:match("Ранг:%s*{.-}(%d+)") or "0")
             user.podr = rp_stats_text:match("Подразделение:%s*{.-}(.-)\n") or ""
@@ -4716,11 +4016,11 @@ function playerLogin()
             user.phone = rp_stats_text:match("Телефон:%s*{.-}(%d+)") or ""
 
             user.fullName = (user.nick):gsub('_', ' ')
-            user.name = (user.fullName):match('(.-) .-') or user.fullName
-            user.family = (user.fullName):match('.- (.-)') or ""
+            user.name = (user.fullName):match('^(%S+)') or user.fullName
+            user.family = (user.fullName):match('%s+(%S+)$') or ""
             user.isWork = not rp_stats_text:find("Уволен")
 
-            local pl = user.podr:lower()
+            local pl = cp1251_lower(user.podr)
             if pl:find("полиц") or pl:find("пд") then user.podrNum = 1
             elseif pl:find("фсб") or pl:find("фсин") then user.podrNum = 2
             elseif pl:find("мчс") or pl:find("больниц") or pl:find("мед") then user.podrNum = 3
@@ -4754,7 +4054,7 @@ end
 
 function playRp(text, test)
     if rp_settings.active[0] then
-        queueTask(function() sampAddChatMessage("[Helper] Отыгровка уже идет. /mmstop для остановки для остановки", 0xFF0000) end)
+        queueTask(function() sampAddChatMessage("[Helper] Отыгровка уже идет. /mmstop для остановки", 0xFF0000) end)
         return
     end
     rp_settings.active[0] = true
@@ -4775,7 +4075,8 @@ function playRp(text, test)
             end
             if #randText > 0 then
                 local id = math.random(1, #randText)
-                text = text:gsub('r:' .. line .. ':r', randText[id], 1)
+                local safeRand = tostring(randText[id] or ''):gsub('%%', '%%%%')
+                text = text:gsub('r:' .. escapePattern(line) .. ':r', safeRand, 1)
             end
         end
 
@@ -4783,12 +4084,12 @@ function playRp(text, test)
         for i = 1, rp_sum_tegs do
             if rp_tegs[1][i] then
                 local textTeg = test and (rp_tegs[1][i][1] .. ":OK") or rp_tegs[1][i][2]()
-                text = text:gsub(rp_tegs[1][i][1], textTeg)
+                text = text:gsub(escapePattern(rp_tegs[1][i][1]), tostring(textTeg or ""):gsub("%%", "%%%%"))
             else
                 local id = i - #rp_tegs[1]
                 if rp_tegs[typeTeg][id] then
                     local textTeg = test and (rp_tegs[typeTeg][id][1] .. ":OK") or rp_tegs[typeTeg][id][2]()
-                    text = text:gsub(rp_tegs[typeTeg][id][1], textTeg)
+                    text = text:gsub(escapePattern(rp_tegs[typeTeg][id][1]), tostring(textTeg or ""):gsub("%%", "%%%%"))
                 end
             end
         end
@@ -4965,15 +4266,13 @@ end
 
 -- tvlift: лифт в ТВ-башне
 local tvlift_active = false
+local tvlift_target_item = nil
 function cmdTvlift(floor_str)
     local floor = tonumber(floor_str)
     if not floor then
         sampAddChatMessage("[Helper] Использование: /tvlf [этаж 1-21]", 0xFFAA00)
         return
     end
-    -- Проверка позиции (ТВ-башня в SF)
-    local x, y, z = getCharCoordinates(PLAYER_PED)
-    -- Зона ТВ-башни: примерно 1839, -1264, 13
     if not isCharInArea3d(PLAYER_PED, 1839.5557, -1264.6527, 13.4299, 1765.8602, -1319.9817, 134.1671, false) then
         sampAddChatMessage("[Helper] Вы должны находиться рядом с лифтом ТВ-башни.", 0xFF0000)
         return
@@ -4982,9 +4281,13 @@ function cmdTvlift(floor_str)
         sampAddChatMessage("[Helper] Этаж должен быть от 1 до 21.", 0xFF0000)
         return
     end
-    local sex = user.name and user.name:sub(-1):lower() == "а" and "ла" or "л"
-    sampSendChat("/me нажа" .. sex .. " на кнопку лифта, выбрав " .. floor .. " этаж")
+    sampSendChat("/me " .. rpVerb("нажал", "нажала") .. " на кнопку лифта, выбрав " .. floor .. " этаж")
+    tvlift_target_item = 21 - floor
     tvlift_active = true
+    scheduleTask(5000, function()
+        tvlift_active = false
+        tvlift_target_item = nil
+    end)
     sampSendChat("/tvlift")
 end
 
@@ -5030,6 +4333,7 @@ end
 
 -- Эфир: авто-отыгровка начала/конца эфира
 local efir_active = false
+local efir_stats = { sms = 0, calls = 0, lines = 0, start_time = 0 }
 local efir_start_text = "/me надел наушники и настроил микрофон\n<800>\n/do Микрофон включён, наушники надеты\n<500>\n/efir"
 local efir_end_text = "/me снял наушники\n<500>\n/do Наушники сняты, микрофон выключен\n<400>\n/efir"
 
@@ -5120,8 +4424,6 @@ function checkBlacklistNick(nick)
 end
 
 -- Эфир-статистика
-local efir_stats = { sms = 0, calls = 0, lines = 0, start_time = 0 }
-
 function cmdEfirStats()
     if efir_stats.start_time == 0 then
         sampAddChatMessage("[Helper] Эфир ещё не начат. /mmefir для старта.", 0xFFAA00)
@@ -5137,16 +4439,13 @@ end
 -- Авто-ответ на звонки в эфире
 local auto_answer_enabled = imgui.new.bool(false)
 local auto_answer_text = imgui.new.char[257]("")
+local auto_answer_last_time = 0
 
 function cmdAutoAnswer(arg)
     if arg and arg ~= "" then
         safeStrCopy(auto_answer_text, encodeCp1251Safe(arg), ffi.sizeof(auto_answer_text))
-        auto_answer_enabled[0] = not auto_answer_enabled[0]
-        if auto_answer_enabled[0] then
-            sampAddChatMessage("[Helper] Авто-ответ включён: " .. arg, 0x00FF00)
-        else
-            sampAddChatMessage("[Helper] Авто-ответ выключен", 0xFFAA00)
-        end
+        auto_answer_enabled[0] = true
+        sampAddChatMessage("[Helper] Авто-ответ включён: " .. arg, 0x00FF00)
     else
         auto_answer_enabled[0] = not auto_answer_enabled[0]
         if auto_answer_enabled[0] then
@@ -5325,6 +4624,8 @@ imgui.SameLine(320)
 if imgui.SmallButton(u8"Использовать") then
 safeStrCopy(static_new_abbr, encodeCp1251Safe(corr.abbr), ffi.sizeof(static_new_abbr))
 safeStrCopy(static_new_repl, encodeCp1251Safe(corr.repl), ffi.sizeof(static_new_repl))
+mm_rule_status = u8"Подставлено из обучения — нажмите 'Добавить правило'"
+mm_pending_ui_page = 3
 end
 imgui.SameLine()
 if imgui.SmallButton(u8"X") then
@@ -5343,38 +4644,28 @@ end
 function drawMmEditorSettings()
 static_new_abbr = static_new_abbr or imgui.new.char[65]("")
 static_new_repl = static_new_repl or imgui.new.char[257]("")
-if imgui.Button("Home##mm_ui_home") and mm_ui_page ~= 0 then mm_pending_ui_page = 0 end
+if imgui.Button(u8"Основные##mm_ui_general") and mm_ui_page ~= 1 then mm_pending_ui_page = 1 end
 imgui.SameLine()
-if imgui.Button("General##mm_ui_general") and mm_ui_page ~= 1 then mm_pending_ui_page = 1 end
+if imgui.Button(u8"Тест##mm_ui_test") and mm_ui_page ~= 2 then mm_pending_ui_page = 2 end
 imgui.SameLine()
-if imgui.Button("Test##mm_ui_test") and mm_ui_page ~= 2 then mm_pending_ui_page = 2 end
+if imgui.Button(u8"Правила##mm_ui_rules") and mm_ui_page ~= 3 then mm_pending_ui_page = 3 end
 imgui.SameLine()
-if imgui.Button("Rules##mm_ui_rules") and mm_ui_page ~= 3 then mm_pending_ui_page = 3 end
-imgui.SameLine()
-if imgui.Button("Suggestions##mm_ui_suggestions") and mm_ui_page ~= 4 then mm_pending_ui_page = 4 end
+if imgui.Button(u8"Обучение (" .. #edit_corrections .. ")##mm_ui_suggestions") and mm_ui_page ~= 4 then mm_pending_ui_page = 4 end
 imgui.Separator()
 if mm_pending_ui_page ~= nil then
-print("[Helper Core] MM UI pending page: " .. tostring(mm_pending_ui_page))
 mm_ui_page = mm_pending_ui_page
 mm_pending_ui_page = nil
-mm_ui_last_logged_page = -1
-imgui.TextUnformatted("Switching MM Editor page safely...")
+imgui.TextUnformatted(u8"Переключение вкладки...")
 return
 end
-if mm_ui_last_logged_page ~= mm_ui_page then
-print("[Helper Core] MM UI active page: " .. tostring(mm_ui_page))
-mm_ui_last_logged_page = mm_ui_page
-end
-if mm_ui_page == 0 then
-imgui.TextUnformatted("MM Editor Home: choose one page above.")
-elseif mm_ui_page == 1 then
-drawMmGeneralPage()
-elseif mm_ui_page == 2 then
+if mm_ui_page == 2 then
 drawMmTestPage()
 elseif mm_ui_page == 3 then
 drawMmRulesPage()
-else
+elseif mm_ui_page == 4 then
 drawMmSuggestionsPage()
+else
+drawMmGeneralPage()
 end
 end
 
@@ -5491,7 +4782,7 @@ function formatGnewsLine(tag, text)
     if not text or text == "" then return "" end
     text = text:gsub("^%s+", ""):gsub("%s+$", "")
     if tag and tag ~= "" then
-        if not text:find("^%[") and not text:find("^" .. tag) then
+        if not text:find("^%[") and not text:find("^" .. escapePattern(tag)) then
             if not tag:find("%|") and not tag:find("%]") then
                 return tag .. " | " .. text
             else
@@ -5651,20 +4942,26 @@ function drawGnewsSettings()
     imgui.TextUnformatted(u8"Основное вещание в 3 строки:")
     imgui.PopStyleColor()
 
-    imgui.TextUnformatted(u8"1 строка:")
-    imgui.PushItemWidth(-1)
-    if imgui.InputText("##gnews_l1", gnews_buf_line1, ffi.sizeof(gnews_buf_line1)) then saveCurrentGnewsProfile() end
-    imgui.PopItemWidth()
+    local gnews_tag_cp = decodeUtf8Safe(ffi.string(gnews_buf_tag))
+    local function drawGnewsLineField(label, id_str, buf)
+        local line_cp = decodeUtf8Safe(ffi.string(buf))
+        local full_len = #formatGnewsLine(gnews_tag_cp, line_cp)
+        imgui.TextUnformatted(label)
+        if line_cp ~= "" then
+            imgui.SameLine(430)
+            local lcol = full_len > 128 and imgui.ImVec4(1.0, 0.25, 0.25, 1.0) or imgui.ImVec4(0.45, 0.85, 0.5, 1.0)
+            imgui.PushStyleColor(imgui.Col.Text, lcol)
+            imgui.TextUnformatted(u8"Длина: " .. tostring(full_len) .. " / 128")
+            imgui.PopStyleColor()
+        end
+        imgui.PushItemWidth(-1)
+        if imgui.InputText(id_str, buf, ffi.sizeof(buf)) then saveCurrentGnewsProfile() end
+        imgui.PopItemWidth()
+    end
 
-    imgui.TextUnformatted(u8"2 строка:")
-    imgui.PushItemWidth(-1)
-    if imgui.InputText("##gnews_l2", gnews_buf_line2, ffi.sizeof(gnews_buf_line2)) then saveCurrentGnewsProfile() end
-    imgui.PopItemWidth()
-
-    imgui.TextUnformatted(u8"3 строка:")
-    imgui.PushItemWidth(-1)
-    if imgui.InputText("##gnews_l3", gnews_buf_line3, ffi.sizeof(gnews_buf_line3)) then saveCurrentGnewsProfile() end
-    imgui.PopItemWidth()
+    drawGnewsLineField(u8"1 строка:", "##gnews_l1", gnews_buf_line1)
+    drawGnewsLineField(u8"2 строка:", "##gnews_l2", gnews_buf_line2)
+    drawGnewsLineField(u8"3 строка:", "##gnews_l3", gnews_buf_line3)
 
     imgui.Spacing()
     imgui.Separator()
@@ -5761,13 +5058,29 @@ function drawGnewsSettings()
         end
     end
 
-    imgui.SameLine()
-    if imgui.Button(u8"Тех. Неполадки", imgui.ImVec2(140, 36)) then
+    imgui.Spacing()
+    if imgui.Button(u8"Тех. Неполадки", imgui.ImVec2(160, 32)) then
         saveCurrentGnewsProfile()
         local p = gnews_settings.profiles[gnews_settings.selected]
         if p then
             local t = formatGnewsLine(p.tag, p.extra)
             queueTask(function() sendGnewsSingle(t) end)
+        end
+    end
+    imgui.SameLine()
+    if imgui.Button(u8"Предпросмотр (в чат)##gnews_preview", imgui.ImVec2(190, 32)) then
+        saveCurrentGnewsProfile()
+        local p = gnews_settings.profiles[gnews_settings.selected]
+        if p then
+            local l1 = formatGnewsLine(p.tag, p.line1)
+            local l2 = formatGnewsLine(p.tag, p.line2)
+            local l3 = formatGnewsLine(p.tag, p.line3)
+            queueTask(function()
+                sampAddChatMessage("[Helper GNEWS Предпросмотр]:", 0x00CCFF)
+                if l1 ~= "" then sampAddChatMessage("  1: /gnews " .. l1, 0xCECECE) end
+                if l2 ~= "" then sampAddChatMessage("  2: /gnews " .. l2, 0xCECECE) end
+                if l3 ~= "" then sampAddChatMessage("  3: /gnews " .. l3, 0xCECECE) end
+            end)
         end
     end
 
@@ -5961,7 +5274,7 @@ static_aad_active = static_aad_active or imgui.new.bool(false)
         aad_active = static_aad_active[0]
         if aad_active then
             aad_text = decodeUtf8Safe(ffi.string(static_aad_buf))
-            queueTask(function() lua_thread.create(function() sendAdCommand(aad_text) end) end)
+            queueTask(function() sendAdCommand(aad_text) end)
         end
     end
 
@@ -6008,8 +5321,7 @@ static_aad_active = static_aad_active or imgui.new.bool(false)
         for idx, tpl in ipairs(aad_templates) do
             imgui.PushIDStr("tpl_" .. idx)
             if imgui.Button(u8"Выбрать") then
-                for i = 0, 128 do static_aad_buf[i] = 0 end
-                if #tpl < 128 then ffi.copy(static_aad_buf, tpl) end
+                safeStrCopy(static_aad_buf, tpl, ffi.sizeof(static_aad_buf))
                 aad_text = decodeUtf8Safe(tpl)  -- UTF-8 -> CP1251 for sending
                 requestSaveSettings()
             end
@@ -6049,8 +5361,7 @@ static_aad_active = static_aad_active or imgui.new.bool(false)
         for idx, hist in ipairs(aad_history) do
             imgui.PushIDStr("hist_" .. idx)
             if imgui.Button(u8"Выбрать") then
-                for i = 0, 128 do static_aad_buf[i] = 0 end
-                if #hist < 128 then ffi.copy(static_aad_buf, hist) end
+                safeStrCopy(static_aad_buf, hist, ffi.sizeof(static_aad_buf))
                 aad_text = decodeUtf8Safe(hist)  -- UTF-8 -> CP1251 for sending
                 requestSaveSettings()
             end
@@ -6089,27 +5400,46 @@ onToggle = function(state) end
 id = "auto_rp",
 enabled = true,
 name = u8" Авто-Отыгровки",
-description = u8"Авто-отыгровки от ИГРОВЫХ СОБЫТИЙ: достаёт/убирает оружие при смене слота, достаёт телефон при входящем звонке/SMS, отыгрывает /call, /h, /mask, /healme, /drugs. Работает автоматически — не нужно нажимать ничего дополнительно.",
+description = u8"Авто-отыгровки от игровых событий и команд (через SAMP onSendCommand): смена почти любого оружия, звонки/SMS, /call, /c 60, /h, /mask, /healme, /drugs, /e (двигатель), /pass, /lic, /med.",
 drawSettings = function()
-if imgui.Checkbox(u8"Отыгровка доставания/убирания оружия", rp_weapons_enabled) then requestSaveSettings() end
-imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
-imgui.TextUnformatted(u8"-> Доставание Deagle, M4, Shotgun, AK-47, Ножа")
+imgui.TextUnformatted(u8"Пол отыгровок:")
+imgui.SameLine()
+imgui.PushItemWidth(160)
+local gender_items = u8"Мужской\0Женский\0"
+if imgui.ComboStr("##rp_gender", rp_gender, gender_items) then requestSaveSettings() end
+imgui.PopItemWidth()
+imgui.Spacing()
+imgui.Separator()
+imgui.Spacing()
+
+if imgui.Checkbox(u8"Отыгровка смены оружия (в руках / за спину)", rp_weapons_enabled) then requestSaveSettings() end
+local w_info = weapon_info[rp_current_weapon_id]
+local w_name = rp_current_weapon_id == 0 and "Кулаки / пусто" or (w_info and w_info.name or ("ID " .. tostring(rp_current_weapon_id)))
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.8, 0.5, 1))
+imgui.TextUnformatted(u8"-> Текущее оружие в руках: " .. encodeCp1251Safe(w_name))
 imgui.PopStyleColor()
 
-if imgui.Checkbox(u8"Отыгровка звонков и сбросов телефона", rp_phone_enabled) then requestSaveSettings() end
+if imgui.Checkbox(u8"Отыгровка звонков, SMS и часов (/call, /c, /h)", rp_phone_enabled) then requestSaveSettings() end
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
-imgui.TextUnformatted(u8"-> Срабатывает при командах /call и /h")
+imgui.TextUnformatted(u8"-> Срабатывает на команды /call, /c, /c 60, /h и входящие звонки/SMS")
 imgui.PopStyleColor()
 
-if imgui.Checkbox(u8"Отыгровка одевания маски", rp_mask_enabled) then requestSaveSettings() end
-imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
-imgui.TextUnformatted(u8"-> Срабатывает при команде /mask")
-imgui.PopStyleColor()
+if imgui.Checkbox(u8"Отыгровка надевания маски (/mask)", rp_mask_enabled) then requestSaveSettings() end
+if imgui.Checkbox(u8"Отыгровка аптечки и лекарств (/healme, /drugs)", rp_heal_enabled) then requestSaveSettings() end
+if imgui.Checkbox(u8"Отыгровка двигателя (/e)", rp_engine_enabled) then requestSaveSettings() end
+if imgui.Checkbox(u8"Отыгровка показа документов (/pass, /lic, /med)", rp_docs_enabled) then requestSaveSettings() end
 
-if imgui.Checkbox(u8"Отыгровка использования аптечки", rp_heal_enabled) then requestSaveSettings() end
-imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
-imgui.TextUnformatted(u8"-> Срабатывает при командах /healme и /drugs")
-imgui.PopStyleColor()
+imgui.Spacing()
+imgui.Separator()
+imgui.Spacing()
+if imgui.Button(u8"Тест отыгровки (в чат локально)") then
+    local sample = "/me " .. rpVerb("достал", "достала") .. ' пистолет "Desert Eagle" из кобуры'
+    queueTask(function()
+        if isSampAvailable() then
+            sampAddChatMessage("[Helper RP Тест] " .. sample, 0x00FFAA)
+        end
+    end)
+end
 end,
 onToggle = function(state) end
 },
@@ -6125,13 +5455,15 @@ imgui.PopStyleColor()
 if imgui.Checkbox(u8"Включить стробоскопы", strobe_enabled) then
 if strobe_enabled[0] then
 strobe_active = true
-queueTask(function() lua_thread.create(strobeWorker) end)
+if not strobe_worker_running then
+queueTask(function() if not strobe_worker_running then lua_thread.create(strobeWorker) end end)
+end
 else
 strobe_active = false
 end
 end
 imgui.SameLine(220)
-        imgui.Checkbox(u8"Турбо-круиз (риск бана!)", turbo_cruise_enabled)
+        if imgui.Checkbox(u8"Турбо-круиз (риск бана!)", turbo_cruise_enabled) then requestSaveSettings() end
         imgui.TextUnformatted(u8"Круиз: C=вкл/выкл  W=+5  S=-5")
 
 imgui.PushItemWidth(150)
@@ -6185,10 +5517,24 @@ imgui.InputInt(u8"ID Скина (0-311)", skin_changer_id)
 imgui.PopItemWidth()
 
 if imgui.Button(u8"Применить скин") then
-applyLocalSkin(skin_changer_id[0])
+local sid = skin_changer_id[0]
+queueTask(function() applyLocalSkin(sid) end)
 end
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
 imgui.TextUnformatted(u8"-> Вы также можете ввести команду в чат: /fskin [ID]")
+imgui.PopStyleColor()
+
+imgui.Spacing()
+imgui.Separator()
+imgui.Spacing()
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0, 1, 0.7, 1))
+imgui.TextUnformatted(u8"Инфо-панель (HUD) и Калькулятор:")
+imgui.PopStyleColor()
+if imgui.Checkbox(u8"Показывать компактный HUD (Время / PayDay / Статусы)", hud_enabled) then
+    requestSaveSettings()
+end
+imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
+imgui.TextUnformatted(u8"-> Команды: /hud (вкл/выкл HUD), /calc [пример] (напр. /calc 1.5кк * 3 + 500к)")
 imgui.PopStyleColor()
 end,
 onToggle = function(state)
@@ -6491,7 +5837,7 @@ end
 end
 
 sampAddChatMessage("Helper Core " .. SCRIPT_VERSION .. " загружен. Меню: F11", 0x00FF00)
-sampAddChatMessage("Стробы: J=вкл/выкл, N=режим | Круиз: C, W/S=скорость | Бинды: L=/lock, K=/e", 0xFFFFFF)
+sampAddChatMessage("Стробы: J=вкл/выкл, N=режим | Круиз: C, W/S | /hud — инфо-панель | /calc — калькулятор", 0xFFFFFF)
 
 -- Регистрируем команду открытия меню
 
@@ -6531,6 +5877,28 @@ end)
 
 sampRegisterChatCommand("helper", function()
 show_main_window[0] = not show_main_window[0]
+end)
+
+sampRegisterChatCommand("hud", function()
+    hud_enabled[0] = not hud_enabled[0]
+    requestSaveSettings()
+    sampAddChatMessage("[Helper] Компактный HUD: " .. (hud_enabled[0] and "{00FF00}ВКЛ" or "{FF0000}ВЫКЛ"), 0xFFFFFF)
+end)
+
+sampRegisterChatCommand("calc", function(arg)
+    if not arg or arg:gsub("%s+", "") == "" then
+        sampAddChatMessage("[Helper] Использование: /calc [выражение] (напр. /calc (1.5кк + 500к) * 2)", 0xFFAA00)
+        return
+    end
+    local val, err = evalCalcExpr(arg)
+    if not val then
+        sampAddChatMessage("[Helper Calc] " .. tostring(err), 0xFF5555)
+        return
+    end
+    local is_int = math.abs(val - math.floor(val + 0.5)) < 1e-6
+    local raw_str = is_int and string.format("%.0f", val) or string.format("%.2f", val)
+    local money_str = formatNumberWithDots(val) .. "$"
+    sampAddChatMessage("[Helper Calc] " .. arg .. " = {00FF90}" .. raw_str .. " {CECECE}(" .. money_str .. ")", 0x00CCFF)
 end)
 
 sampRegisterChatCommand("aad", function(arg)
@@ -6682,6 +6050,28 @@ if q_count > 0 then
     end
 end
 
+-- Process scheduled delayed tasks (replaces throwaway lua_threads)
+if #scheduled_tasks > 0 then
+    local now = os.clock()
+    local due = {}
+    local pending = {}
+    for i = 1, #scheduled_tasks do
+        local item = scheduled_tasks[i]
+        if item.run_at <= now and #due < 20 then
+            due[#due + 1] = item.fn
+        else
+            pending[#pending + 1] = item
+        end
+    end
+    scheduled_tasks = pending
+    for i = 1, #due do
+        local ok, err = pcall(due[i])
+        if not ok then
+            print("[Helper Core] Scheduled task error: " .. tostring(err))
+        end
+    end
+end
+
 -- Process debounced saves safely in main loop
 if settings_dirty then
     settings_dirty = false
@@ -6720,6 +6110,26 @@ end
 
 -- Scan chat for contacts (safe from main loop, not from thread)
 chatScannerTick()
+
+-- Refresh compact HUD snapshot once per second
+local hud_now = os.time()
+if hud_now ~= hud_cache.last_update then
+    hud_cache.last_update = hud_now
+    hud_cache.time_str = os.date("%H:%M:%S", hud_now)
+    local m = tonumber(os.date("%M", hud_now)) or 0
+    local s = tonumber(os.date("%S", hud_now)) or 0
+    local rem_sec = (60 - m) * 60 - s
+    if rem_sec == 3600 then rem_sec = 0 end
+    hud_cache.payday_str = string.format("%02dм %02dс", math.floor(rem_sec / 60), rem_sec % 60)
+    if isSampAvailable() then
+        local ok_p, pval = pcall(function()
+            local ok_id, myid = sampGetPlayerIdByCharHandle(PLAYER_PED)
+            if ok_id then return sampGetPlayerPing(myid) end
+            return 0
+        end)
+        if ok_p and type(pval) == "number" then hud_cache.ping = pval end
+    end
+end
 
 -- Process queued player_db changes (safe - not during ImGui render)
 if #player_db_queue > 0 then
@@ -6761,6 +6171,12 @@ if ae_open_queue then
     ae_original_text = encodeCp1251Safe(q.original)
     ae_formatted_text = encodeCp1251Safe(q.formatted)
     safeStrCopy(ae_input_buf, encodeCp1251Safe(q.formatted), ffi.sizeof(ae_input_buf))
+    ae_last_buf_snapshot = ffi.string(ae_input_buf)
+    if mm_auto_send[0] then
+        ae_autosend_deadline = os.clock() + (mm_send_delay[0] / 1000.0)
+    else
+        ae_autosend_deadline = nil
+    end
     ae_active[0] = true
     ae_focus = true
     ae_ignore_enter = 30  -- ignore stale Enter from /edit chat command (~0.5s)
@@ -6777,8 +6193,8 @@ end
 if wasKeyPressed(0x4A) and isCharInAnyCar(PLAYER_PED) and not sampIsChatInputActive() and not sampIsDialogActive() then -- J
 strobe_enabled[0] = not strobe_enabled[0]
 strobe_active = strobe_enabled[0]
-if strobe_active then
-queueTask(function() lua_thread.create(strobeWorker) end)
+if strobe_active and not strobe_worker_running then
+queueTask(function() if not strobe_worker_running then lua_thread.create(strobeWorker) end end)
 end
 sampAddChatMessage("[Helper] Стробоскопы: " .. (strobe_enabled[0] and "{00FF00}ВКЛ{FFFFFF} (выкл - J)" or "{FF0000}ВЫКЛ"), 0xFFFFFF)
 end
@@ -6786,15 +6202,15 @@ end
 -- Клавиша N для смены режима стробоскопов (только если включены и в машине)
 if wasKeyPressed(0x4E) and isCharInAnyCar(PLAYER_PED) and strobe_enabled[0] and not sampIsChatInputActive() and not sampIsDialogActive() then -- N
 local strobe_mode_names = {
-    [1]="Мигающие", [2]="Попеременно", [3]="Вспышки (обе)", [4]="Бегущий Л/П",
-    [5]="Бегущий 3шт", [6]="Бегущий 5шт", [7]="Сирена 1", [8]="Сирена 2 (3+3+обе)",
-    [9]="Сирена 3 (классика)", [10]="SOS (морзе)", [11]="Гирлянда", [12]="Двойной (лево+право)",
-    [13]="Двойной попеременно", [14]="Двойной бегущий (волна)", [15]="Маяк", [16]="Частые (2х2)",
-    [17]="Ритм (ускоренный)", [18]="Перекрёсток", [19]="Патруль (мигалка)",
+    [0]="Обе вместе", [1]="Попеременно", [2]="Гирлянда (по одной)", [3]="Двойной лево/право",
+    [4]="Быстрый оба (3х)", [5]="Очень быстрый оба (5х)", [6]="Полицейский 1",
+    [7]="Полицейский 2 (3+3+обе)", [8]="Полицейский 3 (быстрый)", [9]="SOS (Морзе)",
+    [10]="Волна", [11]="Импульс (вспышка+пауза)", [12]="Двойная гирлянда",
+    [13]="Тройная вспышка (спец)", [14]="Зигзаг", [15]="Энергичный (2х2)",
+    [16]="Маяк (медленный)", [17]="Перекрёстный", [18]="Каскад (нарастающий)",
 }
-strobe_mode[0] = strobe_mode[0] + 1
-if strobe_mode[0] > 19 then strobe_mode[0] = 1 end
-saveSettings()
+strobe_mode[0] = (strobe_mode[0] + 1) % 19
+requestSaveSettings()
 local mname = strobe_mode_names[strobe_mode[0]] or ("#" .. strobe_mode[0])
 sampAddChatMessage("[Helper] Стробоскоп режим: {00FF00}" .. mname .. " {FFFFFF}(N - следующий)", 0xFFFFFF)
 end
@@ -6891,37 +6307,72 @@ sendAdCommand = function(text)
     end
 end
 
--- Перехват команд для авто-РП отыгровок
--- Добавляет /me перед серверными командами
-function sampev.onSendChat(message)
+-- Перехват серверных команд для авто-РП отыгровок (SAMP отправляет /команды через RPC SendCommand)
+function sampev.onSendCommand(command)
+    if rp_sending_internal then return true end
+    local cmd, rest = command:match("^/(%w+)%s*(.*)")
+    if not cmd then return true end
+    cmd = cmd:lower()
+
+    if efir_active and (cmd == "t" or cmd == "u") and rest ~= "" then
+        efir_stats.lines = efir_stats.lines + 1
+    end
+
     if isModuleEnabled("auto_rp") and not call_worker_running then
-        local cmd = message:match("^/(%w+)")
-        if cmd then
-            -- /call <number>
-            if (cmd == "call" or cmd == "c") and rp_phone_enabled[0] then
-                local arg = message:match("^/call%s+(.+)") or message:match("^/c%s+(.+)")
-                if arg and arg ~= "" then
-                    sampSendChat("/me достал телефон и набрал номер " .. arg)
-                end
-            -- /h or /hangup
-            elseif (cmd == "h" or cmd == "hangup") and rp_phone_enabled[0] then
-                sampSendChat("/me убрал телефон в карман")
-            -- /mask
-            elseif cmd == "mask" and rp_mask_enabled[0] then
-                sampSendChat("/me натянул маску на свое лицо")
-            -- /healme
-            elseif cmd == "healme" and rp_heal_enabled[0] then
-                sampSendChat("/me достал аптечку, принял необходимые лекарства")
-            -- /drugs
-            elseif cmd == "drugs" and rp_heal_enabled[0] then
-                sampSendChat("/me достал дозу и употребил")
-            -- /e (engine)
-            elseif cmd == "e" and rp_weapons_enabled[0] then
-                sampSendChat("/me завел двигатель")
+        local rp_line = nil
+        if (cmd == "call" or cmd == "c") and rp_phone_enabled[0] then
+            if rest == "60" or rest == "060" then
+                rp_line = "/me " .. rpVerb("взглянул", "взглянула") .. " на наручные часы"
+            elseif rest ~= "" then
+                rp_line = "/me " .. rpVerb("достал", "достала") .. " телефон и " .. rpVerb("набрал", "набрала") .. " номер " .. rest
             end
+        elseif (cmd == "h" or cmd == "hangup") and rp_phone_enabled[0] then
+            rp_line = "/me " .. rpVerb("нажал", "нажала") .. " кнопку сброса и " .. rpVerb("убрал", "убрала") .. " телефон в карман"
+        elseif cmd == "mask" and rp_mask_enabled[0] then
+            rp_line = "/me " .. rpVerb("натянул", "натянула") .. " маску на лицо"
+        elseif cmd == "healme" and rp_heal_enabled[0] then
+            rp_line = "/me " .. rpVerb("достал", "достала") .. " аптечку и " .. rpVerb("принял", "приняла") .. " необходимые лекарства"
+        elseif cmd == "drugs" and rp_heal_enabled[0] then
+            rp_line = "/me " .. rpVerb("достал", "достала") .. " пакетик и " .. rpVerb("употребил", "употребила") .. " содержимое"
+        elseif cmd == "e" and rp_engine_enabled[0] then
+            if isCharInAnyCar(PLAYER_PED) then
+                local car = storeCarCharIsInNoSave(PLAYER_PED)
+                if car and doesVehicleExist(car) and isCarEngineOn(car) then
+                    rp_line = "/me " .. rpVerb("заглушил", "заглушила") .. " двигатель"
+                else
+                    rp_line = "/me " .. rpVerb("завёл", "завела") .. " двигатель"
+                end
+            else
+                rp_line = "/me " .. rpVerb("завёл", "завела") .. " двигатель"
+            end
+        elseif cmd == "pass" and rp_docs_enabled[0] then
+            rp_line = "/me " .. rpVerb("достал", "достала") .. " паспорт из кармана и " .. rpVerb("показал", "показала") .. " его"
+        elseif cmd == "lic" and rp_docs_enabled[0] then
+            rp_line = "/me " .. rpVerb("достал", "достала") .. " папку с лицензиями и " .. rpVerb("показал", "показала") .. " её"
+        elseif cmd == "med" and rp_docs_enabled[0] then
+            rp_line = "/me " .. rpVerb("достал", "достала") .. " медицинскую карту и " .. rpVerb("показал", "показала") .. " её"
+        end
+
+        if rp_line then
+            local orig_cmd = command
+            scheduleTask(0, function()
+                if isSampAvailable() then
+                    rp_sending_internal = true
+                    pcall(sampSendChat, rp_line)
+                    rp_sending_internal = false
+                end
+            end)
+            scheduleTask(250, function()
+                if isSampAvailable() then
+                    rp_sending_internal = true
+                    pcall(sampSendChat, orig_cmd)
+                    rp_sending_internal = false
+                end
+            end)
+            return false
         end
     end
-    return true  -- let the message go to server
+    return true
 end
 
 -- Блокируем серверную синхронизацию времени и погоды
@@ -6952,102 +6403,111 @@ function sampev.onServerMessage(color, text)
     if sender and phone then
         local sender_cp = sender
         local phone_cp = phone
-        lua_thread.create(function()
+        queueTask(function()
+            if not isSampAvailable() then return end
             local result, my_id = sampGetPlayerIdByCharHandle(PLAYER_PED)
             local my_name = result and sampGetPlayerNickname(my_id) or ""
 
             if sender_cp == my_name then
-                if aad_active and aad_text ~= "" then
+                if aad_active and aad_text ~= "" and not aad_next_scheduled then
+                    aad_next_scheduled = true
                     sampAddChatMessage("[Helper] Объявление опубликовано. Следующая подача через " .. (aad_delay[0]/1000) .. " сек...", 0x00FFFF)
-                    wait(aad_delay[0])
-                    if aad_active and aad_text ~= "" then
-                        sendAdCommand(aad_text)
-                    end
+                    scheduleTask(aad_delay[0], function()
+                        aad_next_scheduled = false
+                        if aad_active and aad_text ~= "" and isSampAvailable() then
+                            sendAdCommand(aad_text)
+                        end
+                    end)
                 end
             elseif isModuleEnabled("autocall_db") then
-                -- Queue the change instead of modifying player_db directly
-                -- (ImGui render thread might be iterating player_db right now)
                 table.insert(player_db_queue, {sender = sender_cp, phone = phone_cp})
                 sampAddChatMessage("[Helper DB] Новый контакт: " .. sender_cp .. " (Тел: " .. phone_cp .. ")", 0x00FF90)
             end
         end)
     end
     -- АВТО-ОТЫГРОВКИ ОТ СОБЫТИЙ СЕРВЕРА (модуль auto_rp)
-    -- Отключены во время обзвона чтобы не плодить потоки с sampSendChat
+    -- Отключены во время обзвона чтобы не плодить сообщения
     if isModuleEnabled("auto_rp") and not call_worker_running then
-        local lower = text:lower()
-        -- Входящий звонок: сервер пишет "Вам звонит" или "Входящий вызов"
-        if rp_phone_enabled[0] and (lower:find("вам звонит") or lower:find("входящий вызов") or lower:find("входящий звонок")) then
-            lua_thread.create(function()
-                wait(200)
-                sampSendChat("/me достал мобильный телефон из кармана")
-                wait(600)
-                sampSendChat("/me посмотрел на экран телефона, увидел входящий вызов")
-                wait(400)
-                sampSendChat("/do Телефон в руке, экран подсвечен входящим вызовом")
-            end)
+        local lower = cp1251_lower(text)
+        local now_t = os.clock()
+        local function canTriggerRpEvent(key)
+            if rp_event_cooldowns[key] and (now_t - rp_event_cooldowns[key]) < 3.0 then
+                return false
+            end
+            rp_event_cooldowns[key] = now_t
+            return true
         end
-        -- Звонок завершён / сброшен
-        if rp_phone_enabled[0] and (lower:find("звонок завершен") or lower:find("звонок завершён") or lower:find("вы сбросили") or lower:find("разговор окончен") or lower:find("собеседник сбросил")) then
-            lua_thread.create(function()
-                wait(200)
-                sampSendChat("/me нажал кнопку сброса на телефоне")
-                wait(500)
-                sampSendChat("/me убрал мобильный телефон в карман")
-            end)
-        end
-        -- SMS пришло
-        if rp_phone_enabled[0] and (lower:find("sms:") or lower:find("смс:") or lower:find("вам пришло сообщение") or lower:find("новое сообщение")) then
-            lua_thread.create(function()
-                wait(300)
-                sampSendChat("/me достал мобильный телефон из кармана")
-                wait(500)
-                sampSendChat("/me прочитал сообщение на экране телефона")
-                wait(800)
-                sampSendChat("/me убрал мобильный телефон в карман")
-            end)
-        end
-        -- Игрок сел в машину (через проверку isCharInAnyCar — делается в потоке, не здесь)
-        -- Игрок арестован / посажен в КПЗ
-        if rp_heal_enabled[0] and (lower:find("вы арестованы") or lower:find("посажен в кпз") or lower:find("отправлен в камеру")) then
-            lua_thread.create(function()
-                wait(500)
-                sampSendChat("/me опустил голову, принимая своё положение")
-                wait(600)
-                sampSendChat("/do Выражение лица — подавленное")
-            end)
-        end
-        -- Игрок вылечен
-        if rp_heal_enabled[0] and (lower:find("вы вылечены") or lower:find("здоровие восстановлено") or lower:find("здоровье восстановлено")) then
-            lua_thread.create(function()
-                wait(300)
-                sampSendChat("/me облегчённо выдохнул, почувствовав облегчение")
-                wait(400)
-                sampSendChat("/do Самочувствие улучшилось")
-            end)
+
+        if rp_phone_enabled[0] and (lower:find("вам звонит", 1, true) or lower:find("входящий вызов", 1, true) or lower:find("входящий звонок", 1, true)) then
+            if canTriggerRpEvent("incoming_call") then
+                sendChatSequence({
+                    { delay_ms = 200, msg = "/me " .. rpVerb("достал", "достала") .. " мобильный телефон из кармана" },
+                    { delay_ms = 600, msg = "/me " .. rpVerb("посмотрел", "посмотрела") .. " на экран телефона, " .. rpVerb("увидел", "увидела") .. " входящий вызов" },
+                    { delay_ms = 400, msg = "/do Телефон в руке, экран подсвечен входящим вызовом" },
+                })
+            end
+        elseif rp_phone_enabled[0] and (lower:find("звонок завершен", 1, true) or lower:find("звонок завершён", 1, true) or lower:find("вы сбросили", 1, true) or lower:find("разговор окончен", 1, true) or lower:find("собеседник сбросил", 1, true)) then
+            if canTriggerRpEvent("call_end") then
+                sendChatSequence({
+                    { delay_ms = 200, msg = "/me " .. rpVerb("нажал", "нажала") .. " кнопку сброса на телефоне" },
+                    { delay_ms = 500, msg = "/me " .. rpVerb("убрал", "убрала") .. " мобильный телефон в карман" },
+                })
+            end
+        elseif rp_phone_enabled[0] and (lower:find("sms:", 1, true) or lower:find("смс:", 1, true) or lower:find("вам пришло сообщение", 1, true) or lower:find("новое сообщение", 1, true)) then
+            if canTriggerRpEvent("sms_recv") then
+                sendChatSequence({
+                    { delay_ms = 300, msg = "/me " .. rpVerb("достал", "достала") .. " мобильный телефон из кармана" },
+                    { delay_ms = 500, msg = "/me " .. rpVerb("прочитал", "прочитала") .. " сообщение на экране телефона" },
+                    { delay_ms = 800, msg = "/me " .. rpVerb("убрал", "убрала") .. " мобильный телефон в карман" },
+                })
+            end
+        elseif rp_heal_enabled[0] and (lower:find("вы арестованы", 1, true) or lower:find("посажен в кпз", 1, true) or lower:find("отправлен в камеру", 1, true)) then
+            if canTriggerRpEvent("arrested") then
+                sendChatSequence({
+                    { delay_ms = 500, msg = "/me " .. rpVerb("опустил", "опустила") .. " голову, принимая своё положение" },
+                    { delay_ms = 600, msg = "/do Выражение лица — подавленное" },
+                })
+            end
+        elseif rp_heal_enabled[0] and (lower:find("вы вылечены", 1, true) or lower:find("здоровие восстановлено", 1, true) or lower:find("здоровье восстановлено", 1, true)) then
+            if canTriggerRpEvent("healed") then
+                sendChatSequence({
+                    { delay_ms = 300, msg = "/me облегчённо " .. rpVerb("выдохнул", "выдохнула") .. ", почувствовав облегчение" },
+                    { delay_ms = 400, msg = "/do Самочувствие улучшилось" },
+                })
+            end
         end
     end
 
-    -- Эфир-статистика: подсчёт SMS, звонков, строк эфира
+    -- Лифт занят — сбрасываем ожидание
+    if tvlift_active and text:find("Лифт занят", 1, true) then
+        tvlift_active = false
+        tvlift_target_item = nil
+    end
+
+    -- Эфир-статистика: подсчёт SMS и входящих звонков (строки /t /u считаются в onSendCommand)
     if efir_active then
-        if text:find("SMS") or text:find("смс") or text:find("СМС") then
+        local elower = cp1251_lower(text)
+        if elower:find("sms", 1, true) or elower:find("смс", 1, true) then
             efir_stats.sms = efir_stats.sms + 1
         end
-        if text:find("звон") or text:find("Звон") or text:find("вызов") or text:find("Вызов") then
+        if elower:find("звонит в студию", 1, true) or elower:find("дозвонился", 1, true)
+            or elower:find("входящий звонок", 1, true) or elower:find("входящий вызов", 1, true)
+            or elower:find("вам звонит", 1, true) then
             efir_stats.calls = efir_stats.calls + 1
-            -- Авто-ответ на звонок
             if auto_answer_enabled[0] then
                 local answer = decodeUtf8Safe(ffi.string(auto_answer_text))
-                if answer ~= "" then
-                    lua_thread.create(function()
-                        wait(500)
-                        sampSendChat("/t " .. answer)
+                local ans_lower = cp1251_lower(answer)
+                local now_aa = os.clock()
+                if answer ~= "" and not elower:find(ans_lower, 1, true) and (now_aa - auto_answer_last_time) >= 8.0 then
+                    auto_answer_last_time = now_aa
+                    scheduleTask(500, function()
+                        if isSampAvailable() then
+                            sampSendChat("/t " .. answer)
+                        end
                     end)
                 end
             end
         end
-        -- Подсчёт строк эфира (сообщения с /t или /u)
-        efir_stats.lines = efir_stats.lines + 1
     end
 end
 
@@ -7110,19 +6570,32 @@ function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
             return false
         end
     end
+    -- Перехват диалога лифта ТВ-башни (/tvlf)
+    if tvlift_active and tvlift_target_item ~= nil and title:find("Лифт") then
+        local item_idx = tvlift_target_item
+        tvlift_active = false
+        tvlift_target_item = nil
+        sampSendDialogResponse(dialogId, 1, item_idx, -1)
+        return false
+    end
+
     -- Перехват /find: поиск сотрудников
     if title:find("Поиск") or title:find("поиск") or title:find("Сотрудники") then
         find_list = {}
         local i = 0
         for line in string.gmatch(text, "[^\n]+") do
-            local nick, id, rang, podr, phone = line:match("(%d+)%..-(.-)%[(%d+)%].-(%d+)%s*ранг%s*(.-)%s+(%d+)")
+            local clean_line = line:gsub("{%x+}", "")
+            local nick, id, rang, podr, phone = clean_line:match("^%s*%d+%.%s*(.-)%[(%d+)%].-(%d+)%s*[Рр]анг%s*(.-)%s+(%d+)")
+            if not nick then
+                nick, id, rang, podr, phone = clean_line:match("([A-Za-z0-9_]+)%[(%d+)%].-(%d+)%s*[Рр]анг%s*(.-)%s*(%d*)")
+            end
             if nick then
                 i = i + 1
                 find_list[i] = {
-                    nick = nick:gsub("^%s+",""):gsub("%s+$",""),
-                    id = tonumber(id),
-                    rang = tonumber(rang),
-                    podr = podr or "",
+                    nick = nick:gsub("^%s+", ""):gsub("%s+$", ""),
+                    id = tonumber(id) or 0,
+                    rang = tonumber(rang) or 0,
+                    podr = (podr or ""):gsub("^%s+", ""):gsub("%s+$", ""),
                     phone = phone or ""
                 }
             end
@@ -7303,8 +6776,14 @@ local has_bit, bit = pcall(require, 'bit')
 -- LIGHT_FRONT_RIGHT = bits 2-3 (0 = OK/светит, 2 = damaged/не светит)
 -- LIGHT_REAR_RIGHT  = bits 4-5
 -- LIGHT_REAR_LEFT   = bits 6-7
+local function isAutomobileVehicle(car)
+    local ok, model = pcall(getCarModel, car)
+    if not ok or not model then return false end
+    return not (isThisModelABike(model) or isThisModelABoat(model) or isThisModelAHeli(model) or isThisModelAPlane(model) or isThisModelATrain(model))
+end
+
 function setLightState(car, leftOn, rightOn)
-    if not has_memory or not has_bit then
+    if not has_memory or not has_bit or not isAutomobileVehicle(car) then
         setCarLightsOn(car, leftOn or rightOn)
         return
     end
@@ -7313,27 +6792,21 @@ function setLightState(car, leftOn, rightOn)
         setCarLightsOn(car, leftOn or rightOn)
         return
     end
-    -- Адрес m_nLightsStatus: carPtr + 0x5A0 + 0x10 = carPtr + 0x5B0
     local lightAddr = carPtr + 0x5B0
-    -- Читаем текущее состояние (4 байта, true = virtual protect)
     local lightVal = memory.read(lightAddr, 4, true) or 0
-    -- Сбрасываем биты передних фар (bits 0-3)
     lightVal = bit.band(lightVal, 0xFFFFFFF0)
-    -- Устанавливаем: 2 = DAMSTATE_DAMAGED (не светит)
-    if not leftOn then lightVal = bit.bor(lightVal, 0x02) end   -- bits 0-1 = 2 (front-left damaged)
-    if not rightOn then lightVal = bit.bor(lightVal, 0x08) end  -- bits 2-3 = 2 (front-right damaged)
-    -- Пишем обратно (4 байта, true = virtual protect)
+    if not leftOn then lightVal = bit.bor(lightVal, 0x02) end
+    if not rightOn then lightVal = bit.bor(lightVal, 0x08) end
     if memory then memory.write(lightAddr, lightVal, 4, true) end
 end
 
 -- Восстановить все фары (все целые = 0)
 function restoreAllLights(car)
-    if has_memory and has_bit then
+    if has_memory and has_bit and isAutomobileVehicle(car) then
         local carPtr = getCarPointer(car)
         if carPtr and carPtr ~= 0 then
             local lightAddr = carPtr + 0x5B0
             local lightVal = memory.read(lightAddr, 4, false) or 0
-            -- Сбрасываем все 8 бит (4 фары * 2 бита)
             lightVal = bit.band(lightVal, 0xFFFFFF00)
             if memory then memory.write(lightAddr, lightVal, 4, false) end
             return
@@ -7349,6 +6822,8 @@ function restoreAllLights(car)
 end
 
 function strobeWorker()
+    if strobe_worker_running then return end
+    strobe_worker_running = true
     local step = 1
     local last_car = nil
     local lights_initialized = false
@@ -7390,6 +6865,8 @@ function strobeWorker()
     end
 
     strobe_active = false
+    strobe_enabled[0] = false
+    strobe_worker_running = false
 
     -- Восстанавливаем фары при выходе
     if last_car and doesVehicleExist(last_car) then
@@ -7409,33 +6886,20 @@ function getActiveVehicleSpeed(car)
 end
 
 -- СЛЕЖЕНИЕ ЗА ОРУЖИЕМ
-local engine_debug_done = false
 function isCarEngineOn(car)
     if not has_memory then
-        if not engine_debug_done then
-            sampAddChatMessage("[Helper] ENGINE DEBUG: no memory module", 0xFF0000)
-            engine_debug_done = true
-        end
         return true
     end
     local carPtr = getCarPointer(car)
     if not carPtr or carPtr == 0 then
-        if not engine_debug_done then
-            sampAddChatMessage("[Helper] ENGINE DEBUG: carPtr=nil/0", 0xFF0000)
-            engine_debug_done = true
-        end
         return true
     end
-    -- Try multiple offsets to find the right one
-    local val_428 = memory.read(carPtr + 0x428, 1, true) or -1
-    local val_461 = memory.read(carPtr + 0x461, 1, true) or -1
-    local val_462 = memory.read(carPtr + 0x462, 1, true) or -1
-    if not engine_debug_done then
-        sampAddChatMessage("[Helper] ENGINE DEBUG: carPtr=" .. tostring(carPtr) .. " 0x428=" .. tostring(val_428) .. " 0x461=" .. tostring(val_461) .. " 0x462=" .. tostring(val_462), 0x00FFFF)
-        engine_debug_done = true
+    -- CVehicle + 0x428 (m_nVehicleFlags bit 4 = 0x10 = bEngineOn)
+    local val_428 = memory.read(carPtr + 0x428, 1, false) or 0
+    if has_bit and bit then
+        return bit.band(val_428, 0x10) ~= 0
     end
-    -- Use 0x428 for now
-    return val_428 ~= 0
+    return (math.floor(val_428 / 16) % 2) == 1
 end
 
 function cruiseControlWorker()
@@ -7603,50 +7067,106 @@ function cruiseControlWorker()
     end
 end
 
+local function formatWeaponPutAway(info)
+    if not info then return nil end
+    if info.kind == "pistol" then
+        return "/me " .. rpVerb("поставил", "поставила") .. ' пистолет "' .. info.name .. '" на предохранитель и ' .. rpVerb("убрал", "убрала") .. " в кобуру"
+    elseif info.kind == "sheath" then
+        return "/me " .. rpVerb("убрал", "убрала") .. " " .. info.name .. " в ножны на поясе"
+    elseif info.kind == "belt" then
+        return "/me " .. rpVerb("повесил", "повесила") .. " " .. info.name .. " на пояс"
+    elseif info.kind == "pocket" then
+        return "/me " .. rpVerb("убрал", "убрала") .. " " .. info.name .. " в карман"
+    elseif info.kind == "neck" then
+        return "/me " .. rpVerb("повесил", "повесила") .. " " .. info.name .. " на шею"
+    elseif info.kind == "back" then
+        return "/me " .. rpVerb("убрал", "убрала") .. " " .. info.name .. " за спину"
+    elseif info.kind == "shotgun" then
+        return "/me " .. rpVerb("повесил", "повесила") .. ' дробовик "' .. info.name .. '" на плечо'
+    elseif info.kind == "smg" then
+        return "/me " .. rpVerb("повесил", "повесила") .. ' ПП "' .. info.name .. '" на плечо'
+    else
+        return "/me " .. rpVerb("повесил", "повесила") .. " " .. info.name .. " на плечо"
+    end
+end
+
+local function formatWeaponDraw(info)
+    if not info then return nil end
+    if info.kind == "pistol" then
+        return "/me резким движением " .. rpVerb("выхватил", "выхватила") .. ' пистолет "' .. info.name .. '" из кобуры'
+    elseif info.kind == "sheath" then
+        return "/me " .. rpVerb("вынул", "вынула") .. " " .. info.name .. " из ножен на поясе"
+    elseif info.kind == "belt" then
+        return "/me " .. rpVerb("снял", "сняла") .. " " .. info.name .. " с пояса"
+    elseif info.kind == "pocket" then
+        return "/me " .. rpVerb("достал", "достала") .. " " .. info.name .. " из кармана"
+    elseif info.kind == "neck" then
+        return "/me " .. rpVerb("взял", "взяла") .. " " .. info.name .. " в руки"
+    elseif info.kind == "back" then
+        return "/me " .. rpVerb("достал", "достала") .. " " .. info.name .. " из-за спины"
+    elseif info.kind == "shotgun" then
+        return "/me " .. rpVerb("снял", "сняла") .. ' дробовик "' .. info.name .. '" с плеча'
+    elseif info.kind == "smg" then
+        return "/me " .. rpVerb("снял", "сняла") .. ' ПП "' .. info.name .. '" с плеча и ' .. rpVerb("снял", "сняла") .. " с предохранителя"
+    else
+        return "/me " .. rpVerb("снял", "сняла") .. " " .. info.name .. " с плеча и " .. rpVerb("снял", "сняла") .. " с предохранителя"
+    end
+end
+
 function weaponTrackWorker()
-local current_weapon = getCurrentCharWeapon(PLAYER_PED)
-local weapon_names = {
-[24] = "Desert Eagle",
-[31] = "M4",
-[30] = "AK-47",
-[25] = "Shotgun",
-[29] = "MP5",
-[4] = "нож"
-}
+    local last_announced_weapon = nil
+    local pending_weapon = nil
+    local pending_since = 0
 
-while true do
-wait(200)
-if isModuleEnabled("auto_rp") and rp_weapons_enabled[0] then
-if not sampIsDialogActive() and not sampIsChatInputActive() then
-local new_weapon = getCurrentCharWeapon(PLAYER_PED)
-if new_weapon ~= current_weapon then
-if current_weapon ~= 0 and weapon_names[current_weapon] then
-local weapon_name = weapon_names[current_weapon]
-if current_weapon == 24 then
-sampSendChat("/me поставил пистолет \"" .. weapon_name .. "\" на предохранитель и убрал в кобуру")
-elseif current_weapon == 4 then
-sampSendChat("/me убрал \"" .. weapon_name .. "\" в ножны на поясе")
-else
-sampSendChat("/me повесил автомат \"" .. weapon_name .. "\" на плечо")
-end
-wait(500)
-end
+    while true do
+        wait(100)
+        pcall(function()
+            if not isSampAvailable() or not doesCharExist(PLAYER_PED) then
+                last_announced_weapon = nil
+                pending_weapon = nil
+                rp_current_weapon_id = 0
+                return
+            end
 
-if new_weapon ~= 0 and weapon_names[new_weapon] then
-local weapon_name = weapon_names[new_weapon]
-if new_weapon == 24 then
-sampSendChat("/me резким движением выхватил пистолет \"" .. weapon_name .. "\" из кобуры")
-elseif new_weapon == 4 then
-sampSendChat("/me вынул \"" .. weapon_name .. "\" из ножен на поясе")
-else
-sampSendChat("/me снял автомат \"" .. weapon_name .. "\" с плеча и снял с предохранителя")
-end
-end
-current_weapon = new_weapon
-end
-end
-end
-end
+            local cur_w = getCurrentCharWeapon(PLAYER_PED) or 0
+            rp_current_weapon_id = cur_w
+
+            if last_announced_weapon == nil
+                or not isModuleEnabled("auto_rp")
+                or not rp_weapons_enabled[0]
+                or isCharInAnyCar(PLAYER_PED)
+                or sampIsDialogActive()
+                or sampIsChatInputActive() then
+                last_announced_weapon = cur_w
+                pending_weapon = nil
+                return
+            end
+
+            if cur_w ~= last_announced_weapon then
+                if pending_weapon ~= cur_w then
+                    pending_weapon = cur_w
+                    pending_since = os.clock()
+                elseif (os.clock() - pending_since) >= 0.35 then
+                    local prev_info = weapon_info[last_announced_weapon]
+                    local next_info = weapon_info[cur_w]
+                    local steps = {}
+                    if prev_info then
+                        steps[#steps + 1] = { delay_ms = 0, msg = formatWeaponPutAway(prev_info) }
+                    end
+                    if next_info then
+                        steps[#steps + 1] = { delay_ms = (#steps > 0 and 450 or 0), msg = formatWeaponDraw(next_info) }
+                    end
+                    last_announced_weapon = cur_w
+                    pending_weapon = nil
+                    if #steps > 0 then
+                        sendChatSequence(steps)
+                    end
+                end
+            else
+                pending_weapon = nil
+            end
+        end)
+    end
 end
 
 -- АСИНХРОННЫЙ ОБЗВОН ОНЛАЙН ИГРОКОВ
@@ -7796,7 +7316,7 @@ if i ~= active_module_idx then
 pending_module_idx = i
 module_switch_blank_frames = 2
 if modules[i] and modules[i].id == "mm_editor" then
-mm_ui_page = 0
+mm_ui_page = 1
 mm_pending_ui_page = nil
 mm_ui_last_logged_page = -1
 end
@@ -7903,7 +7423,7 @@ imgui.OnFrame(
         if #list > 0 then
             for i, rp in ipairs(list) do
                 local name = (rp.name and rp.name ~= "") and encodeCp1251Safe(rp.name) or u8"(без названия)"
-                if imgui.Selectable(name, rp_settings.selected == i) then
+                if imgui.Selectable(name .. "##rp_sel_" .. i, rp_settings.selected == i) then
                     rp_settings.selected = i
                 end
             end
@@ -7916,12 +7436,14 @@ imgui.OnFrame(
 
         if #list > 0 and rp_settings.selected <= #list then
             if imgui.Button(u8"Запустить", imgui.ImVec2(120, 30)) then
-                playRp(list[rp_settings.selected].text, false)
+                local rpTxt = list[rp_settings.selected].text
+                queueTask(function() playRp(rpTxt, false) end)
                 rp_show_window[0] = false
             end
             imgui.SameLine()
             if imgui.Button(u8"Тест", imgui.ImVec2(80, 30)) then
-                playRp(list[rp_settings.selected].text, true)
+                local rpTxt = list[rp_settings.selected].text
+                queueTask(function() playRp(rpTxt, true) end)
             end
             imgui.SameLine()
         end
@@ -7982,12 +7504,12 @@ imgui.OnFrame(
         if rp_edit_index > 0 and list[rp_edit_index] then
             imgui.TextUnformatted(u8"Название:")
             imgui.PushItemWidth(-1)
-            imgui.InputText("##rp_name", rp_settings.temp.name, 64)
+            imgui.InputText("##rp_name", rp_settings.temp.name, ffi.sizeof(rp_settings.temp.name))
             imgui.PopItemWidth()
 
             imgui.TextUnformatted(u8"Текст отыгровки:")
             imgui.PushItemWidth(-1)
-            imgui.InputTextMultiline("##rp_text", rp_settings.temp.text, 16384, imgui.ImVec2(0, 200))
+            imgui.InputTextMultiline("##rp_text", rp_settings.temp.text, ffi.sizeof(rp_settings.temp.text), imgui.ImVec2(0, 200))
             imgui.PopItemWidth()
 
             imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.8, 0.5, 1))
@@ -8024,7 +7546,7 @@ imgui.OnFrame(
             imgui.SameLine()
             if imgui.Button(u8"Тест", imgui.ImVec2(80, 30)) then
                 local testText = decodeUtf8Safe(ffi.string(rp_settings.temp.text))
-                playRp(testText, true)
+                queueTask(function() playRp(testText, true) end)
             end
         else
             imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
@@ -8046,14 +7568,14 @@ imgui.OnFrame(
     function() return rp_settings.window.is == 1 end,
     function()
         local display = imgui.GetIO().DisplaySize
-        imgui.SetNextWindowPos(imgui.ImVec2(display.x / 2, display.y / 2), imgui.Cond.Always, imgui.ImVec2(0.5, 0.5))
-        imgui.SetNextWindowSize(imgui.ImVec2(400, 150), imgui.Cond.Always)
-        imgui.Begin(u8"РП-Ввод", nil, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
+        imgui.SetNextWindowPos(imgui.ImVec2(display.x / 2, display.y / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
+        imgui.SetNextWindowSize(imgui.ImVec2(400, 0), imgui.Cond.FirstUseEver)
+        imgui.Begin(u8"РП-Ввод", nil, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.AlwaysAutoResize)
 
         if rp_settings.window.type == 1 then
             imgui.TextUnformatted(u8"Введите текст:")
             imgui.PushItemWidth(-1)
-            if imgui.InputText("##rp_input_w", rp_settings.window.buf, 256, imgui.InputTextFlags.EnterReturnsTrue) then
+            if imgui.InputText("##rp_input_w", rp_settings.window.buf, ffi.sizeof(rp_settings.window.buf), imgui.InputTextFlags.EnterReturnsTrue) then
                 rp_settings.window.is = 2
             end
             imgui.PopItemWidth()
@@ -8064,11 +7586,15 @@ imgui.OnFrame(
         elseif rp_settings.window.type == 2 then
             imgui.TextUnformatted(u8"Выберите вариант:")
             for i, item in ipairs(rp_settings.window.list) do
-                if imgui.Button(encodeCp1251Safe(item), imgui.ImVec2(-1, 0)) then
+                if imgui.Button(encodeCp1251Safe(item) .. "##rp_opt_" .. i, imgui.ImVec2(-1, 0)) then
                     rp_settings.window.select = i
                     rp_settings.window.is = 2
                 end
             end
+        end
+        imgui.Spacing()
+        if imgui.Button(u8"Отмена##rp_input_cancel", imgui.ImVec2(100, 26)) then
+            queueTask(stopRp)
         end
         imgui.End()
     end
@@ -8086,18 +7612,19 @@ imgui.OnFrame(
 
         if #find_list > 0 then
             imgui.Columns(5, nil, false)
-            imgui.SetColumnWidth(0, 30)
-            imgui.CenterColumnText(u8"№")
+            imgui.SetColumnWidth(0, 35)
+            imgui.SetColumnWidth(1, 180)
+            imgui.SetColumnWidth(2, 55)
+            imgui.SetColumnWidth(3, 55)
+            imgui.TextUnformatted(u8"№")
             imgui.NextColumn()
-            imgui.CenterColumnText(u8"Ник")
+            imgui.TextUnformatted(u8"Ник")
             imgui.NextColumn()
-            imgui.SetColumnWidth(0, 50)
-            imgui.CenterColumnText(u8"ID")
+            imgui.TextUnformatted(u8"ID")
             imgui.NextColumn()
-            imgui.SetColumnWidth(0, 50)
-            imgui.CenterColumnText(u8"Ранг")
+            imgui.TextUnformatted(u8"Ранг")
             imgui.NextColumn()
-            imgui.CenterColumnText(u8"Подразделение")
+            imgui.TextUnformatted(u8"Подразделение")
             imgui.NextColumn()
             imgui.Separator()
 
@@ -8198,9 +7725,9 @@ imgui.OnFrame(
     function() return ae_active[0] end,
     function()
         local display = imgui.GetIO().DisplaySize
-        imgui.SetNextWindowSize(imgui.ImVec2(600, 280), imgui.Cond.FirstUseEver)
+        imgui.SetNextWindowSize(imgui.ImVec2(640, 350), imgui.Cond.FirstUseEver)
         imgui.SetNextWindowPos(imgui.ImVec2(display.x / 2, display.y / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
-        imgui.Begin(u8"AutoEdit - Редактор объявления", nil, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
+        imgui.Begin(u8"AutoEdit - Редактор объявления", nil, imgui.WindowFlags.NoCollapse)
 
         imgui.TextUnformatted(u8"Оригинальный текст:")
         imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.7, 0.7, 0.7, 1))
@@ -8218,42 +7745,104 @@ imgui.OnFrame(
         imgui.PopStyleColor()
         imgui.Separator()
 
+        local cur_cp1251 = decodeUtf8Safe(ffi.string(ae_input_buf))
+        local char_len = #cur_cp1251
+        local len_color = char_len > 128 and imgui.ImVec4(1.0, 0.25, 0.25, 1.0)
+            or (char_len > 100 and imgui.ImVec4(1.0, 0.85, 0.2, 1.0) or imgui.ImVec4(0.3, 0.9, 0.4, 1.0))
+
         imgui.TextUnformatted(u8"Редактировать:")
+        imgui.SameLine(490)
+        imgui.PushStyleColor(imgui.Col.Text, len_color)
+        imgui.TextUnformatted(u8"Длина: " .. tostring(char_len) .. " / 128")
+        imgui.PopStyleColor()
+
         imgui.PushItemWidth(-1)
         if ae_focus then imgui.SetKeyboardFocusHere(0) end
         local ae_enter = imgui.InputText("##ae_input", ae_input_buf, ffi.sizeof(ae_input_buf), imgui.InputTextFlags.EnterReturnsTrue)
         ae_focus = false
         imgui.PopItemWidth()
 
+        local cur_buf_utf8 = ffi.string(ae_input_buf)
+        if cur_buf_utf8 ~= ae_last_buf_snapshot then
+            ae_last_buf_snapshot = cur_buf_utf8
+            ae_autosend_deadline = nil
+        end
+
         imgui.Spacing()
         local function aeQuickInsert(phrase)
+            ae_autosend_deadline = nil
             local cur = decodeUtf8Safe(ffi.string(ae_input_buf))
             cur = cur:gsub("%s+$", "")
             if cur ~= "" and not cur:find("%.$") then cur = cur .. "." end
             if cur ~= "" then cur = cur .. " " .. phrase else cur = phrase end
             safeStrCopy(ae_input_buf, encodeCp1251Safe(cur), ffi.sizeof(ae_input_buf))
+            ae_last_buf_snapshot = ffi.string(ae_input_buf)
         end
+        local function aeSetTagPrefix(new_tag)
+            ae_autosend_deadline = nil
+            local cur = decodeUtf8Safe(ffi.string(ae_input_buf))
+            local tm = cur:match("^%s*([A-Za-z%d_%-\168\184\192-\255]+)%s*|%s*")
+            if tm and #tm <= 12 then
+                cur = cur:gsub("^%s*[A-Za-z%d_%-\168\184\192-\255]+%s*|%s*", "", 1)
+            end
+            if new_tag and new_tag ~= "" then
+                cur = new_tag .. " | " .. cur
+            end
+            safeStrCopy(ae_input_buf, encodeCp1251Safe(cur), ffi.sizeof(ae_input_buf))
+            ae_last_buf_snapshot = ffi.string(ae_input_buf)
+        end
+
         if imgui.SmallButton(u8"+ Цена договорная") then aeQuickInsert("Цена договорная") end
         imgui.SameLine()
         if imgui.SmallButton(u8"+ Доплата (моя)") then aeQuickInsert("Доплата с моей стороны") end
         imgui.SameLine()
         if imgui.SmallButton(u8"+ Доплата (ваша)") then aeQuickInsert("Доплата с вашей стороны") end
 
+        for _, tname in ipairs({"LV", "LS", "SF", "TV"}) do
+            if imgui.SmallButton(tname .. "##ae_tag_" .. tname) then
+                aeSetTagPrefix(tname)
+            end
+            imgui.SameLine()
+        end
+        if imgui.SmallButton(u8"Переформ.##ae_reformat") then
+            ae_autosend_deadline = nil
+            local orig_cp = decodeUtf8Safe(ae_original_text)
+            local ok_f, res_f = pcall(formatAdText, orig_cp)
+            local new_cp = ok_f and res_f or orig_cp
+            ae_formatted_text = encodeCp1251Safe(new_cp)
+            safeStrCopy(ae_input_buf, ae_formatted_text, ffi.sizeof(ae_input_buf))
+            ae_last_buf_snapshot = ffi.string(ae_input_buf)
+        end
+
+        local ae_autosend_fire = false
+        if ae_autosend_deadline then
+            local rem = ae_autosend_deadline - os.clock()
+            if rem <= 0 then
+                ae_autosend_fire = true
+            else
+                imgui.Spacing()
+                imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(1.0, 0.85, 0.2, 1.0))
+                imgui.TextUnformatted(string.format(u8"Авто-отправка через %.1f с...", rem))
+                imgui.PopStyleColor()
+                imgui.SameLine()
+                if imgui.SmallButton(u8"Пауза##ae_pause_autosend") then
+                    ae_autosend_deadline = nil
+                end
+            end
+        end
+
         -- Grace period: ignore Enter until the key is released after opening.
-        -- The Enter key from sending /edit in chat may still be held down.
         if ae_ignore_enter > 0 then
             ae_ignore_enter = ae_ignore_enter - 1
             ae_enter = false
         end
-        -- Also track Enter key state: don't send until Enter was released at least once
         local enter_key_down = imgui.GetIO().KeysDown[0x0D]
         if ae_enter_was_down then
             if not enter_key_down then
-                ae_enter_was_down = false  -- Enter released, now allow future presses
+                ae_enter_was_down = false
             end
-            ae_enter = false  -- still holding or just released, ignore
+            ae_enter = false
         end
-        -- Track Esc key: ignore until released after opening
         local esc_key_down = imgui.GetIO().KeysDown[0x1B]
         if ae_esc_was_down then
             if not esc_key_down then
@@ -8263,7 +7852,8 @@ imgui.OnFrame(
 
         imgui.Spacing()
 
-        if ae_enter or imgui.Button(u8"Отправить##send", imgui.ImVec2(120, 30)) then
+        if ae_enter or ae_autosend_fire or imgui.Button(u8"Отправить##send", imgui.ImVec2(120, 30)) then
+            ae_autosend_deadline = nil
             if ae_dialog_id >= 0 then
                 local input_text = decodeUtf8Safe(ffi.string(ae_input_buf))
                 addAdToHistory(input_text)
@@ -8280,25 +7870,25 @@ imgui.OnFrame(
         imgui.SameLine()
 
         if imgui.Button(ORIG_BTN_TEXT, imgui.ImVec2(100, 30)) then
+            ae_autosend_deadline = nil
             if ae_dialog_id >= 0 then
                 local orig_text = decodeUtf8Safe(ae_original_text)
-                -- Strip existing tag prefix, add current tag
-                orig_text = orig_text:gsub("^%s*[A-Za-z%A-Z%d]+%s*|%s*", "")
-                local tag = u8:decode(ffi.string(mm_tag))
+                local tm = orig_text:match("^%s*([A-Za-z%d_%-\168\184\192-\255]+)%s*|%s*")
+                if tm and #tm <= 12 then
+                    orig_text = orig_text:gsub("^%s*[A-Za-z%d_%-\168\184\192-\255]+%s*|%s*", "", 1)
+                end
+                local tag = decodeUtf8Safe(ffi.string(mm_tag))
                 if tag and tag ~= "" then
                     orig_text = tag .. " | " .. orig_text
                 end
-                -- Capitalize first letter after tag
-                local pipe_pos = orig_text:find(" | ")
+                local pipe_pos = orig_text:find(" | ", 1, true)
                 if pipe_pos then
                     local after_pipe = pipe_pos + 3
                     if after_pipe <= #orig_text then
                         orig_text = orig_text:sub(1, after_pipe - 1) .. cp1251_upper(orig_text:sub(after_pipe, after_pipe)) .. orig_text:sub(after_pipe + 1)
                     end
-                else
-                    if #orig_text > 0 then
-                        orig_text = cp1251_upper(orig_text:sub(1, 1)) .. orig_text:sub(2)
-                    end
+                elseif #orig_text > 0 then
+                    orig_text = cp1251_upper(orig_text:sub(1, 1)) .. orig_text:sub(2)
                 end
                 addAdToHistory(orig_text)
                 local dlg_id = ae_dialog_id
@@ -8308,39 +7898,100 @@ imgui.OnFrame(
         end
         imgui.SameLine()
 
-        if imgui.Button(u8"Отклонить (ПРО)", imgui.ImVec2(160, 30)) or (not ae_esc_was_down and imgui.GetIO().KeysDown[0x1B]) then
+        if imgui.Button(u8"Отклонить (ПРО)", imgui.ImVec2(150, 30)) or (not ae_esc_was_down and imgui.GetIO().KeysDown[0x1B]) then
+            ae_autosend_deadline = nil
             if ae_dialog_id >= 0 then
-                local tag = u8:decode(ffi.string(mm_tag))
+                local tag = decodeUtf8Safe(ffi.string(mm_tag))
                 local reject_text = "ПРО"
                 if tag and tag ~= "" then
                     reject_text = tag .. " | ПРО"
                 end
                 safeStrCopy(ae_input_buf, encodeCp1251Safe(reject_text), ffi.sizeof(ae_input_buf))
+                ae_last_buf_snapshot = ffi.string(ae_input_buf)
                 local dlg_id = ae_dialog_id
                 queueTask(function() sampSendDialogResponse(dlg_id, 0, -1, reject_text) end)
             end
             ae_active[0] = false
         end
 
-        
         imgui.SameLine()
 
-        if imgui.Button(u8"История", imgui.ImVec2(100, 30)) then
+        if imgui.Button(u8"История", imgui.ImVec2(90, 30)) then
             ae_show_history[0] = not ae_show_history[0]
         end
 
         if ae_show_history[0] and #ad_history > 0 then
             imgui.Separator()
             imgui.TextUnformatted(u8"Последние объявления:")
+            imgui.BeginChild("##ae_hist_scroll", imgui.ImVec2(0, 120), true)
             for i, h in ipairs(ad_history) do
-                if imgui.Button(encodeCp1251Safe(h:sub(1, 60) .. (h:len() > 60 and "..." or "")), imgui.ImVec2(-1, 0)) then
+                local preview = encodeCp1251Safe(h:sub(1, 60) .. (h:len() > 60 and "..." or ""))
+                if imgui.Button(preview .. "##ad_hist_" .. i, imgui.ImVec2(-1, 0)) then
+                    ae_autosend_deadline = nil
                     safeStrCopy(ae_input_buf, encodeCp1251Safe(h), ffi.sizeof(ae_input_buf))
+                    ae_last_buf_snapshot = ffi.string(ae_input_buf)
                 end
             end
+            imgui.EndChild()
         end
 
-imgui.End()
+        imgui.End()
     end
 )
 
+-- Компактный HUD (перетаскиваемая мини-панель)
+imgui.OnFrame(
+    function() return hud_enabled[0] end,
+    function()
+        local display = imgui.GetIO().DisplaySize
+        imgui.SetNextWindowPos(imgui.ImVec2(display.x - 245, 16), imgui.Cond.FirstUseEver)
+        imgui.Begin("##helper_compact_hud", nil, imgui.WindowFlags.NoTitleBar + imgui.WindowFlags.AlwaysAutoResize + imgui.WindowFlags.NoFocusOnAppearing)
 
+        local fps = math.floor((imgui.GetIO().Framerate or 0) + 0.5)
+        imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.85, 0.95, 1.0, 1.0))
+        imgui.TextUnformatted(u8"Время: " .. hud_cache.time_str .. " | PayDay: " .. encodeCp1251Safe(hud_cache.payday_str))
+        imgui.PopStyleColor()
+        imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.65, 0.75, 0.85, 1.0))
+        imgui.TextUnformatted("FPS: " .. tostring(fps) .. " | Ping: " .. tostring(hud_cache.ping))
+        imgui.PopStyleColor()
+
+        local badges = {}
+        if cruise_active then badges[#badges + 1] = {txt = u8"КРУИЗ", col = imgui.ImVec4(0.2, 0.9, 1.0, 1.0)} end
+        if strobe_active then badges[#badges + 1] = {txt = u8"СТРОБЫ", col = imgui.ImVec4(1.0, 0.8, 0.2, 1.0)} end
+        if aad_active then badges[#badges + 1] = {txt = "AAD", col = imgui.ImVec4(0.3, 1.0, 0.4, 1.0)} end
+        if efir_active then badges[#badges + 1] = {txt = u8"ЭФИР", col = imgui.ImVec4(1.0, 0.4, 0.8, 1.0)} end
+        if call_active then badges[#badges + 1] = {txt = u8"ОБЗВОН", col = imgui.ImVec4(1.0, 0.6, 0.2, 1.0)} end
+        if gnews_active then badges[#badges + 1] = {txt = "GNEWS", col = imgui.ImVec4(0.4, 0.8, 1.0, 1.0)} end
+
+        if #badges > 0 then
+            for idx, b in ipairs(badges) do
+                if idx > 1 then imgui.SameLine() end
+                imgui.PushStyleColor(imgui.Col.Text, b.col)
+                imgui.TextUnformatted("[" .. b.txt .. "]")
+                imgui.PopStyleColor()
+            end
+        end
+
+        imgui.End()
+    end
+)
+
+function onScriptTerminate(script, quitGame)
+    if script ~= thisScript() then return end
+    if settings_dirty then settings_dirty = false; pcall(saveSettings) end
+    if db_dirty then db_dirty = false; pcall(saveDatabase) end
+    if rules_dirty then rules_dirty = false; pcall(saveRules) end
+    if corrections_dirty then corrections_dirty = false; pcall(saveCorrections) end
+    if ad_history_dirty then ad_history_dirty = false; pcall(saveAdHistory) end
+    if rp_settings_dirty then rp_settings_dirty = false; pcall(saveRpSettings) end
+    if blacklist_dirty then blacklist_dirty = false; pcall(saveBlacklist) end
+    pcall(setGameKeyState, 16, 0)
+    pcall(function()
+        if isCharInAnyCar(PLAYER_PED) then
+            local car = storeCarCharIsInNoSave(PLAYER_PED)
+            if car and doesVehicleExist(car) then
+                restoreAllLights(car)
+            end
+        end
+    end)
+end
