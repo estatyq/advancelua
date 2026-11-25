@@ -10801,6 +10801,29 @@ function P5_exitFreeCam()
     end
 end
 
+function P1_getImguiInputState()
+    if type(imgui) ~= "table" or type(imgui.IsInitialized) ~= "function" or not imgui.IsInitialized() then
+        return false, false
+    end
+    if type(imgui.GetRenderer) == "function" then
+        local ok_r, r = pcall(imgui.GetRenderer)
+        if not ok_r or not r or r.lost then
+            return false, false
+        end
+    end
+    if type(imgui.SwitchContext) == "function" then
+        local ok_sw = pcall(imgui.SwitchContext)
+        if not ok_sw then
+            return false, false
+        end
+    end
+    local ok_io, io = pcall(imgui.GetIO)
+    if not ok_io or not io then
+        return false, false
+    end
+    return (io.WantTextInput and true or false), (io.WantCaptureMouse and true or false)
+end
+
 function P5_toggleFreeCam()
     if cam_active then
         P5_exitFreeCam()
@@ -10848,8 +10871,8 @@ function P5_tickFreeCam()
     if not ui_busy and type(sampIsChatInputActive) == "function" and sampIsChatInputActive() then ui_busy = true end
     if not ui_busy and type(sampIsDialogActive) == "function" and sampIsDialogActive() then ui_busy = true end
     if not ui_busy then
-        local io_ok, io = pcall(imgui.GetIO)
-        if io_ok and io and io.WantTextInput then ui_busy = true end
+        local w_txt = P1_getImguiInputState()
+        if w_txt then ui_busy = true end
     end
     if not ui_busy then
         if wasKeyPressed(0x08) and not show_main_window[0] then
@@ -13073,9 +13096,7 @@ end
 
 -- Поток отслеживания диалоговых окон (альтернатива onShowDialog без SAMP.Lua)
 
-while true do
-wait(0)
-local ok_frame, err_frame = pcall(function()
+local function mainFrameTick()
 
 -- Process task queue from UI / callbacks (thread-safe, runs in main game tick)
 local q_count = #task_queue
@@ -13335,9 +13356,7 @@ if target_menu_enabled[0] and not cam_active and not (type(isPauseMenuActive) ==
 end
 
 local frame_paused = (type(isPauseMenuActive) == "function" and isPauseMenuActive())
-local io_ok, frame_io = pcall(imgui.GetIO)
-local want_txt_input = (io_ok and frame_io and frame_io.WantTextInput) and true or false
-local want_mouse_input = (io_ok and frame_io and frame_io.WantCaptureMouse) and true or false
+local want_txt_input, want_mouse_input = P1_getImguiInputState()
 
 -- Быстрое меню на СКМ (или переназначенную клавишу)
 local wheel_vk = getWheelMenuVk()
@@ -13426,7 +13445,11 @@ end
 end
 end
 
-end)
+end
+
+while true do
+wait(0)
+local ok_frame, err_frame = pcall(mainFrameTick)
 if not ok_frame then
     local now_err = os.clock()
     if (now_err - (main_last_err_ts or 0)) >= 5.0 then
