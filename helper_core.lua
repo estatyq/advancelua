@@ -23,8 +23,8 @@ script_description("Universal Helper Platform for Advance RP")
 script_dependencies("SAMP.Lua", "mimgui")
 script_properties("work-in-pause")
 
-local SCRIPT_VERSION = 'v2.6 (26.11.2026)'
-local SCRIPT_VER_NUM = '2.6'
+local SCRIPT_VERSION = 'v2.7 (27.11.2026)'
+local SCRIPT_VER_NUM = '2.7'
 jit.off()
 
 -- ============================================================================
@@ -3713,6 +3713,149 @@ P6.tedit_dismissed = false
 P6.tedit_win_open = imgui.new.bool(true)
 P6.cached_srv_name = ""
 P6.reg_profile_view = ""
+P6.row_active = false
+P6.row_count = imgui.new.int(5)
+P6.row_step_idx = 0
+P6.row_base_pos = nil
+P6.row_base_rot = nil
+P6.row_model = 0
+P6.row_dx = imgui.new.float(3.50)
+P6.row_dy = imgui.new.float(0.00)
+P6.row_dz = imgui.new.float(0.00)
+P6.row_drz = imgui.new.float(0.00)
+P6.row_local_axis = imgui.new.bool(true)
+P6.scene_selected = 1
+P6.scene_plan = {}
+P6.scene_next_idx = 1
+
+P6_scene_presets = {
+    {
+        name = "Блокпост МВД (КПП + барьеры + конусы)",
+        desc = "Контрольно-пропускной пункт для трассы или въезда в город",
+        items = {
+            { model = 967, label = "КПП / будка", dx = 0.0, dy = 0.0, dz = 0.0, drz = 0.0 },
+            { model = 1435, label = "Барьер слева", dx = -4.2, dy = 3.0, dz = 0.0, drz = 0.0 },
+            { model = 1435, label = "Барьер справа", dx = 4.2, dy = 3.0, dz = 0.0, drz = 0.0 },
+            { model = 1228, label = "Ограждение 1", dx = -2.2, dy = -3.2, dz = 0.0, drz = 0.0 },
+            { model = 1228, label = "Ограждение 2", dx = 2.2, dy = -3.2, dz = 0.0, drz = 0.0 },
+            { model = 1238, label = "Конус левый", dx = -1.6, dy = 4.5, dz = 0.0, drz = 0.0 },
+            { model = 1238, label = "Конус правый", dx = 1.6, dy = 4.5, dz = 0.0, drz = 0.0 },
+            { model = 18880, label = "Камера скорости", dx = -4.8, dy = 0.5, dz = 0.0, drz = 90.0 },
+        }
+    },
+    {
+        name = "Полевой госпиталь МЗ (койки + пост врача)",
+        desc = "Медпункт под открытым небом для ЧС и РП-ситуаций",
+        items = {
+            { model = 2165, label = "Стол медпункта", dx = 0.0, dy = 1.5, dz = 0.0, drz = 0.0 },
+            { model = 1771, label = "Койка 1", dx = -3.2, dy = 0.5, dz = 0.0, drz = 90.0 },
+            { model = 1771, label = "Койка 2", dx = 3.2, dy = 0.5, dz = 0.0, drz = -90.0 },
+            { model = 1714, label = "Кресло врача", dx = 0.0, dy = 2.5, dz = 0.0, drz = 180.0 },
+            { model = 19999, label = "Стул пациента", dx = 0.0, dy = 0.2, dz = 0.0, drz = 0.0 },
+            { model = 19121, label = "Столбик-маяк 1", dx = -4.2, dy = -2.2, dz = 0.0, drz = 0.0 },
+            { model = 19121, label = "Столбик-маяк 2", dx = 4.2, dy = -2.2, dz = 0.0, drz = 0.0 },
+            { model = 1231, label = "Двойной фонарь", dx = 0.0, dy = 4.5, dz = 0.0, drz = 0.0 },
+        }
+    },
+    {
+        name = "Сцена концерта / эфира СМИ",
+        desc = "Подиум с акустикой, микрофоном и прожекторами",
+        items = {
+            { model = 19608, label = "Подиум сцены", dx = 0.0, dy = 2.5, dz = 0.0, drz = 0.0 },
+            { model = 3533, label = "Ферма левая", dx = -4.0, dy = 3.2, dz = 0.0, drz = 0.0 },
+            { model = 3533, label = "Ферма правая", dx = 4.0, dy = 3.2, dz = 0.0, drz = 0.0 },
+            { model = 2229, label = "Колонка левая", dx = -3.0, dy = 1.6, dz = 0.2, drz = 15.0 },
+            { model = 2229, label = "Колонка правая", dx = 3.0, dy = 1.6, dz = 0.2, drz = -15.0 },
+            { model = 19611, label = "Стойка микрофона", dx = 0.0, dy = 1.8, dz = 0.4, drz = 0.0 },
+            { model = 18656, label = "Луч белый", dx = -2.2, dy = 3.0, dz = 0.5, drz = 0.0 },
+            { model = 18658, label = "Луч синий", dx = 2.2, dy = 3.0, dz = 0.5, drz = 0.0 },
+        }
+    },
+    {
+        name = "Пресс-конференция Мэрии",
+        desc = "Стол спикера с микрофоном и местами для журналистов",
+        items = {
+            { model = 2165, label = "Трибуна / стол", dx = 0.0, dy = 2.5, dz = 0.0, drz = 180.0 },
+            { model = 3350, label = "Микрофон спикера", dx = 0.0, dy = 2.1, dz = 0.75, drz = 180.0 },
+            { model = 1714, label = "Кресло спикера", dx = 0.0, dy = 3.4, dz = 0.0, drz = 180.0 },
+            { model = 1714, label = "Кресло зама", dx = 1.6, dy = 3.4, dz = 0.0, drz = 180.0 },
+            { model = 19999, label = "Место прессы 1", dx = -1.2, dy = -1.2, dz = 0.0, drz = 0.0 },
+            { model = 19999, label = "Место прессы 2", dx = 1.2, dy = -1.2, dz = 0.0, drz = 0.0 },
+            { model = 1840, label = "Колонка зала", dx = -2.4, dy = 2.4, dz = 0.0, drz = 0.0 },
+        }
+    }
+}
+
+-- Фаза 7 (v2.7): Темы UI, Трекер рынка /price и Патруль МВД /patrol
+P7 = P7 or {}
+P7.theme_names = { "Стандарт", "МВД (Police)", "МЗ (Medic)", "СМИ (News)", "Кибер (Neon)", "Светлая (Day)" }
+P7.theme_idx = imgui.new.int(0)
+P7.window_alpha = imgui.new.float(0.95)
+P7.font_scale = imgui.new.float(1.00)
+P7.style_dirty = false
+
+P7.market_path = getWorkingDirectory() .. "/config/helper_market.json"
+P7.market_enabled = imgui.new.bool(true)
+P7.market_entries = {}
+P7.market_dirty = false
+P7.market_show = imgui.new.bool(false)
+P7.market_search_buf = imgui.new.char[97]("")
+P7.market_kind_filter = imgui.new.int(0)
+P7.market_loaded = false
+
+P7.patrol_active = false
+P7.patrol_start_ts = 0
+P7.patrol_last_report_ts = 0
+P7.patrol_warned_due = false
+P7.patrol_interval_min = imgui.new.int(10)
+P7.patrol_callsign_buf = imgui.new.char[65](u8"А-1")
+P7.patrol_post_buf = imgui.new.char[97](u8"Патруль ЛС")
+P7.patrol_partner_buf = imgui.new.char[97]("")
+P7.patrol_channel_idx = imgui.new.int(0)
+P7.patrol_hud_str = ""
+P7.patrol_show = imgui.new.bool(false)
+P7.patrol_last_zone = ""
+
+P7_sa_zones = {
+    { 1830, -2140, 2190, -1620, "Idlewood" },
+    { 2220, -1850, 2630, -1520, "Ganton" },
+    { 2300, -1520, 2900, -1060, "East Los Santos" },
+    { 1850, -1460, 2120, -1100, "Glen Park" },
+    { 2050, -1450, 2320, -1120, "Jefferson" },
+    { 1300, -1860, 1790, -1420, "Commerce / Мэрия ЛС" },
+    { 1420, -1720, 1620, -1580, "LSPD / Першинг-Сквер" },
+    { 800,  -1580, 1380, -1100, "Market / Больница ЛС" },
+    { 900,  -1100, 1700, -580,  "Vinewood" },
+    { 1100, -900,  1600, -600,  "Mulholland" },
+    { 260,  -1650, 780,  -1150, "Rodeo" },
+    { 150,  -2150, 750,  -1650, "Santa Maria Beach" },
+    { 750,  -2150, 1280, -1650, "Verona Beach" },
+    { 1250, -2750, 2220, -2150, "Los Santos Airport" },
+    { 2200, -2750, 2950, -2150, "Ocean Docks LS" },
+    { -300, -300,  450,  220,   "Blueberry" },
+    { 500,  -650,  920,  -350,  "Dillimore" },
+    { 2100, -250,  2650, 280,   "Palomino Creek" },
+    { 1100, 100,   1600, 520,   "Montgomery" },
+    { -2350,-2650,-1920,-2150,  "Angel Pine" },
+    { -2350, 100, -1850, 550,   "Doherty" },
+    { -2550,-320, -2050, 100,   "Garcia / Hashbury" },
+    { -2000, 400, -1480, 1150,  "Downtown SF / Financial" },
+    { -1780, 550, -1480, 820,   "SFPD" },
+    { -2450, 550, -2050, 950,   "Queens / Chinatown SF" },
+    { -2850, 800, -2300, 1450,  "Palisades / Juniper Hollow" },
+    { -2950,-250, -2450, 450,   "Ocean Flats SF" },
+    { -1750,-750, -1000, 400,   "Easter Basin / SF Airport" },
+    { 1950, 900,  2450, 2350,   "The Strip LV" },
+    { 2150, 2250, 2550, 2600,   "LVPD / Old Venturas" },
+    { 1250, 1800, 1950, 2550,   "Redsands East / West" },
+    { 1950, 2350, 2650, 2850,   "Roca Escalante / Creek" },
+    { 1200, 1150, 1800, 1850,   "Las Venturas Airport" },
+    { -350, 1000, 100,  1320,   "Fort Carson" },
+    { -1650,2450,-1250, 2800,   "El Quebrados" },
+    { -2650,2150,-2150, 2650,   "Bayside" },
+    { -450, 2100, 50,   2550,   "Las Payasadas" },
+    { -100, 1650, 450,  2120,   "Area 51 (Bone County)" },
+}
 P6.reg_clear_confirm = false
 P6.manual_x = imgui.new.float(0.0)
 P6.manual_y = imgui.new.float(0.0)
@@ -4286,7 +4429,34 @@ end
 if type(parsed.loc_recents) == "table" then
     P6_loc_recents = P6_sanitizeIdArray(parsed.loc_recents, 30)
 end
+if type(parsed.ui_theme) == "number" and parsed.ui_theme == parsed.ui_theme then
+    P7.theme_idx[0] = math.max(0, math.min(5, math.floor(parsed.ui_theme)))
+end
+if type(parsed.ui_alpha) == "number" and parsed.ui_alpha == parsed.ui_alpha then
+    P7.window_alpha[0] = math.max(0.65, math.min(1.00, parsed.ui_alpha))
+end
+if type(parsed.ui_font_scale) == "number" and parsed.ui_font_scale == parsed.ui_font_scale then
+    P7.font_scale[0] = math.max(0.85, math.min(1.35, parsed.ui_font_scale))
+end
+P7.style_dirty = true
+if type(parsed.market_enabled) == "boolean" then P7.market_enabled[0] = parsed.market_enabled end
+if type(parsed.patrol_interval_min) == "number" and parsed.patrol_interval_min == parsed.patrol_interval_min then
+    P7.patrol_interval_min[0] = math.max(1, math.min(60, math.floor(parsed.patrol_interval_min)))
+end
+if type(parsed.patrol_channel_idx) == "number" and parsed.patrol_channel_idx == parsed.patrol_channel_idx then
+    P7.patrol_channel_idx[0] = math.max(0, math.min(2, math.floor(parsed.patrol_channel_idx)))
+end
+if type(parsed.patrol_callsign) == "string" and parsed.patrol_callsign ~= "" then
+    safeStrCopy(P7.patrol_callsign_buf, encodeCp1251Safe(parsed.patrol_callsign), ffi.sizeof(P7.patrol_callsign_buf))
+end
+if type(parsed.patrol_post) == "string" and parsed.patrol_post ~= "" then
+    safeStrCopy(P7.patrol_post_buf, encodeCp1251Safe(parsed.patrol_post), ffi.sizeof(P7.patrol_post_buf))
+end
+if type(parsed.patrol_partner) == "string" then
+    safeStrCopy(P7.patrol_partner_buf, encodeCp1251Safe(parsed.patrol_partner), ffi.sizeof(P7.patrol_partner_buf))
+end
 pcall(P6_loadLocations)
+if type(P7_loadMarket) == "function" then pcall(P7_loadMarket) end
 if type(parsed.keybinds) == "table" then
 keybinds = {}
 for _, kb in ipairs(parsed.keybinds) do
@@ -4500,6 +4670,15 @@ loc_cache_previews = loc_cache_previews[0],
 loc_cat_page = P6.cat_page or 1,
 loc_favorites = P6_loc_favorites,
 loc_recents = P6_loc_recents,
+ui_theme = P7.theme_idx[0],
+ui_alpha = P7.window_alpha[0],
+ui_font_scale = P7.font_scale[0],
+market_enabled = P7.market_enabled[0],
+patrol_interval_min = P7.patrol_interval_min[0],
+patrol_channel_idx = P7.patrol_channel_idx[0],
+patrol_callsign = decodeUtf8Safe(ffi.string(P7.patrol_callsign_buf)),
+patrol_post = decodeUtf8Safe(ffi.string(P7.patrol_post_buf)),
+patrol_partner = decodeUtf8Safe(ffi.string(P7.patrol_partner_buf)),
 keybinds = kb,
 module_states = module_states
 }
@@ -7702,28 +7881,37 @@ imgui.PopStyleColor()
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(1.0, 0.65, 0.2, 1.0))
 imgui.TextUnformatted(u8"(только для скринов/осмотра, соблюдайте правила сервера!)")
 imgui.PopStyleColor()
-if imgui.Checkbox(u8"Разрешить свободную камеру (/cam)", cam_feature_enabled) then
+if imgui.Checkbox(u8"Разрешить свободную камеру (/cam)##p5_cam_en", cam_feature_enabled) then
     if not cam_feature_enabled[0] and cam_active then
         queueTask(P5_exitFreeCam)
     end
     requestSaveSettings()
 end
 imgui.PushItemWidth(200)
-if imgui.SliderFloat(u8"Скорость полёта", cam_speed, 0.1, 3.0, "%.2f") then
+if imgui.SliderFloat(u8"Скорость полёта##p5_cam_spd", cam_speed, 0.1, 3.0, "%.2f") then
     requestSaveSettings()
 end
 imgui.PopItemWidth()
-if imgui.Button(u8"Вкл/Выкл /cam##p5_cam_toggle", imgui.ImVec2(145, 26)) then
+if imgui.Button(u8"Вкл/Выкл полёт (/cam)##p5_cam_toggle", imgui.ImVec2(185, 26)) then
+    if not cam_active then
+        cam_feature_enabled[0] = true
+        requestSaveSettings()
+        show_main_window[0] = false
+    end
     queueTask(P5_toggleFreeCam)
 end
 imgui.SameLine()
 if cam_active then
     imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.3, 1.0, 0.4, 1.0))
-    imgui.TextUnformatted(u8"Статус: АКТИВНА")
+    imgui.TextUnformatted(u8"Статус: ПОЛЁТ АКТИВЕН")
+    imgui.PopStyleColor()
+elseif cam_feature_enabled[0] then
+    imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.35, 0.85, 1.0, 1.0))
+    imgui.TextUnformatted(u8"Статус: разрешена (нажмите кнопку или введите /cam)")
     imgui.PopStyleColor()
 else
     imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.6, 0.6, 0.6, 1.0))
-    imgui.TextUnformatted(u8"Статус: выкл")
+    imgui.TextUnformatted(u8"Статус: выкл (по умолчанию)")
     imgui.PopStyleColor()
 end
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.55, 0.55, 0.55, 1.0))
@@ -8556,6 +8744,43 @@ drawSettings = function()
         imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.55, 0.55, 0.55, 1))
         imgui.TextUnformatted(u8"-> Делит текст по словам с «...», сохраняя команду и тег рации (до 4 частей)")
         imgui.PopStyleColor()
+
+        imgui.Spacing()
+        imgui.Separator()
+        imgui.Spacing()
+        imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.35, 0.9, 1.0, 1))
+        imgui.TextUnformatted(u8"Внешний вид меню (Темы и масштаб) + Трекер рынка (/price):")
+        imgui.PopStyleColor()
+        local th_items = u8"Стандарт (Тёмная)" .. "\0" .. u8"МВД (Синяя)" .. "\0" .. u8"МЗ (Красная)" .. "\0" .. u8"СМИ (Бирюза)" .. "\0" .. u8"Кибер (Неон)" .. "\0" .. u8"Светлая (День)" .. "\0"
+        imgui.PushItemWidth(200)
+        if imgui.ComboStr(u8"Тема интерфейса##p7_qol_theme", P7.theme_idx, th_items) then
+            P7.style_dirty = true
+            requestSaveSettings()
+        end
+        if imgui.SliderFloat(u8"Прозрачность фона##p7_alpha", P7.window_alpha, 0.65, 1.00, "%.2f") then
+            P7.style_dirty = true
+            requestSaveSettings()
+        end
+        if imgui.SliderFloat(u8"Масштаб шрифта UI##p7_scale", P7.font_scale, 0.85, 1.35, "%.2f") then
+            P7.style_dirty = true
+            requestSaveSettings()
+        end
+        imgui.PopItemWidth()
+        imgui.SameLine()
+        if imgui.SmallButton(u8"Сброс стиля##p7_rst_style") then
+            P7.theme_idx[0] = 0
+            P7.window_alpha[0] = 0.95
+            P7.font_scale[0] = 1.00
+            P7.style_dirty = true
+            requestSaveSettings()
+        end
+        if imgui.Checkbox(u8"Трекер цен рынка (парсить /ad в фоне, /price)", P7.market_enabled) then
+            requestSaveSettings()
+        end
+        imgui.SameLine()
+        if imgui.Button(u8"Открыть /price##p7_open_price", imgui.ImVec2(140, 22)) then
+            P7.market_show[0] = not P7.market_show[0]
+        end
     end
 end,
 onToggle = function(state) end
@@ -8924,6 +9149,7 @@ function exportAllConfig()
         codex = P4_codex or {},
         locations = P6_loc_registry or {},
         location_favorites = P6_loc_favorites or {},
+        market_entries = P7.market_entries or {},
     }
     local ok, err = writeJsonAtomic(export_path, bundle)
     if ok then
@@ -9093,6 +9319,11 @@ function importAllConfig()
     elseif imported_loc ~= nil and type(P6_saveLocations) == "function" then
         pcall(P6_saveLocations)
     end
+    if type(bundle.market_entries) == "table" and type(P7_sanitizeMarketList) == "function" then
+        P7.market_entries = P7_sanitizeMarketList(P5_cleanImportValue(bundle.market_entries, 0))
+        if type(P7_saveMarket) == "function" then pcall(P7_saveMarket) end
+    end
+    P7.style_dirty = true
     if saved_module_states then
         for _, mod in ipairs(modules) do
             if saved_module_states[mod.id] ~= nil then
@@ -10390,11 +10621,13 @@ function P4_resetEcpForm()
 end
 
 function P4_drawFactionUI()
-    if imgui.Button(u8"МВД: /suw и УК/АК##p4_tab1", imgui.ImVec2(165, 24)) then p4_ui_page = 1 end
+    if imgui.Button(u8"МВД: /suw##p4_tab1", imgui.ImVec2(125, 24)) then p4_ui_page = 1 end
     imgui.SameLine()
-    if imgui.Button(u8"МЗ: /medui и ЕЦП##p4_tab2", imgui.ImVec2(165, 24)) then p4_ui_page = 2 end
+    if imgui.Button(u8"МЗ: /medui##p4_tab2", imgui.ImVec2(125, 24)) then p4_ui_page = 2 end
     imgui.SameLine()
-    if imgui.Button(u8"Damage Informer##p4_tab3", imgui.ImVec2(165, 24)) then p4_ui_page = 3 end
+    if imgui.Button(u8"Damage##p4_tab3", imgui.ImVec2(120, 24)) then p4_ui_page = 3 end
+    imgui.SameLine()
+    if imgui.Button(u8"Патруль /patrol##p4_tab4", imgui.ImVec2(140, 24)) then p4_ui_page = 4 end
     imgui.Separator()
     imgui.Spacing()
 
@@ -10654,7 +10887,7 @@ function P4_drawFactionUI()
         end
         imgui.EndChild()
 
-    else
+    elseif p4_ui_page == 3 then
         if imgui.Checkbox(u8"Включить локальный Damage Informer (выключен по умолчанию)", dmg_enabled) then
             requestSaveSettings()
         end
@@ -10688,6 +10921,10 @@ function P4_drawFactionUI()
             end
         end
         imgui.EndChild()
+    elseif p4_ui_page == 4 then
+        if type(P7_drawPatrolUI) == "function" then
+            P7_drawPatrolUI()
+        end
     end
 
     if p4_status_msg ~= "" then
@@ -10697,6 +10934,495 @@ function P4_drawFactionUI()
         imgui.PopStyleColor()
     end
 end
+-- ==========================================
+-- ФАЗА 7 (v2.7): Трекер цен /price и Патруль-ассистент /patrol
+-- ==========================================
+function P7_sanitizeMarketList(raw_list)
+    local out = {}
+    if type(raw_list) ~= "table" then return out end
+    for _, e in ipairs(raw_list) do
+        if type(e) == "table" and type(e.item) == "string" and type(e.price) == "number"
+            and e.price >= 100 and e.price <= 2000000000 and e.price == e.price then
+            out[#out + 1] = {
+                item = e.item:sub(1, 96):gsub("%z", ""),
+                price = math.floor(e.price),
+                kind = (e.kind == "buy" or e.kind == "sell" or e.kind == "trade") and e.kind or "other",
+                seller = type(e.seller) == "string" and e.seller:sub(1, 32):gsub("%z", "") or "",
+                phone = type(e.phone) == "string" and e.phone:sub(1, 16):gsub("%z", "") or "",
+                ts = tonumber(e.ts) or 0,
+                raw = type(e.raw) == "string" and e.raw:sub(1, 140):gsub("%z", "") or ""
+            }
+            if #out >= 250 then break end
+        end
+    end
+    return out
+end
+
+function P7_loadMarket()
+    P7.market_loaded = true
+    local parsed = readJsonFile(P7.market_path)
+    if type(parsed) == "table" then
+        P7.market_entries = P7_sanitizeMarketList(parsed)
+    end
+end
+
+function P7_saveMarket()
+    local cfg_dir = getWorkingDirectory() .. "/config"
+    if type(doesDirectoryExist) == "function" and not doesDirectoryExist(cfg_dir) then
+        createDirectory(cfg_dir)
+    end
+    writeJsonAtomic(P7.market_path, P7.market_entries or {})
+end
+
+function P7_stripAdTail(txt)
+    if type(txt) ~= "string" then return "" end
+    local s = txt:gsub("{%x+}", "")
+    s = s:gsub("^[Оо]бъявление:%s*", "")
+    s = s:gsub("[Оо]тправил.*$", "")
+    s = s:gsub("[Оо]тправитель.*$", "")
+    s = s:gsub("[Оо]тредактировал.*$", "")
+    s = s:gsub("[Рр]едактор.*$", "")
+    s = s:gsub("%(тел%.?%s*%d+%)", "")
+    s = s:gsub("%[т%.?%s*%d+%]", "")
+    s = s:gsub("%[%d+%]", "")
+    s = s:gsub("^%s+", ""):gsub("%s+$", "")
+    return s
+end
+
+function P7_parsePriceNumber(num_raw, mult)
+    if type(num_raw) ~= "string" or num_raw == "" then return nil end
+    local norm = num_raw:gsub("%s+", "")
+    local val = nil
+    if mult and mult > 1 then
+        if norm:match("^%d+[.,]%d%d%d$") then
+            norm = norm:gsub("[.,]", "")
+        else
+            norm = norm:gsub(",", ".")
+            local dot_cnt = 0
+            for _ in norm:gmatch("%.") do dot_cnt = dot_cnt + 1 end
+            if dot_cnt > 1 then norm = norm:gsub("%.", "") end
+        end
+        local n = tonumber(norm)
+        if n then val = math.floor(n * mult + 0.5) end
+    else
+        norm = norm:gsub("[.,]", "")
+        val = tonumber(norm)
+        if val then val = math.floor(val) end
+    end
+    if not val or val ~= val or val < 100 or val > 2000000000 then
+        return nil
+    end
+    return val
+end
+
+function P7_parseMarketPrice(body_cp, body_lower)
+    local low = body_lower or cp1251_lower(body_cp or "")
+    local s = low:gsub("%s+", " ")
+    -- 1. Multipliers: kk / кк / млн / млрд
+    local n_mlrd = s:match("(%d+[.,]?%d*)%s*млрд")
+    if n_mlrd then
+        local v = P7_parsePriceNumber(n_mlrd, 1000000000)
+        if v then return v end
+    end
+    local n_kk = s:match("(%d+[.,]?%d*)%s*кк") or s:match("(%d+[.,]?%d*)%s*kk") or s:match("(%d+[.,]?%d*)%s*млн")
+    if n_kk then
+        local v = P7_parsePriceNumber(n_kk, 1000000)
+        if v then return v end
+    end
+    -- 2. Thousands: к / k / тыс (require non-letter boundary after suffix)
+    for num_str, suf in s:gmatch("(%d+[.,]?%d*)%s*([кk]+)") do
+        if #suf == 1 then
+            local v = P7_parsePriceNumber(num_str, 1000)
+            if v then return v end
+        end
+    end
+    local n_tys = s:match("(%d+[.,]?%d*)%s*тыс")
+    if n_tys then
+        local v = P7_parsePriceNumber(n_tys, 1000)
+        if v then return v end
+    end
+    -- 3. Explicit currency $ (suffix or prefix, with thousands dots/spaces/commas)
+    for num_str in s:gmatch("(%d[%d%., ]*)%s*%$") do
+        local v = P7_parsePriceNumber(num_str, 1)
+        if v then return v end
+    end
+    for num_str in s:gmatch("%$%s*(%d[%d%., ]*)") do
+        local v = P7_parsePriceNumber(num_str, 1)
+        if v then return v end
+    end
+    -- 4. Skip non-numeric "договорная / свободный" without currency numbers
+    if s:find("договор", 1, true) or s:find("свободн", 1, true) then
+        return nil
+    end
+    -- 5. Keyword fallback: "цена: 450000" / "бюджет: 1.200.000"
+    for _, pat in ipairs({ "цена[:%s]+(%d[%d%., ]+)", "бюджет[:%s]+(%d[%d%., ]+)", "стоимость[:%s]+(%d[%d%., ]+)", "доплата[:%s]+(%d[%d%., ]+)" }) do
+        local m = s:match(pat)
+        if m then
+            local v = P7_parsePriceNumber(m, 1)
+            if v then return v end
+        end
+    end
+    return nil
+end
+
+function P7_parseMarketAd(clean_trimmed, clean_lower, sender, phone)
+    if not P7.market_enabled[0] then return false end
+    if type(clean_trimmed) ~= "string" or clean_trimmed == "" then return false end
+    if not sender or not phone then return false end
+    local body = P7_stripAdTail(clean_trimmed)
+    if body == "" then return false end
+    local body_low = cp1251_lower(body)
+    local price = P7_parseMarketPrice(body, body_low)
+    if not price then return false end
+
+    local kind = "other"
+    if body_low:find("обмен", 1, true) or body_low:find("меня", 1, true) then
+        kind = "trade"
+    elseif body_low:find("продам", 1, true) or body_low:find("продаж", 1, true) or body_low:find("сдам", 1, true) then
+        kind = "sell"
+    elseif body_low:find("куплю", 1, true) or body_low:find("покупк", 1, true) or body_low:find("приобрет", 1, true) or body_low:find("сниму", 1, true) then
+        kind = "buy"
+    end
+
+    local item = body:gsub("|.*$", "")
+    item = item:gsub("[%.!%?%s]*[Цц]ена:.*$", ""):gsub("[%.!%?%s]*[Бб]юджет:.*$", "")
+    item = item:gsub("^%s+", ""):gsub("%s+$", "")
+    if item == "" then item = body end
+    item = item:sub(1, 96)
+
+    local now = os.time()
+    local top = P7.market_entries[1]
+    if top and top.seller == sender and top.raw == body:sub(1, 140) and (now - (top.ts or 0)) < 90 then
+        return false
+    end
+    table.insert(P7.market_entries, 1, {
+        item = item,
+        price = price,
+        kind = kind,
+        seller = tostring(sender):sub(1, 32),
+        phone = tostring(phone):sub(1, 16),
+        ts = now,
+        raw = body:sub(1, 140)
+    })
+    while #P7.market_entries > 250 do
+        table.remove(P7.market_entries)
+    end
+    P7.market_dirty = true
+    return true
+end
+
+function P7_queryMarketStats(query_cp, kind_filter_idx)
+    local q = cp1251_lower((query_cp or ""):gsub("^%s+", ""):gsub("%s+$", ""))
+    local kf = tonumber(kind_filter_idx) or 0
+    local hits = {}
+    local min_p, max_p, sum_p = nil, nil, 0
+    for _, e in ipairs(P7.market_entries or {}) do
+        local kind_ok = (kf == 0)
+            or (kf == 1 and e.kind == "sell")
+            or (kf == 2 and e.kind == "buy")
+            or (kf == 3 and e.kind == "trade")
+        if kind_ok then
+            local hay = cp1251_lower((e.item or "") .. " " .. (e.raw or "") .. " " .. (e.seller or ""))
+            if q == "" or hay:find(q, 1, true) then
+                hits[#hits + 1] = e
+                local p = tonumber(e.price) or 0
+                sum_p = sum_p + p
+                if not min_p or p < min_p then min_p = p end
+                if not max_p or p > max_p then max_p = p end
+            end
+        end
+    end
+    local avg_p = (#hits > 0) and math.floor(sum_p / #hits + 0.5) or 0
+    return hits, (min_p or 0), avg_p, (max_p or 0)
+end
+
+function P7_cmdPrice(arg)
+    local q = (arg or ""):gsub("^%s+", ""):gsub("%s+$", "")
+    if q == "" then
+        P7.market_show[0] = not P7.market_show[0]
+        return
+    end
+    safeStrCopy(P7.market_search_buf, encodeCp1251Safe(q), ffi.sizeof(P7.market_search_buf))
+    P7.market_show[0] = true
+    local hits, min_p, avg_p, max_p = P7_queryMarketStats(q, 0)
+    if not isSampAvailable() then return end
+    if #hits == 0 then
+        sampAddChatMessage("[Рынок] По запросу '" .. q .. "' пока нет записей (всего в базе: " .. #P7.market_entries .. ").", 0xFFAA00)
+        return
+    end
+    sampAddChatMessage(string.format("[Рынок '%s'] Найдено: %d | Мин: %s$ | Средн: %s$ | Макс: %s$", q, #hits, formatNumberWithDots(min_p), formatNumberWithDots(avg_p), formatNumberWithDots(max_p)), 0x00FF90)
+    for i = 1, math.min(3, #hits) do
+        local h = hits[i]
+        local k_lbl = (h.kind == "buy" and "Купля") or (h.kind == "trade" and "Обмен") or (h.kind == "sell" and "Продажа") or "Лот"
+        sampAddChatMessage(string.format("  %d) [%s] %s — %s$ (%s, т.%s)", i, k_lbl, h.item, formatNumberWithDots(h.price), h.seller, h.phone), 0xE2E8F0)
+    end
+end
+
+function P7_drawMarketUI()
+    imgui.Checkbox(u8"Авто-сбор цен из объявлений /ad в чате", P7.market_enabled)
+    if imgui.IsItemDeactivatedAfterEdit() then requestSaveSettings() end
+    imgui.SameLine()
+    if imgui.SmallButton(u8"Очистить базу##p7_mkt_clr") then
+        P7.market_entries = {}
+        P7.market_dirty = true
+    end
+
+    imgui.PushItemWidth(250)
+    imgui.InputText(u8"Поиск (напр. Infernus, дом, скин)##p7_mkt_q", P7.market_search_buf, ffi.sizeof(P7.market_search_buf))
+    imgui.PopItemWidth()
+    imgui.SameLine()
+    imgui.PushItemWidth(130)
+    local k_items = u8"Все типы" .. "\0" .. u8"Продажа" .. "\0" .. u8"Покупка" .. "\0" .. u8"Обмен" .. "\0"
+    imgui.ComboStr("##p7_mkt_kind", P7.market_kind_filter, k_items)
+    imgui.PopItemWidth()
+
+    local q_cp = decodeUtf8Safe(ffi.string(P7.market_search_buf))
+    local hits, min_p, avg_p, max_p = P7_queryMarketStats(q_cp, P7.market_kind_filter[0])
+    if #hits > 0 then
+        imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.35, 1.0, 0.55, 1.0))
+        imgui.TextUnformatted(u8"Найдено: " .. #hits .. u8" | Мин: " .. formatNumberWithDots(min_p) .. u8"$ | Средн: " .. formatNumberWithDots(avg_p) .. u8"$ | Макс: " .. formatNumberWithDots(max_p) .. "$")
+        imgui.PopStyleColor()
+    else
+        imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.75, 0.78, 0.85, 1.0))
+        imgui.TextUnformatted(u8"Записей по фильтру: 0 (всего сохранено: " .. #P7.market_entries .. ")")
+        imgui.PopStyleColor()
+    end
+
+    imgui.Separator()
+    imgui.BeginChild("##p7_mkt_list", imgui.ImVec2(0, -34), true)
+    for i, e in ipairs(hits) do
+        local k_tag = (e.kind == "buy" and "[Куплю]") or (e.kind == "trade" and "[Обмен]") or (e.kind == "sell" and "[Продам]") or "[Лот]"
+        local t_str = (e.ts and e.ts > 0) and os.date("%H:%M", e.ts) or "--:--"
+        imgui.TextUnformatted(u8"[" .. t_str .. "] " .. encodeCp1251Safe(k_tag) .. " " .. encodeCp1251Safe(e.item) .. " — " .. formatNumberWithDots(e.price) .. "$ | " .. encodeCp1251Safe(e.seller) .. " (" .. encodeCp1251Safe(e.phone) .. ")")
+        if imgui.IsItemHovered() and type(e.raw) == "string" and e.raw ~= "" then
+            imgui.BeginTooltip()
+            imgui.PushTextWrapPos(420)
+            imgui.TextUnformatted(encodeCp1251Safe(e.raw))
+            imgui.PopTextWrapPos()
+            imgui.EndTooltip()
+        end
+        if e.phone and e.phone ~= "" then
+            imgui.SameLine()
+            if imgui.SmallButton(u8"Звонок##p7_mc_" .. i) then
+                local ph = e.phone
+                queueTask(function()
+                    if isSampAvailable() then sampSendChat("/c " .. ph) end
+                end)
+            end
+            imgui.SameLine()
+            if imgui.SmallButton("SMS##p7_ms_" .. i) then
+                local ph = e.phone
+                queueTask(function()
+                    if isSampAvailable() then sampSetChatInputEnabled(true); sampSetChatInputText("/sms " .. ph .. " ") end
+                end)
+            end
+        end
+    end
+    imgui.EndChild()
+
+    if imgui.Button(u8"Закрыть##p7_mkt_close", imgui.ImVec2(110, 24)) then
+        P7.market_show[0] = false
+    end
+end
+
+function P7_getSanAndreasZone(x, y)
+    local nx = tonumber(x) or 0.0
+    local ny = tonumber(y) or 0.0
+    local col_idx = math.max(1, math.min(8, math.floor((nx + 3000.0) / 750.0) + 1))
+    local row_idx = math.max(1, math.min(8, math.floor((3000.0 - ny) / 750.0) + 1))
+    local cols = { "A", "B", "C", "D", "E", "F", "G", "H" }
+    local sector = (cols[col_idx] or "A") .. "-" .. tostring(row_idx)
+    for _, z in ipairs(P7_sa_zones) do
+        if nx >= z[1] and nx <= z[3] and ny >= z[2] and ny <= z[4] then
+            return z[5] .. " (" .. sector .. ")"
+        end
+    end
+    if ny < -300 and nx > -100 then
+        return "Лос-Сантос (" .. sector .. ")"
+    elseif nx < -950 and ny > -1100 and ny < 1550 then
+        return "Сан-Фиерро (" .. sector .. ")"
+    elseif nx > 750 and ny > 600 then
+        return "Лас-Вентурас (" .. sector .. ")"
+    end
+    return "Округ SA (" .. sector .. ")"
+end
+
+function P7_patrolChanCmd()
+    local cmds = { [0] = "/r", [1] = "/f", [2] = "/d" }
+    return cmds[P7.patrol_channel_idx[0]] or "/r"
+end
+
+function P7_sendPatrolRadio(msg_cp)
+    local line = (P7_patrolChanCmd() .. " " .. msg_cp):sub(1, 128)
+    queueTask(function()
+        if isSampAvailable() then
+            sampSendChat(line)
+        end
+    end)
+end
+
+function P7_formatPatrolDuration(sec)
+    local s = math.max(0, math.floor(tonumber(sec) or 0))
+    return string.format("%02d:%02d", math.floor(s / 60), s % 60)
+end
+
+function P7_patrolStart()
+    local cs = decodeUtf8Safe(ffi.string(P7.patrol_callsign_buf)):gsub("^%s+", ""):gsub("%s+$", "")
+    if cs == "" then cs = "А-1" end
+    local post = decodeUtf8Safe(ffi.string(P7.patrol_post_buf)):gsub("^%s+", ""):gsub("%s+$", "")
+    if post == "" then post = "Патруль" end
+    local partner = decodeUtf8Safe(ffi.string(P7.patrol_partner_buf)):gsub("^%s+", ""):gsub("%s+$", "")
+    local now = os.time()
+    P7.patrol_active = true
+    P7.patrol_start_ts = now
+    P7.patrol_last_report_ts = now
+    P7.patrol_warned_due = false
+    local p_str = (partner ~= "") and (" | Напарник: " .. partner) or ""
+    P7_sendPatrolRadio("[" .. cs .. "] Заступил на " .. post .. p_str .. ". Состояние: стабильное.")
+end
+
+function P7_patrolReport(status_label)
+    local cs = decodeUtf8Safe(ffi.string(P7.patrol_callsign_buf)):gsub("^%s+", ""):gsub("%s+$", "")
+    if cs == "" then cs = "А-1" end
+    local post = decodeUtf8Safe(ffi.string(P7.patrol_post_buf)):gsub("^%s+", ""):gsub("%s+$", "")
+    if post == "" then post = "Патруль" end
+    local st = (type(status_label) == "string" and status_label ~= "") and status_label or "стабильное"
+    local now = os.time()
+    if not P7.patrol_active then
+        P7.patrol_active = true
+        P7.patrol_start_ts = now
+    end
+    P7.patrol_last_report_ts = now
+    P7.patrol_warned_due = false
+    queueTask(function()
+        if not isSampAvailable() then return end
+        local ok_pos, px, py = pcall(getCharCoordinates, PLAYER_PED)
+        local z_txt = (ok_pos and type(px) == "number") and (" | Район: " .. P7_getSanAndreasZone(px, py)) or ""
+        local line = (P7_patrolChanCmd() .. " [" .. cs .. "] Доклад: " .. post .. z_txt .. ". Состояние: " .. st .. "."):sub(1, 128)
+        sampSendChat(line)
+    end)
+end
+
+function P7_patrolChaseCallout(extra_note)
+    local cs = decodeUtf8Safe(ffi.string(P7.patrol_callsign_buf)):gsub("^%s+", ""):gsub("%s+$", "")
+    if cs == "" then cs = "А-1" end
+    local note = (type(extra_note) == "string" and extra_note ~= "") and (" (" .. extra_note .. ")") or ""
+    queueTask(function()
+        if not isSampAvailable() then return end
+        local ok_pos, px, py = pcall(getCharCoordinates, PLAYER_PED)
+        local z_txt = (ok_pos and type(px) == "number") and P7_getSanAndreasZone(px, py) or "неизвестен"
+        local line = (P7_patrolChanCmd() .. " [" .. cs .. "] Веду погоню" .. note .. "! Район: " .. z_txt .. ". Требуется поддержка!"):sub(1, 128)
+        sampSendChat(line)
+    end)
+end
+
+function P7_patrolStop()
+    local cs = decodeUtf8Safe(ffi.string(P7.patrol_callsign_buf)):gsub("^%s+", ""):gsub("%s+$", "")
+    if cs == "" then cs = "А-1" end
+    local post = decodeUtf8Safe(ffi.string(P7.patrol_post_buf)):gsub("^%s+", ""):gsub("%s+$", "")
+    if post == "" then post = "Патруль" end
+    local dur = P7.patrol_active and P7_formatPatrolDuration(os.time() - (P7.patrol_start_ts or os.time())) or "00:00"
+    P7.patrol_active = false
+    P7.patrol_warned_due = false
+    P7.patrol_hud_str = ""
+    P7_sendPatrolRadio("[" .. cs .. "] Закончил " .. post .. " (время смены: " .. dur .. ").")
+end
+
+function P7_tickPatrol1s()
+    if not P7.patrol_active then
+        P7.patrol_hud_str = ""
+        return
+    end
+    local now = os.time()
+    local elapsed = math.max(0, now - (P7.patrol_last_report_ts or now))
+    local interval_sec = math.max(60, (P7.patrol_interval_min[0] or 10) * 60)
+    local rem = interval_sec - elapsed
+    if rem <= 0 then
+        P7.patrol_hud_str = "ПАТРУЛЬ: ПОРА ДОКЛАД! (" .. P7_formatPatrolDuration(elapsed) .. ")"
+        if not P7.patrol_warned_due then
+            P7.patrol_warned_due = true
+            if sound_enabled[0] then playAlertSound(1057) end
+            if isSampAvailable() then
+                sampAddChatMessage("[Патруль] Пора сделать доклад в рацию! Команда: /patrol rep", 0xFFCC00)
+            end
+        end
+    else
+        P7.patrol_hud_str = "Патруль: доклад через " .. P7_formatPatrolDuration(rem)
+    end
+end
+
+function P7_cmdPatrol(arg)
+    local a = (arg or ""):gsub("^%s+", ""):gsub("%s+$", "")
+    local low = cp1251_lower(a)
+    if low == "" or low == "ui" or low == "menu" then
+        P7.patrol_show[0] = not P7.patrol_show[0]
+    elseif low == "start" or low == "нач" or low == "1" then
+        P7_patrolStart()
+    elseif low == "rep" or low == "доклад" or low == "2" then
+        P7_patrolReport("стабильное")
+    elseif low == "chase" or low == "погоня" or low:sub(1, 6) == "chase " then
+        local extra = (low:sub(1, 6) == "chase ") and a:sub(7) or ""
+        P7_patrolChaseCallout(extra)
+    elseif low == "stop" or low == "конец" or low == "0" then
+        P7_patrolStop()
+    else
+        if isSampAvailable() then
+            sampAddChatMessage("[Helper] /patrol [start|rep|chase [авто]|stop] (без аргументов — панель)", 0x00CCFF)
+        end
+    end
+end
+
+function P7_drawPatrolUI()
+    imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.35, 0.85, 1.0, 1.0))
+    imgui.TextUnformatted(u8"Патруль-ассистент МВД (/patrol) — доклады в рацию, таймер и район погони:")
+    imgui.PopStyleColor()
+    imgui.Spacing()
+
+    imgui.PushItemWidth(120)
+    imgui.InputText(u8"Позывной / экипаж##p7_pat_cs", P7.patrol_callsign_buf, ffi.sizeof(P7.patrol_callsign_buf))
+    if imgui.IsItemDeactivatedAfterEdit() then requestSaveSettings() end
+    imgui.SameLine()
+    local ch_items = "/r" .. "\0" .. "/f" .. "\0" .. "/d" .. "\0"
+    if imgui.ComboStr(u8"Рация##p7_pat_ch", P7.patrol_channel_idx, ch_items) then
+        requestSaveSettings()
+    end
+    imgui.PopItemWidth()
+
+    imgui.PushItemWidth(220)
+    imgui.InputText(u8"Пост / Маршрут##p7_pat_post", P7.patrol_post_buf, ffi.sizeof(P7.patrol_post_buf))
+    if imgui.IsItemDeactivatedAfterEdit() then requestSaveSettings() end
+    imgui.InputText(u8"Напарник (если есть)##p7_pat_part", P7.patrol_partner_buf, ffi.sizeof(P7.patrol_partner_buf))
+    if imgui.IsItemDeactivatedAfterEdit() then requestSaveSettings() end
+    if imgui.SliderInt(u8"Напоминать доклад (мин)##p7_pat_int", P7.patrol_interval_min, 3, 30) then
+        requestSaveSettings()
+    end
+    imgui.PopItemWidth()
+
+    imgui.Spacing()
+    if P7.patrol_active then
+        imgui.PushStyleColor(imgui.Col.Text, P7.patrol_warned_due and imgui.ImVec4(1.0, 0.65, 0.2, 1.0) or imgui.ImVec4(0.35, 1.0, 0.5, 1.0))
+        imgui.TextUnformatted(u8"Статус: " .. encodeCp1251Safe(P7.patrol_hud_str ~= "" and P7.patrol_hud_str or "На смене"))
+        imgui.PopStyleColor()
+    else
+        imgui.TextUnformatted(u8"Статус: Не на патруле")
+    end
+
+    imgui.Spacing()
+    if imgui.Button(u8"1. Заступил на смену##p7_p_start", imgui.ImVec2(175, 28)) then P7_patrolStart() end
+    imgui.SameLine()
+    if imgui.Button(u8"2. Доклад + Район##p7_p_rep", imgui.ImVec2(165, 28)) then P7_patrolReport("стабильное") end
+    if imgui.Button(u8"3. Погоня! Передать район##p7_p_chase", imgui.ImVec2(195, 28)) then P7_patrolChaseCallout("") end
+    imgui.SameLine()
+    if imgui.Button(u8"4. Закончил патруль##p7_p_stop", imgui.ImVec2(165, 28)) then P7_patrolStop() end
+    imgui.Spacing()
+    if imgui.Button(u8"Компактное окно /patrol##p7_p_pop", imgui.ImVec2(210, 24)) then
+        P7.patrol_show[0] = not P7.patrol_show[0]
+    end
+    imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.6, 0.65, 0.72, 1.0))
+    imgui.TextUnformatted(u8"Команды: /patrol | /patrol start | /patrol rep | /patrol chase | /patrol stop")
+    imgui.PopStyleColor()
+end
+
 function P5_cleanImportValue(val, depth, state)
     depth = depth or 0
     state = state or { count = 0 }
@@ -10744,8 +11470,8 @@ function P5_enterFreeCam()
     if cam_active then return end
     if not isSampAvailable() then return end
     if not cam_feature_enabled[0] then
-        sampAddChatMessage("[Helper] Свободная камера отключена. Включите её в F11 -> Транспорт и Визуал.", 0xFFAA00)
-        return
+        cam_feature_enabled[0] = true
+        requestSaveSettings()
     end
     if type(isCharDead) == "function" then
         local ok_d, dead = pcall(isCharDead, PLAYER_PED)
@@ -11825,6 +12551,189 @@ function P6_pasteParams(mode)
     return true
 end
 
+function P6_computeRowStep(base_pos, base_rot, step_n, dx, dy, dz, drz, local_axis)
+    local bx = (type(base_pos) == "table" and tonumber(base_pos.x)) or 0.0
+    local by = (type(base_pos) == "table" and tonumber(base_pos.y)) or 0.0
+    local bz = (type(base_pos) == "table" and tonumber(base_pos.z)) or 0.0
+    local brx = (type(base_rot) == "table" and tonumber(base_rot.x)) or 0.0
+    local bry = (type(base_rot) == "table" and tonumber(base_rot.y)) or 0.0
+    local brz = (type(base_rot) == "table" and tonumber(base_rot.z)) or 0.0
+    local n = math.max(1, tonumber(step_n) or 1)
+    local sx, sy, sz = (tonumber(dx) or 0) * n, (tonumber(dy) or 0) * n, (tonumber(dz) or 0) * n
+    if local_axis then
+        local rad = math.rad(brz)
+        local c, s = math.cos(rad), math.sin(rad)
+        local wx = sx * c - sy * s
+        local wy = sx * s + sy * c
+        sx, sy = wx, wy
+    end
+    return {
+        pos = { x = P6_round4(bx + sx), y = P6_round4(by + sy), z = P6_round4(bz + sz) },
+        rot = { x = P6_normalizeAngle(brx), y = P6_normalizeAngle(bry), z = P6_normalizeAngle(brz + ((tonumber(drz) or 0) * n)) }
+    }
+end
+
+function P6_startRowFromLast()
+    local src_model, src_pos, src_rot = 0, nil, nil
+    if tedit_active and P6.edit_pos_ready then
+        src_model = (tedit_model and tedit_model > 0) and tedit_model or (P6.dup_model or 0)
+        src_pos = { x = tedit_pos.x, y = tedit_pos.y, z = tedit_pos.z }
+        src_rot = { x = tedit_rot.x, y = tedit_rot.y, z = tedit_rot.z }
+    else
+        local list = P6_getActiveProfileList(false)
+        if type(list) == "table" and #list > 0 then
+            local last = list[#list]
+            src_model = last.model or 0
+            src_pos = { x = last.x, y = last.y, z = last.z }
+            src_rot = { x = last.rx, y = last.ry, z = last.rz }
+        end
+    end
+    if not src_pos then
+        loc_status_msg = "Сначала поставьте или выделите 1-й опорный объект!"
+        return false
+    end
+    tedit_dup_pending = false
+    P6.row_base_pos = src_pos
+    P6.row_base_rot = src_rot
+    P6.row_model = src_model
+    P6.row_step_idx = 0
+    P6.row_active = true
+    if src_model > 0 then
+        queueTask(function()
+            if type(setClipboardText) == "function" then pcall(setClipboardText, tostring(src_model)) end
+        end)
+    end
+    loc_status_msg = "Ряд активен! Поставьте следующий объект ID " .. tostring(src_model) .. " в /location"
+    return true
+end
+
+function P6_stopRow()
+    P6.row_active = false
+    P6.row_step_idx = 0
+    loc_status_msg = "Режим ряда остановлен"
+end
+
+function P6_buildScenePlanFromPlayer(preset_idx)
+    local p = P6_scene_presets[preset_idx or P6.scene_selected]
+    if not p then return false end
+    queueTask(function()
+        if not isSampAvailable() then return end
+        local ok_c, px, py, pz = pcall(getCharCoordinates, PLAYER_PED)
+        if not ok_c or type(px) ~= "number" or type(py) ~= "number" or type(pz) ~= "number" then return end
+        local hdg = 0.0
+        if type(getCharHeading) == "function" then
+            local ok_h, h = pcall(getCharHeading, PLAYER_PED)
+            if ok_h and type(h) == "number" then hdg = h end
+        end
+        local rad = math.rad(hdg)
+        local c, s = math.cos(rad), math.sin(rad)
+        local fwd_x, fwd_y = -s, c
+        local right_x, right_y = c, s
+        local plan = {}
+        for _, it in ipairs(p.items) do
+            local wx = px + right_x * it.dx + fwd_x * it.dy
+            local wy = py + right_y * it.dx + fwd_y * it.dy
+            local wz = (pz - 0.9) + it.dz
+            plan[#plan + 1] = {
+                model = it.model,
+                label = it.label,
+                pos = { x = P6_round4(wx), y = P6_round4(wy), z = P6_round4(wz) },
+                rot = { x = 0.0, y = 0.0, z = P6_normalizeAngle(hdg + it.drz) }
+            }
+        end
+        P6.scene_plan = plan
+        P6.scene_next_idx = 1
+        loc_status_msg = "План сцены построен (" .. #plan .. " объектов). Нажмите 'Взять #1'!"
+    end)
+    return true
+end
+
+function P6_armSceneItem(idx)
+    local it = P6.scene_plan[idx]
+    if not it then return false end
+    P6.row_active = false
+    P6.dup_model = it.model
+    P6.dup_source = {
+        model = it.model,
+        pos = { x = it.pos.x, y = it.pos.y, z = it.pos.z },
+        rot = { x = it.rot.x, y = it.rot.y, z = it.rot.z }
+    }
+    P6.dup_pending_until = os.clock() + 60.0
+    tedit_dup_pending = true
+    P6.scene_next_idx = (idx < #P6.scene_plan) and (idx + 1) or 1
+    queueTask(function()
+        if type(setClipboardText) == "function" then pcall(setClipboardText, tostring(it.model)) end
+    end)
+    loc_status_msg = "Скопирован ID " .. tostring(it.model) .. " (" .. it.label .. "): поставьте в /location!"
+    return true
+end
+
+function P6_drawProTab()
+    imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.35, 0.9, 1.0, 1.0))
+    imgui.TextUnformatted(u8"1. Авто-ряд (Забор / Стены по прямой или дуге):")
+    imgui.PopStyleColor()
+    imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.75, 0.78, 0.85, 1.0))
+    imgui.PushTextWrapPos(0)
+    imgui.TextUnformatted(u8"Поставьте 1-й объект, нажмите Старт: при каждом новом объекте в /location скрипт сам сдвинет его ровно на указанный шаг относительно 1-го.")
+    imgui.PopTextWrapPos()
+    imgui.PopStyleColor()
+
+    imgui.PushItemWidth(130)
+    imgui.InputInt(u8"Всего объектов##p6_row_cnt", P6.row_count, 1, 5)
+    if P6.row_count[0] < 1 then P6.row_count[0] = 1 elseif P6.row_count[0] > 50 then P6.row_count[0] = 50 end
+    imgui.SameLine()
+    imgui.Checkbox(u8"Вдоль угла 1-го объекта##p6_row_loc", P6.row_local_axis)
+    imgui.InputFloat("dX (м)##p6_rdx", P6.row_dx, 0.1, 1.0, "%.2f")
+    imgui.SameLine()
+    imgui.InputFloat("dY (м)##p6_rdy", P6.row_dy, 0.1, 1.0, "%.2f")
+    imgui.InputFloat("dZ (м)##p6_rdz", P6.row_dz, 0.05, 0.5, "%.2f")
+    imgui.SameLine()
+    imgui.InputFloat("dRZ (град)##p6_rdrz", P6.row_drz, 1.0, 15.0, "%.1f")
+    imgui.PopItemWidth()
+
+    if imgui.Button(u8"Старт ряда от последнего##p6_row_go", imgui.ImVec2(215, 26)) then
+        P6_startRowFromLast()
+    end
+    imgui.SameLine()
+    if imgui.Button(u8"Стоп ряд##p6_row_stop", imgui.ImVec2(110, 26)) then
+        P6_stopRow()
+    end
+    if P6.row_active then
+        imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.35, 1.0, 0.5, 1.0))
+        imgui.TextUnformatted(u8"АКТИВЕН РЯД: шаг " .. tostring(P6.row_step_idx) .. " / " .. tostring(P6.row_count[0]) .. u8" (ID " .. tostring(P6.row_model) .. ")")
+        imgui.PopStyleColor()
+    end
+
+    imgui.Spacing()
+    imgui.Separator()
+    imgui.Spacing()
+    imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.35, 0.9, 1.0, 1.0))
+    imgui.TextUnformatted(u8"2. Готовые пресеты сцен рядом с персонажем:")
+    imgui.PopStyleColor()
+
+    for pi, pr in ipairs(P6_scene_presets) do
+        if imgui.RadioButtonBool(encodeCp1251Safe(pr.name) .. "##p6_sc_" .. pi, P6.scene_selected == pi) then
+            P6.scene_selected = pi
+        end
+    end
+    if imgui.Button(u8"Рассчитать сцену перед игроком##p6_sc_build", imgui.ImVec2(260, 28)) then
+        P6_buildScenePlanFromPlayer(P6.scene_selected)
+    end
+    if #P6.scene_plan > 0 then
+        imgui.Spacing()
+        imgui.BeginChild("##p6_sc_list", imgui.ImVec2(0, 175), true)
+        for idx, it in ipairs(P6.scene_plan) do
+            local next_mark = (P6.scene_next_idx == idx) and " -> " or "    "
+            imgui.TextUnformatted(next_mark .. "#" .. idx .. " [ID " .. it.model .. "] " .. encodeCp1251Safe(it.label))
+            imgui.SameLine()
+            if imgui.SmallButton(u8"Взять #" .. idx .. "##p6_sc_arm_" .. idx) then
+                P6_armSceneItem(idx)
+            end
+        end
+        imgui.EndChild()
+    end
+end
+
 function P6_duplicateLast()
     local src_model, src_pos, src_rot = 0, nil, nil
     if tedit_active then
@@ -12088,6 +12997,14 @@ function P6_drawPrecisionPanel(id_suffix)
         imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.95, 0.78, 0.30, 1.0))
         imgui.TextUnformatted(u8"Ожидание входа в редактор /location (параметры можно подготовить заранее)")
         imgui.PopStyleColor()
+    end
+
+    if P6.row_active then
+        imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.35, 1.0, 0.55, 1.0))
+        imgui.TextUnformatted(u8"Авто-ряд: шаг " .. tostring(P6.row_step_idx) .. "/" .. tostring(P6.row_count[0]) .. " (ID " .. tostring(P6.row_model) .. ")")
+        imgui.PopStyleColor()
+        imgui.SameLine()
+        if imgui.SmallButton(u8"Стоп ряд##p6_p_rstop" .. sfx) then P6_stopRow() end
     end
 
     if tedit_dup_pending then
@@ -12598,25 +13515,26 @@ function P6_drawRegistryTab()
 end
 
 function P6_drawLocationWindowUI(tab_override)
-    if type(tab_override) == "number" and tab_override >= 1 and tab_override <= 3 then
+    if type(tab_override) == "number" and tab_override >= 1 and tab_override <= 4 then
         loc_ui_tab = tab_override
     end
     local tabs = {
         {id = 1, name = u8"1. Каталог 522"},
         {id = 2, name = u8"2. Реестр локации"},
-        {id = 3, name = u8"3. Точный редактор"}
+        {id = 3, name = u8"3. Точный редактор"},
+        {id = 4, name = u8"4. PRO: Ряд и Сцены"}
     }
     for idx, t in ipairs(tabs) do
         local active = (loc_ui_tab == t.id)
         if active then imgui.PushStyleColor(imgui.Col.Button, imgui.ImVec4(0.22, 0.52, 0.82, 1.0)) end
-        if imgui.Button(t.name .. "##p6_tab_" .. tostring(t.id), imgui.ImVec2(170, 26)) then
+        if imgui.Button(t.name .. "##p6_tab_" .. tostring(t.id), imgui.ImVec2(142, 26)) then
             loc_ui_tab = t.id
         end
         if active then imgui.PopStyleColor() end
         if idx < #tabs then imgui.SameLine() end
     end
     imgui.SameLine()
-    if imgui.Button(u8"Окно /tedit##p6_pop_tedit", imgui.ImVec2(120, 26)) then
+    if imgui.Button(u8"Окно /tedit##p6_pop_tedit", imgui.ImVec2(115, 26)) then
         P6.tedit_dismissed = false
         tedit_show[0] = not tedit_show[0]
     end
@@ -12626,6 +13544,10 @@ function P6_drawLocationWindowUI(tab_override)
         P6_drawCatalogTab()
     elseif loc_ui_tab == 2 then
         P6_drawRegistryTab()
+    elseif loc_ui_tab == 4 then
+        imgui.BeginChild("##p6_pro_tab_wrap", imgui.ImVec2(0, -28), true)
+        P6_drawProTab()
+        imgui.EndChild()
     else
         imgui.BeginChild("##p6_tedit_tab_wrap", imgui.ImVec2(0, -28), true)
         P6_drawPrecisionPanel("_tab")
@@ -12644,8 +13566,12 @@ function P6_drawLocationModuleSettings()
         loc_ui_tab = 1; loc_ui_show[0] = true
     end
     imgui.SameLine()
-    if imgui.Button(u8"Открыть Реестр (/loc 2)##p6_m_reg", imgui.ImVec2(210, 28)) then
+    if imgui.Button(u8"Открыть Реестр (/loc 2)##p6_m_reg", imgui.ImVec2(190, 28)) then
         loc_ui_tab = 2; loc_ui_show[0] = true
+    end
+    imgui.SameLine()
+    if imgui.Button(u8"PRO: Ряд и Сцены (/loc 4)##p6_m_pro", imgui.ImVec2(210, 28)) then
+        loc_ui_tab = 4; loc_ui_show[0] = true
     end
     if imgui.Button(u8"Открыть Точный редактор (/tedit)##p6_m_ted", imgui.ImVec2(260, 26)) then
         P6.tedit_dismissed = false
@@ -12686,6 +13612,9 @@ function P6_cmdLoc(arg)
         loc_ui_show[0] = true
     elseif a == "3" then
         loc_ui_tab = 3
+        loc_ui_show[0] = true
+    elseif a == "4" then
+        loc_ui_tab = 4
         loc_ui_show[0] = true
     elseif a == "" then
         loc_ui_show[0] = not loc_ui_show[0]
@@ -12757,7 +13686,7 @@ end
 end
 
 sampAddChatMessage("Helper Core " .. SCRIPT_VERSION .. " загружен. Меню: F11", 0x00FF00)
-sampAddChatMessage("Стробы: J/N | Круиз: C | /hud, /wp, /quiz, /rec, /hist, /loc, /cam, /calc | Меню: F11", 0xFFFFFF)
+sampAddChatMessage("Стробы: J/N | Круиз: C | /hud, /wp, /quiz, /price, /patrol, /loc, /cam, /calc | Меню: F11", 0xFFFFFF)
 
 -- Регистрируем команду открытия меню
 
@@ -13001,6 +13930,8 @@ end)
 sampRegisterChatCommand('dmglog', function()
     dmg_log_show[0] = not dmg_log_show[0]
 end)
+sampRegisterChatCommand('price', P7_cmdPrice)
+sampRegisterChatCommand('patrol', P7_cmdPatrol)
 sampRegisterChatCommand('cam', P5_toggleFreeCam)
 sampRegisterChatCommand('buyfast', P5_cmdBuyFast)
 if next(P6_loc_registry) == nil then pcall(P6_loadLocations) end
@@ -13163,6 +14094,10 @@ if blacklist_dirty then
     blacklist_dirty = false
     saveBlacklist()
 end
+if P7 and P7.market_dirty then
+    P7.market_dirty = false
+    if type(P7_saveMarket) == "function" then pcall(P7_saveMarket) end
+end
 
 
 -- Periodically refresh online nicks cache from main loop (safe, avoids missing joins/quits)
@@ -13259,6 +14194,7 @@ if hud_now ~= hud_cache.last_update then
         gnews_sched_hud_str = ""
     end
     P5_tickSession1s()
+    if type(P7_tickPatrol1s) == "function" then P7_tickPatrol1s() end
     if finance_enabled[0] and isSampAvailable() then
         local ok_m, cur_m = pcall(getPlayerMoney, PLAYER_HANDLE)
         if ok_m and type(cur_m) == "number" then
@@ -13751,6 +14687,7 @@ function cmdReconnect(arg)
     if settings_dirty then settings_dirty = false; pcall(saveSettings) end
     if P3 and P3.lecturer_loaded and type(P3_saveLecturer) == "function" then pcall(P3_saveLecturer) end
     if P4_codex and type(P4_saveCodex) == "function" then pcall(P4_saveCodex) end
+    if P7 and P7.market_dirty and type(P7_saveMarket) == "function" then P7.market_dirty = false; pcall(P7_saveMarket) end
     if P6_loc_registry and type(P6_saveLocations) == "function" then pcall(P6_saveLocations) end
 
     reconnect_pending = true
@@ -14101,6 +15038,9 @@ function sampev.onServerMessage(color, text)
     local text_utf8 = encodeCp1251Safe(text)
 
     if sender and phone then
+        if type(P7_parseMarketAd) == "function" then
+            P7_parseMarketAd(clean_trimmed, clean_lower, sender, phone)
+        end
         local sender_cp = sender
         local phone_cp = phone
         queueTask(function()
@@ -14481,6 +15421,18 @@ function sampev.onEnterEditObject(playerObject, objectId)
                 P6.dup_source = nil
                 P6.dup_pending_until = nil
             end
+        elseif P6.row_active and type(P6.row_base_pos) == "table" and type(P6_computeRowStep) == "function" then
+            local nxt_step = P6.row_step_idx + 1
+            local calc = P6_computeRowStep(P6.row_base_pos, P6.row_base_rot, nxt_step, P6.row_dx[0], P6.row_dy[0], P6.row_dz[0], P6.row_drz[0], P6.row_local_axis[0])
+            tedit_pos = calc.pos
+            tedit_rot = calc.rot
+            P6.edit_pos_ready = true
+            P6.dirty_edit = true
+            P6.last_gizmo_pos = { x = tedit_pos.x, y = tedit_pos.y, z = tedit_pos.z }
+            P6.last_gizmo_rot = { x = tedit_rot.x, y = tedit_rot.y, z = tedit_rot.z }
+            P6_syncManualBuffers()
+            P6_applyLocalPreview()
+            loc_status_msg = "Ряд шаг " .. tostring(nxt_step) .. "/" .. tostring(P6.row_count[0]) .. " выставлен!"
         end
     end)
 end
@@ -14575,6 +15527,21 @@ function sampev.onSendEditObject(playerObject, objectId, response, position, rot
         P6_refreshProfileKey()
         P6_recordSavedObject(tedit_model, final_pos, final_rot, objectId)
         if tedit_model > 0 then P6.dup_model = tedit_model end
+        if P6.row_active then
+            P6.row_step_idx = P6.row_step_idx + 1
+            if P6.row_step_idx >= (P6.row_count[0] or 1) then
+                P6.row_active = false
+                loc_status_msg = "Ряд завершён (" .. tostring(P6.row_step_idx) .. " шт.)!"
+            else
+                loc_status_msg = "Сохранено (" .. tostring(P6.row_step_idx) .. "/" .. tostring(P6.row_count[0]) .. "). Ставьте следующий объект!"
+                if P6.row_model and P6.row_model > 0 then
+                    local rmid = P6.row_model
+                    queueTask(function()
+                        if type(setClipboardText) == "function" then pcall(setClipboardText, tostring(rmid)) end
+                    end)
+                end
+            end
+        end
         tedit_active = false
         tedit_handle = nil
         tedit_undo = {}
@@ -15300,29 +16267,97 @@ end
 -- ОТРИСОВКА ИНТЕРФЕЙСА (MIMGUI)
 -- ==========================================
 function applyCustomStyle()
-local style = imgui.GetStyle()
-style.WindowRounding = 6.0
-style.ChildRounding = 6.0
-style.FrameRounding = 4.0
-style.PopupRounding = 4.0
-style.ScrollbarRounding = 4.0
-style.GrabRounding = 3.0
+    local style = imgui.GetStyle()
+    style.WindowRounding = 6.0
+    style.ChildRounding = 6.0
+    style.FrameRounding = 4.0
+    style.PopupRounding = 4.0
+    style.ScrollbarRounding = 4.0
+    style.GrabRounding = 3.0
 
-style.Colors[imgui.Col.WindowBg] = imgui.ImVec4(0.08, 0.08, 0.10, 0.95)
-style.Colors[imgui.Col.ChildBg] = imgui.ImVec4(0.12, 0.12, 0.14, 0.70)
-style.Colors[imgui.Col.Border] = imgui.ImVec4(0.20, 0.20, 0.25, 0.50)
-style.Colors[imgui.Col.FrameBg] = imgui.ImVec4(0.15, 0.15, 0.18, 1.00)
-style.Colors[imgui.Col.FrameBgHovered] = imgui.ImVec4(0.22, 0.22, 0.27, 1.00)
-style.Colors[imgui.Col.FrameBgActive] = imgui.ImVec4(0.30, 0.30, 0.38, 1.00)
-style.Colors[imgui.Col.TitleBg] = imgui.ImVec4(0.12, 0.12, 0.15, 1.00)
-style.Colors[imgui.Col.TitleBgActive] = imgui.ImVec4(0.16, 0.16, 0.21, 1.00)
-style.Colors[imgui.Col.Button] = imgui.ImVec4(0.25, 0.25, 0.32, 1.00)
-style.Colors[imgui.Col.ButtonHovered] = imgui.ImVec4(0.32, 0.32, 0.42, 1.00)
-style.Colors[imgui.Col.ButtonActive] = imgui.ImVec4(0.40, 0.40, 0.55, 1.00)
-style.Colors[imgui.Col.Header] = imgui.ImVec4(0.20, 0.20, 0.28, 1.00)
-style.Colors[imgui.Col.HeaderHovered] = imgui.ImVec4(0.26, 0.26, 0.36, 1.00)
-style.Colors[imgui.Col.HeaderActive] = imgui.ImVec4(0.33, 0.33, 0.46, 1.00)
-style.Colors[imgui.Col.CheckMark] = imgui.ImVec4(0.00, 0.80, 0.50, 1.00)
+    local t = (P7 and P7.theme_idx) and P7.theme_idx[0] or 0
+    local a = (P7 and P7.window_alpha) and math.max(0.65, math.min(1.00, P7.window_alpha[0])) or 0.95
+    local sc = (P7 and P7.font_scale) and math.max(0.85, math.min(1.35, P7.font_scale[0])) or 1.00
+    if type(imgui.IsInitialized) == "function" and imgui.IsInitialized() then
+        pcall(function()
+            local io = imgui.GetIO()
+            if io then io.FontGlobalScale = sc end
+        end)
+    end
+
+    local palettes = {
+        [0] = { -- Стандарт
+            win = {0.08, 0.08, 0.10, a}, child = {0.12, 0.12, 0.14, 0.72}, popup = {0.10, 0.10, 0.13, 0.96},
+            border = {0.20, 0.20, 0.26, 0.55}, frame = {0.15, 0.15, 0.19, 1.0}, f_hov = {0.22, 0.22, 0.28, 1.0}, f_act = {0.30, 0.30, 0.39, 1.0},
+            title = {0.12, 0.12, 0.15, 1.0}, t_act = {0.16, 0.16, 0.22, 1.0},
+            btn = {0.25, 0.25, 0.33, 1.0}, b_hov = {0.33, 0.33, 0.44, 1.0}, b_act = {0.42, 0.42, 0.56, 1.0},
+            hdr = {0.20, 0.20, 0.28, 1.0}, h_hov = {0.27, 0.27, 0.38, 1.0}, h_act = {0.34, 0.34, 0.48, 1.0},
+            chk = {0.00, 0.80, 0.50, 1.0}, txt = {0.94, 0.95, 0.97, 1.0}, txt_d = {0.55, 0.58, 0.65, 1.0}
+        },
+        [1] = { -- МВД (Police)
+            win = {0.06, 0.09, 0.15, a}, child = {0.09, 0.13, 0.20, 0.78}, popup = {0.07, 0.10, 0.17, 0.97},
+            border = {0.18, 0.40, 0.72, 0.55}, frame = {0.12, 0.18, 0.28, 1.0}, f_hov = {0.17, 0.26, 0.40, 1.0}, f_act = {0.22, 0.34, 0.54, 1.0},
+            title = {0.08, 0.14, 0.24, 1.0}, t_act = {0.11, 0.22, 0.38, 1.0},
+            btn = {0.16, 0.30, 0.52, 1.0}, b_hov = {0.22, 0.40, 0.68, 1.0}, b_act = {0.28, 0.50, 0.82, 1.0},
+            hdr = {0.14, 0.26, 0.44, 1.0}, h_hov = {0.20, 0.36, 0.60, 1.0}, h_act = {0.26, 0.46, 0.74, 1.0},
+            chk = {0.28, 0.72, 1.00, 1.0}, txt = {0.93, 0.96, 1.00, 1.0}, txt_d = {0.56, 0.66, 0.80, 1.0}
+        },
+        [2] = { -- МЗ (Medic)
+            win = {0.11, 0.07, 0.08, a}, child = {0.16, 0.10, 0.11, 0.78}, popup = {0.13, 0.08, 0.09, 0.97},
+            border = {0.65, 0.20, 0.26, 0.55}, frame = {0.22, 0.13, 0.15, 1.0}, f_hov = {0.32, 0.18, 0.21, 1.0}, f_act = {0.42, 0.23, 0.27, 1.0},
+            title = {0.18, 0.09, 0.11, 1.0}, t_act = {0.28, 0.12, 0.15, 1.0},
+            btn = {0.42, 0.16, 0.21, 1.0}, b_hov = {0.56, 0.21, 0.27, 1.0}, b_act = {0.70, 0.26, 0.33, 1.0},
+            hdr = {0.36, 0.14, 0.18, 1.0}, h_hov = {0.48, 0.19, 0.24, 1.0}, h_act = {0.60, 0.24, 0.30, 1.0},
+            chk = {1.00, 0.42, 0.46, 1.0}, txt = {0.98, 0.94, 0.95, 1.0}, txt_d = {0.74, 0.58, 0.60, 1.0}
+        },
+        [3] = { -- СМИ (News)
+            win = {0.06, 0.11, 0.12, a}, child = {0.09, 0.16, 0.17, 0.78}, popup = {0.07, 0.13, 0.14, 0.97},
+            border = {0.15, 0.55, 0.58, 0.55}, frame = {0.12, 0.22, 0.24, 1.0}, f_hov = {0.17, 0.31, 0.34, 1.0}, f_act = {0.22, 0.40, 0.44, 1.0},
+            title = {0.08, 0.18, 0.20, 1.0}, t_act = {0.10, 0.26, 0.29, 1.0},
+            btn = {0.14, 0.36, 0.39, 1.0}, b_hov = {0.18, 0.48, 0.52, 1.0}, b_act = {0.22, 0.60, 0.65, 1.0},
+            hdr = {0.12, 0.30, 0.33, 1.0}, h_hov = {0.16, 0.42, 0.46, 1.0}, h_act = {0.20, 0.52, 0.57, 1.0},
+            chk = {0.20, 0.92, 0.85, 1.0}, txt = {0.93, 0.98, 0.98, 1.0}, txt_d = {0.56, 0.72, 0.74, 1.0}
+        },
+        [4] = { -- Кибер (Neon)
+            win = {0.05, 0.05, 0.09, a}, child = {0.09, 0.08, 0.15, 0.80}, popup = {0.07, 0.06, 0.12, 0.97},
+            border = {0.58, 0.24, 0.86, 0.60}, frame = {0.14, 0.12, 0.24, 1.0}, f_hov = {0.21, 0.18, 0.36, 1.0}, f_act = {0.28, 0.24, 0.48, 1.0},
+            title = {0.10, 0.07, 0.18, 1.0}, t_act = {0.16, 0.11, 0.29, 1.0},
+            btn = {0.32, 0.18, 0.50, 1.0}, b_hov = {0.42, 0.24, 0.66, 1.0}, b_act = {0.52, 0.30, 0.82, 1.0},
+            hdr = {0.26, 0.15, 0.42, 1.0}, h_hov = {0.36, 0.21, 0.58, 1.0}, h_act = {0.46, 0.27, 0.72, 1.0},
+            chk = {0.00, 0.95, 0.80, 1.0}, txt = {0.95, 0.94, 1.00, 1.0}, txt_d = {0.64, 0.60, 0.80, 1.0}
+        },
+        [5] = { -- Светлая (Day)
+            win = {0.92, 0.93, 0.95, a}, child = {0.86, 0.88, 0.91, 0.90}, popup = {0.95, 0.96, 0.98, 0.98},
+            border = {0.58, 0.62, 0.70, 0.65}, frame = {0.80, 0.82, 0.87, 1.0}, f_hov = {0.74, 0.77, 0.84, 1.0}, f_act = {0.66, 0.71, 0.80, 1.0},
+            title = {0.80, 0.83, 0.88, 1.0}, t_act = {0.72, 0.77, 0.85, 1.0},
+            btn = {0.74, 0.78, 0.85, 1.0}, b_hov = {0.65, 0.71, 0.81, 1.0}, b_act = {0.55, 0.63, 0.76, 1.0},
+            hdr = {0.76, 0.80, 0.87, 1.0}, h_hov = {0.67, 0.73, 0.83, 1.0}, h_act = {0.58, 0.66, 0.79, 1.0},
+            chk = {0.06, 0.56, 0.36, 1.0}, txt = {0.09, 0.11, 0.15, 1.0}, txt_d = {0.38, 0.42, 0.49, 1.0}
+        }
+    }
+    local pal = palettes[t] or palettes[0]
+    local function c4(v) return imgui.ImVec4(v[1], v[2], v[3], v[4]) end
+    style.Colors[imgui.Col.Text] = c4(pal.txt)
+    style.Colors[imgui.Col.TextDisabled] = c4(pal.txt_d)
+    style.Colors[imgui.Col.WindowBg] = c4(pal.win)
+    style.Colors[imgui.Col.ChildBg] = c4(pal.child)
+    style.Colors[imgui.Col.PopupBg] = c4(pal.popup)
+    style.Colors[imgui.Col.Border] = c4(pal.border)
+    style.Colors[imgui.Col.Separator] = c4(pal.border)
+    style.Colors[imgui.Col.FrameBg] = c4(pal.frame)
+    style.Colors[imgui.Col.FrameBgHovered] = c4(pal.f_hov)
+    style.Colors[imgui.Col.FrameBgActive] = c4(pal.f_act)
+    style.Colors[imgui.Col.TitleBg] = c4(pal.title)
+    style.Colors[imgui.Col.TitleBgActive] = c4(pal.t_act)
+    style.Colors[imgui.Col.Button] = c4(pal.btn)
+    style.Colors[imgui.Col.ButtonHovered] = c4(pal.b_hov)
+    style.Colors[imgui.Col.ButtonActive] = c4(pal.b_act)
+    style.Colors[imgui.Col.Header] = c4(pal.hdr)
+    style.Colors[imgui.Col.HeaderHovered] = c4(pal.h_hov)
+    style.Colors[imgui.Col.HeaderActive] = c4(pal.h_act)
+    style.Colors[imgui.Col.CheckMark] = c4(pal.chk)
+    style.Colors[imgui.Col.SliderGrab] = c4(pal.chk)
+    style.Colors[imgui.Col.SliderGrabActive] = c4(pal.b_act)
 end
 
 imgui.OnInitialize(function()
@@ -15334,6 +16369,10 @@ end)
 imgui.OnFrame(
 function() return show_main_window[0] end,
 function(player)
+if P7 and P7.style_dirty then
+    P7.style_dirty = false
+    applyCustomStyle()
+end
 imgui.SetNextWindowSize(imgui.ImVec2(820, 560), imgui.Cond.FirstUseEver)
 imgui.Begin(WINDOW_TITLE, show_main_window, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
 
@@ -15352,6 +16391,24 @@ end
 imgui.EndCombo()
 end
 imgui.PopItemWidth()
+imgui.SameLine()
+imgui.TextUnformatted(u8"Тема:")
+imgui.SameLine()
+imgui.PushItemWidth(135)
+local top_th_items = u8"Стандарт" .. "\0" .. u8"МВД" .. "\0" .. u8"МЗ" .. "\0" .. u8"СМИ" .. "\0" .. u8"Кибер" .. "\0" .. u8"Светлая" .. "\0"
+if imgui.ComboStr("##TopThemeSelector", P7.theme_idx, top_th_items) then
+    P7.style_dirty = true
+    requestSaveSettings()
+end
+imgui.PopItemWidth()
+imgui.SameLine()
+if imgui.SmallButton(u8"Рынок (/price)##top_mkt") then
+    P7.market_show[0] = not P7.market_show[0]
+end
+imgui.SameLine()
+if imgui.SmallButton(u8"Патруль##top_pat") then
+    P7.patrol_show[0] = not P7.patrol_show[0]
+end
 
 imgui.Spacing()
 imgui.Separator()
@@ -16018,6 +17075,11 @@ local hud_f = imgui.OnFrame(
         if gnews_sched_hud_str and gnews_sched_hud_str ~= "" then
             imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(1.0, 0.85, 0.25, 1.0))
             imgui.TextUnformatted(encodeCp1251Safe(gnews_sched_hud_str))
+            imgui.PopStyleColor()
+        end
+        if P7 and P7.patrol_active and P7.patrol_hud_str ~= "" then
+            imgui.PushStyleColor(imgui.Col.Text, P7.patrol_warned_due and imgui.ImVec4(1.0, 0.55, 0.15, 1.0) or imgui.ImVec4(0.45, 0.85, 1.0, 1.0))
+            imgui.TextUnformatted(encodeCp1251Safe(P7.patrol_hud_str))
             imgui.PopStyleColor()
         end
         if isModuleEnabled("faction_tools") and dmg_enabled[0] and dmg_show_hud[0] and dmg_last_hud ~= "" and (os.time() - dmg_last_ts) <= 6 then
@@ -16786,6 +17848,40 @@ imgui.OnFrame(
         end
     end
 )
+-- ФАЗА 7 (v2.7): Плавающее окно Трекера цен рынка (/price)
+imgui.OnFrame(
+    function() return P7 and P7.market_show and P7.market_show[0] end,
+    function()
+        local display = imgui.GetIO().DisplaySize
+        imgui.SetNextWindowSize(imgui.ImVec2(660, 440), imgui.Cond.FirstUseEver)
+        imgui.SetNextWindowPos(imgui.ImVec2(display.x / 2, display.y / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
+        imgui.Begin(u8"Трекер цен рынка /price##p7_mkt_win", P7.market_show, imgui.WindowFlags.NoCollapse)
+        if type(P7_drawMarketUI) == "function" then
+            P7_drawMarketUI()
+        end
+        imgui.End()
+    end
+)
+
+-- ФАЗА 7 (v2.7): Плавающая панель Патруля МВД (/patrol)
+imgui.OnFrame(
+    function() return P7 and P7.patrol_show and P7.patrol_show[0] end,
+    function()
+        local display = imgui.GetIO().DisplaySize
+        imgui.SetNextWindowSize(imgui.ImVec2(455, 360), imgui.Cond.FirstUseEver)
+        imgui.SetNextWindowPos(imgui.ImVec2(display.x * 0.25, display.y * 0.5), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
+        imgui.Begin(u8"Патруль МВД /patrol##p7_pat_win", P7.patrol_show, imgui.WindowFlags.NoCollapse)
+        if type(P7_drawPatrolUI) == "function" then
+            P7_drawPatrolUI()
+        end
+        imgui.Spacing()
+        if imgui.Button(u8"Закрыть##p7_pat_close", imgui.ImVec2(110, 24)) then
+            P7.patrol_show[0] = false
+        end
+        imgui.End()
+    end
+)
+
 function onScriptTerminate(script, quitGame)
     if script ~= thisScript() then return end
     if settings_dirty then settings_dirty = false; pcall(saveSettings) end
@@ -16795,6 +17891,7 @@ function onScriptTerminate(script, quitGame)
     if ad_history_dirty then ad_history_dirty = false; pcall(saveAdHistory) end
     if rp_settings_dirty then rp_settings_dirty = false; pcall(saveRpSettings) end
     if blacklist_dirty then blacklist_dirty = false; pcall(saveBlacklist) end
+    if P7 and P7.market_dirty and type(P7_saveMarket) == "function" then P7.market_dirty = false; pcall(P7_saveMarket) end
     pcall(setGameKeyState, 16, 0)
     pcall(function()
         if isCharInAnyCar(PLAYER_PED) then
