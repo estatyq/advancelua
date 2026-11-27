@@ -17,5 +17,14 @@ helper_core_recovered.lua
 config/helper_settings.json
 config/player_db.json
 config/mimgui/
+# Keep repo-contained Agent Harness and Antigravity customizations trackable
+!harness/
+!harness/**
+!.agents/
+!.agents/**
+!AGENTS.md
+
 __pycache__/
 *.pyc
+harness/**/__pycache__/
+.agents/**/__pycache__/

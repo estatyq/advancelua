@@ -1,378 +1,356 @@
-# SAMP ↔ Lua ↔ MoonLoader: Архитектура взаимодействия и анализ багов helper_core.lua
+# Universal Helper Platform — Архитектура стека и платформы (v2.7 → v3.0)
 
-## 1. Архитектура: как SAMP взаимодействует с Lua-скриптами
-
-### 1.1. MoonLoader (ядро)
-
-MoonLoader — это DLL-инъекция в процесс GTA SA, которая добавляет Lua-движок (LuaJIT) и хуки в игру и SAMP.
-
-**Поток загрузки скрипта:**
-```
-GTA SA запускается
-  → MoonLoader инжектится (moonloader.dll)
-    → хуки pre-game (установка перехватов)
-      → загрузка GTA
-        → хуки post-load
-          → SAMP загружается (samp.dll)
-            → MoonLoader обнаруживает SAMP
-              → загружает все .lua скрипты из moonloader/
-                → каждый скрипт: top-level код выполняется → main() вызывается MoonLoader'ом
-```
-
-**Lifecycle скрипта:**
-1. **Загрузка**: MoonLoader читает .lua файл, выполняет top-level код (объявления, `local` переменные, `function main()` определение).
-2. **main()**: MoonLoader вызывает `main()`. Это точка входа. Здесь скрипт ждёт `isSampAvailable()`, регистрирует команды, запускает воркеры, входит в главный цикл.
-3. **Главный цикл**: `while true do wait(0) ... end` — кооперативная многозадачность. `wait(ms)` отдаёт управление.
-4. **Termination**: `onScriptTerminate` event — очистка ресурсов.
-
-### 1.2. lua_thread (кооперативная многозадачность)
-
-`lua_thread.create(fn, ...)` — создаёт корутину. Все потоки выполняются в одном OS-потоке. `wait(ms)` — единственная точка переключения. Если поток не вызывает `wait()`, он блокирует весь скрипт (и игру).
-
-**Правило:** каждый воркер должен вызывать `wait()` в цикле, иначе игра зависнет.
-
-### 1.3. Событийная модель (addEventHandler)
-
-MoonLoader предоставляет события через `addEventHandler(eventName, callback)`:
-- `onD3DPresent` — каждый кадр рендера (используется mimgui для отрисовки)
-- `onWindowMessage` — сообщения Windows (клавиатура, мышь)
-- `onD3DDeviceLost` / `onD3DDeviceReset` — потеря/восстановление D3D устройства
-- `onScriptTerminate` — завершение скрипта
-- `onSendRpc` / `onReceiveRpc` / `onSendPacket` / `onReceivePacket` — сетевые пакеты SAMP
-
-### 1.4. SAMP.Lua (samp.events)
-
-Библиотека `lib/samp/events.lua` перехватывает RakNet пакеты SAMP и преобразует их в Lua-события.
-
-**Механика:**
-- `OUTCOMING_RPCS[RPC_ID] = {'onEventName', {field = 'type'}, ...}` — маппинг RPC → событие
-- При отправке/получении RPC: `process_packet()` → чтение bitstream → вызов callback
-- **Возврат `false`** из callback → пакет поглощается (не отправляется/не обрабатывается)
-- **Возврат таблицы** → модификация пакета перед отправкой/обработкой
-
-**Ключевые события, используемые в helper_core.lua:**
-- `sampev.onServerMessage(color, text)` — входящее сообщение сервера (RPC_SCRCLIENTMESSAGE = 93)
-  - `text` — строка в **CP1251** (кодировка SAMP)
-  - `color` — число (ARGB)
-- `sampev.onSendChat(message)` — исходящий чат (RPC_CHAT = 101)
-
-### 1.5. SAMPFUNCS (sampfuncs.lua)
-
-SAMPFUNCS — отдельная DLL, расширяющая SAMP API. Предоставляет функции:
-- `sampSendChat(text)` — отправить сообщение в чат (text в **CP1251**)
-- `sampAddChatMessage(text, color)` — добавить сообщение в локальный чат (text в **CP1251**)
-- `sampRegisterChatCommand(cmd, callback)` — регистрация команды
-- `sampGetPlayerIdByCharHandle(ped)` → `result, id`
-- `sampGetPlayerNickname(id)` → nickname (CP1251)
-- `sampGetPlayerIdByNickname(name)` → `result, id` (name в CP1251)
-- `sampIsDialogActive()` → bool
-- `sampGetCurrentDialogId()` → id
-- `sampGetDialogCaption()` → title (CP1251)
-- `sampGetDialogText()` → text (CP1251)
-- `sampIsChatInputActive()` → bool
-
-### 1.6. mimgui (ImGui для MoonLoader)
-
-mimgui — Lua-обёртка над Dear ImGui через FFI.
-
-**Архитектура:**
-- `imgui.OnFrame(condition, drawCallback)` — подписка на рендер. Каждый кадр:
-  1. Проверяется `condition()` → если true, `_render = true`
-  2. `renderer:NewFrame()` — начало кадра ImGui
-  3. `sub:_draw()` — вызов callback отрисовки
-  4. `renderer:EndFrame()` — конец кадра
-- `imgui.OnInitialize(callback)` — вызывается один раз при инициализации рендерера
-
-**Кодировка строк в ImGui:**
-- ImGui ожидает **UTF-8** строки для всех текстовых функций
-- `u8"текст"` — конвертирует CP1251 литерал в UTF-8 (через `encoding.UTF8`)
-- `imgui.Text(u8"Привет")` — правильно (UTF-8 в ImGui)
-- `imgui.Text("Привет")` — НЕправильно (CP1251 литерал, ImGui покажет мусор для кириллицы)
-
-**Доступные функции PushID (mimgui 1.7.0):**
-- `imgui.PushIDStr(str)` — по строке
-- `imgui.PushIDInt(int)` — по числу
-- `imgui.PushIDPtr(ptr)` — по указателю
-- `imgui.PushIDRange(begin, end)` — по диапазону
-- **`imgui.PushID` — НЕ существует** (nil)
-
-**Combo функции:**
-- `imgui.Combo(label, current_item, items, items_count)` — items = `const char*const*` (ffi C-массив)
-- `imgui.ComboStr(label, current_item, items_separated_by_zeros)` — items = Lua string с `\0` разделителями
-- `imgui.BeginCombo(label, preview, flags)` / `imgui.Selectable(...)` / `imgui.EndCombo()` — ручной combo
-
-**Style stack (Push/Pop пары):**
-- `imgui.PushItemWidth(w)` ↔ `imgui.PopItemWidth()` — ширина элементов
-- `imgui.PushStyleColor(col, ImVec4)` ↔ `imgui.PopStyleColor(count)` — цвета
-- **Несбалансированные Push/Pop** → assertion или визуальные баги
-
-### 1.7. encoding (iconv)
-
-```lua
-encoding.default = 'CP1251'  -- кодировка файла скрипта
-local u8 = encoding.UTF8     -- конвертер UTF-8
-```
-
-- `u8:encode(str)` — CP1251 → UTF-8 (для передачи CP1251 текста в ImGui)
-- `u8:decode(str)` — UTF-8 → CP1251 (для передачи UTF-8 текста в SAMP)
-- `u8"текст"` — то же что `u8:encode("текст")` — CP1251 литерал → UTF-8
-- Флаг `//IGNORE` — неконвертируемые байты молча удаляются
-
-### 1.8. ffi (LuaJIT FFI)
-
-- `ffi.new("type[?]", count, ...)` — создание C-массива
-- `ffi.cast("type", value)` — приведение типа
-- `ffi.string(ptr)` — чтение C-строки (до \0) в Lua-строку
-- `ffi.copy(dst, src)` / `ffi.copy(dst, src, len)` — копирование
-- `#` оператор **не работает** на ffi-массивах (только на Lua-строках и таблицах)
-
-### 1.9. Кодировки данных в pipeline
-
-```
-SAMP сервер ──CP1251──→ samp.events (text параметр)
-                              │
-                    u8:encode(text) ──UTF-8──→ ImGui
-                    u8:encode(text) ──UTF-8──→ player_db (JSON)
-                              │
-                    sampSendChat(u8:decode(utf8)) ──CP1251──→ SAMP сервер
-```
+> **Статус документа:** Актуальная архитектура стека GTA SA / SA-MP / MoonLoader / LuaJIT / mimgui / SAMP.Lua и целевой проект **v3.0 (Фракционно-адаптивная платформа + плашки зависимостей `ENV_CAPS`)**.
+> **Текущая версия ядра:** `helper_core.lua` **v2.7** (commit `25b14a9`, `17 921` строк, `814 687` байт, `CP1251 + CRLF`).
+> **Целевая среда запуска:** `E:\ukraine_rp_runtime\moonloader\helper_core.lua` (`MoonLoader v.026.5-beta`, `SAMPFUNCS v5.7.1 rel.25 (SA-MP 0.3.7-R1)`, `mimgui / cimguidx9.dll`, `SAMP.Lua`).
 
 ---
 
-## 2. Структура helper_core.lua
+## 1. Стек технологий и жизненный цикл (Runtime Stack)
 
-### 2.1. Модули (таблица `modules`)
+`Universal Helper Platform` работает внутри 32-битного Win32-процесса `gta_sa.exe` поверх цепочки ASI-инъекторов и DirectX 9 хуков. Понимание слоёв стека критично, потому что ошибка на одном уровне (например, вызов SAMP API из DX9 Present-потока или обращение к `GImGui` до создания рендерера) ведёт к мгновенному нативному крашу (`0xC0000005`).
 
-| Индекс | id | Имя | Описание |
-|--------|-----|------|----------|
-| 1 | autocall_db | Звон в базу | Авто-звонки игрокам из БД |
-| 2 | auto_ad | Авто-объявления | Периодическая отправка /ad |
-| 3 | mm_editor | MM Editor (СМИ) | Форматирование объявлений |
-| 4 | auto_rp | Авто-отыгровка | RP-сообщения для оружия, телефона и т.д. |
-| 5 | vehicle_visuals | Транспорт и визуал | Стробоскоп, круиз, погода, скины |
-| 6 | commands_guide | Справочник команд | Справочник команд Advance RP |
+```mermaid
+flowchart TD
+    GTA["GTA San Andreas 1.0 US (Win32 / DirectX 9)"]
+    ASI["ASI Loader (vorbisFile.dll / dinput8.dll)"]
+    CLEO["CLEO 4.3+ (cleo.asi — SCM-опкоды и внешние скрипты)"]
+    SF["SAMPFUNCS 5.4+ (SAMPFUNCS.asi — RakNet, RPC, чат, консоль)"]
+    ML["MoonLoader 0.26+ (MoonLoader.asi — LuaJIT 2.1 VM, jit.off)"]
+    SAMPLUA["SAMP.Lua (lib.samp.events — RPC и Packet хуки)"]
+    MIMGUI["mimgui (cimguidx9.dll — DX9 EndScene / Present UI)"]
+    ENC["encoding (iconv — конвертация CP1251 и UTF-8)"]
+    MEM["ffi / memory / bit (прямая память GTA SA и битовые маски)"]
+    CORE["helper_core.lua (единый монолит, P2..P8, 14+ модулей)"]
 
-### 2.2. Воркеры (фоновые потоки)
+    GTA --> ASI
+    ASI --> CLEO
+    ASI --> SF
+    ASI --> ML
+    SF --> SAMPLUA
+    ML --> SAMPLUA
+    ML --> MIMGUI
+    ML --> ENC
+    ML --> MEM
+    SAMPLUA --> CORE
+    MIMGUI --> CORE
+    ENC --> CORE
+    MEM --> CORE
+```
 
-| Функция | Запуск | Что делает |
-|---------|--------|------------|
-| `factionScannerWorker` | `loadDatabases()` → `lua_thread.create` | Сканирует диалоги SAMP для определения фракции |
-| `weaponTrackWorker` | `main()` → `lua_thread.create` | Отслеживает смену оружия → RP-сообщения |
-| `cruiseControlWorker` | `main()` → `lua_thread.create` | Круиз-контроль (клавиша C) |
-| `environmentWorker` | `main()` → `lua_thread.create` | Блокировка погоды/времени |
-| `dialogScannerWorker` | `main()` → `lua_thread.create` | Сканирует диалоги для MM Editor |
-| `strobeWorker` | `drawSettings()` / клавиша J → `lua_thread.create` | Стробоскоп (мигание фар) |
-| `onlineCallWorker` | `drawSettings()` → `lua_thread.create` | Обзвон игроков из БД |
+### Двухфазная модель исполнения (Main Loop vs DX9 Present)
 
-### 2.3. События SAMP
+В MoonLoader код скрипта реально выполняется в **двух разных контекстах**, и их смешивание — главный источник нативных вылетов:
 
-- `sampev.onServerMessage(color, text)` — обработка сообщений сервера:
-  - Парсинг объявлений (отправитель + телефон)
-  - Авто-отправка следующего объявления (auto_ad)
-  - Сохранение в БД (autocall_db)
+```mermaid
+flowchart LR
+    subgraph MainCtx["Главный цикл игры (Game Main Thread)"]
+        M1["main() L13672"]
+        M2["while true do wait(0) pcall(mainFrameTick) end"]
+        M3["Очереди queueTask / scheduleTask (L59, L66)"]
+        M4["SAMP API, RakNet, таймеры, запись JSON, P6_flushTexReleaseQueue"]
+        M1 --> M2 --> M3 --> M4
+    end
 
-### 2.4. Команды чата
+    subgraph RenderCtx["Поток отрисовки DirectX 9 (Present Hook)"]
+        R1["imgui.OnInitialize (L16363)"]
+        R2["19x imgui.OnFrame (L16369..L17867)"]
+        R3["Только отрисовка mimgui и изменение state/dirty-флагов"]
+        R1 --> R2 --> R3
+    end
 
-| Команда | Действие |
-|---------|----------|
-| `/helper` | Открыть/закрыть GUI |
-| `/aad [текст]` | Включить/выключить авто-объявления |
-| `/rpdebug` | Отладка auto_rp |
-| `/fskin [ID]` | Смена скина |
-| `/call [номер]` | Звонок с RP-отыгровкой |
-| `/h`, `/hangup` | Завершить звонок с RP |
-| `/mask` | Маска с RP |
-| `/healme` | Лечение с RP |
-| `/drugs [кол-во]` | Наркотики с RP |
+    subgraph NetCtx["Хуки SAMP.Lua (lib.samp.events)"]
+        N1["12x sampev.* (L14763..L15440)"]
+        N2["Перехват чата, диалогов, урона, погоды, объектов"]
+        N1 --> N2
+    end
 
-### 2.5. GUI (mimgui)
+    R3 -->|"queueTask(fn) / dirty flag"| M3
+    N2 -->|"state update / queueTask"| M3
+```
 
-- `imgui.OnInitialize` → `applyCustomStyle()` — кастомный стиль
-- `imgui.OnFrame(show_main_window, drawCallback)` — главное окно
-  - Селектор сервера (BeginCombo)
-  - Левая панель: список модулей (Selectable)
-  - Правая панель: настройки активного модуля (drawSettings)
+**Главное правило границы потоков:** внутри `imgui.OnFrame` и `drawSettings()` **запрещены** прямые вызовы `sampSendChat`, `sampSendDialogResponse`, `getCharCoordinates`, `lua_thread.create`, `setClipboardText`, звук/CLEO/`memory.write`, запись на диск и немедленный `imgui.ReleaseTexture`. Замыкания `queueTask(fn)` / `scheduleTask(delay_ms, fn)` создаются **только внутри сработавших веток** (`if imgui.Button(...) then`), а не на каждый кадр, либо сбрасываются dirty-флаги, которые отрабатывает `mainFrameTick()` (L14030) и вынесенный из него `P8_tick()` (чтобы не раздувать локалы `mainFrameTick`, у которой уже `62/180`).
 
 ---
 
-## 3. НАЙДЕННЫЕ БАГИ
+## 2. Карта текущей архитектуры ядра (v2.7)
 
-### 🔴 КРИТИЧЕСКИЕ (краш скрипта)
+Ядро `helper_core.lua` организовано как самодостаточный однофайловый скрипт (нулевая сложность установки для игрока: один файл в `moonloader/`), структурированный через реестр модулей и глобальные таблицы фаз:
 
-#### БАГ-1: `strobe_sequences` — необъявленная переменная
-**Строки:** 1828, 1830
-**Симптом:** `attempt to index global 'strobe_sequences' (a nil value)` при включении стробоскопа
-**Причина:** `strobeWorker()` обращается к `strobe_sequences[mode]` и `strobe_sequences[0]`, но таблица `strobe_sequences` нигде не определена в файле.
-**Последствие:** Стробоскоп полностью неработоспособен. Скрипт не крашится (pcall не используется), но воркер завершается с ошибкой.
-**Фикс:** Добавить определение таблицы последовательностей мигания:
+### 2.1. Базовые щиты и зависимости ядра
+- **Заголовок и защита VM:** `jit.off()` (L28) отключает трассирующий JIT-компилятор LuaJIT, устраняя нестабильность при FFI-вызовах из DX9 хуков.
+- **Thread GC Protection Shield (`__thread_anchor_pool`, L39–L45):** оборачивает `lua_thread.create`, удерживая ссылки на корутины, чтобы деструктор `MoonLoader.asi` не ронял игру на `luaL_unref` (`0x6AE877D6` / `0x643877D6`).
+- **Очереди задач (`queueTask` L59, `scheduleTask` L66):** перебрасывают действия из UI и RPC в безопасный кадр `mainFrameTick()`, предотвращая краш `0x6AE877F1`.
+- **Подключаемые библиотеки:** `mimgui` (L129 — в v3.0 оборачивается в `pcall` на случай отсутствия, с резервным предупреждением в чат/лог), `ffi` (L130), `lib.samp.events` (L164), `encoding` (L165, CP1251 и UTF-8), `json` (L167, опциональный `pcall` со встроенным pure-Lua парсером/сериализатором).
+- **Низкоуровневый доступ (`memory` / `bit`):**
+  - Погода и время (L15648–L15659): `0xC81320` (погода), `0xB70153` (часы), `0xB70152` (минуты), `0xB70158` (тик часов).
+  - Стробоскопы (L15782–L15797): битовая маска повреждений фар через `bit.band` / `bit.bor`.
+  - Проверка двигателя в турбо-круизе `P1_isCarEngineOn` (L15886–L15888): `carPtr + 0x428`, бит `0x10`.
+  - **Выявленный пробел v2.7 (закрывается в v3.0 через `ENV_CAPS`):** `memory` используется в стробоскопах и проверке двигателя без безопасного `local ok_mem, mem_lib = pcall(require, 'memory')` в шапке (L15782/L15886 предполагают наличие `memory`).
+
+### 2.2. Пространства имён и бюджет LuaJIT
+Чтобы никогда не упереться в жёсткие лимиты байткода LuaJIT 2.1 (**200 локалов** на прототип, **60 upvalues** на замыкание), состояние разделено по глобальным таблицам фаз:
+- `P2` (L2834) — RP-движок, колесо СКМ, таргет-меню, бинды сценариев.
+- `P3` (L2850) — Лектор и связанные настройки.
+- `P4` (L2909) — Фракционный модуль (`P4_drawFactionUI` L10623) и кодекс.
+- `P5` (L3091) — Визуал, свободная камера `/cam` (`P5_enterFreeCam` L11469).
+- `P6` (L3128) — Конструктор `/location` (522 предмета, `P6_quatToEuler` L12303, `P6_flushTexReleaseQueue` L12926, ряд/забор и пресеты сцен).
+- `P7` (L3790) — Темы ImGui (`applyCustomStyle` L16269), трекер цен `/price`, патруль `/patrol` (38 зон SA + сектора `A-1..H-8`).
+- **`P8` и `ENV_CAPS` (зарезервированы под v3.0):** контекст фракции, диагностика окружения, модуль МО/Армия, серверные профили и state-machine подтверждённого RP.
+
+**Текущий запас по лимитам LuaJIT (по `python harness/run.py --snapshot`):**
+- `top_locals = 48 / 150`
+- `max_active = 49 / 180`
+- `max_fn_locals = 62 / 180` (`mainFrameTick`)
+- `max_upvals = 10 / 45`
+- **Жёсткое правило:** ноль новых `local` на верхнем уровне файла — все новые состояния строго в `P8.*` / `ENV_CAPS.*`.
+
+### 2.3. Реестр модулей (`14` в v2.7 → `15` в v3.0; `modules[i]`, `active_module_idx` L442, F11 L16369–L16510)
+| # | ID модуля | Строка | Назначение в v2.7 |
+|---|---|---|---|
+| 1 | `gnews` | L7351 | Гос. новости (подача по расписанию/шаблонам) |
+| 2 | `autocall_db` | L7360 | Автообзвон и база телефонов игроков |
+| 3 | `auto_ad` | L7567 | Авто-реклама по таймеру и шаблонам |
+| 4 | `mm_editor` | L7705 | MM Editor / AutoEdit (`/edit`, 1971 правило) |
+| 5 | `auto_rp` | L7713 | Авто-РП отыгровки перед командами |
+| 6 | `vehicle_visuals` | L7760 | Стробоскопы, круиз, погода/время, скин, `/cam` |
+| 7 | `keybinds` | L7933 | Бинды клавиш на команды чата |
+| 8 | `commands_guide` | L8084 | Справочник команд Advance RP |
+| 9 | `rp_engine` | L8140 | RP-движок: бинд-сценарии, колесо СКМ, таргет-меню |
+| 10 | `smi_tools` | L8182 | Инструменты СМИ (эфиры, викторины, автообъявления) |
+| 11 | `qol_tools` | L8303 | QoL: `/hud`, фильтр чата, `/clog`, `/price`, темы/масштаб, экспорт |
+| 12 | `lecturer` | L8790 | Лектор (построчные лекции и речи) |
+| 13 | `faction_tools` | L8798 | Фракции (`P4_drawFactionUI` L10623: МВД `/suw`, МЗ `/medui`, Damage Informer `/dmglog`, Патруль `/patrol`) |
+| 14 | `location_builder` | L8807 | `/location` конструктор объектов (522 предмета, ряд/забор, сцены) |
+
+### 2.4. Ключевые точки входа, 12 хуков `sampev` и 13 JSON-конфигов
+- **Ключевые функции:** `main()` (L13672), `mainFrameTick()` (L14030), `P1_getImguiInputState()` (L11530), `evaluateChatFilter()` (L14566), `applyCustomStyle()` (L16269), `onScriptTerminate()` (L17885).
+- **12 хуков `sampev`:** `onSendChat` (L14763), `onSendCommand` (L14785), `onSetPlayerTime` (L14946), `onSetWeather` (L14952), `onServerMessage` (L14959), `onPlayerJoin` (L15176), `onPlayerQuit` (L15192), `onShowDialog` (L15206), `onSendGiveDamage` (L15329), `onSendTakeDamage` (L15333), `onEnterEditObject` (L15336), `onSendEditObject` (L15440).
+- **19 окон `imgui.OnFrame`** (L16369–L17867) + `imgui.OnInitialize` (L16363).
+- **Хранение данных (13 JSON-файлов + Export v2):**
+  - `moonloader/config/`: `helper_db.json` (L447), `helper_mm_rules.json` (L448), `helper_settings.json` (L449), `helper_lecturer.json` (L2865), `helper_codex.json` (L2910), `helper_locations.json` (L3129), `helper_loc_blueprint.json` (L3697), `helper_market.json` (L3797), `helper_export.json` (L3894).
+  - `%LOCALAPPDATA%` (`getFolderPath(0x1C)`, с fallback в `config/`): `helper_ad_history.json` (L600), `helper_edit_corrections.json` (L638), `helper_rp_settings.json` (L5495), `helper_blacklist.json` (L6537).
+- **Agent Harness (внутри репозитория):**
+  - `harness/run.py` + `harness/lua_audit_core.py` + `harness/suites/test_phase2..6.py`: полный статический и поведенческий верификатор (`python harness/run.py`), быстрый gate (`--fast`, `--fast --json`), живая телеметрия архитектуры (`--snapshot`) и проверка деплоя (`--deploy-check`).
+  - `harness/patch_helper.py`: безопасное чтение/поиск CP1251 (`--read`, `--search`) и атомарный патчинг (`load_helper`, `replace_once`, `save_helper` с автооткатом при провале `--fast`).
+  - `.agents/hooks.json` (`cp1251_guard.py` + `stop_verify.py`): активная блокировка UTF-8 правок на `helper_core.lua` и автоматический прогон `--fast` при его изменении.
+
+---
+
+## 3. Каталог инвариантов и краш-ловушек стека (12 обязательных правил)
+
+1. **Кодировка CP1251 + CRLF (`\r\n`):** `helper_core.lua` хранится строго в Windows-1251 с CRLF для корректного вывода кириллицы в чат SA-MP. Запрещено редактировать его UTF-8 инструментами (`edit_file`) — только Python-скриптами с `.decode("cp1251")` / `.encode("cp1251")` и raw-строками `r'''...'''`.
+2. **Лимиты LuaJIT 2.1 (`200` locals / `60` upvalues):** все новые модули и состояния добавляются в глобальные таблицы (`P8`, `ENV_CAPS`), без новых верхнеуровневых `local`. Новую покадровую логику v3.0 выносить в `P8_tick()` (вызывается из `mainFrameTick`), чтобы не расти по локалам `mainFrameTick` (`62/180`).
+3. **Отключённый JIT (`jit.off()`, L28):** сохранять обязательно; включённый JIT ломает стабильность FFI-вызовов в DX9.
+4. **Щит сборщика мусора корутин (`__thread_anchor_pool`, L39–L45):** любая новая корутина обязана идти через обёрнутый `lua_thread.create` (защита от `0x6AE877D6` / `0x643877D6`).
+5. **Запрет побочных эффектов в `OnFrame` (`0x6AE877F1`):** из `imgui.OnFrame` и `drawSettings()` нельзя напрямую звать `samp*`, `getCharCoordinates`, `lua_thread.create`, `setClipboardText`, звук/CLEO/`memory.write` и запись файлов — замыкания `queueTask()` / `scheduleTask()` создаются строго внутри веток срабатывания (`if imgui.Button(...) then`), либо выставляются dirty-флаги.
+6. **Ленивая инициализация `GImGui` (`0xC0000005 at 0x6E0A6BFE`):** в `mimgui` контекст `renderer` равен `nil` до первого активного кадра `OnFrame`. Вызов `imgui.GetIO()` вне `OnFrame`/`OnInitialize` без проверки `imgui.IsInitialized()`, `imgui.GetRenderer()` (`not r.lost`) и `imgui.SwitchContext()` гарантированно роняет `cimguidx9.dll` даже под `pcall`. Всегда использовать `P1_getImguiInputState()` (L11530), а `require('mimgui')` в начале скрипта защитить через `pcall` с выводом ошибки в чат/лог.
+7. **Усечение нулевого байта в `encoding` (`iconv`) и двойная перекодировка:** `u8"A\0B\0"` обрезается на первом `\0`. Для `imgui.Combo` / `imgui.ListBox` нулевые байты **всегда** выносить наружу: `u8"A" .. "\0" .. u8"B" .. "\0"`, а перевод CP1251 в UTF-8 через `u8(...)` выполнять ровно один раз на границе UI.
+8. **Безопасные вызовы `mimgui`:** только `imgui.TextUnformatted(...)` (не `Text`/`TextColored` с `%`); нечётные размеры `imgui.new.char[N]` + `ffi.sizeof(buf)`; `imgui.PushIDStr`/`Int`/`Ptr` (нет `imgui.PushID`); безусловный `imgui.End()` после `Begin`, парные `BeginChild`/`EndChild` и `Push*`/`Pop*`; на пассивных HUD-окнах — `HideCursor = true` + флаг `NoInputs`.
+9. **Отложенное освобождение DX9-текстур и безопасное завершение:** освобождать текстуры только вне кадра отрисовки через `P6_flushTexReleaseQueue()` (L12926); в `onScriptTerminate()` (L17885) всегда проверять `not quitGame and imgui.IsInitialized()`.
+10. **Сдвиг возвращаемых значений под `pcall`:** `pcall` добавляет первым значением `ok` — например, `local ok, res, pid = pcall(sampGetPlayerIdByCharHandle, ped)` и `local ok, res, x, y, z = pcall(getObjectCoordinates, obj)`. Никогда не вызывать `wait()` внутри `pcall`, и держать `mainFrameTick()` вынесенным из цикла `while true do`.
+11. **Запрещённые несуществующие API и затенение:** не использовать `isSampPauseMenuActive` (нужно `isPauseMenuActive`), `sampGetCurrentDialogStyle` (нужно `sampGetCurrentDialogType`), `isThisModelABike`/`isThisModelATrain` (нужно `NON_AUTO_MODELS` + `isThisModelACar`), `getObjectRotation` (нужно `getObjectQuaternion` + `P6_quatToEuler`), `setCarLightDamageStatus`; не затенять встроенные функции MoonLoader (`isCarEngineOn` → `P1_isCarEngineOn`). В `sampev.onServerMessage` `evaluateChatFilter()` обязан выполняться **до** `/clog`, звуков и парсеров; перед `return false` в `/find` отправлять `sampSendDialogResponse(dialogId, 0, -1, "")` (4-й аргумент — `""`, а не `-1`).
+12. **Математика вращений GTA:SA (`Rz*Rx*Ry`):** для конвертации кватернионов объектов в углы Эйлера используется исключительно инверсия `CMatrix::SetRotate` в `P6_quatToEuler()` (L12303).
+
+---
+
+## 4. Целевая архитектура v3.0 — Фракционно-адаптивная платформа
+
+Главная проблема «комбайнов» для SA-MP — на экран вываливаются сразу все модули (в v2.7 их `14`, в v3.0 — `15` с добавлением `army_tools`): боец в армии видит кнопки `/edit` СМИ, розыск МВД и лечение МЗ. В **v3.0** интерфейс и контекстные меню **автоматически подстраиваются под текущую фракцию игрока**, оставляя на виду только релевантные инструменты, при этом любая функция остаётся доступной в один клик через переключатель **«Показать все модули»**.
+
+### 4.1. Модель контекста фракции (`P8.faction_ctx`)
+
 ```lua
-local strobe_sequences = {
-    [0] = {{0,0},{2,2},{0,0},{2,2}},          -- Простой
-    [1] = {{0,2},{2,0},{0,2},{2,0}},          -- Быстро-медленно
+P8.faction_ctx = {
+    active_faction   = "civ",       -- "mo" | "mvd" | "mz" | "smi" | "gov" | "crime" | "civ"
+    sub_division     = "",          -- напр. "СВ" | "ВВС" | "ВМФ" для "mo"; "ЛСПД"|"СФПД"|"ЛВПД"|"ФБР" для "mvd"
+    rank_name        = "",          -- звание / должность из /pass или /stats
+    rank_num         = 0,
+    server_id        = "unknown",   -- "blue" | "red" | "green" | "lime" | "chocolate" | "unknown"
+    auto_detect      = true,        -- автоопределение из диалогов и рации
+    show_all_modules = false,       -- 1-клик в шапке F11, чтобы временно показать все 14/15 модулей
+    manual_lock      = false,       -- если игрок вручную выбрал профиль, не перезаписывать случайно
 }
 ```
 
-#### БАГ-2: `selected_faction` — необъявленная переменная
-**Строки:** 1362, 1364, 1521, 2005
-**Симптом:** `attempt to index global 'selected_faction' (a nil value)`
-**Причина:** `factionScannerWorker` записывает `selected_faction[0] = detected_faction`, `getWeaponRp` читает `selected_faction[0]`, `/rpdebug` читает `selected_faction[0]` — но `selected_faction` нигде не объявлен.
-**Последствие:**
-- Определение фракции крашится сразу после обнаружения (factionScannerWorker)
-- RP-отыгровка оружия крашится (weaponTrackWorker → getWeaponRp)
-- Команда `/rpdebug` крашится
-**Фикс:** Добавить `local selected_faction = imgui.new.int(0)` в блок объявлений.
+### 4.2. Конвейер автоопределения фракции и сервера
 
-#### БАГ-3: `rp_engine_enabled` — необъявленная переменная
-**Строка:** 1519
-**Симптом:** `attempt to index global 'rp_engine_enabled' (a nil value)` при выполнении `/rpdebug`
-**Причина:** В команде `/rpdebug` есть строка `tostring(rp_engine_enabled[0])`, но переменная нигде не объявлена. Вероятно, остаток от удалённой функции авто-отыгровки двигателя.
-**Фикс:** Удалить строку 1519 или добавить `local rp_engine_enabled = imgui.new.bool(false)`.
+```mermaid
+flowchart TD
+    S1["sampev.onServerMessage и sampGetCurrentServerName"] -->|"Имя сервера и приветствие"| SRV["P8.faction_ctx.server_id (Blue / Red / Green / Lime / Chocolate)"]
+    S2["sampev.onShowDialog (/pass, /stats, /mn)"] -->|"Организация и Звание"| FAC["P8_setFactionContext(faction, sub_division, rank)"]
+    S3["sampev.onServerMessage (/r и /f своего ника)"] -->|"Тег подразделения"| FAC
+    S4["Ручной селектор в шапке F11"] -->|"manual_lock = true"| FAC
 
----
+    FAC --> UI1["Фильтрация сайдбара modules по mod.factions + синхронизация active_module_idx"]
+    FAC --> UI2["Контекстная верхняя панель быстрого доступа"]
+    FAC --> UI3["Адаптация Колеса СКМ и Таргет-меню (ПКМ+X/R/E)"]
+    FAC --> UI4["Фракционный набор Авто-РП и мини-виджетов /hud"]
+    SRV --> CODEX["Изолированный профиль законодательства и уставов"]
+```
 
-### 🟠 ВЫСОКИЕ (визуальные баги / неправильное поведение)
+- **Автодетект без навязчивости и без ложных срабатываний:** основной источник — диалоги `/pass`, `/stats`, `/mn`. Рация `/r` и `/f` учитывается **только для сообщений от своего собственного ника** (никогда от `/d` или `/gnews`, где пишут чужие фракции!). Например, `Сухопутные войска` → `mo / СВ`, `Военно-воздушные силы` → `mo / ВВС`, `Военно-морской флот` → `mo / ВМФ`. При переключении фракции `active_module_idx` синхронизируется до рендера `imgui.OnFrame`, чтобы индекс не указывал на скрытую вкладку.
+- **Ручной селектор в шапке `F11`:** выпадающий список `[Фракция: МО (Армия)]` + `[Подразделение: СВ]` + чекбокс `[Все модули]`. Выбор сохраняется в `helper_settings.json`.
 
-#### БАГ-4: `imgui.PopStyleColor()` без парного `PushStyleColor()`
-**Строки:** 1128, 1146, 1160, 1176
-**Симптом:** ImGui assertion / stack imbalance / визуальные артефакты
-**Причина:** В `vehicle_visuals.drawSettings` вызывается `imgui.PushItemWidth(150)` → `imgui.SliderInt(...)` → `imgui.PopStyleColor()`. Но `PushItemWidth` требует `PopItemWidth`, а не `PopStyleColor`. PopStyleColor без PushStyleColor нарушает стек цветов ImGui.
-**Последствие:** При открытии вкладки "Транспорт и визуал" возможен assertion crash или искажение цветов всех последующих элементов.
-**Фикс:** Заменить все 4 `imgui.PopStyleColor()` на `imgui.PopItemWidth()` на строках 1128, 1146, 1160, 1176.
+### 4.3. Матрица видимости модулей по фракциям (`mod.factions`)
 
-#### БАГ-5: Кодировка `static_aad_buf` — двойная конвертация
-**Строки:** 812, 817, 824, 841
-**Симптом:** Кириллица в поле ввода авто-объявления отображается мусором / не отправляется
-**Причина:**
-- Строка 812: `imgui.new.char[128](u8:decode(aad_text))` — `aad_text` хранится в CP1251 (из `/aad` команды), но `u8:decode` ожидает UTF-8 на входе. CP1251 байты интерпретируются как UTF-8 → кириллица удаляется (`//IGNORE`). Буфер ImGui должен содержать **UTF-8**.
-- Строка 817: `aad_text = u8:encode(ffi.string(static_aad_buf), encoding.default)` — буфер содержит UTF-8 (введённый пользователем), но `u8:encode` конвертирует CP1251→UTF-8, интерпретируя UTF-8 как CP1251 → двойное кодирование. `aad_text` должен храниться в **CP1251** для `sampSendChat`.
-**Фикс:**
-- Строка 812: `imgui.new.char[128](u8:encode(aad_text))` — CP1251 → UTF-8 для ImGui
-- Строки 817, 824, 841: `u8:decode(ffi.string(static_aad_buf))` — UTF-8 → CP1251 для SAMP
+| Модуль (`id`) | `factions` (метаданные) | МО (Армия) | МВД / ФБР | МЗ | СМИ | Мэрия | Крайм | Гражд. |
+|---|---|---|---|---|---|---|---|---|
+| **`army_tools` (новый)** | `{"mo"}` | **Да (основной)** | — | — | — | — | — | — |
+| `faction_tools` (`P4_drawFactionUI`: МВД/МЗ/Damage/Патруль) | `{"mvd", "mz"}` | — *(Damage перенесён в qol/army)* | **Да** | **Да** | — | — | — | — |
+| `mm_editor` (`/edit`) | `{"smi"}` | — | — | — | **Да** | — | — | — |
+| `smi_tools` (эфиры/викторины) | `{"smi"}` | — | — | — | **Да** | — | — | — |
+| `gnews` (гос. новости) | `{"mo", "mvd", "mz", "smi", "gov"}` | Да (ст. состав) | Да | Да | Да | Да | — | — |
+| `lecturer` (лекции/присяга) | `{"mo", "mvd", "mz", "smi", "gov"}` | **Пакет МО** | Пакет МВД | Пакет МЗ | Пакет СМИ | Пакет Мэрии | — | — |
+| `auto_rp` (боевое / служебное RP) | `{"all"}` (фильтр пресетов) | Боевой/МО | Полиц./МВД | Мед./МЗ | СМИ | Мэрия | Крайм | Базовый |
+| `rp_engine` (СКМ + Таргет-меню) | `{"all"}` (адаптация меню) | Контекст МО | Контекст МВД | Контекст МЗ | Контекст СМИ | Контекст Мэрии | Крайм | Гражд. |
+| `vehicle_visuals` | `{"all"}` | Да | Да | Да | Да | Да | Да | Да |
+| `keybinds` | `{"all"}` | Да | Да | Да | Да | Да | Да | Да |
+| `commands_guide` | `{"all"}` (приоритет секции) | Сверху МО | Сверху МВД | Сверху МЗ | Сверху СМИ | Сверху Мэрия | Сверху Крайм | Общие |
+| `qol_tools` (`/hud`, `/price`, `/dmglog`, темы) | `{"all"}` | Да | Да | Да | Да | Да | Да | Да |
+| `location_builder` (`/location`) | `{"all"}` (приоритет пресетов) | Блокпост/Полигон | Оцепление | Медпункт | Студия | Трибуна | Сходка | Все |
+| `autocall_db` | `{"smi", "civ", "gov"}` | Скрыт* | Скрыт* | Скрыт* | Да | Да | Скрыт* | Да |
+| `auto_ad` | `{"smi", "civ", "crime"}` | Скрыт* | Скрыт* | Скрыт* | Да | Скрыт* | Да | Да |
 
-#### БАГ-6: Кодировка отображения шаблонов и истории
-**Строки:** 857, 860-861, 876, 897, 900-901, 916
-**Симптом:** Шаблоны и история объявлений отображаются мусором в GUI
-**Причина:**
-- `aad_templates` и `aad_history` хранятся в UTF-8 (сохраняются через `u8:encode` на строке 841)
-- Строка 857: `local tpl_utf8 = u8:decode(tpl)` — конвертирует UTF-8 → CP1251 (переменная названа "utf8", но содержит CP1251!)
-- Строка 876: `imgui.Text(tpl_utf8)` — ImGui ожидает UTF-8, получает CP1251 → мусор
-- Строки 860-861: `ffi.copy(static_aad_buf, u8:decode(tpl))` — копирует CP1251 в буфер ImGui, который ожидает UTF-8
-**Фикс:**
-- Убрать `u8:decode` — `tpl` и `hist` уже в UTF-8:
-  - `imgui.Text(tpl)` вместо `imgui.Text(u8:decode(tpl))`
-  - `ffi.copy(static_aad_buf, tpl)` вместо `ffi.copy(static_aad_buf, u8:decode(tpl))`
+*\* Любой скрытый модуль мгновенно появляется при включении галочки `Показать все модули` в шапке `F11`.*
 
-#### БАГ-7: Кодировка в MM Editor (тест форматирования)
-**Строки:** 970, 972
-**Симптом:** Тестовое форматирование объявлений работает неправильно для кириллицы
-**Причина:**
-- Строка 970: `u8:encode(ffi.string(test_input), encoding.default)` — `test_input` содержит UTF-8 от ImGui, но `u8:encode` конвертирует CP1251→UTF-8 (двойное кодирование). `formatAdText` работает с CP1251.
-- Строка 972: `u8:decode(formatAdText(raw_text))` — `formatAdText` возвращает CP1251, но `u8:decode` ожидает UTF-8 → кириллица удаляется.
-**Фикс:**
-- Строка 970: `u8:decode(ffi.string(test_input))` — UTF-8 → CP1251 для formatAdText
-- Строка 972: `u8:encode(formatAdText(raw_text))` — CP1251 → UTF-8 для ImGui
-
-#### БАГ-8: Кодировка в MM Editor (добавление правил)
-**Строки:** 1024, 1026
-**Симптом:** Новые правила сокращений сохраняются с двойным кодированием
-**Причина:** `u8:encode(ffi.string(static_new_abbr), encoding.default)` — берёт UTF-8 из ImGui, конвертирует как CP1251→UTF-8 (двойное кодирование). Но `mm_rules` должны хранить CP1251 (для `formatAdText` pattern matching).
-**Фикс:** `u8:decode(ffi.string(static_new_abbr))` — UTF-8 → CP1251.
-**Но:** при этом `imgui.Text(rule.abbreviation ...)` на строке 996 будет показывать CP1251 в ImGui (мусор). Нужно: `imgui.Text(u8:encode(rule.abbreviation) .. " -> " .. u8:encode(rule.replacement))`.
-**Альтернатива:** хранить `mm_rules` в UTF-8 и конвертировать при matching в `formatAdText`.
+### 4.4. Адаптация контекстных интерфейсов (не только сайдбар)
+- **Верхняя панель быстрого доступа (`F11`):**
+  - Для **МО (Армия):** `[Пост / Доклад]` `[Конвой БП]` `[ЧС / Тревога!]` `[Присяга / Лектор]` `[Устав МО]`. Никаких кнопок `/edit`, розыска или лечения.
+  - Для **МВД / ФБР:** `[Патруль]` `[Розыск / УК]` `[Мегафон 10-55]` `[Штраф]` `[Кодекс]`.
+  - Для **СМИ:** `[/edit AutoEdit]` `[Эфир]` `[Викторина]` `[Автообъявления]`.
+- **Колесо СКМ и Таргет-меню (`ПКМ + X / R / E`):**
+  - **МО (Армия):** «Потребовать документы (КПП)», «Предупреждение: покинуть охраняемую территорию», «Доложить о нарушителе в `/r`», «Передать аптечку/маску», «Отдать честь (анимация)».
+  - **МВД / ФБР:** `/su`, `/cuff`, `/gotome`, `/frisk`, `/ticket`, `/pull`.
+  - **МЗ:** `/heal`, осмотр, выдача медкарты.
+  - **Гражданский / Крайм:** `/c`, `/sms`, обмен, быстрые фразы.
+- **`/hud` мини-виджеты:** в режиме `mo` отображается таймер доклада на посту (`Пост КПП-1 | Доклад через 04:12`), статус конвоя БП и компактный Damage Informer (если включён), вместо патрульного счётчика МВД или счётчика `/edit` СМИ.
 
 ---
 
-### 🟡 СРЕДНИЕ (неправильные сообщения)
+### 4.5. Детальный дизайн модуля МО / Армия (`army_tools`, приоритет №1)
 
-#### БАГ-9: `u8:decode()` на CP1251 литералах в sampAddChatMessage
-**Строки:** 1264, 1467, 1513, 1515, 1517, 1519, 1521, 1539, 1644, 1724, 1728, 1734, 1918, 1928, 1942, 2094, 2130, 2224
-**Симптом:** Сообщения в чат SAMP выводятся без кириллицы (только ASCII часть)
-**Причина:** `sampAddChatMessage(u8:decode("CP1251 литерал"), color)` — `u8:decode` ожидает UTF-8 на входе, но получает CP1251. С флагом `//IGNORE` кириллические байты молча удаляются.
-**Правильно:** `sampAddChatMessage("CP1251 литерал", color)` — напрямую, без конвертации (sampAddChatMessage ожидает CP1251).
-**Фикс:** Убрать `u8:decode(...)` обёртку во всех этих вызовах. ИЛИ заменить на `u8:decode(u8"литерал")` (roundtrip: CP1251→UTF-8→CP1251, работает но избыточно).
+Модуль проектируется с учётом реальной службы в **Сухопутных войсках (СВ)**, **ВВС** и **ВМФ** на Advance RP:
 
-#### БАГ-10: `text_utf8:match(u8"LV%s*|%s*(.-)%s*%|")` — неправильный паттерн
-**Строка:** 1450
-**Симптом:** Поле `ad` в БД всегда пустое
-**Причина:** Паттерн ищет "LV | ... |" в тексте объявления, но:
-1. Формат объявлений Advance RP может не содержать префикс "LV"
-2. `%|` — избыточное экранирование (`|` не спецсимвол в Lua паттернах, но работает)
-3. Если паттерн не находит совпадение, `match` возвращает `nil`, и `or ""` даёт пустую строку
-**Фикс:** Проверить реальный формат объявлений на сервере и скорректировать паттерн.
-
----
-
-### 🟢 НИЗКИЕ (косметика / потенциальные проблемы)
-
-#### БАГ-11: `strobeWorker` сбрасывает `strobe_enabled[0]` при выходе
-**Строка:** 1874
-**Симптом:** После выхода из машины стробоскоп нельзя включить заново через GUI (чекбокс сброшен)
-**Причина:** `strobeWorker` завершается с `strobe_enabled[0] = false` (строка 1874), что сбрасывает чекбокс в GUI без вызова `saveSettings()`.
-**Фикс:** Не сбрасывать `strobe_enabled[0]` в воркере, только `strobe_active = false`.
-
-#### БАГ-12: Несоответствие индексов модулей
-**Строки:** 1632, 1752, 1900
-**Симптом:** Проверка `modules[5].enabled` хардкодит индекс модуля vehicle_visuals
-**Причина:** Если порядок модулей в таблице изменится, хардкод `modules[5]` сломается.
-**Фикс:** Использовать `isModuleEnabled("vehicle_visuals")` вместо `modules[5].enabled`.
-
-#### БАГ-13: `factionScannerWorker` — `sampGetDialogCaption()` может вернуть nil
-**Строка:** 1324
-**Симптом:** `attempt to index local 'title' (a nil value)` если диалог без заголовка
-**Причина:** `title:find("...")` вызывается без проверки на nil.
-**Фикс:** `local title = sampGetDialogCaption() or ""`
-
-#### БАГ-14: `getOnlinePlayersFromDb` — `sampGetPlayerIdByCharHandle` может не вернуть результат
-**Строка:** 637
-**Симптом:** `attempt to call a nil value` если игрок не в игре
-**Причина:** `sampGetPlayerIdByNickname(sampGetPlayerNickname(sampGetPlayerIdByCharHandle(PLAYER_PED)))` — вложенные вызовы без проверки результатов.
-**Фикс:** Разложить на шаги с проверками.
-
-#### БАГ-15: `dialogScannerWorker` — пустой блок логики
-**Строки:** 1688-1694
-**Симптом:** MM Editor авто-форматирование не работает
-**Причина:** Блок `if sender and phone then -- ... end` пустой (только комментарий). Логика авто-форматирования не реализована.
-**Фикс:** Реализовать логику или удалить мёртвый код.
-
-#### БАГ-16: `chatScannerWorker` — закомментирован
-**Строка:** 1610
-**Симптом:** Сканер чата не работает
-**Причина:** `-- lua_thread.create(chatScannerWorker)` — запуск закомментирован, и `chatScannerWorker` нигде не определён.
-**Фикс:** Удалить закомментированную строку или реализовать воркер.
-
-#### БАГ-17: `formatAdText` — паттерны с однобайтовыми классами
-**Строки:** 543-553
-**Симптом:** Удаление слов "куплю/продам" может не работать для кириллицы
-**Причина:** Паттерны вроде `%f[%a][к]%s+[п][к]%f[%A]` используют классы `%a`/`%A`, которые в LuaJIT работают по байтам. Для CP1251 кириллицы `%a` может не сработать (не ASCII буква).
-**Фикс:** Использовать явные диапазоны CP1251: `[%wа-яА-Я]` вместо `%a`.
+1. **Посты и дежурство (`P8.army.post`):**
+   - Пресеты постов: `КПП-1`, `КПП-2`, `Вышка`, `Склад БП`, `Авианосец (Кит)`, `Ангар`, `Казарма` + свободный ввод.
+   - Статусы обстановки: `Код 1 (спокойно)`, `Код 2 (подозрительная активность)`, `Код 3 (ЧС / нападение)`.
+   - Настраиваемый интервал напоминания доклада (по умолчанию `10 мин`): обратный отсчёт в `/hud`, мягкий звуковой/визуальный сигнал и отправка отформатированного доклада в `/r` **по нажатию кнопки/хоткея** (без автоспама в AFK).
+   - Настраиваемый формат доклада с переменными: `{tag}`, `{post}`, `{code}`, `{crew}`, `{zone}`, `{sector}`.
+2. **Конвой и доставка БП (`P8.army.convoy`):**
+   - Использует общую базу 38 районов San Andreas и секторов `A-1..H-8` (уже есть в `P7`).
+   - 4 кнопки цикла: `Выехал за БП` → `Загрузился (Авианосец/Склад)` → `Возвращаюсь на базу` → `Разгрузился на складе`.
+   - Счётчик рейсов/поставок за сессию (для отчёта на повышение).
+3. **Тревога / ЧС на базе (`P8.army.alarm`):**
+   - Горячая клавиша (1 или 2 клавиши) мгновенного доклада о ЧС в `/r` (или `/d`) с автоподстановкой текущей зоны SA и сектора.
+   - Опциональный радар-триггер на рацию `/r` и `/d`: при словах «ЧС», «нападение», «прорыв», «код 3» — звуковой сигнал + всплывающий баннер в HUD (с антиспам-кулдауном 15 сек).
+4. **Присяга, Устав МО, Правила КПП, Субординация:**
+   - Встроенный фракционный пакет для `lecturer` (Присяга, лекция по субординации, правила поведения на КПП, правила конвоя) с настраиваемой задержкой строк.
+   - Вкладка быстрого поиска по **Уставу МО** и кодам рации прямо внутри `army_tools`.
+5. **Боевое Авто-РП + `/sp <cmd>` + Damage Informer:**
+   - Набор армейских отыгровок (оружие, бронежилет, маска, рация, `/healme`, отдание чести) с **подтверждением сервера** (см. §4.6).
+   - Команда **`/sp <команда>`** (например, `/sp healme`, `/sp mask`) — разовый обход Авто-РП в бою, чтобы не терять секунды на отыгровку.
+   - Интеграция с уже существующим в v2.7 **Damage Informer** (`dmg_enabled`, `/dmglog`, хуки `sampev.onSendGiveDamage` L15329 и `sampev.onSendTakeDamage` L15333): выносится быстрый переключатель в `army_tools` (и `qol_tools`), с защитой от невалидного `playerId` (`65535` / падение / взрыв) до вызова `sampGetPlayerNickname`.
+6. **Военные пресеты `/location`:**
+   - 3 готовых пресета из проверенного каталога 522 объектов: **КПП / Блокпост**, **Стрельбище / Полигон**, **Строевой плац**.
 
 ---
 
-## 4. Сводка багов по приоритету
+### 4.6. Кросс-фракционные паттерны (вдохновлено PoliceHelper)
 
-| # | Приоритет | Баг | Строки | Статус |
-|---|-----------|-----|--------|--------|
-| 1 | 🔴 Крит | `strobe_sequences` не объявлена | 1828,1830 | НЕ ИСПРАВЛЕНО |
-| 2 | 🔴 Крит | `selected_faction` не объявлена | 1362,1364,1521,2005 | НЕ ИСПРАВЛЕНО |
-| 3 | 🔴 Крит | `rp_engine_enabled` не объявлена | 1519 | НЕ ИСПРАВЛЕНО |
-| 4 | 🟠 Выс | `PopStyleColor` без `PushStyleColor` | 1128,1146,1160,1176 | НЕ ИСПРАВЛЕНО |
-| 5 | 🟠 Выс | Кодировка `static_aad_buf` | 812,817,824,841 | НЕ ИСПРАВЛЕНО |
-| 6 | 🟠 Выс | Кодировка шаблонов/истории | 857,860,876,897,900,916 | НЕ ИСПРАВЛЕНО |
-| 7 | 🟠 Выс | Кодировка MM Editor тест | 970,972 | НЕ ИСПРАВЛЕНО |
-| 8 | 🟠 Выс | Кодировка MM Editor правил | 1024,1026 | НЕ ИСПРАВЛЕНО |
-| 9 | 🟡 Ср | `u8:decode` на CP1251 литералах | 18 строк | НЕ ИСПРАВЛЕНО |
-| 10 | 🟡 Ср | Паттерн `ad` в БД | 1450 | НЕ ИСПРАВЛЕНО |
-| 11 | 🟢 Низ | `strobe_enabled` сброс в воркере | 1874 | НЕ ИСПРАВЛЕНО |
-| 12 | 🟢 Низ | Хардкод `modules[5]` | 1632,1752,1900 | НЕ ИСПРАВЛЕНО |
-| 13 | 🟢 Низ | `sampGetDialogCaption()` nil | 1324 | НЕ ИСПРАВЛЕНО |
-| 14 | 🟢 Низ | Вложенные вызовы без проверки | 637 | НЕ ИСПРАВЛЕНО |
-| 15 | 🟢 Низ | Пустой блок dialogScanner | 1688-1694 | НЕ ИСПРАВЛЕНО |
-| 16 | 🟢 Низ | chatScannerWorker закомментирован | 1610 | НЕ ИСПРАВЛЕНО |
-| 17 | 🟢 Низ | `%a` паттерны для кириллицы | 543-553 | НЕ ИСПРАВЛЕНО |
+1. **Автоопределение сервера Advance RP и строгая изоляция профилей:**
+   - При подключении определяется сервер (`sampGetCurrentServerName()` + приветствие в чате, а не только IP, чтобы не ломаться под прокси/VPN): `Blue`, `Red`, `Green`, `Lime`, `Chocolate`.
+   - **Инвариант несмешивания:** законодательство (УК, АК/КоАП, ПК, ПДД, ФП) и уставы хранятся в изолированных серверных профилях (`P8.server_profiles[server_id]`). Материалы **Blue** (включая старый неразделённый `helper_codex.json` из v2.7) никогда не подставляются автоматически на Chocolate/Red/Green/Lime; для неполных профилей и `unknown` отображается явная плашка.
+2. **State-Machine подтверждённого сервером RP (`P8.rp_pending`) + `/sp <cmd>`:**
+   - Команды со сложной проверкой сервера (`/cuff`, `/gotome`, `/mask`, `/healme`, `/form`, `/gpsoff` и т. д.) не отправляют финальную `/me`-отыгровку вслепую сразу после ввода.
+   - При отправке команды регистрируется запись `P8.rp_pending[key] = { patterns = {...}, on_confirm = fn, expires_at = os.clock() + 3.0 }`. Только при получении подтверждающего сообщения в `sampev.onServerMessage` отправляется завершающая отыгровка.
+   - Ввод `/sp <cmd> [args]` в `sampev.onSendCommand` ставит `P8.rp_bypass_once = true` и переписывает команду возвратом `{ "/" .. inner }` (без повторного вызова `sampSendChat`, чтобы исключить гонку/реэнтерабельность хука).
+3. **Устойчивая text-matched автоматизация (строго opt-in, по умолчанию ВЫКЛ):**
+   - Получение боекомплекта/снаряжения на складе (МО / МВД), заправка, покупка еды, обновление маски.
+   - **Принцип устойчивости:** перехват `sampev.onShowDialog` предварительно убирает цветовые теги `{RRGGBB}`, защищается от дублирующегося срабатывания на один и тот же `dialogId`, корректно учитывает `TABLIST_HEADERS` (`style == 5`, где первая строка — заголовок колонок, а не элемент `0`) и ищет нужную строку списка **по текстовому шаблону**, а не по хрупкому номеру строки.
+4. **Press-to-Capture хоткеи (1 или 2 клавиши):**
+   - Единый виджет захвата клавиш (`[Нажмите клавишу или Комбинацию...]`), поддерживающий одиночные клавиши и связки `Модификатор (Alt/Ctrl/Shift) + Клавиша` с проверкой `not sampIsChatInputActive() and not sampIsDialogActive() and not P1_getImguiInputState().want_text`.
 
-### Ранее исправленные баги (в этой сессии):
-| # | Баг | Фикс |
-|---|-----|------|
-| ✅ | `sendAdCommand` used before declaration | Forward declaration + assignment |
-| ✅ | `imgui.PushID` is nil | → `imgui.PushIDStr` |
-| ✅ | `#static_strobe_names` on ffi array | → `imgui.ComboStr` |
+---
+
+## 5. Система диагностики окружения (`ENV_CAPS`) и UI-плашки зависимостей
+
+Чтобы игрок **никогда** не сталкивался с «молча не работающей кнопкой» или крашем из-за отсутствующего плагина, вводится единый зонд окружения `ENV_CAPS` и переиспользуемые UI-плашки предупреждений.
+
+### 5.1. Карта проверяемых зависимостей (`P8_probeEnvironment()`)
+
+Зонд запускается **один раз при старте** в `main()` (до основного цикла) и кэширует результат в глобальной таблице `ENV_CAPS`:
+
+| Ключ `ENV_CAPS` | Способ проверки в Lua / MoonLoader | Мин. версия | Какие функции зависят |
+|---|---|---|---|
+| `moonloader` | `getMoonloaderVersion()` (число, напр. `26` для `0.26`) | `0.26+` (`26`) | Всё ядро, `mimgui`, `SAMP.Lua` |
+| `sampfuncs` | `isSampfuncsLoaded()` + безопасный парсинг `major.minor` из `tostring(getSampfuncsVersion())` | `5.4+` | RPC/пакеты, чат-хуки, рация, консоль, часть опкодов SAMP |
+| `cleo` | `doesFileExist(getGameDirectory() .. "\\cleo.asi")` *(проверяет наличие файла на диске, а не точную версию бинарника/загрузку ASI)* | `4.3+` | Внешние CLEO-анимации, интеграции с CLEO-скриптами и расширенные опкоды |
+| `samp_lua` | `pcall(require, 'lib.samp.events')` | актуальная | `/edit` AutoEdit, фильтр чата, автодетект фракции/сервера, подтверждённое Авто-РП, Damage Informer, `/location` edit-хуки |
+| `mimgui` | `pcall(require, 'mimgui')` *(на старте: если нет — fallback в чат/лог)* | `1.7+` | Все 19 окон интерфейса |
+| `mimgui_tex` | `type(imgui.CreateTextureFromFile) == "function"` | `mimgui` с DX9 | Превью PNG-иконок в `/location` (522 предмета) |
+| `memory` | `pcall(require, 'memory')` (заменяет небезопасный глобал!) | встроенная | Стробоскопы, фиксация погоды/времени, проверка двигателя в турбо-круизе |
+| `bit` | `type(bit) == "table" and type(bit.band) == "function"` | LuaJIT 2.1 | Битовые маски стробоскопов и флагов `CVehicle` |
+| `json` | `pcall(require, 'json')` (`"native"` vs `"fallback"`) | опционально | Быстрый JSON (при отсутствии работает встроенный pure-Lua fallback — плашка не нужна) |
+
+### 5.2. Схема объявления зависимостей в модулях и фичах (`requires`)
+
+Каждый модуль или отдельная подфункция декларирует свои требования декларативно:
+
+```lua
+requires = {
+    {
+        id       = "sampfuncs",
+        min      = 5.4,
+        label    = "SAMPFUNCS 5.4+",
+        severity = "hard", -- "hard" (функция недоступна) | "soft" (ограниченный режим)
+        hint     = "Нужен для перехвата пакетов чата, диалогов и подтверждения RP.",
+    },
+    {
+        id       = "cleo",
+        min      = 4.3,
+        label    = "CLEO 4.3+",
+        severity = "soft",
+        hint     = "Нужен для расширенных анимаций и совместимости с CLEO-модулями.",
+    },
+}
+```
+
+### 5.3. Переиспользуемый UI-виджет плашек `P8_drawCapabilityBanner(reqs)`
+
+```mermaid
+flowchart LR
+    REQ["mod.requires / feature.requires"] --> BAN["P8_drawCapabilityBanner(reqs)"]
+    BAN --> CHK["P8_checkCapabilities(reqs) -> is_blocked, issues"]
+    CHK -->|"issues пустой"| RUN["Обычный рендер функции"]
+    CHK -->|"Есть проблемы"| DRAW["Отрисовка плашек по issue.label / issue.hint"]
+    DRAW -->|"severity == hard"| DIS["Красная плашка и защита кнопок (is_blocked = true)"]
+    DRAW -->|"severity == soft"| WARN["Янтарная плашка и работа в базовом режиме"]
+```
+
+- **Формат текста на плашке (формируется динамически из `req.label` и `issue.cur_ver`):**
+  - Если компонент не установлен:
+    `[!] Для работы этой функции требуется <req.label> (сейчас не установлено — установите)`
+  - Если установлена устаревшая версия:
+    `[!] Для работы этой функции требуется <req.label> (установлена v<cur_ver> — обновите)`
+- **Поведение виджета:**
+  1. Принимает `reqs`, внутри вызывает `local is_blocked, issues = P8_checkCapabilities(reqs)` и отрисовывает для каждой проблемы цветную карточку (`BeginChild` с рамкой: красная для `hard`, янтарно-жёлтая для `soft`), используя исключительно `imgui.TextUnformatted` и `imgui.PushIDStr`.
+  2. Показывает кнопку `[Что установить?]` (раскрывает `issue.hint`, куда именно положить `.asi` / библиотеку в папку игры).
+  3. Возвращает `is_blocked` (`true`, если отсутствует `hard`-зависимость), позволяя модулю безопасно отключить/скрыть зависимые кнопки и никогда не доводить до nil-ошибки или краша.
+- **Сводная панель «Диагностика стека»** в `F11 → Утилиты (QoL)`: единая таблица всех 9 компонентов стека с зелёными (`Установлено vX.Y`), жёлтыми (`Требуется обновление / опционально`) и красными (`Не установлено`) плашками.
+
+---
+
+## 6. Дорожная карта внедрения v3.0
+
+1. **Этап 1 — Фундамент адаптивности и плашек зависимостей:**
+   - Безопасный `pcall(require, 'memory')` + зонд `ENV_CAPS` (`P8_probeEnvironment`) + виджет `P8_drawCapabilityBanner(reqs)` + панель «Диагностика стека» в `qol_tools`.
+   - Контекст `P8.faction_ctx`, автодетект из `/pass`, `/stats`, `/mn`, переключатель фракции/подразделения и галочка «Показать все модули» в шапке `F11`, фильтрация `modules[i]` по `factions`.
+2. **Этап 2 — Модуль МО / Армия (`army_tools`) и подтверждённое RP:**
+   - Вкладка `army_tools` (Посты КПП/Вышка/Склад/Авианосец + таймер докладов `/r`, Конвой БП с 38 зонами SA, Тревога/ЧС, Присяга/Устав МО в Лекторе, военные пресеты `/location`).
+   - State-machine подтверждённого сервером Авто-РП (`P8.rp_pending`), обход **`/sp <cmd>`** и opt-in Damage Informer.
+   - Адаптация Колеса СКМ, Таргет-меню и `/hud` под активную фракцию.
+3. **Этап 3 — Серверные профили и продвинутая автоматизация:**
+   - Автоопределение сервера Advance RP (`Blue`/`Red`/`Green`/`Lime`/`Chocolate`) + строго изолированные профили законодательства/уставов.
+   - Press-to-capture хоткеи на 1 и 2 клавиши.
+   - Opt-in text-matched автоматизация склада МО/МВД, заправки, еды и маски (строго ВЫКЛ по умолчанию).

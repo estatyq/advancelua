@@ -1,0 +1,25 @@
+{
+  "cp1251-edit-guard": {
+    "PreToolUse": [
+      {
+        "matcher": "edit_file|write_file",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python hooks/cp1251_guard.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  },
+  "harness-stop-gate": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "python hooks/stop_verify.py",
+        "timeout": 15
+      }
+    ]
+  }
+}
