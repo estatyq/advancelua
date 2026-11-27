@@ -23,8 +23,8 @@ script_description("Universal Helper Platform for Advance RP")
 script_dependencies("SAMP.Lua", "mimgui")
 script_properties("work-in-pause")
 
-local SCRIPT_VERSION = 'v2.7 (27.11.2026)'
-local SCRIPT_VER_NUM = '2.7'
+local SCRIPT_VERSION = 'v3.0 (27.11.2026)'
+local SCRIPT_VER_NUM = '3.0'
 jit.off()
 
 -- ============================================================================
@@ -377,6 +377,8 @@ print('[helper_core] json library not found, using built-in fallback')
 end
 local mem_ok, memory = pcall(require, 'memory')
 if not mem_ok then print('[helper_core] WARNING: memory library not available') memory = nil end
+ENV_CAPS = ENV_CAPS or {}
+ENV_CAPS.memory = { ok = (mem_ok and memory ~= nil), lib = memory, label = "MoonLoader memory" }
 encoding.default = 'CP1251'
 local u8 = encoding.UTF8
 local WINDOW_TITLE = u8:encode("Universal Helper Platform " .. SCRIPT_VERSION)
@@ -2885,6 +2887,18 @@ P3_default_lecturer_templates = {
         text = "Напоминаю сотрудникам СМИ правила редактирования объявлений (ПРО).\nУказывайте тег города (LS/SF/LV), корректные названия авто и цены.\nЗапрещено допускать сокращения вроде «булка» или «кк» в готовом тексте.\nПеред началом эфира (/t) проверяйте аппаратуру и занимайте волну.\nВ эфире соблюдайте грамотность и уважительное обращение к слушателям."
     },
     {
+        name = "[МО] Военная присяга",
+        text = "Я, (Имя Фамилия), торжественно присягаю на верность своему Отечеству — Штату Advance.\nКлянусь свято соблюдать Конституцию, устав Министерства Обороны и приказы командиров.\nКлянусь достойно исполнять воинский долг и мужественно защищать границы части.\nСлужу Армии и Штату Advance!"
+    },
+    {
+        name = "[МО] Правила несения службы на КПП",
+        text = "Здравия желаю, бойцы! Напоминаю правила несения службы на КПП.\nНа посту запрещено открывать огонь без причины по безоружным гражданам.\nПри приближении постороннего — требуйте документы и цель визита в вежливой форме.\nВ случае проникновения на закрытую территорию делайте предупреждение и отсчёт 10 секунд.\nДоклады в рацию (/r) подаются строго по форме с указанием поста и кода обстановки."
+    },
+    {
+        name = "[МО] Правила доставки боеприпасов",
+        text = "Перед выездом в конвой за БП проверьте состояние транспорта и бронежилета.\nОбязательно докладывайте в /r о выезде, загрузке, нападении и возвращении на базу.\nЗапрещено уезжать за БП в одиночку без разрешения офицерского состава, если действует комендатура."
+    },
+    {
         name = "Инструктаж интернов (МЗ)",
         text = "Добро пожаловать в Министерство Здравоохранения, коллеги!\nОказание помощи пациентам проводится строго с РП-отыгровкой и по ЕЦП.\nВыдача лекарств в палате оформляется через /medhelp, в карете — /heal.\nУважайте каждого пациента и не отказывайте в лечении без причины.\nСоблюдайте чистоту в палатах и держите спецтранспорт заправленным."
     },
@@ -3783,6 +3797,21 @@ P6_scene_presets = {
             { model = 19999, label = "Место прессы 2", dx = 1.2, dy = -1.2, dz = 0.0, drz = 0.0 },
             { model = 1840, label = "Колонка зала", dx = -2.4, dy = 2.4, dz = 0.0, drz = 0.0 },
         }
+    },
+    {
+        name = "Блокпост / КПП (МО)",
+        desc = "Армейский КПП: будка со шлагбаумом, барьеры, ящики БП, забор и прожектор",
+        items = {
+            { model = 967, label = "КПП / будка", dx = 0.0, dy = 0.0, dz = 0.0, drz = 0.0 },
+            { model = 1435, label = "Барьер слева", dx = -4.2, dy = 3.2, dz = 0.0, drz = 0.0 },
+            { model = 1435, label = "Барьер справа", dx = 4.2, dy = 3.2, dz = 0.0, drz = 0.0 },
+            { model = 984, label = "Сетка-забор 1", dx = -5.5, dy = -2.2, dz = 0.0, drz = 0.0 },
+            { model = 984, label = "Сетка-забор 2", dx = 5.5, dy = -2.2, dz = 0.0, drz = 0.0 },
+            { model = 3015, label = "Штабель припасов", dx = -3.4, dy = 0.5, dz = 0.0, drz = 15.0 },
+            { model = 2969, label = "Ящик БП", dx = -2.6, dy = 1.2, dz = 0.0, drz = 0.0 },
+            { model = 3014, label = "Оружейный ящик", dx = 3.4, dy = 0.5, dz = 0.0, drz = -15.0 },
+            { model = 18656, label = "Прожектор КПП", dx = 0.0, dy = 4.5, dz = 0.0, drz = 0.0 },
+        }
     }
 }
 
@@ -3875,6 +3904,76 @@ time_hour = imgui.new.int(12)
 
 -- Визуальный скин-ченджер
 skin_changer_id = imgui.new.int(0)
+
+-- Фаза 8 (v3.0): ENV_CAPS, Фракционная адаптивность, МО Армия и Подтверждённое РП
+ENV_CAPS = ENV_CAPS or {}
+P8 = P8 or {}
+P8.faction_keys = { "mo", "mvd", "mz", "smi", "gov", "crime", "civ" }
+P8.faction_labels = { "МО (Армия)", "МВД / ФБР", "МЗ (Больница)", "СМИ", "Мэрия", "Банды / Мафии", "Гражданский" }
+P8.faction_to_legacy = { mo = 3, mvd = 1, mz = 2, smi = 5, gov = 4, crime = 6, civ = 0 }
+P8.legacy_to_faction = { [0] = "civ", [1] = "mvd", [2] = "mz", [3] = "mo", [4] = "gov", [5] = "smi", [6] = "crime", [7] = "crime" }
+P8.subdivisions = {
+    mo    = { "СВ", "ВВС", "ВМФ" },
+    mvd   = { "ЛСПД", "СФПД", "ЛВПД", "ФБР" },
+    mz    = { "БЛС", "БСФ", "БЛВ" },
+    smi   = { "LSFM", "SFFM", "LVFM", "TV-C" },
+    gov   = { "Мэрия", "АП" },
+    crime = { "Банда", "Мафия" },
+    civ   = { "Общий" },
+}
+P8.faction_ctx = {
+    faction_idx      = imgui.new.int(6),
+    subdiv_idx       = imgui.new.int(0),
+    active_faction   = "civ",
+    sub_division     = "Общий",
+    rank_name        = "",
+    auto_detect      = imgui.new.bool(true),
+    show_all_modules = imgui.new.bool(false),
+    manual_lock      = false,
+    server_id        = "unknown",
+    server_label     = "",
+    server_announced = false,
+}
+P8.army = {
+    ui_tab          = 1,
+    post_presets    = { "КПП-1", "КПП-2", "Вышка", "Склад БП", "Авианосец (Кит)", "Ангар", "Казарма" },
+    post_idx        = imgui.new.int(0),
+    post_custom     = imgui.new.char[65](""),
+    code_labels     = { "Код 1 (спокойно)", "Код 2 (подозрительно)", "Код 3 (ЧС / нападение)" },
+    code_idx        = imgui.new.int(0),
+    crew_buf        = imgui.new.char[97](""),
+    post_interval   = imgui.new.int(10),
+    post_tpl        = imgui.new.char[257](u8"[{tag}] Докладывает пост: {post}. Состояние: {code}. Состав: {crew}. Район: {zone}."),
+    post_active     = false,
+    post_start_ts   = 0,
+    post_last_ts    = 0,
+    post_due_alert  = false,
+    post_hud_str    = "",
+    convoy_runs     = 0,
+    convoy_status   = "",
+    alarm_to_dept   = imgui.new.bool(false),
+    radio_watch     = imgui.new.bool(true),
+    last_alarm_ts   = 0,
+    hud_alert_str   = "",
+    hud_alert_until = 0,
+    charter_search  = imgui.new.char[65](""),
+    charter_items   = {
+        { title = "Субординация", text = "Обращение к старшим строго по званию или «Товарищ [Звание]». Приказ командира подлежит точному выполнению." },
+        { title = "Коды обстановки (КПП/Патруль)", text = "Код 1 — обстановка стабильная. Код 2 — подозрительные лица/авто у периметра. Код 3 — ЧС / нападение на базу." },
+        { title = "Правила КПП", text = "Проверяйте документы прибывающих. Посторонним на охраняемой территории даётся чёткое предупреждение и 10 секунд на выход." },
+        { title = "Применение оружия", text = "Огонь на поражение открывается только при вооружённом нападении, явной угрозе жизни бойца или прорыве на запретную зону после отсчёта." },
+        { title = "Конвой и БП", text = "При выезде за боеприпасами докладывайте в /r выезд, загрузку на Авианосце/Складе, нападение и разгрузку на базе." },
+        { title = "Рация /r и /d", text = "В /r и /f используйте тег подразделения ([СВ]/[ВВС]/[ВМФ]). ООС информация в рацию — только в двойных скобках (( ))." },
+        { title = "Охрана склада БП", text = "Склад — ключевой объект части. При нехватке патронов или проникновении немедленно подавайте сигнал тревоги /chs." },
+        { title = "Боевое РП и /sp", text = "Для служебных действий работает подтверждённое Авто-РП. В бою используйте /sp [команда] для мгновенного ввода без отыгровки." },
+    },
+}
+P8.confirmed_rp = imgui.new.bool(true)
+P8.rp_pending = {}
+P8.rp_bypass_once = false
+P8.banner_hint_open = {}
+P8.last_tick_1s = 0
+P8.last_srv_probe_ts = 0
 
 -- Компактный HUD (время, PayDay, FPS/Ping, КД, финансы, статусы)
 hud_enabled = imgui.new.bool(false)
@@ -4150,7 +4249,11 @@ cmds = {
 {name = "/makegun", desc = u8"Сделать оружие из патронов/металла в казарме"},
 {name = "/state", desc = u8"Проверить состояние складов патронов на базах"},
 {name = "/putammo", desc = u8"Загрузить ящик патронов в грузовик снабжения"},
-{name = "/takeammo", desc = u8"Выгрузить ящик патронов на склад базы"}
+{name = "/takeammo", desc = u8"Выгрузить ящик патронов на склад базы"},
+{name = "/army", desc = u8"Открыть армейский модуль (посты, конвой БП, ЧС, Устав МО)"},
+{name = "/post", desc = u8"Отправить доклад с поста в рацию /r с зоной SA"},
+{name = "/chs", desc = u8"Тревожный доклад о ЧС на базе с сектором"},
+{name = "/sp [команда]", desc = u8"Разовый обход Авто-РП в бою (напр. /sp healme)"}
 }
 },
 {
@@ -4455,6 +4558,19 @@ end
 if type(parsed.patrol_partner) == "string" then
     safeStrCopy(P7.patrol_partner_buf, encodeCp1251Safe(parsed.patrol_partner), ffi.sizeof(P7.patrol_partner_buf))
 end
+if type(parsed.p8_faction) == "string" and P8_setFactionContext then
+    P8_setFactionContext(parsed.p8_faction, parsed.p8_subdiv, parsed.p8_rank, parsed.p8_manual_lock and true or false, true)
+end
+if type(parsed.p8_auto_detect) == "boolean" then P8.faction_ctx.auto_detect[0] = parsed.p8_auto_detect end
+if type(parsed.p8_show_all_mods) == "boolean" then P8.faction_ctx.show_all_modules[0] = parsed.p8_show_all_mods end
+if type(parsed.p8_confirmed_rp) == "boolean" then P8.confirmed_rp[0] = parsed.p8_confirmed_rp end
+if type(parsed.p8_army_post_idx) == "number" then P8.army.post_idx[0] = math.max(0, math.min(6, math.floor(parsed.p8_army_post_idx))) end
+if type(parsed.p8_army_post_custom) == "string" then safeStrCopy(P8.army.post_custom, encodeCp1251Safe(parsed.p8_army_post_custom), ffi.sizeof(P8.army.post_custom)) end
+if type(parsed.p8_army_crew) == "string" then safeStrCopy(P8.army.crew_buf, encodeCp1251Safe(parsed.p8_army_crew), ffi.sizeof(P8.army.crew_buf)) end
+if type(parsed.p8_army_interval) == "number" then P8.army.post_interval[0] = math.max(3, math.min(30, math.floor(parsed.p8_army_interval))) end
+if type(parsed.p8_army_tpl) == "string" and parsed.p8_army_tpl ~= "" then safeStrCopy(P8.army.post_tpl, encodeCp1251Safe(parsed.p8_army_tpl), ffi.sizeof(P8.army.post_tpl)) end
+if type(parsed.p8_army_dept) == "boolean" then P8.army.alarm_to_dept[0] = parsed.p8_army_dept end
+if type(parsed.p8_army_watch) == "boolean" then P8.army.radio_watch[0] = parsed.p8_army_watch end
 pcall(P6_loadLocations)
 if type(P7_loadMarket) == "function" then pcall(P7_loadMarket) end
 if type(parsed.keybinds) == "table" then
@@ -4679,6 +4795,20 @@ patrol_channel_idx = P7.patrol_channel_idx[0],
 patrol_callsign = decodeUtf8Safe(ffi.string(P7.patrol_callsign_buf)),
 patrol_post = decodeUtf8Safe(ffi.string(P7.patrol_post_buf)),
 patrol_partner = decodeUtf8Safe(ffi.string(P7.patrol_partner_buf)),
+p8_faction = P8.faction_ctx.active_faction,
+p8_subdiv = P8.faction_ctx.sub_division,
+p8_rank = P8.faction_ctx.rank_name,
+p8_manual_lock = P8.faction_ctx.manual_lock,
+p8_auto_detect = P8.faction_ctx.auto_detect[0],
+p8_show_all_mods = P8.faction_ctx.show_all_modules[0],
+p8_confirmed_rp = P8.confirmed_rp[0],
+p8_army_post_idx = P8.army.post_idx[0],
+p8_army_post_custom = decodeUtf8Safe(ffi.string(P8.army.post_custom)),
+p8_army_crew = decodeUtf8Safe(ffi.string(P8.army.crew_buf)),
+p8_army_interval = P8.army.post_interval[0],
+p8_army_tpl = decodeUtf8Safe(ffi.string(P8.army.post_tpl)),
+p8_army_dept = P8.army.alarm_to_dept[0],
+p8_army_watch = P8.army.radio_watch[0],
 keybinds = kb,
 module_states = module_states
 }
@@ -7349,6 +7479,7 @@ end
 modules = {
 {
 id = "gnews",
+factions = {"mo", "mvd", "mz", "smi", "gov"},
 name = u8" Гос. Новости (/gnews)",
 description = u8"Автоматическая подача государственных новостей (/gnews) на Advance RP с профилями, 3 строками вещания, напоминаниями и настраиваемым интервалом.",
 enabled = true,
@@ -7358,6 +7489,8 @@ onToggle = function(state) end
 
 {
 id = "autocall_db",
+factions = {"smi", "gov", "civ"},
+requires = { { cap = "sampfuncs", min = 5.4, label = "SAMPFUNCS 5.4+", severity = "soft", hint = "Поместите SAMPFUNCS.asi (5.4+) в папку игры для перехвата телефонов из объявлений." } },
 name = u8" Сбор и Обзвон",
 description = u8"Скрипт автоматически сканирует чат СМИ на сервере, извлекает ники продавцов и их номера телефонов, сохраняя их в базу.\nЗатем вы можете в 1 клик прозвонить 1-3 случайных игроков, которые сейчас ОНЛАЙН, без спама одним и тем же лицам.",
 enabled = false,
@@ -7565,6 +7698,7 @@ end
 },
 {
 id = "auto_ad",
+factions = {"smi", "crime", "civ"},
 name = u8" Авто-Объявления",
 description = u8"Автоматически отправляет объявления с заданным интервалом. Поддерживает шаблоны и историю.",
 enabled = false,
@@ -7703,6 +7837,8 @@ onToggle = function(state) end
 },
 {
 id = "mm_editor",
+factions = {"smi"},
+requires = { { cap = "samp_lua", label = "SAMP.Lua (lib.samp.events)", severity = "hard", hint = "Установите SAMP.Lua в moonloader/lib/samp/ для автоформатирования диалога /edit." } },
 name = u8" MM Editor (СМИ)",
 description = u8"Помощник для сотрудников радиоцентра (СМИ). Автоматически заменяет сокращения при редактировании объявлений с учетом правил ПРО (город пишется для домов/бизнесов, но стирается для автомобилей).",
 enabled = false,
@@ -7711,6 +7847,8 @@ onToggle = function(state) end
 },
 {
 id = "auto_rp",
+factions = {"all"},
+requires = { { cap = "samp_lua", label = "SAMP.Lua (lib.samp.events)", severity = "hard", hint = "Установите SAMP.Lua в moonloader/lib/samp/ для перехвата команд и подтверждённого РП." } },
 enabled = true,
 name = u8" Авто-Отыгровки",
 description = u8"Авто-отыгровки от игровых событий и команд (через SAMP onSendCommand): смена почти любого оружия, звонки/SMS, /call, /c 60, /h, /mask, /healme, /drugs, /e (двигатель), /pass, /lic, /med.",
@@ -7758,6 +7896,8 @@ onToggle = function(state) end
 },
 {
 id = "vehicle_visuals",
+factions = {"all"},
+requires = { { cap = "memory", label = "MoonLoader memory", severity = "soft", hint = "Без модуля memory стробы используют базовый свет, а фикс погоды/времени и турбо-круиз ограничены." }, { cap = "bit", label = "LuaJIT bit", severity = "soft", hint = "Входит в состав LuaJIT 2.1 (побитовые маски фар и двигателя)." } },
 name = u8" Транспорт и Визуал",
 description = u8"Функции для водителей и визуальная кастомизация мира. Включает стробоскопы фарами, круиз-контроль, локальную смену погоды/времени и скин-ченджер.",
 enabled = false,
@@ -7931,6 +8071,7 @@ end
 },
 {
 id = "keybinds",
+factions = {"all"},
 name = u8" Горячие клавиши",
 description = u8"Привязка команд и многострочных отыгровок РП-движка к клавишам и комбинациям (Alt/Ctrl/Shift + A-Z, 0-9, F2-F10, Numpad).\nНе срабатывает при открытом чате или диалоге.",
 enabled = true,
@@ -8082,6 +8223,7 @@ end,
 },
 {
 id = "commands_guide",
+factions = {"all"},
 name = u8" Справочник Команд",
 description = u8"Полный и точный список команд сервера Advance RP по фракциям. Дважды кликните по любой команде в списке, чтобы скопировать её в буфер обмена.",
 enabled = true,
@@ -8138,6 +8280,7 @@ onToggle = function(state) end
 },
 {
 id = "rp_engine",
+factions = {"all"},
 name = u8" РП-Движок (Отыгровки)",
 description = u8"Кастомные РП-отыгровки с поддержкой тегов, пауз, рандома и интерактивных окон. Команды: /mmact [id], /mmnext, /mmstop, /rpeditor, /rptest, /rplogin.",
 enabled = true,
@@ -8180,6 +8323,8 @@ onToggle = function(state) end
 },
 {
 id = "smi_tools",
+factions = {"smi"},
+requires = { { cap = "samp_lua", label = "SAMP.Lua (lib.samp.events)", severity = "soft", hint = "Установите SAMP.Lua в moonloader/lib/samp/ для SMS-викторин, /find и эфиров." } },
 name = u8" СМИ-Инструменты",
 description = u8"Анаграммы (270+ без повторов), режиссёр викторин /quiz, эфир, чёрный список, /find окно, лифт ТВ-башни, авто-ответ. Команды: /anag, /quiz, /mmefir, /endefir, /find, /tvlf, /uninv, /autoans, /bladd, /bldel, /blcheck, /bllist, /efirstats.",
 enabled = false,
@@ -8301,6 +8446,7 @@ onToggle = function(state) end
 },
 {
 id = "qol_tools",
+factions = {"all"},
 name = u8" Утилиты и Чат",
 description = u8"Раскладка в чате, авто-тег рации, фильтр чата, перенос длинных строк, /rec, /hist, друзья, звуки, меню игрока (ПКМ+X), /ss, /clog, финансы, GPS (/wp), пресеты и бэкап.",
 enabled = true,
@@ -8781,6 +8927,18 @@ drawSettings = function()
         if imgui.Button(u8"Открыть /price##p7_open_price", imgui.ImVec2(140, 22)) then
             P7.market_show[0] = not P7.market_show[0]
         end
+        if imgui.Checkbox(u8"Локальный Damage Informer (/dmglog)", dmg_enabled) then
+            requestSaveSettings()
+        end
+        imgui.SameLine()
+        if imgui.Button(u8"Лог урона (/dmglog)##p8_qol_dmg", imgui.ImVec2(155, 22)) then
+            dmg_log_show[0] = not dmg_log_show[0]
+        end
+        if imgui.Checkbox(u8"Подтверждённое сервером РП (+ команда /sp)##p8_confrp", P8.confirmed_rp) then
+            requestSaveSettings()
+        end
+        imgui.Spacing()
+        if type(P8_drawEnvDiagnostics) == "function" then P8_drawEnvDiagnostics() end
     end
 end,
 onToggle = function(state) end
@@ -8788,6 +8946,7 @@ onToggle = function(state) end
 ,
 {
 id = "lecturer",
+factions = {"mo", "mvd", "mz", "smi", "gov"},
 name = u8" Лектор и Собесы",
 description = u8"Многострочный диктор для собеседований, вступительных лекций, инструктажей и правил. Поддержка паузы <0>, таймеров <мс>, гибкой задержки и команды /lect.",
 enabled = true,
@@ -8796,6 +8955,8 @@ onToggle = function(state) end
 }
 ,{
     id = "faction_tools",
+    factions = {"mvd", "mz"},
+    requires = { { cap = "sampfuncs", min = 5.4, label = "SAMPFUNCS 5.4+", severity = "hard", hint = "Установите SAMPFUNCS 5.4+ в папку GTA SA для розыска /suw, диалогов и патруля." }, { cap = "samp_lua", label = "SAMP.Lua (lib.samp.events)", severity = "hard", hint = "Установите SAMP.Lua в moonloader/lib/samp/." } },
     name = u8" МВД и МЗ Спецмодуль",
     description = u8"Умная выдача розыска и штрафов (/suw [ID]), справочник УК/АК с поиском, мегафон (/m), помощник медика и ЕЦП (/medui [ID]), опциональное Авто-РП МВД/МЗ и локальный Damage Informer (/dmglog).",
     enabled = true,
@@ -8805,6 +8966,8 @@ onToggle = function(state) end
 ,
 {
     id = "location_builder",
+    factions = {"all"},
+    requires = { { cap = "mimgui_tex", label = "mimgui DX9 Textures", severity = "soft", hint = "Для превью PNG-иконок 522 объектов нужен mimgui с поддержкой CreateTextureFromFile." } },
     name = u8" Конструктор /location",
     description = u8"Полный бесплатный аналог TitanLocation: каталог 522 официальных объектов Advance RP (/loc 1), точный редактор координат и поворотов с Undo/Redo, копированием и дубликатом (/tedit, /tcopy, /tpaste, /tdup), а также реестр локации с экспортом чертежей (/loc 2).",
     enabled = true,
@@ -8820,6 +8983,23 @@ onToggle = function(state) end
             tedit_show[0] = false
         end
     end
+}
+,
+{
+    id = "army_tools",
+    factions = {"mo"},
+    requires = {
+        { cap = "sampfuncs", min = 5.4, label = "SAMPFUNCS 5.4+", severity = "hard", hint = "Установите SAMPFUNCS 5.4+ (SAMPFUNCS.asi) для рации, ЧС-радара и Damage Informer." },
+        { cap = "samp_lua", label = "SAMP.Lua (lib.samp.events)", severity = "hard", hint = "Установите библиотеку SAMP.Lua в moonloader/lib/samp/ для /sp и подтверждения РП." },
+        { cap = "cleo", min = 4.3, label = "CLEO 4.3+", severity = "soft", hint = "Поместите cleo.asi (4.3+) в корень GTA SA для совместимости с внешними CLEO-анимациями." }
+    },
+    name = u8" МО: Армия (СВ/ВВС/ВМФ)",
+    description = u8"Армейский спецмодуль (СВ/ВВС/ВМФ): посты КПП/Вышка/Склад с таймером докладов /r, конвой БП с районами SA, кнопка тревоги /chs, Устав МО, пакет Присяги для Лектора, боевое РП + /sp и Damage Informer.",
+    enabled = true,
+    drawSettings = function()
+        if P8_drawArmyUI then P8_drawArmyUI() end
+    end,
+    onToggle = function(state) end
 }
 
 }
@@ -9067,6 +9247,7 @@ function applyFactionPreset(preset_id)
         end
     end
     selected_faction[0] = p.faction_id
+    if type(P8_syncFromSelectedFaction) == "function" then P8_syncFromSelectedFaction(true) end
     rp_weapons_enabled[0] = p.rp.weapons
     rp_phone_enabled[0] = p.rp.phone
     rp_mask_enabled[0] = p.rp.mask
@@ -10551,10 +10732,10 @@ function P4_sendMegaphone(idx)
 end
 
 function P4_recordDamage(is_give, playerId, damage, weapon, bodypart)
-    if not dmg_enabled[0] or not isModuleEnabled("faction_tools") then return end
+    if not dmg_enabled[0] then return end
     local pid = tonumber(playerId)
     local nick = "Неизвестно"
-    if pid and pid >= 0 and pid <= 1004 then
+    if pid and pid >= 0 and pid < 1004 and pid ~= 65535 then
         local cached = online_ids_to_nicks and online_ids_to_nicks[pid]
         if type(cached) == "string" and cached ~= "" then
             nick = cached
@@ -10645,6 +10826,15 @@ function P4_drawFactionUI()
         imgui.PopStyleColor()
         imgui.Spacing()
 
+        if P8 and P8.faction_ctx and P8.faction_ctx.server_id ~= "unknown" then
+            local det = P8.faction_ctx.server_id
+            local cur_srv_nm = (P4_server_names[p4_codex_server[0]] or "Blue"):lower()
+            if det ~= cur_srv_nm then
+                imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(1.0, 0.6, 0.2, 1.0))
+                imgui.TextUnformatted(u8"[!] Подключены к Advance RP " .. encodeCp1251Safe(P8.faction_ctx.server_label) .. u8", кодекс выбран для " .. encodeCp1251Safe(P4_server_names[p4_codex_server[0]] or "Blue"))
+                imgui.PopStyleColor()
+            end
+        end
         imgui.PushItemWidth(160)
         if imgui.ComboStr(u8"Сервер Advance RP##p4_srv_cmb", p4_codex_server, "Blue\0Red\0Green\0Chocolate\0") then
             requestSaveSettings()
@@ -11421,6 +11611,754 @@ function P7_drawPatrolUI()
     imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.6, 0.65, 0.72, 1.0))
     imgui.TextUnformatted(u8"Команды: /patrol | /patrol start | /patrol rep | /patrol chase | /patrol stop")
     imgui.PopStyleColor()
+end
+
+
+-- ============================================================================
+-- Фаза 8 (v3.0): ENV_CAPS + Плашки зависимостей + Фракционная адаптивность + МО Армия
+-- ============================================================================
+
+function P8_parseVersionTuple(val)
+    local s = tostring(val or "")
+    local a, b = s:match("(%d+)%.(%d+)")
+    if a then return tonumber(a) or 0, tonumber(b) or 0 end
+    local single = s:match("(%d+)")
+    if single then return tonumber(single) or 0, 0 end
+    return 0, 0
+end
+
+function P8_probeEnvironment()
+    ENV_CAPS = ENV_CAPS or {}
+    local ok_ml, ml_ver_raw = pcall(getMoonloaderVersion)
+    local ml_num = ok_ml and tonumber(ml_ver_raw) or 0
+    local ml_str = ml_num >= 100 and string.format("0.%d", ml_num) or string.format("0.%02d", ml_num)
+    ENV_CAPS.moonloader = {
+        ok = (ml_num >= 26),
+        ver = ml_str,
+        num = ml_num,
+        label = "MoonLoader 0.26+",
+    }
+
+    local ok_sfl, sf_loaded = pcall(isSampfuncsLoaded)
+    local loaded = (ok_sfl and sf_loaded == true)
+    local sf_str = "?"
+    local sf_ok = false
+    if loaded and type(getSampfuncsVersion) == "function" then
+        local ok_sfv, raw_sfv = pcall(getSampfuncsVersion)
+        if ok_sfv and raw_sfv ~= nil then
+            sf_str = tostring(raw_sfv)
+            local maj, min_v = P8_parseVersionTuple(sf_str)
+            sf_ok = (maj > 5) or (maj == 5 and min_v >= 4) or (maj == 0 and min_v == 0 and sf_str ~= "")
+        end
+    end
+    ENV_CAPS.sampfuncs = {
+        ok = loaded and sf_ok,
+        loaded = loaded,
+        ver = loaded and sf_str or nil,
+        label = "SAMPFUNCS 5.4+",
+    }
+
+    local cleo_present = false
+    if type(doesFileExist) == "function" and type(getGameDirectory) == "function" then
+        local gdir = tostring(getGameDirectory() or "")
+        if gdir ~= "" then
+            local ok_c, ex_c = pcall(doesFileExist, gdir .. "\\cleo.asi")
+            cleo_present = (ok_c and ex_c == true)
+        end
+    end
+    ENV_CAPS.cleo = {
+        ok = cleo_present,
+        file_present = cleo_present,
+        ver = cleo_present and "cleo.asi" or nil,
+        label = "CLEO 4.3+",
+        note = "проверка файла cleo.asi на диске",
+    }
+
+    local ok_sl, sl_mod = pcall(require, "lib.samp.events")
+    ENV_CAPS.samp_lua = { ok = (ok_sl and sl_mod ~= nil), ver = (ok_sl and sl_mod) and "loaded" or nil, label = "SAMP.Lua" }
+
+    local ok_im, im_mod = pcall(require, "mimgui")
+    ENV_CAPS.mimgui = { ok = (ok_im and im_mod ~= nil), ver = (ok_im and im_mod) and "loaded" or nil, label = "mimgui" }
+    ENV_CAPS.mimgui_tex = {
+        ok = (ok_im and im_mod ~= nil and type(im_mod.CreateTextureFromFile) == "function"),
+        ver = (ok_im and im_mod ~= nil and type(im_mod.CreateTextureFromFile) == "function") and "DX9" or nil,
+        label = "mimgui DX9 Textures",
+    }
+
+    local ok_mem_p, mem_mod = pcall(require, "memory")
+    local has_mem = (ok_mem_p and mem_mod ~= nil)
+    ENV_CAPS.memory = { ok = has_mem, lib = has_mem and mem_mod or nil, ver = has_mem and "built-in" or nil, label = "MoonLoader memory" }
+
+    local ok_bit_p, bit_mod = pcall(require, "bit")
+    local has_b = (ok_bit_p and type(bit_mod) == "table" and type(bit_mod.band) == "function")
+    ENV_CAPS.bit = { ok = has_b, ver = has_b and "LuaJIT" or nil, label = "LuaJIT bit" }
+
+    local ok_js, js_mod = pcall(require, "json")
+    ENV_CAPS.json = { ok = true, ver = (ok_js and js_mod) and "native" or "fallback", label = "JSON" }
+    return ENV_CAPS
+end
+
+function P8_checkCapabilities(reqs)
+    if type(reqs) ~= "table" or #reqs == 0 then return false, {} end
+    if not ENV_CAPS or not ENV_CAPS.moonloader then P8_probeEnvironment() end
+    local issues = {}
+    local hard_blocked = false
+    for _, req in ipairs(reqs) do
+        local cid = req.cap or req.id
+        local cap = ENV_CAPS[cid]
+        local ok = cap and cap.ok or false
+        if ok and req.min and cap and cap.ver and cid == "sampfuncs" then
+            local r_maj, r_min = P8_parseVersionTuple(req.min)
+            local c_maj, c_min = P8_parseVersionTuple(cap.ver)
+            if c_maj < r_maj or (c_maj == r_maj and c_min < r_min) then
+                ok = false
+            end
+        end
+        if not ok then
+            local sev = req.severity or "soft"
+            if sev == "hard" then hard_blocked = true end
+            issues[#issues + 1] = {
+                id = cid,
+                label = req.label or tostring(cid),
+                severity = sev,
+                cur_ver = cap and cap.ver or nil,
+                hint = req.hint or "Установите или обновите компонент в папку GTA SA / moonloader.",
+            }
+        end
+    end
+    return hard_blocked, issues
+end
+
+function P8_drawCapabilityBanner(reqs)
+    local is_blocked, issues = P8_checkCapabilities(reqs)
+    if #issues == 0 then return false end
+    for idx, iss in ipairs(issues) do
+        local is_h = (iss.severity == "hard")
+        local border_col = is_h and imgui.ImVec4(0.95, 0.25, 0.25, 0.9) or imgui.ImVec4(0.95, 0.72, 0.20, 0.9)
+        local bg_col = is_h and imgui.ImVec4(0.28, 0.08, 0.08, 0.65) or imgui.ImVec4(0.26, 0.20, 0.06, 0.60)
+        imgui.PushIDStr("p8_cap_" .. tostring(iss.id) .. "_" .. tostring(idx))
+        imgui.PushStyleColor(imgui.Col.ChildBg, bg_col)
+        imgui.PushStyleColor(imgui.Col.Border, border_col)
+        local h = P8.banner_hint_open[iss.id] and 68 or 42
+        imgui.BeginChild("cap_card", imgui.ImVec2(0, h), true)
+        imgui.PushStyleColor(imgui.Col.Text, border_col)
+        local msg_txt
+        if iss.cur_ver then
+            msg_txt = "[!] Для работы этой функции требуется " .. iss.label .. " (текущая: " .. tostring(iss.cur_ver) .. " — обновите)"
+        else
+            msg_txt = "[!] Для работы этой функции требуется " .. iss.label .. " (сейчас не установлено — установите)"
+        end
+        imgui.TextUnformatted(encodeCp1251Safe(msg_txt))
+        imgui.PopStyleColor()
+        imgui.SameLine()
+        if imgui.SmallButton(u8"Что установить?") then
+            P8.banner_hint_open[iss.id] = not P8.banner_hint_open[iss.id]
+        end
+        if P8.banner_hint_open[iss.id] then
+            imgui.PushTextWrapPos(0)
+            imgui.TextUnformatted(encodeCp1251Safe(iss.hint))
+            imgui.PopTextWrapPos()
+        end
+        imgui.EndChild()
+        imgui.PopStyleColor(2)
+        imgui.PopID()
+    end
+    return is_blocked
+end
+
+function P8_drawEnvDiagnostics()
+    if not ENV_CAPS or not ENV_CAPS.moonloader then P8_probeEnvironment() end
+    imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.35, 0.9, 1.0, 1.0))
+    imgui.TextUnformatted(u8"Диагностика стека окружения (ENV_CAPS):")
+    imgui.PopStyleColor()
+    imgui.SameLine()
+    if imgui.SmallButton(u8"Проверить заново##p8_reprobe") then
+        P8_probeEnvironment()
+    end
+    local order = { "moonloader", "sampfuncs", "cleo", "samp_lua", "mimgui", "mimgui_tex", "memory", "bit", "json" }
+    imgui.BeginChild("p8_env_diag", imgui.ImVec2(0, 145), true)
+    for _, k in ipairs(order) do
+        local c = ENV_CAPS[k]
+        if c then
+            local col = c.ok and imgui.ImVec4(0.35, 0.95, 0.45, 1.0) or imgui.ImVec4(1.0, 0.55, 0.25, 1.0)
+            local badge = c.ok and ("[OK] " .. tostring(c.ver or "ready")) or "[ОТСУТСТВУЕТ]"
+            imgui.PushStyleColor(imgui.Col.Text, col)
+            imgui.TextUnformatted(encodeCp1251Safe(badge))
+            imgui.PopStyleColor()
+            imgui.SameLine(155)
+            local extra = c.note and (" (" .. c.note .. ")") or ""
+            imgui.TextUnformatted(encodeCp1251Safe((c.label or k) .. extra))
+        end
+    end
+    imgui.EndChild()
+end
+
+function P8_syncCommandsGuideCategory(fac_key)
+    local cat_map = { civ = 1, smi = 2, mvd = 3, mz = 4, mo = 5, gov = 1, crime = 1 }
+    if cat_map[fac_key] then
+        static_selected_cat = static_selected_cat or imgui.new.int(1)
+        static_selected_cat[0] = cat_map[fac_key]
+    end
+end
+
+function P8_isModuleVisible(mod)
+    if not mod then return false end
+    if P8.faction_ctx.show_all_modules[0] then return true end
+    local facs = mod.factions
+    if type(facs) ~= "table" or #facs == 0 then return true end
+    local active = P8.faction_ctx.active_faction or "civ"
+    for _, f in ipairs(facs) do
+        if f == "all" or f == active then return true end
+    end
+    return false
+end
+
+function P8_ensureValidActiveModule()
+    if not modules or #modules == 0 then return end
+    local cur = modules[active_module_idx]
+    if cur and P8_isModuleVisible(cur) then return end
+    for idx, m in ipairs(modules) do
+        if P8_isModuleVisible(m) then
+            active_module_idx = idx
+            pending_module_idx = nil
+            return
+        end
+    end
+end
+
+function P8_openModuleById(mod_id)
+    if not modules then return end
+    for idx, m in ipairs(modules) do
+        if m.id == mod_id then
+            active_module_idx = idx
+            pending_module_idx = nil
+            show_main_window[0] = true
+            return true
+        end
+    end
+    return false
+end
+
+function P8_setFactionContext(fac_key, subdiv_name, rank_str, is_manual, silent)
+    local idx = nil
+    for i, k in ipairs(P8.faction_keys) do
+        if k == fac_key then idx = i - 1; break end
+    end
+    if not idx then
+        fac_key = "civ"
+        idx = 6
+    end
+    P8.faction_ctx.faction_idx[0] = idx
+    P8.faction_ctx.active_faction = fac_key
+    if type(is_manual) == "boolean" then P8.faction_ctx.manual_lock = is_manual end
+    if type(rank_str) == "string" and rank_str ~= "" then P8.faction_ctx.rank_name = rank_str end
+
+    local subs = P8.subdivisions[fac_key] or { "Общий" }
+    local matched_si = 0
+    if type(subdiv_name) == "string" and subdiv_name ~= "" then
+        for si, sname in ipairs(subs) do
+            if sname == subdiv_name or cp1251_lower(sname) == cp1251_lower(subdiv_name) then
+                matched_si = si - 1
+                break
+            end
+        end
+    end
+    P8.faction_ctx.subdiv_idx[0] = matched_si
+    P8.faction_ctx.sub_division = subs[matched_si + 1] or subs[1]
+
+    if selected_faction and P8.faction_to_legacy[fac_key] ~= nil then
+        selected_faction[0] = P8.faction_to_legacy[fac_key]
+    end
+    P8_syncCommandsGuideCategory(fac_key)
+    P8_ensureValidActiveModule()
+
+    if not silent and isSampAvailable() then
+        local lbl = P8.faction_labels[idx + 1] or fac_key
+        sampAddChatMessage("[Helper v3.0] Режим фракции: {00FF90}" .. lbl .. " [" .. P8.faction_ctx.sub_division .. "]", 0x00CCFF)
+    end
+end
+
+function P8_syncFromSelectedFaction(silent)
+    local leg = selected_faction and selected_faction[0] or 0
+    local fk = P8.legacy_to_faction[leg] or "civ"
+    P8_setFactionContext(fk, nil, nil, false, silent)
+end
+
+function P8_detectServerName(raw_name)
+    local low = cp1251_lower(tostring(raw_name or ""))
+    if low:find("chocolate", 1, true) then return "chocolate", "Chocolate" end
+    if low:find("blue", 1, true) then return "blue", "Blue" end
+    if low:find("red", 1, true) then return "red", "Red" end
+    if low:find("green", 1, true) then return "green", "Green" end
+    if low:find("lime", 1, true) then return "lime", "Lime" end
+    return "unknown", ""
+end
+
+function P8_tryDetectFactionFromDialog(title, text)
+    if not P8.faction_ctx.auto_detect[0] or P8.faction_ctx.manual_lock then return end
+    local cap = (tostring(title or "")):gsub("%b{}", "")
+    local body = (tostring(text or "")):gsub("%b{}", "")
+    if not (cap:find("Организация", 1, true) or cap:find("Паспорт", 1, true) or cap:find("Статистика", 1, true)
+        or cap:find("Удостоверение", 1, true) or body:find("Организация:", 1, true) or body:find("Подразделение:", 1, true)) then
+        return
+    end
+    local org_line = body:match("Организация:%s*([^\r\n]+)") or body:match("Фракция:%s*([^\r\n]+)") or body
+    local sub_line = body:match("Подразделение:%s*([^\r\n]+)") or org_line
+    local rank_line = body:match("Звание:%s*([^\r\n]+)") or body:match("Должность:%s*([^\r\n]+)") or ""
+    local o_low = cp1251_lower(" " .. org_line .. " " .. sub_line .. " ")
+
+    local fac_key, sub_key = nil, nil
+    if o_low:find("сухопут", 1, true) or o_low:find(" св ", 1, true) or o_low:find("[св]", 1, true) then
+        fac_key, sub_key = "mo", "СВ"
+    elseif o_low:find("воздуш", 1, true) or o_low:find("ввс", 1, true) then
+        fac_key, sub_key = "mo", "ВВС"
+    elseif o_low:find("флот", 1, true) or o_low:find("вмф", 1, true) then
+        fac_key, sub_key = "mo", "ВМФ"
+    elseif o_low:find("арми", 1, true) or o_low:find("министерство обороны", 1, true) or o_low:find("воен", 1, true) then
+        fac_key = "mo"
+    elseif o_low:find("полиц", 1, true) or o_low:find("фбр", 1, true) or o_low:find("мвд", 1, true) or o_low:find("fbi", 1, true) then
+        fac_key = "mvd"
+        if o_low:find("фбр", 1, true) or o_low:find("fbi", 1, true) then sub_key = "ФБР"
+        elseif o_low:find("сфпд", 1, true) or o_low:find("sfpd", 1, true) then sub_key = "СФПД"
+        elseif o_low:find("лвпд", 1, true) or o_low:find("lvpd", 1, true) then sub_key = "ЛВПД"
+        elseif o_low:find("лспд", 1, true) or o_low:find("lspd", 1, true) then sub_key = "ЛСПД" end
+    elseif o_low:find("больниц", 1, true) or o_low:find("здравоохр", 1, true) or o_low:find("мз", 1, true) then
+        fac_key = "mz"
+    elseif o_low:find("сми", 1, true) or o_low:find("радио", 1, true) or o_low:find("телецентр", 1, true) then
+        fac_key = "smi"
+    elseif o_low:find("мэр", 1, true) or o_low:find("администрац", 1, true) or o_low:find("правител", 1, true) then
+        fac_key = "gov"
+    elseif o_low:find("grove", 1, true) or o_low:find("ballas", 1, true) or o_low:find("vagos", 1, true)
+        or o_low:find("aztec", 1, true) or o_low:find("rifa", 1, true) or o_low:find("маф", 1, true) or o_low:find("yakuza", 1, true) or o_low:find("russian", 1, true) then
+        fac_key = "crime"
+    end
+    if fac_key and (fac_key ~= P8.faction_ctx.active_faction or (sub_key and sub_key ~= P8.faction_ctx.sub_division)) then
+        P8_setFactionContext(fac_key, sub_key, rank_line, false, false)
+        requestSaveSettings()
+    end
+end
+
+function P8_tryDetectFactionFromOwnRadio(clean_msg)
+    if not P8.faction_ctx.auto_detect[0] or P8.faction_ctx.manual_lock then return end
+    if not (clean_msg:find("%[R%]") or clean_msg:find("%[F%]")) then return end
+    if not isSampAvailable() then return end
+    local ok_id, _, my_id = pcall(sampGetPlayerIdByCharHandle, PLAYER_PED)
+    if not ok_id or type(my_id) ~= "number" then return end
+    local ok_n, my_nick = pcall(sampGetPlayerNickname, my_id)
+    if not ok_n or type(my_nick) ~= "string" or my_nick == "" then return end
+    if not clean_msg:find(my_nick, 1, true) then return end
+
+    local low = cp1251_lower(clean_msg)
+    local fac_key, sub_key = nil, nil
+    if low:find("%[св%]") then fac_key, sub_key = "mo", "СВ"
+    elseif low:find("%[ввс%]") then fac_key, sub_key = "mo", "ВВС"
+    elseif low:find("%[вмф%]") then fac_key, sub_key = "mo", "ВМФ"
+    elseif low:find("%[мо%]") then fac_key = "mo"
+    elseif low:find("%[лспд%]") then fac_key, sub_key = "mvd", "ЛСПД"
+    elseif low:find("%[сфпд%]") then fac_key, sub_key = "mvd", "СФПД"
+    elseif low:find("%[лвпд%]") then fac_key, sub_key = "mvd", "ЛВПД"
+    elseif low:find("%[фбр%]") then fac_key, sub_key = "mvd", "ФБР"
+    end
+    if fac_key and (fac_key ~= P8.faction_ctx.active_faction or (sub_key and sub_key ~= P8.faction_ctx.sub_division)) then
+        P8_setFactionContext(fac_key, sub_key, nil, false, false)
+        requestSaveSettings()
+    end
+end
+
+function P8_registerRpPending(key, patterns, on_confirm_line)
+    P8.rp_pending[key] = {
+        patterns = patterns,
+        on_confirm = function()
+            if isSampAvailable() and on_confirm_line and on_confirm_line ~= "" then
+                rp_sending_internal = true
+                pcall(sampSendChat, on_confirm_line)
+                rp_sending_internal = false
+            end
+        end,
+        expires_at = os.clock() + 3.5,
+    }
+end
+
+function P8_onServerMessage(clean_msg, clean_lower)
+    -- 1. Advance RP Server isolation detection
+    if clean_msg:find("Connected to Advance", 1, true) then
+        local sid, slbl = P8_detectServerName(clean_msg)
+        if sid ~= "unknown" then
+            P8.faction_ctx.server_id = sid
+            P8.faction_ctx.server_label = slbl
+            if not P8.faction_ctx.server_announced then
+                P8.faction_ctx.server_announced = true
+                queueTask(function()
+                    if isSampAvailable() then
+                        sampAddChatMessage("[Helper v3.0] Определён сервер: {00FF90}Advance RP " .. slbl, 0x00CCFF)
+                    end
+                end)
+            end
+        end
+    end
+
+    -- 2. Server-Confirmed RP triggers
+    local now_clk = os.clock()
+    for k, entry in pairs(P8.rp_pending) do
+        if entry.expires_at < now_clk then
+            P8.rp_pending[k] = nil
+        else
+            for _, pat in ipairs(entry.patterns or {}) do
+                if clean_lower:find(pat, 1, true) then
+                    local cb = entry.on_confirm
+                    P8.rp_pending[k] = nil
+                    scheduleTask(80, cb)
+                    break
+                end
+            end
+        end
+    end
+
+    -- 3. Safe own-nickname radio detection (/r or /f only)
+    P8_tryDetectFactionFromOwnRadio(clean_msg)
+
+    -- 4. Opt-in MO radio ЧС watch
+    if P8.faction_ctx.active_faction == "mo" and P8.army.radio_watch[0] then
+        if (clean_msg:find("%[R%]") or clean_msg:find("%[D%]"))
+            and (clean_lower:find("чс", 1, true) or clean_lower:find("нападен", 1, true) or clean_lower:find("код 3", 1, true) or clean_lower:find("прорыв", 1, true)) then
+            local now_t = os.time()
+            if (now_t - (P8.army.last_alarm_ts or 0)) >= 15 then
+                P8.army.last_alarm_ts = now_t
+                P8.army.hud_alert_str = "ВНИМАНИЕ! ЧС ПО РАЦИИ"
+                P8.army.hud_alert_until = now_t + 12
+                if sound_enabled[0] then playAlertSound(1058) end
+            end
+        end
+    end
+end
+
+function P8_armyCurrentPostName()
+    local custom = decodeUtf8Safe(ffi.string(P8.army.post_custom)):gsub("^%s+", ""):gsub("%s+$", "")
+    if custom ~= "" then return custom end
+    return P8.army.post_presets[P8.army.post_idx[0] + 1] or "КПП-1"
+end
+
+function P8_formatArmyReport(tpl, zone_str)
+    local tag = P8.faction_ctx.sub_division or "МО"
+    local post = P8_armyCurrentPostName()
+    local code = P8.army.code_labels[P8.army.code_idx[0] + 1] or "Код 1"
+    local crew = decodeUtf8Safe(ffi.string(P8.army.crew_buf)):gsub("^%s+", ""):gsub("%s+$", "")
+    if crew == "" then crew = "1 боец" end
+    local z_only, sec_only = tostring(zone_str or "База"):match("^(.-)%s*%(([^)]+)%)%s*$")
+    if not z_only then z_only, sec_only = tostring(zone_str or "База"), "—" end
+
+    local out = tostring(tpl or "")
+    out = out:gsub("{tag}", tag)
+    out = out:gsub("{post}", post)
+    out = out:gsub("{code}", code)
+    out = out:gsub("{crew}", crew)
+    out = out:gsub("{zone}", tostring(zone_str or "База"))
+    out = out:gsub("{sector}", sec_only)
+    return out
+end
+
+function P8_sendArmyPostReport()
+    local tpl = decodeUtf8Safe(ffi.string(P8.army.post_tpl)):gsub("^%s+", ""):gsub("%s+$", "")
+    if tpl == "" then
+        tpl = "[{tag}] Докладывает пост: {post}. Состояние: {code}. Состав: {crew}. Район: {zone}."
+    end
+    local now = os.time()
+    if not P8.army.post_active then
+        P8.army.post_active = true
+        P8.army.post_start_ts = now
+    end
+    P8.army.post_last_ts = now
+    P8.army.post_due_alert = false
+    queueTask(function()
+        if not isSampAvailable() then return end
+        local ok_p, px, py = pcall(getCharCoordinates, PLAYER_PED)
+        local z_txt = (ok_p and type(px) == "number") and P7_getSanAndreasZone(px, py) or "База"
+        local body = P8_formatArmyReport(tpl, z_txt)
+        local line = ("/r " .. body):sub(1, 128)
+        sampSendChat(line)
+    end)
+end
+
+function P8_sendArmyConvoyReport(stage)
+    local tag = P8.faction_ctx.sub_division or "МО"
+    local crew = decodeUtf8Safe(ffi.string(P8.army.crew_buf)):gsub("^%s+", ""):gsub("%s+$", "")
+    if crew == "" then crew = "1 боец" end
+    if stage == 4 then
+        P8.army.convoy_runs = (P8.army.convoy_runs or 0) + 1
+    end
+    queueTask(function()
+        if not isSampAvailable() then return end
+        local ok_p, px, py = pcall(getCharCoordinates, PLAYER_PED)
+        local z_txt = (ok_p and type(px) == "number") and P7_getSanAndreasZone(px, py) or "Округ SA"
+        local msg = ""
+        if stage == 1 then
+            msg = "/r [" .. tag .. "] Выехал за БП (Авианосец/Склад). Состав: " .. crew .. "."
+            P8.army.convoy_status = "Выехал за БП"
+        elseif stage == 2 then
+            msg = "/r [" .. tag .. "] Загрузился БП, выдвигаюсь на базу. Район: " .. z_txt .. "."
+            P8.army.convoy_status = "Возврат на базу"
+        elseif stage == 3 then
+            msg = "/r [" .. tag .. "] ВНИМАНИЕ! Нападение на конвой БП! Район: " .. z_txt .. ", нужна помощь!"
+            P8.army.convoy_status = "АТАКА НА КОНВОЙ"
+        else
+            msg = "/r [" .. tag .. "] Разгрузил БП на склад базы. Доставок за сессию: " .. tostring(P8.army.convoy_runs) .. "."
+            P8.army.convoy_status = "Разгрузился"
+        end
+        sampSendChat(msg:sub(1, 128))
+    end)
+end
+
+function P8_sendArmyAlarm(place)
+    local tag = P8.faction_ctx.sub_division or "МО"
+    local ch = P8.army.alarm_to_dept[0] and "/d" or "/r"
+    local where = (type(place) == "string" and place ~= "") and place or P8_armyCurrentPostName()
+    queueTask(function()
+        if not isSampAvailable() then return end
+        local ok_p, px, py = pcall(getCharCoordinates, PLAYER_PED)
+        local z_txt = (ok_p and type(px) == "number") and P7_getSanAndreasZone(px, py) or "База"
+        local msg = ch .. " [" .. tag .. "] ТРЕВОГА! ЧС на объекте (" .. where .. ")! Район: " .. z_txt .. "! Код 3!"
+        sampSendChat(msg:sub(1, 128))
+    end)
+end
+
+function P8_installArmyLecturerPack()
+    local existing = {}
+    for _, t in ipairs(P3_lecturer_templates or {}) do
+        existing[t.name or ""] = true
+    end
+    local added = 0
+    for _, def in ipairs(P3_default_lecturer_templates or {}) do
+        if type(def.name) == "string" and def.name:find("%[МО%]") and not existing[def.name] then
+            table.insert(P3_lecturer_templates, { name = def.name, text = def.text })
+            added = added + 1
+        end
+    end
+    if added > 0 and type(P3_saveLecturer) == "function" then
+        P3_saveLecturer()
+    end
+    queueTask(function()
+        if isSampAvailable() then
+            sampAddChatMessage("[МО] Добавлено лекций для армии: " .. tostring(added) .. " шт. (откройте «Лектор и Собесы»)", 0x00FF90)
+        end
+    end)
+end
+
+function P8_drawArmyUI()
+    local tab_names = { "1. Посты", "2. Конвой БП", "3. ЧС и Бой", "4. Устав МО" }
+    for ti, tlbl in ipairs(tab_names) do
+        if ti > 1 then imgui.SameLine() end
+        local sel = (P8.army.ui_tab == ti)
+        if sel then imgui.PushStyleColor(imgui.Col.Button, imgui.ImVec4(0.18, 0.55, 0.25, 1.0)) end
+        if imgui.Button(encodeCp1251Safe(tlbl) .. "##p8_atab_" .. ti, imgui.ImVec2(128, 25)) then
+            P8.army.ui_tab = ti
+        end
+        if sel then imgui.PopStyleColor() end
+    end
+    imgui.Separator()
+    imgui.Spacing()
+
+    if P8.army.ui_tab == 1 then
+        imgui.PushItemWidth(190)
+        local p_items = u8"КПП-1" .. "\0" .. u8"КПП-2" .. "\0" .. u8"Вышка" .. "\0" .. u8"Склад БП" .. "\0" .. u8"Авианосец (Кит)" .. "\0" .. u8"Ангар" .. "\0" .. u8"Казарма" .. "\0"
+        if imgui.ComboStr(u8"Пост##p8_post_c", P8.army.post_idx, p_items) then requestSaveSettings() end
+        imgui.SameLine()
+        local c_items = u8"Код 1 (спокойно)" .. "\0" .. u8"Код 2 (подозрительно)" .. "\0" .. u8"Код 3 (ЧС / нападение)" .. "\0"
+        imgui.ComboStr(u8"Код##p8_code_c", P8.army.code_idx, c_items)
+        imgui.PopItemWidth()
+
+        imgui.PushItemWidth(220)
+        imgui.InputText(u8"Свой пост (если нужен)##p8_pcust", P8.army.post_custom, ffi.sizeof(P8.army.post_custom))
+        if imgui.IsItemDeactivatedAfterEdit() then requestSaveSettings() end
+        imgui.InputText(u8"Состав на посту##p8_pcrew", P8.army.crew_buf, ffi.sizeof(P8.army.crew_buf))
+        if imgui.IsItemDeactivatedAfterEdit() then requestSaveSettings() end
+        if imgui.SliderInt(u8"Таймер доклада (мин)##p8_pint", P8.army.post_interval, 3, 30) then requestSaveSettings() end
+        imgui.PopItemWidth()
+
+        imgui.PushItemWidth(-1)
+        imgui.InputText(u8"##p8_ptpl", P8.army.post_tpl, ffi.sizeof(P8.army.post_tpl))
+        if imgui.IsItemDeactivatedAfterEdit() then requestSaveSettings() end
+        imgui.PopItemWidth()
+        imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.6, 0.65, 0.72, 1.0))
+        imgui.TextUnformatted(u8"Теги шаблона: {tag} {post} {code} {crew} {zone} {sector}")
+        imgui.PopStyleColor()
+        imgui.Spacing()
+
+        if imgui.Button(u8"Заступил / Доклад на посту (/r)##p8_send_post", imgui.ImVec2(240, 28)) then
+            P8_sendArmyPostReport()
+        end
+        imgui.SameLine()
+        if imgui.Button(u8"Сдал пост (/r)##p8_end_post", imgui.ImVec2(140, 28)) then
+            local tag = P8.faction_ctx.sub_division or "МО"
+            local post = P8_armyCurrentPostName()
+            local dur = P8.army.post_active and P7_formatPatrolDuration(os.time() - (P8.army.post_start_ts or os.time())) or "00:00"
+            P8.army.post_active = false
+            P8.army.post_due_alert = false
+            P8.army.post_hud_str = ""
+            queueTask(function()
+                if isSampAvailable() then
+                    sampSendChat(("/r [" .. tag .. "] Сдал пост: " .. post .. " (на посту: " .. dur .. ")."):sub(1, 128))
+                end
+            end)
+        end
+        if P8.army.post_active then
+            imgui.TextUnformatted(encodeCp1251Safe(P8.army.post_hud_str ~= "" and P8.army.post_hud_str or "Пост активен"))
+        end
+    elseif P8.army.ui_tab == 2 then
+        imgui.TextUnformatted(u8"Конвой и доставка боеприпасов (38 зон SA + секторы A-1..H-8):")
+        imgui.TextUnformatted(u8"Доставок за сессию: " .. tostring(P8.army.convoy_runs or 0) .. (P8.army.convoy_status ~= "" and (u8" | Статус: " .. encodeCp1251Safe(P8.army.convoy_status)) or ""))
+        imgui.Spacing()
+        if imgui.Button(u8"1. Выехал за БП (/r)##p8_cnv1", imgui.ImVec2(195, 28)) then P8_sendArmyConvoyReport(1) end
+        imgui.SameLine()
+        if imgui.Button(u8"2. Загрузился + Зона (/r)##p8_cnv2", imgui.ImVec2(215, 28)) then P8_sendArmyConvoyReport(2) end
+        if imgui.Button(u8"3. Нападение на конвой! (/r)##p8_cnv3", imgui.ImVec2(215, 28)) then P8_sendArmyConvoyReport(3) end
+        imgui.SameLine()
+        if imgui.Button(u8"4. Разгрузился на базе (/r)##p8_cnv4", imgui.ImVec2(215, 28)) then P8_sendArmyConvoyReport(4) end
+    elseif P8.army.ui_tab == 3 then
+        imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(1.0, 0.35, 0.35, 1.0))
+        imgui.TextUnformatted(u8"Быстрая тревога / ЧС на базе (команда /chs):")
+        imgui.PopStyleColor()
+        if imgui.Checkbox(u8"Отправлять тревогу в департамент (/d вместо /r)", P8.army.alarm_to_dept) then requestSaveSettings() end
+        if imgui.Checkbox(u8"Радар рации (звук + HUD-баннер при слове ЧС/Код 3 в /r или /d)", P8.army.radio_watch) then requestSaveSettings() end
+        if imgui.Button(u8"ТРЕВОГА: КПП!##p8_al_kpp", imgui.ImVec2(150, 28)) then P8_sendArmyAlarm("КПП") end
+        imgui.SameLine()
+        if imgui.Button(u8"ТРЕВОГА: Склад БП!##p8_al_skl", imgui.ImVec2(170, 28)) then P8_sendArmyAlarm("Склад БП") end
+        imgui.SameLine()
+        if imgui.Button(u8"ТРЕВОГА: Авианосец!##p8_al_av", imgui.ImVec2(180, 28)) then P8_sendArmyAlarm("Авианосец") end
+        imgui.Separator()
+        imgui.Spacing()
+        if imgui.Checkbox(u8"Подтверждённое сервером Авто-РП (+ /sp обход в бою)##p8_a_crp", P8.confirmed_rp) then requestSaveSettings() end
+        if imgui.Checkbox(u8"Локальный Damage Informer (/dmglog)##p8_a_dmg", dmg_enabled) then requestSaveSettings() end
+        imgui.SameLine()
+        if imgui.Button(u8"Открыть /dmglog##p8_a_dmgl", imgui.ImVec2(145, 24)) then dmg_log_show[0] = not dmg_log_show[0] end
+        imgui.Spacing()
+        if imgui.Button(u8"Установить пакет Присяги и Устава в Лектор##p8_a_lect", imgui.ImVec2(320, 26)) then
+            P8_installArmyLecturerPack()
+        end
+        imgui.SameLine()
+        if imgui.Button(u8"Сцены /loc 4 (КПП МО)##p8_a_loc", imgui.ImVec2(175, 26)) then
+            loc_ui_tab = 4
+            loc_ui_show[0] = true
+        end
+    else
+        imgui.PushItemWidth(260)
+        imgui.InputText(u8"Поиск по Уставу МО##p8_chs", P8.army.charter_search, ffi.sizeof(P8.army.charter_search))
+        imgui.PopItemWidth()
+        local q = cp1251_lower(decodeUtf8Safe(ffi.string(P8.army.charter_search)):gsub("^%s+", ""):gsub("%s+$", ""))
+        imgui.BeginChild("p8_charter_list", imgui.ImVec2(0, 220), true)
+        for ci, item in ipairs(P8.army.charter_items) do
+            local hay = cp1251_lower(item.title .. " " .. item.text)
+            if q == "" or hay:find(q, 1, true) then
+                imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.45, 0.95, 0.55, 1.0))
+                imgui.TextUnformatted(encodeCp1251Safe(item.title))
+                imgui.PopStyleColor()
+                imgui.PushTextWrapPos(0)
+                imgui.TextUnformatted(encodeCp1251Safe(item.text))
+                imgui.PopTextWrapPos()
+                imgui.Separator()
+            end
+        end
+        imgui.EndChild()
+    end
+end
+
+function P8_drawContextQuickBar()
+    local fk = P8.faction_ctx.active_faction or "civ"
+    imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.65, 0.85, 1.0, 1.0))
+    imgui.TextUnformatted(u8"Быстрый доступ:")
+    imgui.PopStyleColor()
+    imgui.SameLine()
+    if fk == "mo" then
+        if imgui.SmallButton(u8"Пост /r##qb_post") then P8_sendArmyPostReport() end
+        imgui.SameLine()
+        if imgui.SmallButton(u8"Конвой БП##qb_cnv") then P8.army.ui_tab = 2; P8_openModuleById("army_tools") end
+        imgui.SameLine()
+        if imgui.SmallButton(u8"ЧС! (/chs)##qb_chs") then P8_sendArmyAlarm("База") end
+        imgui.SameLine()
+        if imgui.SmallButton(u8"Присяга/Лектор##qb_lect") then P8_openModuleById("lecturer") end
+        imgui.SameLine()
+        if imgui.SmallButton(u8"Устав МО##qb_ust") then P8.army.ui_tab = 4; P8_openModuleById("army_tools") end
+        imgui.SameLine()
+        if imgui.SmallButton(u8"Урон /dmglog##qb_dmg") then dmg_log_show[0] = not dmg_log_show[0] end
+    elseif fk == "mvd" then
+        if imgui.SmallButton(u8"Патруль##qb_pat") then P7.patrol_show[0] = not P7.patrol_show[0] end
+        imgui.SameLine()
+        if imgui.SmallButton(u8"Розыск /suw##qb_suw") then suw_show[0] = not suw_show[0] end
+        imgui.SameLine()
+        if imgui.SmallButton(u8"Урон /dmglog##qb_mdmg") then dmg_log_show[0] = not dmg_log_show[0] end
+        imgui.SameLine()
+        if imgui.SmallButton(u8"Рынок /price##qb_mpr") then P7.market_show[0] = not P7.market_show[0] end
+    elseif fk == "mz" then
+        if imgui.SmallButton(u8"Медик /medui##qb_med") then medui_show[0] = not medui_show[0] end
+        imgui.SameLine()
+        if imgui.SmallButton(u8"Лектор МЗ##qb_mzl") then P8_openModuleById("lecturer") end
+        imgui.SameLine()
+        if imgui.SmallButton(u8"Рынок /price##qb_mzp") then P7.market_show[0] = not P7.market_show[0] end
+    elseif fk == "smi" then
+        if imgui.SmallButton(u8"MM Editor (/edit)##qb_ed") then P8_openModuleById("mm_editor") end
+        imgui.SameLine()
+        if imgui.SmallButton(u8"Викторина /quiz##qb_qz") then quiz_popout_show[0] = not quiz_popout_show[0] end
+        imgui.SameLine()
+        if imgui.SmallButton(u8"Рынок /price##qb_smp") then P7.market_show[0] = not P7.market_show[0] end
+    else
+        if imgui.SmallButton(u8"Рынок (/price)##qb_pr") then P7.market_show[0] = not P7.market_show[0] end
+        imgui.SameLine()
+        if imgui.SmallButton(u8"HUD (/hud)##qb_hud") then hud_enabled[0] = not hud_enabled[0]; requestSaveSettings() end
+        imgui.SameLine()
+        if imgui.SmallButton(u8"GPS (/wp)##qb_wp") then P8_openModuleById("qol_tools") end
+        imgui.SameLine()
+        if imgui.SmallButton(u8"Диагностика##qb_env") then P8_openModuleById("qol_tools") end
+    end
+end
+
+function P8_tick()
+    local now_clk = os.clock()
+    -- Expire stale RP confirmations & post alert banner
+    for k, entry in pairs(P8.rp_pending) do
+        if entry.expires_at < now_clk then P8.rp_pending[k] = nil end
+    end
+
+    local now = os.time()
+    if now == P8.last_tick_1s then return end
+    P8.last_tick_1s = now
+
+    if P8.faction_ctx.server_id == "unknown" and (now - (P8.last_srv_probe_ts or 0)) >= 3 and isSampAvailable() then
+        P8.last_srv_probe_ts = now
+        local ok_sn, srv_name = pcall(sampGetCurrentServerName)
+        if ok_sn and type(srv_name) == "string" and srv_name ~= "" then
+            local sid, slbl = P8_detectServerName(srv_name)
+            if sid ~= "unknown" then
+                P8.faction_ctx.server_id = sid
+                P8.faction_ctx.server_label = slbl
+            end
+        end
+    end
+
+    if P8.army.post_active then
+        local elapsed = math.max(0, now - (P8.army.post_last_ts or now))
+        local iv_sec = math.max(180, (P8.army.post_interval[0] or 10) * 60)
+        local rem = iv_sec - elapsed
+        local pname = P8_armyCurrentPostName()
+        if rem <= 0 then
+            P8.army.post_hud_str = "ПОСТ " .. pname .. ": ПОРА ДОКЛАД! (/post)"
+            if not P8.army.post_due_alert then
+                P8.army.post_due_alert = true
+                if sound_enabled[0] then playAlertSound(1057) end
+                if isSampAvailable() then
+                    sampAddChatMessage("[МО] Пора сделать доклад с поста (" .. pname .. ")! Команда: /post", 0xFFCC00)
+                end
+            end
+        else
+            P8.army.post_hud_str = "Пост " .. pname .. ": доклад через " .. P7_formatPatrolDuration(rem)
+        end
+    else
+        P8.army.post_hud_str = ""
+    end
+
+    if P8.army.hud_alert_str ~= "" and now > (P8.army.hud_alert_until or 0) then
+        P8.army.hud_alert_str = ""
+    end
+
+    P8_ensureValidActiveModule()
 end
 
 function P5_cleanImportValue(val, depth, state)
@@ -13673,7 +14611,13 @@ function main()
 while not isSampAvailable() do wait(100) end
 
 -- Загружаем базы и настройки
+pcall(P8_probeEnvironment)
+
+-- Загружаем базы и настройки
 local db_ok, db_err = pcall(loadDatabases)
+if type(P8_syncFromSelectedFaction) == "function" and not P8.faction_ctx.manual_lock and P8.faction_ctx.active_faction == "civ" and selected_faction and selected_faction[0] ~= 0 then
+    P8_syncFromSelectedFaction(true)
+end
 if not db_ok then sampAddChatMessage("[Helper] loadDatabases error: " .. tostring(db_err), 0xFF0000) end
 
 -- Restore module enabled states from saved settings
@@ -13948,6 +14892,9 @@ if loc_use_short_cmd[0] then
         sampAddChatMessage("[Helper] /loc занята — используйте /tloc [1|2]", 0xFFAA00)
     end
 end
+sampRegisterChatCommand('army', function() P8_openModuleById('army_tools') end)
+sampRegisterChatCommand('post', function() P8_sendArmyPostReport() end)
+sampRegisterChatCommand('chs', function(arg) P8_sendArmyAlarm(arg) end)
 sampRegisterChatCommand('tvlf', cmdTvlift)
 sampRegisterChatCommand('uninv', cmdUninvite)
 sampRegisterChatCommand('mmefir', cmdEfir)
@@ -14195,6 +15142,7 @@ if hud_now ~= hud_cache.last_update then
     end
     P5_tickSession1s()
     if type(P7_tickPatrol1s) == "function" then P7_tickPatrol1s() end
+    if type(P8_tick) == "function" then P8_tick() end
     if finance_enabled[0] and isSampAvailable() then
         local ok_m, cur_m = pcall(getPlayerMoney, PLAYER_HANDLE)
         if ok_m and type(cur_m) == "number" then
@@ -14436,10 +15384,14 @@ factionScannerWorker = function()
                     elseif text:find("Мафия") or text:find("Бандит") or text:find("Yakuza") or text:find("La Cosa Nostra") or text:find("LCN") or text:find("Картель") or text:find("Триада") then
                         detected_faction = 7
                     end
-                    if detected_faction and selected_faction[0] ~= detected_faction then
+                    if P8 and P8.faction_ctx and P8.faction_ctx.auto_detect[0] and not P8.faction_ctx.manual_lock then
+                        P8_tryDetectFactionFromDialog(title, text)
+                    end
+                    if detected_faction and selected_faction[0] ~= detected_faction and (not P8 or (P8.faction_ctx.auto_detect[0] and not P8.faction_ctx.manual_lock)) then
                         selected_faction[0] = detected_faction
+                        if type(P8_syncFromSelectedFaction) == "function" then P8_syncFromSelectedFaction(true) end
                         saveSettings()
-                        sampAddChatMessage("[Helper] Определена фракция: {00FF00}" .. faction_names[detected_faction] .. "{FFFFFF}. Настройки обновлены.", 0xFFFFFF)
+                        sampAddChatMessage("[Helper] Определена фракция: {00FF90}" .. faction_names[detected_faction] .. "{FFFFFF}. Настройки обновлены.", 0xFFFFFF)
                     end
                 end
             end
@@ -14788,6 +15740,16 @@ function sampev.onSendCommand(command)
     if not cmd then return true end
     cmd = cmd:lower()
 
+    if cmd == "sp" then
+        local inner = (rest or ""):gsub("^%s+", ""):gsub("^/+", "")
+        if inner == "" then
+            sampAddChatMessage("[Helper] Использование: /sp [команда] — отправка без Авто-РП (напр. /sp healme)", 0xFFAA00)
+            return false
+        end
+        P8.rp_bypass_once = true
+        return { "/" .. inner }
+    end
+
     if cmd == "find" and isModuleEnabled("smi_tools") and find_ui_enabled[0] then
         find_wait_until = os.clock() + 5.0
     end
@@ -14871,6 +15833,7 @@ function sampev.onSendCommand(command)
         return { modified_cmd }
     end
 
+    if P8.rp_bypass_once then P8.rp_bypass_once = false return true end
     if isModuleEnabled("auto_rp") and not call_worker_running then
         local rp_line = nil
         if (cmd == "call" or cmd == "c") and rp_phone_enabled[0] then
@@ -14910,6 +15873,8 @@ function sampev.onSendCommand(command)
             rp_line = "/me " .. rpVerb("достал", "достала") .. " ключ и " .. rpVerb("снял", "сняла") .. " наручники с задержанного"
         elseif cmd == "search" and p4_autorp_enabled[0] and isModuleEnabled("faction_tools") and rest ~= "" then
             rp_line = "/me " .. rpVerb("надел", "надела") .. " перчатки и " .. rpVerb("провёл", "провела") .. " первичный обыск"
+        elseif cmd == "gotome" and p4_autorp_enabled[0] and isModuleEnabled("faction_tools") and rest ~= "" then
+            rp_line = "/me " .. rpVerb("взял", "взяла") .. " задержанного под руку"
         elseif cmd == "putpl" and p4_autorp_enabled[0] and isModuleEnabled("faction_tools") and rest ~= "" then
             rp_line = "/me " .. rpVerb("открыл", "открыла") .. " дверь патрульного авто и " .. rpVerb("посадил", "посадила") .. " задержанного в салон"
         elseif cmd == "arrest" and p4_autorp_enabled[0] and isModuleEnabled("faction_tools") and rest ~= "" then
@@ -14921,6 +15886,18 @@ function sampev.onSendCommand(command)
         end
 
         if rp_line then
+            if P8.confirmed_rp[0] and (cmd == "cuff" or cmd == "gotome" or cmd == "mask" or cmd == "healme") then
+                if cmd == "mask" then
+                    P8_registerRpPending("mask", { "маску", "надели маску", "сняли маску" }, "/me проверил посадку маски на лице")
+                elseif cmd == "healme" then
+                    P8_registerRpPending("healme", { "аптечк", "пополнил здоровье", "вылечи" }, "/me убрал использованную аптечку в подсумок")
+                elseif cmd == "cuff" then
+                    P8_registerRpPending("cuff", { "надел наручники", "в наручниках" }, "/do Наручники надёжно защёлкнуты на запястьях.")
+                elseif cmd == "gotome" then
+                    P8_registerRpPending("gotome", { "повел", "повёл", "ведёт за собой" }, "/me крепко держит задержанного за плечо")
+                end
+                return true
+            end
             local orig_cmd = command
             scheduleTask(0, function()
                 if isSampAvailable() then
@@ -15135,6 +16112,10 @@ function sampev.onServerMessage(color, text)
         end
     end
 
+    if type(P8_onServerMessage) == "function" then
+        P8_onServerMessage(clean_trimmed, clean_lower)
+    end
+
     -- Лифт занят — сбрасываем ожидание
     if tvlift_active and text:find("Лифт занят", 1, true) then
         tvlift_active = false
@@ -15204,6 +16185,7 @@ function sampev.onPlayerQuit(playerId, reason)
 end
 
 function sampev.onShowDialog(dialogId, style, title, button1, button2, text)
+    if type(P8_tryDetectFactionFromDialog) == "function" then P8_tryDetectFactionFromDialog(title, text) end
 -- Перехват статистики для playerLogin (РП-движок)
     if rp_reading_stats then
         -- Диалог статистики — читаем и закрываем
@@ -15645,7 +16627,7 @@ if w ~= last_w then
 last_w = w
 if type(forceWeatherNow) == "function" then forceWeatherNow(w) end
 end
-if memory then memory.write(0xC81320, w, 1, false) end
+if mem_ok and memory then memory.write(0xC81320, w, 1, false) end
 else
 last_w = -1
 end
@@ -15654,9 +16636,11 @@ local h = time_hour[0]
 if h ~= last_t then
 last_t = h
 end
-if memory then memory.write(0xB70153, h, 1, false) end
-if memory then memory.write(0xB70152, 0, 1, false) end
-if memory then memory.write(0xB70158, 0, 4, false) end
+if mem_ok and memory then
+    memory.write(0xB70153, h, 1, false)
+    memory.write(0xB70152, 0, 1, false)
+    memory.write(0xB70158, 0, 4, false)
+end
 else
 last_t = -1
 end
@@ -16376,38 +17360,51 @@ end
 imgui.SetNextWindowSize(imgui.ImVec2(820, 560), imgui.Cond.FirstUseEver)
 imgui.Begin(WINDOW_TITLE, show_main_window, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize)
 
--- Верхняя панель: Переключатель серверов
-imgui.TextUnformatted(u8"Выбор текущего сервера:")
+-- Верхняя панель: Фракция + Подразделение + Тема + Быстрый доступ
+imgui.TextUnformatted(u8"Фракция:")
 imgui.SameLine()
-imgui.PushItemWidth(150)
-if imgui.BeginCombo("##ServerSelector", server_names[current_server_idx[0] + 1]) then
-for idx, srv_name in ipairs(server_names) do
-local is_selected = (current_server_idx[0] == idx - 1)
-if imgui.Selectable(srv_name, is_selected) then
-current_server_idx[0] = idx - 1
-requestSaveSettings() queueTask(function() sampAddChatMessage("[Helper] Сервер изменен на: " .. decodeUtf8Safe(server_names[current_server_idx[0] + 1]), 0x00FF90) end)
-end
-end
-imgui.EndCombo()
+imgui.PushItemWidth(145)
+local fac_combo = u8"МО (Армия)" .. "\0" .. u8"МВД / ФБР" .. "\0" .. u8"МЗ (Больница)" .. "\0" .. u8"СМИ" .. "\0" .. u8"Мэрия" .. "\0" .. u8"Банды / Мафии" .. "\0" .. u8"Гражданский" .. "\0"
+if imgui.ComboStr("##TopFactionSelector", P8.faction_ctx.faction_idx, fac_combo) then
+    local fk = P8.faction_keys[P8.faction_ctx.faction_idx[0] + 1] or "civ"
+    P8_setFactionContext(fk, nil, nil, true, true)
+    requestSaveSettings()
 end
 imgui.PopItemWidth()
 imgui.SameLine()
+imgui.PushItemWidth(95)
+local cur_subs = P8.subdivisions[P8.faction_ctx.active_faction] or { "Общий" }
+local sub_combo = ""
+for _, sn in ipairs(cur_subs) do
+    sub_combo = sub_combo .. encodeCp1251Safe(sn) .. "\0"
+end
+if imgui.ComboStr("##TopSubdivSelector", P8.faction_ctx.subdiv_idx, sub_combo) then
+    P8.faction_ctx.sub_division = cur_subs[P8.faction_ctx.subdiv_idx[0] + 1] or cur_subs[1]
+    requestSaveSettings()
+end
+imgui.PopItemWidth()
+imgui.SameLine()
+if imgui.Checkbox(u8"Все модули##top_show_all", P8.faction_ctx.show_all_modules) then
+    P8_ensureValidActiveModule()
+    requestSaveSettings()
+end
+imgui.SameLine()
 imgui.TextUnformatted(u8"Тема:")
 imgui.SameLine()
-imgui.PushItemWidth(135)
+imgui.PushItemWidth(110)
 local top_th_items = u8"Стандарт" .. "\0" .. u8"МВД" .. "\0" .. u8"МЗ" .. "\0" .. u8"СМИ" .. "\0" .. u8"Кибер" .. "\0" .. u8"Светлая" .. "\0"
 if imgui.ComboStr("##TopThemeSelector", P7.theme_idx, top_th_items) then
     P7.style_dirty = true
     requestSaveSettings()
 end
 imgui.PopItemWidth()
+
+P8_drawContextQuickBar()
 imgui.SameLine()
-if imgui.SmallButton(u8"Рынок (/price)##top_mkt") then
-    P7.market_show[0] = not P7.market_show[0]
-end
-imgui.SameLine()
-if imgui.SmallButton(u8"Патруль##top_pat") then
-    P7.patrol_show[0] = not P7.patrol_show[0]
+if P8.faction_ctx.server_id ~= "unknown" then
+    imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.55, 0.85, 0.95, 1.0))
+    imgui.TextUnformatted("| Advance " .. encodeCp1251Safe(P8.faction_ctx.server_label))
+    imgui.PopStyleColor()
 end
 
 imgui.Spacing()
@@ -16420,7 +17417,9 @@ imgui.TextUnformatted(u8" Доступные Модули")
 imgui.Separator()
 imgui.Spacing()
 
+P8_ensureValidActiveModule()
 for i, mod in ipairs(modules) do
+if P8_isModuleVisible(mod) then
 local is_selected = (active_module_idx == i)
 if imgui.Selectable(mod.name, is_selected, 0, imgui.ImVec2(0, 32)) then
 if i ~= active_module_idx then
@@ -16443,6 +17442,7 @@ else
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
 imgui.TextUnformatted("[OFF]")
 imgui.PopStyleColor()
+end
 end
 end
 imgui.EndChild()
@@ -16477,6 +17477,9 @@ imgui.TextUnformatted(active_module.description)
 imgui.PopTextWrapPos()
 imgui.PopStyleColor()
 imgui.Spacing()
+if active_module.requires then
+    P8_drawCapabilityBanner(active_module.requires)
+end
 imgui.Separator()
 imgui.Spacing()
 
@@ -17082,7 +18085,17 @@ local hud_f = imgui.OnFrame(
             imgui.TextUnformatted(encodeCp1251Safe(P7.patrol_hud_str))
             imgui.PopStyleColor()
         end
-        if isModuleEnabled("faction_tools") and dmg_enabled[0] and dmg_show_hud[0] and dmg_last_hud ~= "" and (os.time() - dmg_last_ts) <= 6 then
+        if P8 and P8.army and P8.army.post_active and P8.army.post_hud_str ~= "" then
+            imgui.PushStyleColor(imgui.Col.Text, P8.army.post_due_alert and imgui.ImVec4(1.0, 0.55, 0.15, 1.0) or imgui.ImVec4(0.45, 1.0, 0.55, 1.0))
+            imgui.TextUnformatted(encodeCp1251Safe(P8.army.post_hud_str))
+            imgui.PopStyleColor()
+        end
+        if P8 and P8.army and P8.army.hud_alert_str ~= "" and os.time() <= (P8.army.hud_alert_until or 0) then
+            imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(1.0, 0.3, 0.3, 1.0))
+            imgui.TextUnformatted(encodeCp1251Safe(P8.army.hud_alert_str))
+            imgui.PopStyleColor()
+        end
+        if dmg_enabled[0] and dmg_show_hud[0] and dmg_last_hud ~= "" and (os.time() - dmg_last_ts) <= 6 then
             local d_col = (dmg_last_hud:sub(1, 1) == "+") and imgui.ImVec4(0.35, 1.0, 0.45, 1.0) or imgui.ImVec4(1.0, 0.35, 0.35, 1.0)
             imgui.PushStyleColor(imgui.Col.Text, d_col)
             imgui.TextUnformatted(encodeCp1251Safe(dmg_last_hud))
@@ -17208,6 +18221,40 @@ imgui.OnFrame(
         end
 
         imgui.Separator()
+        if P8.faction_ctx.active_faction == "mo" or P8.faction_ctx.show_all_modules[0] then
+            imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.45, 0.95, 0.55, 1.0))
+            imgui.TextUnformatted(u8"МО (Армия / КПП):")
+            imgui.PopStyleColor()
+            if imgui.Button(u8"Документы (КПП)##tm_mo_doc", imgui.ImVec2(140, 26)) then
+                queueTask(function() if isSampAvailable() then sampSendChat("/s Здравия желаю! Предъявите ваши документы и цель визита.") end end)
+                target_menu_show[0] = false
+            end
+            imgui.SameLine()
+            if imgui.Button(u8"Покинуть зону (10с)##tm_mo_warn", imgui.ImVec2(140, 26)) then
+                queueTask(function() if isSampAvailable() then sampSendChat("/s Вы на охраняемой территории! Покиньте периметр за 10 секунд!") end end)
+                target_menu_show[0] = false
+            end
+            if imgui.Button(u8"Нарушитель в /r##tm_mo_rep", imgui.ImVec2(140, 26)) then
+                local n_cp = tnick
+                local id_n = tid
+                queueTask(function()
+                    if isSampAvailable() then
+                        local ok_p, px, py = pcall(getCharCoordinates, PLAYER_PED)
+                        local z_txt = (ok_p and type(px) == "number") and P7_getSanAndreasZone(px, py) or "База"
+                        local tag = P8.faction_ctx.sub_division or "МО"
+                        sampSendChat(("/r [" .. tag .. "] У периметра нарушитель " .. n_cp .. " [" .. tostring(id_n) .. "]. Район: " .. z_txt .. "."):sub(1, 128))
+                    end
+                end)
+                target_menu_show[0] = false
+            end
+            imgui.SameLine()
+            if imgui.Button(u8"Отдать честь##tm_mo_sal", imgui.ImVec2(140, 26)) then
+                queueTask(function() if isSampAvailable() then sampSendChat("/me " .. rpVerb("встал", "встала") .. " по стойке смирно и " .. rpVerb("приложил", "приложила") .. " руку к виску") end end)
+                target_menu_show[0] = false
+            end
+        end
+
+        if P8.faction_ctx.active_faction == "mvd" or P8.faction_ctx.active_faction == "mz" or P8.faction_ctx.show_all_modules[0] then
         imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.4, 0.85, 1.0, 1.0))
         imgui.TextUnformatted(u8"МВД / МЗ / Доп. действия:")
         imgui.PopStyleColor()
@@ -17264,6 +18311,7 @@ imgui.OnFrame(
                 P2_sendWithOptionalRp("/heal " .. tostring(tid), rp)
             end)
             target_menu_show[0] = false
+        end
         end
         imgui.Separator()
         if imgui.Button(u8"+ В друзья##tm_friend", imgui.ImVec2(140, 26)) then
@@ -17493,6 +18541,15 @@ imgui.OnFrame(
             imgui.SameLine()
             if imgui.Button(u8"Оружие (/makegun)##p2_f_mgun", imgui.ImVec2(150, 26)) then
                 queueTask(function() if isSampAvailable() then sampSendChat("/makegun") end end)
+                wheel_menu_show[0] = false
+            end
+            if imgui.Button(u8"Доклад Пост (/post)##p2_f_mopost", imgui.ImVec2(150, 26)) then
+                P8_sendArmyPostReport()
+                wheel_menu_show[0] = false
+            end
+            imgui.SameLine()
+            if imgui.Button(u8"Тревога ЧС (/chs)##p2_f_mochs", imgui.ImVec2(150, 26)) then
+                P8_sendArmyAlarm("КПП")
                 wheel_menu_show[0] = false
             end
         elseif fac == 4 then

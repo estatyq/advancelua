@@ -1,4 +1,4 @@
-# Universal Helper Platform v2.7
+# Universal Helper Platform v3.0
 
 Universal game helper for **GTA San Andreas — SA-MP** (Advance RP servers).  
 Built on **MoonLoader** (Lua) with **mimgui** GUI, **SAMP.Lua** events, and **SAMPFUNCS**.
@@ -8,6 +8,12 @@ Built on **MoonLoader** (Lua) with **mimgui** GUI, **SAMP.Lua** events, and **SA
 ---
 
 ## Features
+
+### Faction-Adaptive Platform, Army Module (`МО`) & Dependency Badges (`v3.0`)
+- **Faction-Adaptive UI (`F11` Header + Auto-Detect):** sidebar, quick-access top bar, MMB wheel, Target Menu (`RMB+X`), command guide, and `/hud` automatically tailor themselves for **Army / МО (`СВ` / `ВВС` / `ВМФ`)**, **MVD / FBI**, **Medic (`МЗ`)**, **News (`СМИ`)**, **Gov**, **Crime**, or **Civilian**, with a 1-click **"Show all modules"** toggle.
+- **Military / МО Module (`/army`, `/post`, `/chs`):** post presets (`КПП-1`, `КПП-2`, `Вышка`, `Склад БП`, `Авианосец`) with `/r` report timer in `/hud`, convoy ammo run reporter (38 SA zones + `A-1..H-8`), instant base alarm `/chs`, opt-in radio alert scanner, searchable Military Charter tab, Oath/Checkpoint templates in Lecturer, and military `/loc 4` preset (*Блокпост / КПП (МО)*).
+- **Server-Confirmed RP & `/sp` Bypass:** confirms finishing `/me` lines from server messages, provides `/sp <cmd>` one-shot combat bypass, and detects Advance RP servers (`Blue`, `Red`, `Green`, `Lime`, `Chocolate`) with codex mismatch warnings.
+- **Runtime Capability Badges (`ENV_CAPS`):** automatically probes MoonLoader, SAMPFUNCS, CLEO, SAMP.Lua, `mimgui`, `memory`, `bit`, rendering actionable warning banners on modules with missing deps plus a diagnostics panel under QoL Tools.
 
 ### `/location` Scene Builder PRO — Free *TitanLocation* Alternative (`location_builder`)
 - **522-Object Catalog (`/loc 1` / `/tloc 1`)**: all 522 official IDs from `adv-rp.com/decor` across 7 categories, ID/name search, sorting, favorites, recents, compact/card toggle, and optional JPG preview cache (`config/decor_cache/`)

@@ -523,6 +523,10 @@ def check_onframe_safety(src: str):
         "P6_drawProTab",
         "P7_drawMarketUI",
         "P7_drawPatrolUI",
+        "P8_drawArmyUI",
+        "P8_drawCapabilityBanner",
+        "P8_drawEnvDiagnostics",
+        "P8_drawContextQuickBar",
         "drawGnewsSettings",
         "drawMmEditorSettings",
         "P2_drawWheelFavSelector",
@@ -536,7 +540,7 @@ def check_onframe_safety(src: str):
 
     # 3. Audit inline drawSettings closures inside modules (including vehicle_visuals & qol_tools)
     audited_mods = []
-    for m_id in ("vehicle_visuals", "qol_tools", "autocall_db", "auto_ad", "auto_rp", "keybinds", "commands_guide", "rp_engine", "smi_tools", "lecturer", "faction_tools", "location_builder"):
+    for m_id in ("vehicle_visuals", "qol_tools", "autocall_db", "auto_ad", "auto_rp", "keybinds", "commands_guide", "rp_engine", "smi_tools", "lecturer", "faction_tools", "location_builder", "army_tools"):
         m_mod = re.search(rf'id\s*=\s*"{re.escape(m_id)}".*?drawSettings\s*=\s*(function\s*\()', src, re.S)
         assert m_mod, f"drawSettings closure missing for module {m_id!r}"
         _assert_render_safe(extract_lua_block(src, m_mod.start(1)), f"modules[{m_id}].drawSettings")
@@ -1051,12 +1055,12 @@ def test_v19_features(src: str):
 
 def test_v20_features(src: str):
     # 1. Version & README sync (checkGithubUpdates regex)
-    assert "local SCRIPT_VERSION = 'v2.7 (27.11.2026)'" in src
-    assert "local SCRIPT_VER_NUM = '2.7'" in src
+    assert "local SCRIPT_VERSION = 'v3.0 (27.11.2026)'" in src
+    assert "local SCRIPT_VER_NUM = '3.0'" in src
     for doc_name in ("README.md", "README_RU.md", "README_EN.md", "INSTRUCTION_RU.md"):
         doc_txt = (TARGET.parent / doc_name).read_text(encoding="utf-8")
         m_ver = re.search(r"Universal Helper Platform v(\d+\.\d+)", doc_txt)
-        assert m_ver and m_ver.group(1) == "2.7", f"{doc_name} header mismatch: {m_ver}"
+        assert m_ver and m_ver.group(1) == "3.0", f"{doc_name} header mismatch: {m_ver}"
 
     # 2. /find vs /gps dialog gating
     assert "sampRegisterChatCommand('find'" not in src and 'sampRegisterChatCommand("find"' not in src, "Must not shadow /find!"
@@ -1281,7 +1285,7 @@ def test_cross_phase_contracts(src: str):
     mod_tbl = src[pos_mod_start:mod_end]
     mod_ids = re.findall(r'id\s*=\s*"([^"]+)"', mod_tbl)
     draw_entries = re.findall(r"drawSettings\s*=\s*([^\n,]+)", mod_tbl)
-    assert len(mod_ids) == 14, f"Expected 14 modules, got {len(mod_ids)}: {mod_ids}"
+    assert len(mod_ids) == 15, f"Expected 15 modules, got {len(mod_ids)}: {mod_ids}"
     assert len(draw_entries) == len(mod_ids), f"drawSettings count mismatch: {len(draw_entries)} vs {len(mod_ids)}"
     assert all(d.strip() != "nil" and d.strip() != "" for d in draw_entries), f"Nil drawSettings found: {draw_entries}"
 
@@ -1289,7 +1293,7 @@ def test_cross_phase_contracts(src: str):
     for direct_fn in ("drawGnewsSettings", "drawMmEditorSettings"):
         pos_fn = src.find(f"function {direct_fn}(")
         assert 0 < pos_fn < pos_mod_start, f"{direct_fn} must be defined BEFORE modules table!"
-    for deferred_fn in ("P3_drawLecturerUI", "P4_drawFactionUI", "P6_drawLocationModuleSettings"):
+    for deferred_fn in ("P3_drawLecturerUI", "P4_drawFactionUI", "P6_drawLocationModuleSettings", "P8_drawArmyUI"):
         m_def = re.search(rf"drawSettings\s*=\s*function\s*\(\).*?{re.escape(deferred_fn)}", mod_tbl, re.S)
         assert m_def, f"Module drawSettings for {deferred_fn} must wrap lookup in a closure!"
 
@@ -1550,6 +1554,7 @@ def run_verification(target: Path, fast: bool = False):
     run_swarm_phase_suites(src_lf)
     test_audit_regressions(src_lf)
     test_v27_features(src_lf)
+    test_v30_features(src_lf)
     print("ALL VERIFICATION CHECKS PASSED 100%!")
     return {"lines": len(src_lf.splitlines()), "bytes": len(raw), "tokens": len(tokens), "mode": "full"}
 
@@ -1786,6 +1791,88 @@ def test_v27_features(src_lf: str):
     assert m_enter_cam and "cam_feature_enabled[0] = true" in m_enter_cam.group(0), "/cam explicit activation must enable cam_feature_enabled[0]!"
 
     print(f"v2.7 checks OK (6 ImGui themes + FontGlobalScale, Market /price parser, Patrol /patrol, /location PRO + {len(preset_models)} verified scene objects, /cam UX)")
+
+
+def test_v30_features(src_lf: str):
+    """Verify v3.0 Faction-Adaptive platform, ENV_CAPS capability badges, army_tools (МО), and /sp confirmed RP."""
+    for sym in (
+        "ENV_CAPS = ENV_CAPS or {}",
+        "P8 = P8 or {}",
+        "function P8_parseVersionTuple(",
+        "function P8_probeEnvironment(",
+        "function P8_checkCapabilities(",
+        "function P8_drawCapabilityBanner(",
+        "function P8_drawEnvDiagnostics(",
+        "function P8_isModuleVisible(",
+        "function P8_ensureValidActiveModule(",
+        "function P8_setFactionContext(",
+        "function P8_tryDetectFactionFromDialog(",
+        "function P8_tryDetectFactionFromOwnRadio(",
+        "function P8_sendArmyPostReport(",
+        "function P8_sendArmyConvoyReport(",
+        "function P8_sendArmyAlarm(",
+        "function P8_drawArmyUI(",
+        "function P8_drawContextQuickBar(",
+        "function P8_tick(",
+    ):
+        assert sym in src_lf, f"Missing v3.0 symbol: {sym}"
+
+    # Every module in modules = {...} must declare factions = {...} and army_tools must exist for МО
+    m_mods = re.search(r"(?m)^modules\s*=\s*\{", src_lf)
+    assert m_mods
+    j = src_lf.find("{", m_mods.start())
+    d = 0
+    in_s = None
+    mod_end = len(src_lf)
+    while j < len(src_lf):
+        ch = src_lf[j]
+        if in_s:
+            if ch == "\\":
+                j += 2
+                continue
+            if ch == in_s:
+                in_s = None
+        else:
+            if ch in ("'", '"'):
+                in_s = ch
+            elif ch == "{":
+                d += 1
+            elif ch == "}":
+                d -= 1
+                if d == 0:
+                    mod_end = j + 1
+                    break
+        j += 1
+    mod_tbl = src_lf[m_mods.start():mod_end]
+    factions_decls = re.findall(r"factions\s*=\s*\{", mod_tbl)
+    assert len(factions_decls) >= 15, f"Expected all 15 modules to declare factions = {{...}}, found {len(factions_decls)}"
+    assert 'id = "army_tools"' in mod_tbl and 'factions = {"mo"}' in mod_tbl
+
+    # Hoisted P8_tick called from mainFrameTick; /army /post /chs registered; /sp bypass uses return rewrite
+    assert 'if type(P8_tick) == "function" then P8_tick() end' in src_lf
+    for cmd_nm in ("'army'", "'post'", "'chs'"):
+        assert f"sampRegisterChatCommand({cmd_nm}" in src_lf, f"Missing command {cmd_nm}"
+
+    m_osc = re.search(r"function sampev\.onSendCommand\(command\)(.*?)\nend\n", src_lf, re.S)
+    assert m_osc and 'if cmd == "sp" then' in m_osc.group(1) and 'return { "/" .. inner }' in m_osc.group(1)
+    assert "P8.rp_pending" in src_lf and "P8_registerRpPending" in m_osc.group(1)
+    assert 'elseif cmd == "gotome" and p4_autorp_enabled[0]' in m_osc.group(1)
+
+    # Damage Informer unlocked for МО/all when dmg_enabled[0] and guards invalid playerId
+    m_dmg = re.search(r"function P4_recordDamage\(.*?\nend\n", src_lf, re.S)
+    assert m_dmg and "if not dmg_enabled[0] then return end" in m_dmg.group(0) and "pid ~= 65535" in m_dmg.group(0)
+
+    # Safe tostring version parse & guarded memory writes
+    assert "tostring(raw_sfv)" in src_lf
+    assert "if mem_ok and memory then memory.write(0xC81320" in src_lf
+    assert "Блокпост / КПП (МО)" in src_lf
+    assert "Военная присяга" in src_lf
+
+    # Own-nickname radio detection must only inspect [R] / [F], never [D] / gnews
+    m_rad = re.search(r"function P8_tryDetectFactionFromOwnRadio\(.*?\nend\n", src_lf, re.S)
+    assert m_rad and "%[R%]" in m_rad.group(0) and "clean_msg:find(my_nick, 1, true)" in m_rad.group(0) and "%[D%]" not in m_rad.group(0)
+
+    print("v3.0 checks OK (ENV_CAPS probe & banners, Faction-Adaptive UI, army_tools МО, /sp confirmed RP, P8_tick hoisted)")
 
 
 
