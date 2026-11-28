@@ -23,8 +23,8 @@ script_description("Universal Helper Platform for Advance RP")
 script_dependencies("SAMP.Lua", "mimgui")
 script_properties("work-in-pause")
 
-local SCRIPT_VERSION = 'v3.0 (27.11.2026)'
-local SCRIPT_VER_NUM = '3.0'
+local SCRIPT_VERSION = 'v4.0 (28.11.2026)'
+local SCRIPT_VER_NUM = '4.0'
 jit.off()
 
 -- ============================================================================
@@ -3975,6 +3975,151 @@ P8.banner_hint_open = {}
 P8.last_tick_1s = 0
 P8.last_srv_probe_ts = 0
 
+-- ==========================================
+-- ФАЗА 9 (v4.0): UX Core — Dashboard, Единый профиль, Dynamic Island и Радар
+-- ==========================================
+P9 = P9 or {}
+P9.session_start_ts = P9.session_start_ts or os.time()
+P9.dash_tab = 1
+P9.last_tick_1s = 0
+P9.patrol_reports = P9.patrol_reports or 0
+P9.army_reports = P9.army_reports or 0
+P9.profile_synced_init = false
+
+P9.profile = {
+    name     = imgui.new.char[65](""),
+    surname  = imgui.new.char[65](""),
+    rank     = imgui.new.char[65](""),
+    callsign = imgui.new.char[65](""),
+    subdiv   = imgui.new.char[65](""),
+    badge    = imgui.new.char[33](""),
+    gender   = imgui.new.int(0), -- 0 = Мужской, 1 = Женский
+}
+
+P9.island_enabled = imgui.new.bool(true)
+P9.prox_enabled = imgui.new.bool(false) -- Оповещения о друзьях/ЧС рядом (opt-in OFF по умолчанию)
+
+P9.island = {
+    zone_str       = "San Andreas (—)",
+    status_str     = "",
+    status_col     = { 0.45, 0.85, 1.0, 1.0 },
+    toasts         = {},
+    last_prox_ts   = 0,
+    prox_cooldowns = {},
+}
+
+-- Фаза 9 (v4.0): Кодексы и Уставы (/laws), Умный розыск/штрафы/права, Мульти-ЧС (/bl), Поиск и AI
+P9 = P9 or {}
+P9.server_keys = { "blue", "red", "green", "lime", "chocolate" }
+P9.server_labels = { "Blue", "Red", "Green", "Lime", "Chocolate" }
+
+P9.laws = {
+    show = imgui.new.bool(false),
+    tab = 1,
+    server_idx = imgui.new.int(0),
+    server_manual = false,
+    show_all_factions = imgui.new.bool(false),
+    fav_only = imgui.new.bool(false),
+    large_font = imgui.new.bool(false),
+    search_buf = imgui.new.char[97](""),
+    selected_doc = "uk",
+    selected_ch = 1,
+    selected_art = 1,
+    favorites = {},
+    docs_cache = {},
+    custom_docs = {},
+    load_queued = {},
+    add_open = false,
+    add_doc_idx = imgui.new.int(0),
+    add_ch_buf = imgui.new.char[65](""),
+    add_code_buf = imgui.new.char[25](""),
+    add_title_buf = imgui.new.char[129](""),
+    add_text_buf = imgui.new.char[513](""),
+    add_stars = imgui.new.int(2),
+    add_fine = imgui.new.int(1500),
+    add_takelic = imgui.new.bool(false),
+    add_rp_buf = imgui.new.char[257](""),
+    status_msg = "",
+}
+
+P9.ticket_show = imgui.new.bool(false)
+P9.ticket_target_id = imgui.new.int(0)
+P9.ticket_search_buf = imgui.new.char[65]("")
+P9.ticket_custom_fine = imgui.new.int(1500)
+P9.ticket_custom_reason = imgui.new.char[129]("")
+P9.ticket_use_rp = imgui.new.bool(true)
+
+P9.takelic_show = imgui.new.bool(false)
+P9.takelic_target_id = imgui.new.int(0)
+P9.takelic_reason_buf = imgui.new.char[129]("")
+P9.takelic_rp_buf = imgui.new.char[257](u8"/me составил протокол грубого нарушения ПДД и изъял водительское удостоверение")
+P9.takelic_use_rp = imgui.new.bool(true)
+
+P9.bl = {
+    show = imgui.new.bool(false),
+    cat_keys = { "all", "mvd", "gov", "mo", "smi" },
+    cat_labels = { "Все", "ЧС МВД", "ЧС Федерации / Гос", "ЧС МО", "ЧС СМИ" },
+    filter_cat = 1,
+    search_buf = imgui.new.char[65](""),
+    add_nick_buf = imgui.new.char[49](""),
+    add_cat_idx = imgui.new.int(0),
+    add_reason_buf = imgui.new.char[129](""),
+    url_sync_enabled = imgui.new.bool(false),
+    url_buf = imgui.new.char[257](""),
+    sync_busy = false,
+    status_msg = "",
+    last_lookup_msg = "",
+    entries = {},
+    dirty = false,
+    loaded = false,
+    load_queued = false,
+}
+P9.bl_entries = P9.bl_entries or {}
+
+P9.ai_byok_enabled = false
+P9.ai = {
+    query_buf = imgui.new.char[257](""),
+    byok_chk = imgui.new.bool(false),
+    endpoint_buf = imgui.new.char[257]("https://api.openai.com/v1/chat/completions"),
+    model_buf = imgui.new.char[97]("gpt-4o-mini"),
+    apikey_buf = imgui.new.char[257](""),
+    busy = false,
+    status_msg = "",
+    offline_results = {},
+    last_query = "",
+    answer_text = "",
+    parsed_articles = {},
+    last_req_ts = 0,
+}
+
+P9.caps_probed = false
+P9.caps_queued = false
+P9.last_srv_sync = ""
+
+-- Фаза 9 (v4.0): Визуальный редактор радиального меню, /stoprp, тест без чата, авто-скрин и /hexit
+P9 = P9 or {}
+P9.rp_cancel_seq = 0
+P9.unload_scheduled = false
+
+P9.auto_ss_reports = false
+P9.auto_ss_c60 = true
+P9.auto_ss_delay_ms = imgui.new.int(900)
+P9.auto_ss_reports_buf = imgui.new.bool(false)
+P9.auto_ss_c60_buf = imgui.new.bool(true)
+P9.auto_ss_last_ts = 0
+
+P9.radial_sel = 1
+P9.radial_edit_loaded_idx = 0
+P9.radial_slots = P9.radial_slots or {}
+P9.radial_label_buf = imgui.new.char[65]("")
+P9.radial_payload_buf = imgui.new.char[257]("")
+P9.radial_type_idx = imgui.new.int(0)
+P9.radial_fac_idx = imgui.new.int(0)
+P9.radial_rp_ch = imgui.new.int(0)
+P9.radial_rp_idx = imgui.new.int(0)
+P9.radial_type_keys = { "cmd", "rp", "faction", "info" }
+P9.radial_fac_keys = { "all", "mo", "mvd", "mz", "smi", "gov", "crime", "civ" }
+
 -- Компактный HUD (время, PayDay, FPS/Ping, КД, финансы, статусы)
 hud_enabled = imgui.new.bool(false)
 hud_show_cooldowns = imgui.new.bool(true)
@@ -4571,6 +4716,62 @@ if type(parsed.p8_army_interval) == "number" then P8.army.post_interval[0] = mat
 if type(parsed.p8_army_tpl) == "string" and parsed.p8_army_tpl ~= "" then safeStrCopy(P8.army.post_tpl, encodeCp1251Safe(parsed.p8_army_tpl), ffi.sizeof(P8.army.post_tpl)) end
 if type(parsed.p8_army_dept) == "boolean" then P8.army.alarm_to_dept[0] = parsed.p8_army_dept end
 if type(parsed.p8_army_watch) == "boolean" then P8.army.radio_watch[0] = parsed.p8_army_watch end
+if P9 and P9.profile then
+    if type(parsed.p9_prof_name) == "string" then safeStrCopy(P9.profile.name, encodeCp1251Safe(parsed.p9_prof_name), ffi.sizeof(P9.profile.name)) end
+    if type(parsed.p9_prof_surname) == "string" then safeStrCopy(P9.profile.surname, encodeCp1251Safe(parsed.p9_prof_surname), ffi.sizeof(P9.profile.surname)) end
+    if type(parsed.p9_prof_rank) == "string" then safeStrCopy(P9.profile.rank, encodeCp1251Safe(parsed.p9_prof_rank), ffi.sizeof(P9.profile.rank)) end
+    if type(parsed.p9_prof_callsign) == "string" then safeStrCopy(P9.profile.callsign, encodeCp1251Safe(parsed.p9_prof_callsign), ffi.sizeof(P9.profile.callsign)) end
+    if type(parsed.p9_prof_subdiv) == "string" then safeStrCopy(P9.profile.subdiv, encodeCp1251Safe(parsed.p9_prof_subdiv), ffi.sizeof(P9.profile.subdiv)) end
+    if type(parsed.p9_prof_badge) == "string" then safeStrCopy(P9.profile.badge, encodeCp1251Safe(parsed.p9_prof_badge), ffi.sizeof(P9.profile.badge)) end
+    if type(parsed.p9_prof_gender) == "number" then P9.profile.gender[0] = (parsed.p9_prof_gender == 1) and 1 or 0 end
+    if type(parsed.p9_island_enabled) == "boolean" then P9.island_enabled[0] = parsed.p9_island_enabled end
+    if type(parsed.p9_prox_enabled) == "boolean" then P9.prox_enabled[0] = parsed.p9_prox_enabled end
+    if type(P9_syncProfileFromDeps) == "function" then P9_syncProfileFromDeps() end
+end
+if type(parsed.p9_laws_favs) == "table" then
+    local cf = {}
+    for fk, fv in pairs(parsed.p9_laws_favs) do
+        if type(fk) == "string" and fv == true and #fk <= 96 then cf[fk] = true end
+    end
+    P9.laws.favorites = cf
+end
+if type(parsed.p9_laws_large_font) == "boolean" then P9.laws.large_font[0] = parsed.p9_laws_large_font end
+if type(parsed.p9_laws_show_all_fac) == "boolean" then P9.laws.show_all_factions[0] = parsed.p9_laws_show_all_fac end
+if type(parsed.p9_bl_url_sync) == "boolean" then P9.bl.url_sync_enabled[0] = parsed.p9_bl_url_sync end
+if type(parsed.p9_bl_url) == "string" then safeStrCopy(P9.bl.url_buf, encodeCp1251Safe(parsed.p9_bl_url), ffi.sizeof(P9.bl.url_buf)) end
+if type(parsed.p9_ai_byok_enabled) == "boolean" then
+    P9.ai_byok_enabled = parsed.p9_ai_byok_enabled
+    P9.ai.byok_chk[0] = parsed.p9_ai_byok_enabled
+end
+if type(parsed.p9_ai_endpoint) == "string" and parsed.p9_ai_endpoint ~= "" then
+    safeStrCopy(P9.ai.endpoint_buf, encodeCp1251Safe(parsed.p9_ai_endpoint), ffi.sizeof(P9.ai.endpoint_buf))
+end
+if type(parsed.p9_ai_model) == "string" and parsed.p9_ai_model ~= "" then
+    safeStrCopy(P9.ai.model_buf, encodeCp1251Safe(parsed.p9_ai_model), ffi.sizeof(P9.ai.model_buf))
+end
+if type(P9_loadFactionBl) == "function" then pcall(P9_loadFactionBl) end
+if type(parsed.p9_radial_slots) == "table" then
+    local defs = P9_buildDefaultRadialSlots()
+    local loaded_rad = {}
+    for i = 1, 8 do
+        loaded_rad[i] = P9_sanitizeRadialSlot(parsed.p9_radial_slots[i], defs[i])
+    end
+    P9.radial_slots = loaded_rad
+    P2 = P2 or {}
+    P2.radial_slots = P9.radial_slots
+    P9.radial_edit_loaded_idx = 0
+end
+if type(parsed.p9_auto_ss_reports) == "boolean" then
+    P9.auto_ss_reports = parsed.p9_auto_ss_reports
+    if P9.auto_ss_reports_buf then P9.auto_ss_reports_buf[0] = P9.auto_ss_reports end
+end
+if type(parsed.p9_auto_ss_c60) == "boolean" then
+    P9.auto_ss_c60 = parsed.p9_auto_ss_c60
+    if P9.auto_ss_c60_buf then P9.auto_ss_c60_buf[0] = P9.auto_ss_c60 end
+end
+if type(parsed.p9_auto_ss_delay_ms) == "number" then
+    P9.auto_ss_delay_ms[0] = math.max(300, math.min(3000, math.floor(parsed.p9_auto_ss_delay_ms)))
+end
 pcall(P6_loadLocations)
 if type(P7_loadMarket) == "function" then pcall(P7_loadMarket) end
 if type(parsed.keybinds) == "table" then
@@ -4809,6 +5010,27 @@ p8_army_interval = P8.army.post_interval[0],
 p8_army_tpl = decodeUtf8Safe(ffi.string(P8.army.post_tpl)),
 p8_army_dept = P8.army.alarm_to_dept[0],
 p8_army_watch = P8.army.radio_watch[0],
+p9_prof_name = decodeUtf8Safe(ffi.string(P9.profile.name)),
+p9_prof_surname = decodeUtf8Safe(ffi.string(P9.profile.surname)),
+p9_prof_rank = decodeUtf8Safe(ffi.string(P9.profile.rank)),
+p9_prof_callsign = decodeUtf8Safe(ffi.string(P9.profile.callsign)),
+p9_prof_subdiv = decodeUtf8Safe(ffi.string(P9.profile.subdiv)),
+p9_prof_badge = decodeUtf8Safe(ffi.string(P9.profile.badge)),
+p9_prof_gender = P9.profile.gender[0],
+p9_island_enabled = P9.island_enabled[0],
+p9_prox_enabled = P9.prox_enabled[0],
+p9_laws_favs = P9.laws.favorites,
+p9_laws_large_font = P9.laws.large_font[0],
+p9_laws_show_all_fac = P9.laws.show_all_factions[0],
+p9_bl_url_sync = P9.bl.url_sync_enabled[0],
+p9_bl_url = decodeUtf8Safe(ffi.string(P9.bl.url_buf)),
+p9_ai_byok_enabled = P9.ai_byok_enabled,
+p9_ai_endpoint = decodeUtf8Safe(ffi.string(P9.ai.endpoint_buf)),
+p9_ai_model = decodeUtf8Safe(ffi.string(P9.ai.model_buf)),
+p9_radial_slots = P9.radial_slots,
+p9_auto_ss_reports = P9.auto_ss_reports,
+p9_auto_ss_c60 = P9.auto_ss_c60,
+p9_auto_ss_delay_ms = P9.auto_ss_delay_ms[0],
 keybinds = kb,
 module_states = module_states
 }
@@ -5929,6 +6151,10 @@ function playRp(text, test)
                     text = text:gsub(escapePattern(rp_tegs[typeTeg][id][1]), tostring(textTeg or ""):gsub("%%", "%%%%"))
                 end
             end
+        end
+
+        if not test and type(P9_applyProfileTags) == "function" then
+            text = P9_applyProfileTags(text)
         end
 
         if test then
@@ -7478,6 +7704,18 @@ end
 
 modules = {
 {
+id = "dashboard",
+factions = {"all"},
+name = u8" Главная (Dashboard)",
+description = u8"Сводка сессии v4.0: сервер и фракция, таймер смены, быстрые действия, единый профиль игрока с RP-превью, шпаргалка команд и статус ENV_CAPS.",
+enabled = true,
+drawSettings = function()
+    if type(P9_drawDashboardUI) == "function" then P9_drawDashboardUI() end
+end,
+onToggle = function(state) end
+},
+
+{
 id = "gnews",
 factions = {"mo", "mvd", "mz", "smi", "gov"},
 name = u8" Гос. Новости (/gnews)",
@@ -8097,7 +8335,9 @@ else
     desc_txt = "[" .. kname .. "] " .. bind.name .. "  (" .. (bind.command or "") .. ")"
 end
 imgui.TextUnformatted(encodeCp1251Safe(desc_txt))
-imgui.SameLine(400)
+imgui.SameLine(340)
+if type(P9_drawKeybindDryRunBtn) == "function" then P9_drawKeybindDryRunBtn(i, bind) end
+imgui.SameLine()
 if imgui.Button(u8"Удалить##del" .. i) then
 table.remove(keybinds, i)
 requestSaveSettings()
@@ -8288,6 +8528,8 @@ drawSettings = function()
 if imgui.Button(u8"Открыть редактор отыгровок", imgui.ImVec2(220, 30)) then rp_show_edit[0] = true end
 imgui.SameLine()
 if imgui.Button(u8"Загрузить статистику", imgui.ImVec2(150, 30)) then queueTask(playerLogin) end
+imgui.SameLine()
+if imgui.Button(u8"Стоп всё РП (/stoprp)", imgui.ImVec2(170, 30)) then queueTask(function() P9_stopAllRp(false) end) end
 imgui.Spacing()
 imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.8, 0.5, 1))
 imgui.TextUnformatted(u8"Игрок: " .. encodeCp1251Safe(user.fullName))
@@ -8537,6 +8779,10 @@ drawSettings = function()
         if P2.wheel_fav_editor[0] then
             P2_drawWheelFavSelector()
         end
+        if type(P9_drawRadialEditorUI) == "function" then
+            imgui.Spacing()
+            P9_drawRadialEditorUI()
+        end
         imgui.PushItemWidth(160)
         if imgui.SliderInt(u8"Задержка скрина /ss (мс)", ss_delay, 300, 2000) then requestSaveSettings() end
         imgui.PopItemWidth()
@@ -8556,6 +8802,10 @@ drawSettings = function()
         imgui.SameLine()
         if imgui.Button(u8"Реконнект (/rec)##qol_rec_btn") then
             queueTask(function() cmdReconnect("2") end)
+        end
+        if type(P9_drawSoftUnloadButton) == "function" then
+            imgui.SameLine()
+            P9_drawSoftUnloadButton("qol")
         end
         imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.6, 0.6, 0.6, 1))
         imgui.TextUnformatted(u8"/rec [сек] — реконнект (0=отмена) | /hist [ID/ник] — история ников")
@@ -8636,6 +8886,10 @@ drawSettings = function()
         if imgui.Checkbox(u8"Отслеживать баланс денег", finance_enabled) then requestSaveSettings() end
         if imgui.Checkbox(u8"Показывать КД команд в /hud", hud_show_cooldowns) then requestSaveSettings() end
         if imgui.Checkbox(u8"Показывать баланс сессии в /hud", hud_show_finance) then requestSaveSettings() end
+        if P9 and P9.island_enabled then
+            if imgui.Checkbox(u8"Dynamic Island (верхняя пилюля /island)##qol_island", P9.island_enabled) then requestSaveSettings() end
+            if imgui.Checkbox(u8"Радар друзей и ЧС рядом (Dynamic Island)##qol_prox", P9.prox_enabled) then requestSaveSettings() end
+        end
         if imgui.Checkbox(u8"Показывать активное время и AFK в /hud (опционально)", session_track_enabled) then
             if not session_track_enabled[0] then
                 session_hud_str = ""
@@ -9331,6 +9585,7 @@ function exportAllConfig()
         locations = P6_loc_registry or {},
         location_favorites = P6_loc_favorites or {},
         market_entries = P7.market_entries or {},
+        faction_bl = (P9 and P9.bl and P9.bl.entries) or {},
     }
     local ok, err = writeJsonAtomic(export_path, bundle)
     if ok then
@@ -9482,6 +9737,15 @@ function importAllConfig()
         local cleaned_fav = P5_cleanImportValue(bundle.location_favorites, 0)
         if type(cleaned_fav) == "table" then
             imported_fav = cleaned_fav
+        end
+    end
+    if type(bundle.faction_bl) == "table" and P9 and P9.bl then
+        local cleaned_fbl = P5_cleanImportValue(bundle.faction_bl, 0)
+        if type(cleaned_fbl) == "table" then
+            P9.bl.entries = cleaned_fbl
+            P9.bl.loaded = true
+            if type(P9_rebuildBlNickIndex) == "function" then pcall(P9_rebuildBlNickIndex) end
+            if type(P9_saveFactionBl) == "function" then pcall(P9_saveFactionBl) end
         end
     end
     loadDatabases()
@@ -10032,7 +10296,7 @@ function P3_loadLecturer()
 end
 
 function P3_expandLecturerTags(line)
-    if not line:find("<", 1, true) then return line end
+    if not line:find("<", 1, true) and not line:find("{", 1, true) then return line end
     local res = line
     res = res:gsub("<time>", function() return os.date("%H:%M:%S") end)
     res = res:gsub("<date>", function() return os.date("%d.%m.%Y") end)
@@ -10043,6 +10307,7 @@ function P3_expandLecturerTags(line)
         res = res:gsub("<myRang>", function() return user.rangName or "" end)
         res = res:gsub("<myPodr>", function() return user.podr or "" end)
     end
+    if type(P9_applyProfileTags) == "function" then res = P9_applyProfileTags(res) end
     return res
 end
 
@@ -11468,7 +11733,9 @@ function P7_patrolStart()
     P7.patrol_last_report_ts = now
     P7.patrol_warned_due = false
     local p_str = (partner ~= "") and (" | Напарник: " .. partner) or ""
-    P7_sendPatrolRadio("[" .. cs .. "] Заступил на " .. post .. p_str .. ". Состояние: стабильное.")
+    local st_msg = "[" .. cs .. "] Заступил на " .. post .. p_str .. ". Состояние: стабильное."
+    if type(P9_applyProfileTags) == "function" then st_msg = P9_applyProfileTags(st_msg) end
+    P7_sendPatrolRadio(st_msg)
 end
 
 function P7_patrolReport(status_label)
@@ -11488,8 +11755,12 @@ function P7_patrolReport(status_label)
         if not isSampAvailable() then return end
         local ok_pos, px, py = pcall(getCharCoordinates, PLAYER_PED)
         local z_txt = (ok_pos and type(px) == "number") and (" | Район: " .. P7_getSanAndreasZone(px, py)) or ""
-        local line = (P7_patrolChanCmd() .. " [" .. cs .. "] Доклад: " .. post .. z_txt .. ". Состояние: " .. st .. "."):sub(1, 128)
+        local raw_line = P7_patrolChanCmd() .. " [" .. cs .. "] Доклад: " .. post .. z_txt .. ". Состояние: " .. st .. "."
+        if type(P9_applyProfileTags) == "function" then raw_line = P9_applyProfileTags(raw_line) end
+        local line = raw_line:sub(1, 128)
         sampSendChat(line)
+        if type(P9_onPatrolReportSent) == "function" then P9_onPatrolReportSent() end
+        if type(P9_autoSsAfterReport) == "function" then P9_autoSsAfterReport() end
     end)
 end
 
@@ -11515,7 +11786,9 @@ function P7_patrolStop()
     P7.patrol_active = false
     P7.patrol_warned_due = false
     P7.patrol_hud_str = ""
-    P7_sendPatrolRadio("[" .. cs .. "] Закончил " .. post .. " (время смены: " .. dur .. ").")
+    local end_msg = "[" .. cs .. "] Закончил " .. post .. " (время смены: " .. dur .. ")."
+    if type(P9_applyProfileTags) == "function" then end_msg = P9_applyProfileTags(end_msg) end
+    P7_sendPatrolRadio(end_msg)
 end
 
 function P7_tickPatrol1s()
@@ -11601,6 +11874,9 @@ function P7_drawPatrolUI()
     if imgui.Button(u8"1. Заступил на смену##p7_p_start", imgui.ImVec2(175, 28)) then P7_patrolStart() end
     imgui.SameLine()
     if imgui.Button(u8"2. Доклад + Район##p7_p_rep", imgui.ImVec2(165, 28)) then P7_patrolReport("стабильное") end
+    imgui.SameLine()
+    if type(P9_drawPatrolDryRunBtn) == "function" then P9_drawPatrolDryRunBtn() end
+    if type(P9_drawAutoSsSettings) == "function" then P9_drawAutoSsSettings("p7") end
     if imgui.Button(u8"3. Погоня! Передать район##p7_p_chase", imgui.ImVec2(195, 28)) then P7_patrolChaseCallout("") end
     imgui.SameLine()
     if imgui.Button(u8"4. Закончил патруль##p7_p_stop", imgui.ImVec2(165, 28)) then P7_patrolStop() end
@@ -12054,6 +12330,7 @@ function P8_formatArmyReport(tpl, zone_str)
     out = out:gsub("{crew}", crew)
     out = out:gsub("{zone}", tostring(zone_str or "База"))
     out = out:gsub("{sector}", sec_only)
+    if type(P9_applyProfileTags) == "function" then out = P9_applyProfileTags(out) end
     return out
 end
 
@@ -12076,6 +12353,8 @@ function P8_sendArmyPostReport()
         local body = P8_formatArmyReport(tpl, z_txt)
         local line = ("/r " .. body):sub(1, 128)
         sampSendChat(line)
+        if type(P9_onArmyReportSent) == "function" then P9_onArmyReportSent() end
+        if type(P9_autoSsAfterReport) == "function" then P9_autoSsAfterReport() end
     end)
 end
 
@@ -12186,6 +12465,9 @@ function P8_drawArmyUI()
         if imgui.Button(u8"Заступил / Доклад на посту (/r)##p8_send_post", imgui.ImVec2(240, 28)) then
             P8_sendArmyPostReport()
         end
+        imgui.SameLine()
+        if type(P9_drawArmyPostDryRunBtn) == "function" then P9_drawArmyPostDryRunBtn() end
+        if type(P9_drawAutoSsSettings) == "function" then P9_drawAutoSsSettings("p8") end
         imgui.SameLine()
         if imgui.Button(u8"Сдал пост (/r)##p8_end_post", imgui.ImVec2(140, 28)) then
             local tag = P8.faction_ctx.sub_division or "МО"
@@ -12359,6 +12641,3760 @@ function P8_tick()
     end
 
     P8_ensureValidActiveModule()
+end
+
+function P9_trimStr(s)
+    return tostring(s or ""):gsub("^%s+", ""):gsub("%s+$", "")
+end
+
+function P9_formatHms(total_sec)
+    local s = math.max(0, math.floor(tonumber(total_sec) or 0))
+    local hh = math.floor(s / 3600)
+    local mm = math.floor((s % 3600) / 60)
+    local ss = s % 60
+    return string.format("%02d:%02d:%02d", hh, mm, ss)
+end
+
+function P9_getProfileSnapshot()
+    local p = P9.profile
+    local nm = P9_trimStr(decodeUtf8Safe(ffi.string(p.name)))
+    local sn = P9_trimStr(decodeUtf8Safe(ffi.string(p.surname)))
+    if nm == "" and sn == "" and type(my_cached_nick) == "string" and my_cached_nick ~= "" then
+        local fn_part, ln_part = my_cached_nick:match("^([^_]+)_(.+)$")
+        if fn_part and ln_part then
+            nm = fn_part
+            sn = ln_part
+        end
+    end
+    local full = P9_trimStr(nm .. (sn ~= "" and (" " .. sn) or ""))
+    if full == "" then full = (nm ~= "" and nm) or "Имя Фамилия" end
+
+    local rk = P9_trimStr(decodeUtf8Safe(ffi.string(p.rank)))
+    if rk == "" and P8 and P8.faction_ctx and type(P8.faction_ctx.rank_name) == "string" and P8.faction_ctx.rank_name ~= "" then
+        rk = P8.faction_ctx.rank_name
+    end
+
+    local cs = P9_trimStr(decodeUtf8Safe(ffi.string(p.callsign)))
+    if cs == "" and P7 and P7.patrol_callsign_buf then
+        cs = P9_trimStr(decodeUtf8Safe(ffi.string(P7.patrol_callsign_buf)))
+    end
+
+    local sd = P9_trimStr(decodeUtf8Safe(ffi.string(p.subdiv)))
+    if sd == "" and P8 and P8.faction_ctx and type(P8.faction_ctx.sub_division) == "string" and P8.faction_ctx.sub_division ~= "" then
+        sd = P8.faction_ctx.sub_division
+    end
+
+    local bg = P9_trimStr(decodeUtf8Safe(ffi.string(p.badge)))
+    local fem = (p.gender[0] == 1)
+
+    return {
+        name     = (nm ~= "" and nm) or "Имя",
+        surname  = (sn ~= "" and sn) or "Фамилия",
+        fullname = full,
+        rank     = (rk ~= "" and rk) or "Сотрудник",
+        callsign = (cs ~= "" and cs) or "А-1",
+        subdiv   = (sd ~= "" and sd) or "Общий",
+        badge    = (bg ~= "" and bg) or "001",
+        ended    = fem and "а" or "",
+        gender   = fem and 1 or 0,
+    }
+end
+
+function P9_applyProfileTags(text)
+    if type(text) ~= "string" then return tostring(text or "") end
+    if not text:find("{", 1, true) then return text end
+    local snap = P9_getProfileSnapshot()
+    local tag_map = {
+        name     = snap.name,
+        surname  = snap.surname,
+        fullname = snap.fullname,
+        rank     = snap.rank,
+        callsign = snap.callsign,
+        subdiv   = snap.subdiv,
+        badge    = snap.badge,
+        ended    = snap.ended,
+    }
+    return (text:gsub("{(%a+)}", function(k)
+        return tag_map[k]
+    end))
+end
+
+function P9_syncProfileToDeps()
+    local p = P9.profile
+    local cs = P9_trimStr(decodeUtf8Safe(ffi.string(p.callsign)))
+    if cs ~= "" and P7 and P7.patrol_callsign_buf then
+        safeStrCopy(P7.patrol_callsign_buf, encodeCp1251Safe(cs), ffi.sizeof(P7.patrol_callsign_buf))
+    end
+    local rk = P9_trimStr(decodeUtf8Safe(ffi.string(p.rank)))
+    if rk ~= "" and P8 and P8.faction_ctx then
+        P8.faction_ctx.rank_name = rk
+    end
+    local sd = P9_trimStr(decodeUtf8Safe(ffi.string(p.subdiv)))
+    if sd ~= "" and P8 and P8.faction_ctx then
+        P8.faction_ctx.sub_division = sd
+        local subs = P8.subdivisions and P8.subdivisions[P8.faction_ctx.active_faction]
+        if type(subs) == "table" then
+            for si, sname in ipairs(subs) do
+                if cp1251_lower(sname) == cp1251_lower(sd) then
+                    P8.faction_ctx.subdiv_idx[0] = si - 1
+                    break
+                end
+            end
+        end
+    end
+    if rp_gender then
+        rp_gender[0] = (p.gender[0] == 1) and 1 or 0
+    end
+end
+
+function P9_syncProfileFromDeps()
+    local p = P9.profile
+    if P9_trimStr(decodeUtf8Safe(ffi.string(p.name))) == "" and P9_trimStr(decodeUtf8Safe(ffi.string(p.surname))) == "" then
+        if type(my_cached_nick) == "string" and my_cached_nick ~= "" then
+            local fn_part, ln_part = my_cached_nick:match("^([^_]+)_(.+)$")
+            if fn_part and ln_part then
+                safeStrCopy(p.name, encodeCp1251Safe(fn_part), ffi.sizeof(p.name))
+                safeStrCopy(p.surname, encodeCp1251Safe(ln_part), ffi.sizeof(p.surname))
+            end
+        end
+    end
+    if P9_trimStr(decodeUtf8Safe(ffi.string(p.callsign))) == "" and P7 and P7.patrol_callsign_buf then
+        local pcs = P9_trimStr(decodeUtf8Safe(ffi.string(P7.patrol_callsign_buf)))
+        if pcs ~= "" then
+            safeStrCopy(p.callsign, encodeCp1251Safe(pcs), ffi.sizeof(p.callsign))
+        end
+    end
+    if P9_trimStr(decodeUtf8Safe(ffi.string(p.subdiv))) == "" and P8 and P8.faction_ctx and type(P8.faction_ctx.sub_division) == "string" and P8.faction_ctx.sub_division ~= "" then
+        safeStrCopy(p.subdiv, encodeCp1251Safe(P8.faction_ctx.sub_division), ffi.sizeof(p.subdiv))
+    end
+    if P9_trimStr(decodeUtf8Safe(ffi.string(p.rank))) == "" and P8 and P8.faction_ctx and type(P8.faction_ctx.rank_name) == "string" and P8.faction_ctx.rank_name ~= "" then
+        safeStrCopy(p.rank, encodeCp1251Safe(P8.faction_ctx.rank_name), ffi.sizeof(p.rank))
+    end
+    if rp_gender and p.gender[0] ~= rp_gender[0] then
+        p.gender[0] = (rp_gender[0] == 1) and 1 or 0
+    end
+end
+
+function P9_onPatrolReportSent()
+    P9.patrol_reports = (P9.patrol_reports or 0) + 1
+end
+
+function P9_onArmyReportSent()
+    P9.army_reports = (P9.army_reports or 0) + 1
+end
+
+function P9_pushIslandToast(text, color_rgba, duration_sec)
+    if type(text) ~= "string" or text == "" then return end
+    if not P9.island then return end
+    local col = { 0.45, 0.90, 1.0, 1.0 }
+    if type(color_rgba) == "table" then
+        col[1] = tonumber(color_rgba[1]) or col[1]
+        col[2] = tonumber(color_rgba[2]) or col[2]
+        col[3] = tonumber(color_rgba[3]) or col[3]
+        col[4] = tonumber(color_rgba[4]) or 1.0
+    elseif type(color_rgba) == "cdata" then
+        local ok_c, r, g, b, a = pcall(function() return color_rgba.x, color_rgba.y, color_rgba.z, color_rgba.w end)
+        if ok_c and type(r) == "number" then
+            col = { r, g or 0.9, b or 1.0, a or 1.0 }
+        end
+    end
+    local dur = math.max(1.0, math.min(15.0, tonumber(duration_sec) or 4.0))
+    local q = P9.island.toasts
+    q[#q + 1] = {
+        text = text:sub(1, 140),
+        col = col,
+        expires_at = os.clock() + dur,
+    }
+    while #q > 4 do
+        table.remove(q, 1)
+    end
+end
+
+function P9_findProximityBlacklist(nick)
+    if type(nick) ~= "string" or nick == "" then return nil end
+    local low = cp1251_lower(nick)
+    if type(blacklist_data) == "table" and blacklist_data[low] ~= nil then
+        local entry = blacklist_data[low]
+        local rsn = (type(entry) == "table" and type(entry.reason) == "string") and entry.reason or ""
+        return { category = "ЧС СМИ", reason = rsn }
+    end
+    if type(P9.bl_entries) == "table" then
+        local direct = P9.bl_entries[low] or P9.bl_entries[nick]
+        if type(direct) == "table" then
+            local clbl = (type(P9_blCatLabel) == "function" and direct.cat) and P9_blCatLabel(direct.cat) or tostring(direct.category or direct.cat or "ЧС")
+            return {
+                category = clbl,
+                reason = tostring(direct.reason or ""),
+            }
+        end
+        for _, item in ipairs(P9.bl_entries) do
+            if type(item) == "table" and type(item.nick) == "string" and cp1251_lower(item.nick) == low then
+                return {
+                    category = tostring(item.category or item.cat or "ЧС"),
+                    reason = tostring(item.reason or ""),
+                }
+            end
+        end
+    end
+    return nil
+end
+
+function P9_pollProximityAlerts(now_clk, now_ts)
+    if not P9.prox_enabled or not P9.prox_enabled[0] then return end
+    if not isSampAvailable() then return end
+    if (now_clk - (P9.island.last_prox_ts or 0)) < 2.5 then return end
+    P9.island.last_prox_ts = now_clk
+
+    for k, exp_ts in pairs(P9.island.prox_cooldowns) do
+        if exp_ts <= now_ts then
+            P9.island.prox_cooldowns[k] = nil
+        end
+    end
+
+    if type(sampGetMaxPlayerId) ~= "function" or type(sampIsPlayerConnected) ~= "function" or type(sampGetCharHandleBySampPlayerId) ~= "function" then
+        return
+    end
+    local ok_max, max_id = pcall(sampGetMaxPlayerId, true)
+    if not ok_max or type(max_id) ~= "number" then return end
+    max_id = math.min(1004, math.max(-1, math.floor(max_id)))
+    if max_id < 0 then return end
+
+    local self_id = (type(my_cached_id) == "number" and my_cached_id >= 0) and my_cached_id or -1
+    if self_id < 0 and type(sampGetPlayerIdByCharHandle) == "function" and PLAYER_PED then
+        local ok_me, res_me, myid = pcall(sampGetPlayerIdByCharHandle, PLAYER_PED)
+        if ok_me and res_me and type(myid) == "number" then self_id = myid end
+    end
+
+    for pid = 0, max_id do
+        if pid ~= self_id then
+            local ok_c, conn = pcall(sampIsPlayerConnected, pid)
+            if ok_c and conn then
+                local ok_h, res_h, ped = pcall(sampGetCharHandleBySampPlayerId, pid)
+                if ok_h and res_h and ped and doesCharExist(ped) then
+                    local nick = (type(online_ids_to_nicks) == "table") and online_ids_to_nicks[pid] or nil
+                    if (type(nick) ~= "string" or nick == "") and type(sampGetPlayerNickname) == "function" then
+                        local ok_n, fetched = pcall(sampGetPlayerNickname, pid)
+                        if ok_n and type(fetched) == "string" then nick = fetched end
+                    end
+                    if type(nick) == "string" and nick ~= "" then
+                        local low = cp1251_lower(nick)
+                        if (P9.island.prox_cooldowns[low] or 0) <= now_ts then
+                            local bl_hit = P9_findProximityBlacklist(nick)
+                            local fr_hit = (type(friends_list) == "table") and friends_list[low] or nil
+                            if bl_hit then
+                                P9.island.prox_cooldowns[low] = now_ts + 30
+                                P9_pushIslandToast(
+                                    "[ЧС рядом: " .. bl_hit.category .. "] " .. nick .. " [" .. tostring(pid) .. "]",
+                                    { 1.0, 0.35, 0.35, 1.0 },
+                                    6.0
+                                )
+                            elseif fr_hit then
+                                P9.island.prox_cooldowns[low] = now_ts + 30
+                                local note_s = (type(fr_hit.note) == "string" and fr_hit.note ~= "") and (" — " .. fr_hit.note) or ""
+                                P9_pushIslandToast(
+                                    "[Друг рядом] " .. nick .. " [" .. tostring(pid) .. "]" .. note_s,
+                                    { 0.35, 1.0, 0.55, 1.0 },
+                                    5.0
+                                )
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+function P9_tick()
+    local now_clk = os.clock()
+    local now_ts = os.time()
+
+    if not P9.profile_synced_init then
+        P9.profile_synced_init = true
+        P9_syncProfileFromDeps()
+    end
+
+    if P9.island and type(P9.island.toasts) == "table" then
+        for i = #P9.island.toasts, 1, -1 do
+            if (P9.island.toasts[i].expires_at or 0) < now_clk then
+                table.remove(P9.island.toasts, i)
+            end
+        end
+    end
+
+    P9_pollProximityAlerts(now_clk, now_ts)
+    if type(P9_tickLawsAndCombat) == "function" then P9_tickLawsAndCombat() end
+
+    if now_ts == P9.last_tick_1s then return end
+    P9.last_tick_1s = now_ts
+
+    if isSampAvailable() and PLAYER_PED and type(getCharCoordinates) == "function" and type(P7_getSanAndreasZone) == "function" then
+        local ok_p, px, py = pcall(getCharCoordinates, PLAYER_PED)
+        if ok_p and type(px) == "number" and type(py) == "number" then
+            P9.island.zone_str = P7_getSanAndreasZone(px, py)
+        end
+    end
+
+    if P8 and P8.army and P8.army.hud_alert_str ~= "" and now_ts <= (P8.army.hud_alert_until or 0) then
+        P9.island.status_str = P8.army.hud_alert_str
+        P9.island.status_col = { 1.0, 0.30, 0.30, 1.0 }
+    elseif P8 and P8.army and P8.army.post_active then
+        local dur_s = P7_formatPatrolDuration(now_ts - (P8.army.post_start_ts or now_ts))
+        local iv_sec = math.max(180, (P8.army.post_interval[0] or 10) * 60)
+        local rem = iv_sec - math.max(0, now_ts - (P8.army.post_last_ts or now_ts))
+        local pname = (type(P8_armyCurrentPostName) == "function") and P8_armyCurrentPostName() or "Пост"
+        if rem <= 0 then
+            P9.island.status_str = "Пост " .. pname .. " " .. dur_s .. " | ДОКЛАД! (/post)"
+            P9.island.status_col = { 1.0, 0.55, 0.15, 1.0 }
+        else
+            P9.island.status_str = "Пост " .. pname .. " " .. dur_s .. " | докл. " .. P7_formatPatrolDuration(rem)
+            P9.island.status_col = { 0.45, 1.0, 0.55, 1.0 }
+        end
+    elseif P7 and P7.patrol_active then
+        local dur_s = P7_formatPatrolDuration(now_ts - (P7.patrol_start_ts or now_ts))
+        local iv_sec = math.max(60, (P7.patrol_interval_min[0] or 10) * 60)
+        local rem = iv_sec - math.max(0, now_ts - (P7.patrol_last_report_ts or now_ts))
+        if rem <= 0 then
+            P9.island.status_str = "Патруль " .. dur_s .. " | ДОКЛАД! (/patrol rep)"
+            P9.island.status_col = { 1.0, 0.55, 0.15, 1.0 }
+        else
+            P9.island.status_str = "Патруль " .. dur_s .. " | докл. " .. P7_formatPatrolDuration(rem)
+            P9.island.status_col = { 0.45, 0.85, 1.0, 1.0 }
+        end
+    else
+        P9.island.status_str = ""
+    end
+end
+
+function P9_toggleIslandCmd()
+    P9.island_enabled[0] = not P9.island_enabled[0]
+    requestSaveSettings()
+    if P9.island_enabled[0] then
+        P9_pushIslandToast("Dynamic Island включён", { 0.45, 0.90, 1.0, 1.0 }, 3.0)
+    end
+    if isSampAvailable() then
+        sampAddChatMessage("[Helper] Dynamic Island (/island): " .. (P9.island_enabled[0] and "{00FF90}ВКЛ" or "{FF5555}ВЫКЛ"), 0xFFFFFF)
+    end
+end
+
+function P9_drawOverviewTab()
+    local fk = (P8 and P8.faction_ctx and P8.faction_ctx.active_faction) or "civ"
+    local f_idx = (P8 and P8.faction_ctx and P8.faction_ctx.faction_idx and P8.faction_ctx.faction_idx[0]) or 6
+    local f_lbl = (P8 and P8.faction_labels and P8.faction_labels[f_idx + 1]) or "Гражданский"
+    local sub_lbl = (P8 and P8.faction_ctx and P8.faction_ctx.sub_division) or "Общий"
+    local p4_srv = (P4_server_names and p4_codex_server) and (P4_server_names[p4_codex_server[0]] or "Blue") or "Blue"
+    local live_srv = (P8 and P8.faction_ctx and P8.faction_ctx.server_id ~= "unknown" and P8.faction_ctx.server_label ~= "")
+        and ("Advance RP " .. P8.faction_ctx.server_label) or ("Кодекс: " .. p4_srv)
+    local snap = P9_getProfileSnapshot()
+    local uptime_s = P9_formatHms(os.time() - (P9.session_start_ts or os.time()))
+
+    imgui.BeginChild("p9_dash_welcome", imgui.ImVec2(0, 108), true)
+    imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.40, 0.90, 1.0, 1.0))
+    imgui.TextUnformatted(u8"Добро пожаловать, " .. encodeCp1251Safe(snap.rank .. " " .. snap.fullname) .. "!")
+    imgui.PopStyleColor()
+
+    imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.65, 0.95, 0.70, 1.0))
+    imgui.TextUnformatted(u8"Сервер: " .. encodeCp1251Safe(live_srv) .. u8" | Фракция: " .. encodeCp1251Safe(f_lbl .. " [" .. sub_lbl .. "]"))
+    imgui.PopStyleColor()
+
+    imgui.TextUnformatted(u8"Сессия: " .. uptime_s .. u8" | PayDay: " .. encodeCp1251Safe((hud_cache and hud_cache.payday_str) or "—") .. u8" | Локация: " .. encodeCp1251Safe((P9.island and P9.island.zone_str) or "—"))
+
+    if P8 and P8.army and P8.army.post_active then
+        local post_dur = P7_formatPatrolDuration(os.time() - (P8.army.post_start_ts or os.time()))
+        imgui.PushStyleColor(imgui.Col.Text, P8.army.post_due_alert and imgui.ImVec4(1.0, 0.55, 0.15, 1.0) or imgui.ImVec4(0.45, 1.0, 0.55, 1.0))
+        imgui.TextUnformatted(encodeCp1251Safe((P8.army.post_hud_str ~= "" and P8.army.post_hud_str or "На посту") .. " | В смене: " .. post_dur .. " | Докладов: " .. tostring(P9.army_reports or 0)))
+        imgui.PopStyleColor()
+    elseif P7 and P7.patrol_active then
+        local pat_dur = P7_formatPatrolDuration(os.time() - (P7.patrol_start_ts or os.time()))
+        imgui.PushStyleColor(imgui.Col.Text, P7.patrol_warned_due and imgui.ImVec4(1.0, 0.55, 0.15, 1.0) or imgui.ImVec4(0.45, 0.85, 1.0, 1.0))
+        imgui.TextUnformatted(encodeCp1251Safe((P7.patrol_hud_str ~= "" and P7.patrol_hud_str or "В патруле") .. " | Смена: " .. pat_dur .. " | Докладов: " .. tostring(P9.patrol_reports or 0)))
+        imgui.PopStyleColor()
+    else
+        imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.65, 0.65, 0.70, 1.0))
+        imgui.TextUnformatted(u8"Активная смена: нет (докладов за сессию — Патруль: " .. tostring(P9.patrol_reports or 0) .. u8", Пост МО: " .. tostring(P9.army_reports or 0) .. ")")
+        imgui.PopStyleColor()
+    end
+    imgui.EndChild()
+
+    imgui.Spacing()
+    if imgui.Checkbox(u8"Dynamic Island (верхняя пилюля /island)##p9_dash_isl", P9.island_enabled) then
+        requestSaveSettings()
+    end
+    imgui.SameLine()
+    if imgui.Checkbox(u8"Радар друзей/ЧС рядом (2.5с)##p9_dash_prox", P9.prox_enabled) then
+        requestSaveSettings()
+    end
+
+    imgui.Spacing()
+    imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.95, 0.85, 0.35, 1.0))
+    imgui.TextUnformatted(u8"Быстрые действия для фракции:")
+    imgui.PopStyleColor()
+
+    if fk == "mo" then
+        if imgui.Button(u8"Доклад с поста (/post)##p9_qa_post", imgui.ImVec2(170, 26)) then
+            if type(P8_sendArmyPostReport) == "function" then P8_sendArmyPostReport() end
+        end
+        imgui.SameLine()
+        if imgui.Button(u8"Тревога ЧС (/chs)##p9_qa_chs", imgui.ImVec2(145, 26)) then
+            if type(P8_sendArmyAlarm) == "function" then P8_sendArmyAlarm("База") end
+        end
+        imgui.SameLine()
+        if imgui.Button(u8"Законы / Устав (/laws)##p9_qa_molaws", imgui.ImVec2(175, 26)) then
+            queueTask(function()
+                if isSampAvailable() and type(sampProcessChatInput) == "function" then pcall(sampProcessChatInput, "/laws") end
+            end)
+        end
+        imgui.SameLine()
+        if imgui.Button(u8"Модуль МО (/army)##p9_qa_army", imgui.ImVec2(135, 26)) then
+            if type(P8_openModuleById) == "function" then P8_openModuleById("army_tools") end
+        end
+    elseif fk == "mvd" then
+        if imgui.Button(u8"Патруль (/patrol)##p9_qa_pat", imgui.ImVec2(130, 26)) then
+            if P7 and P7.patrol_show then P7.patrol_show[0] = not P7.patrol_show[0] end
+        end
+        imgui.SameLine()
+        if imgui.Button(u8"Розыск (/sus)##p9_qa_sus", imgui.ImVec2(115, 26)) then
+            queueTask(function()
+                if isSampAvailable() and type(sampProcessChatInput) == "function" then pcall(sampProcessChatInput, "/sus") end
+            end)
+        end
+        imgui.SameLine()
+        if imgui.Button(u8"Штраф (/ticket)##p9_qa_tkt", imgui.ImVec2(125, 26)) then
+            queueTask(function()
+                if isSampAvailable() and type(sampProcessChatInput) == "function" then pcall(sampProcessChatInput, "/ticket") end
+            end)
+        end
+        imgui.SameLine()
+        if imgui.Button(u8"Права (/takelic)##p9_qa_lic", imgui.ImVec2(125, 26)) then
+            queueTask(function()
+                if isSampAvailable() and type(sampProcessChatInput) == "function" then pcall(sampProcessChatInput, "/takelic") end
+            end)
+        end
+        if imgui.Button(u8"Чёрный список (/bl)##p9_qa_bl", imgui.ImVec2(145, 26)) then
+            queueTask(function()
+                if isSampAvailable() and type(sampProcessChatInput) == "function" then pcall(sampProcessChatInput, "/bl") end
+            end)
+        end
+        imgui.SameLine()
+        if imgui.Button(u8"Кодексы УК/АК/ПДД (/laws)##p9_qa_mvdlaws", imgui.ImVec2(205, 26)) then
+            queueTask(function()
+                if isSampAvailable() and type(sampProcessChatInput) == "function" then pcall(sampProcessChatInput, "/laws") end
+            end)
+        end
+    elseif fk == "mz" then
+        if imgui.Button(u8"Панель медика (/medui)##p9_qa_med", imgui.ImVec2(175, 26)) then
+            if medui_show then medui_show[0] = not medui_show[0] end
+        end
+        imgui.SameLine()
+        if imgui.Button(u8"ЕЦП и Устав МЗ (/laws)##p9_qa_mzlaws", imgui.ImVec2(190, 26)) then
+            queueTask(function()
+                if isSampAvailable() and type(sampProcessChatInput) == "function" then pcall(sampProcessChatInput, "/laws") end
+            end)
+        end
+    elseif fk == "smi" then
+        if imgui.Button(u8"Викторина (/quiz)##p9_qa_quiz", imgui.ImVec2(145, 26)) then
+            if quiz_popout_show then quiz_popout_show[0] = not quiz_popout_show[0] end
+        end
+        imgui.SameLine()
+        if imgui.Button(u8"Анаграмма (/anag)##p9_qa_anag", imgui.ImVec2(150, 26)) then
+            queueTask(function()
+                if type(startAnagram) == "function" then
+                    pcall(startAnagram, "")
+                elseif isSampAvailable() and type(sampProcessChatInput) == "function" then
+                    pcall(sampProcessChatInput, "/anag")
+                end
+            end)
+        end
+        imgui.SameLine()
+        if imgui.Button(u8"ПРО / ППЭ (/laws)##p9_qa_smilaws", imgui.ImVec2(155, 26)) then
+            queueTask(function()
+                if isSampAvailable() and type(sampProcessChatInput) == "function" then pcall(sampProcessChatInput, "/laws") end
+            end)
+        end
+    end
+
+    -- Универсальные быстрые действия (для всех фракций)
+    if imgui.Button(u8"Конструктор (/loc 1)##p9_qa_loc", imgui.ImVec2(160, 24)) then
+        queueTask(function() if type(P6_cmdLoc) == "function" then P6_cmdLoc("1") end end)
+    end
+    imgui.SameLine()
+    if imgui.Button(u8"Компакт HUD (/hud)##p9_qa_hud", imgui.ImVec2(155, 24)) then
+        if hud_enabled then
+            hud_enabled[0] = not hud_enabled[0]
+            requestSaveSettings()
+        end
+    end
+    imgui.SameLine()
+    if imgui.Button(u8"Dynamic Island (/island)##p9_qa_isl", imgui.ImVec2(180, 24)) then
+        queueTask(P9_toggleIslandCmd)
+    end
+
+    imgui.Spacing()
+    imgui.BeginChild("p9_dash_cheatsheet", imgui.ImVec2(0, 115), true)
+    imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.55, 0.85, 1.0, 1.0))
+    imgui.TextUnformatted(u8"Шпаргалка команд и горячих клавиш:")
+    imgui.PopStyleColor()
+    imgui.TextUnformatted(u8"F11 — главное меню | СКМ — быстрое колесо | ПКМ+X — таргет-меню | F2 — раскладка в чате")
+    imgui.TextUnformatted(u8"/laws — кодексы и уставы | /island — пилюля | /stoprp — стоп РП | /hexit — выгрузить скрипт")
+    if fk == "mo" then
+        imgui.TextUnformatted(u8"МО: /post — доклад с поста | /chs — тревога ЧС | /army — посты/конвой | /sp [ком] — обход Авто-РП")
+    elseif fk == "mvd" then
+        imgui.TextUnformatted(u8"МВД: /patrol — патруль | /sus [ID] — розыск | /ticket [ID] — штраф | /takelic [ID] — права | /bl — ЧС")
+    elseif fk == "mz" then
+        imgui.TextUnformatted(u8"МЗ: /medui [ID] — ЕЦП и лечение | /laws — Устав МЗ и цены | /lect — лекции")
+    elseif fk == "smi" then
+        imgui.TextUnformatted(u8"СМИ: /edit — редактор ПРО | /quiz — викторина | /anag — анаграмма | /bl — ЧС СМИ/гос")
+    else
+        imgui.TextUnformatted(u8"Общие: /loc 1 — объекты | /price — цены рынка | /wp — GPS | /calc — калькулятор")
+    end
+    imgui.EndChild()
+
+    imgui.Spacing()
+    if (not ENV_CAPS or not ENV_CAPS.moonloader) and not P9.env_probe_queued then
+        P9.env_probe_queued = true
+        queueTask(function() if type(P8_probeEnvironment) == "function" then P8_probeEnvironment() end end)
+    end
+    local cap_order = {
+        { key = "moonloader", short = "ML" },
+        { key = "sampfuncs",  short = "SF" },
+        { key = "cleo",       short = "CLEO" },
+        { key = "samp_lua",   short = "SAMP.Lua" },
+        { key = "mimgui",     short = "mimgui" },
+        { key = "mimgui_tex", short = "DX9Tex" },
+        { key = "memory",     short = "mem" },
+        { key = "bit",        short = "bit" },
+        { key = "json",       short = "json" },
+    }
+    local ok_cnt = 0
+    for _, item in ipairs(cap_order) do
+        if ENV_CAPS and ENV_CAPS[item.key] and ENV_CAPS[item.key].ok then
+            ok_cnt = ok_cnt + 1
+        end
+    end
+    imgui.TextUnformatted(u8"Готовность стека (ENV_CAPS): " .. tostring(ok_cnt) .. "/" .. tostring(#cap_order))
+    imgui.SameLine()
+    if imgui.SmallButton(u8"Проверить##p9_env_reprobe") then
+        queueTask(function()
+            if type(P8_probeEnvironment) == "function" then P8_probeEnvironment() end
+            if type(P9_probeCapabilities) == "function" then P9_probeCapabilities() end
+        end)
+    end
+    for idx, item in ipairs(cap_order) do
+        if idx > 1 then imgui.SameLine() end
+        local is_ok = ENV_CAPS and ENV_CAPS[item.key] and ENV_CAPS[item.key].ok
+        imgui.PushStyleColor(imgui.Col.Text, is_ok and imgui.ImVec4(0.35, 0.95, 0.45, 1.0) or imgui.ImVec4(1.0, 0.50, 0.25, 1.0))
+        imgui.TextUnformatted((is_ok and "[OK] " or "[!] ") .. item.short)
+        imgui.PopStyleColor()
+    end
+end
+
+function P9_drawProfileTab()
+    local p = P9.profile
+    local fk = (P8 and P8.faction_ctx and P8.faction_ctx.active_faction) or "civ"
+
+    imgui.BeginChild("p9_prof_left", imgui.ImVec2(290, 0), true)
+    imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.40, 0.90, 1.0, 1.0))
+    imgui.TextUnformatted(u8"Служебный профиль (RP-теги):")
+    imgui.PopStyleColor()
+    imgui.Separator()
+    imgui.Spacing()
+
+    imgui.PushItemWidth(175)
+    imgui.InputText(u8"Имя##p9_pr_nm", p.name, ffi.sizeof(p.name))
+    if imgui.IsItemDeactivatedAfterEdit() then P9_syncProfileToDeps(); requestSaveSettings() end
+
+    imgui.InputText(u8"Фамилия##p9_pr_sn", p.surname, ffi.sizeof(p.surname))
+    if imgui.IsItemDeactivatedAfterEdit() then P9_syncProfileToDeps(); requestSaveSettings() end
+
+    imgui.InputText(u8"Звание##p9_pr_rk", p.rank, ffi.sizeof(p.rank))
+    if imgui.IsItemDeactivatedAfterEdit() then P9_syncProfileToDeps(); requestSaveSettings() end
+
+    imgui.InputText(u8"Позывной##p9_pr_cs", p.callsign, ffi.sizeof(p.callsign))
+    if imgui.IsItemDeactivatedAfterEdit() then P9_syncProfileToDeps(); requestSaveSettings() end
+
+    imgui.InputText(u8"Подразд.##p9_pr_sd", p.subdiv, ffi.sizeof(p.subdiv))
+    if imgui.IsItemDeactivatedAfterEdit() then P9_syncProfileToDeps(); requestSaveSettings() end
+
+    imgui.InputText(u8"Жетон №##p9_pr_bg", p.badge, ffi.sizeof(p.badge))
+    if imgui.IsItemDeactivatedAfterEdit() then P9_syncProfileToDeps(); requestSaveSettings() end
+
+    local g_items = u8"Мужской" .. "\0" .. u8"Женский" .. "\0"
+    if imgui.ComboStr(u8"Пол##p9_pr_gn", p.gender, g_items) then
+        P9_syncProfileToDeps()
+        requestSaveSettings()
+    end
+    imgui.PopItemWidth()
+
+    imgui.Spacing()
+    if imgui.Button(u8"Из ника / фракции##p9_pr_fill", imgui.ImVec2(145, 24)) then
+        P9_syncProfileFromDeps()
+        requestSaveSettings()
+    end
+    imgui.SameLine()
+    if imgui.Button(u8"Синхр. P7/P8##p9_pr_sync", imgui.ImVec2(115, 24)) then
+        P9_syncProfileToDeps()
+        requestSaveSettings()
+    end
+    imgui.Spacing()
+    imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.65, 0.70, 0.75, 1.0))
+    imgui.PushTextWrapPos(0)
+    imgui.TextUnformatted(u8"Теги: {name} {surname} {fullname} {rank} {callsign} {subdiv} {badge} {ended}")
+    imgui.PopTextWrapPos()
+    imgui.PopStyleColor()
+    imgui.EndChild()
+
+    imgui.SameLine()
+
+    imgui.BeginChild("p9_prof_right", imgui.ImVec2(0, 0), true)
+    imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.95, 0.85, 0.35, 1.0))
+    imgui.TextUnformatted(u8"Предпросмотр RP-строк в реальном времени:")
+    imgui.PopStyleColor()
+    imgui.Separator()
+    imgui.Spacing()
+
+    local tpl_radio
+    if fk == "mo" then
+        tpl_radio = "/r [{subdiv}] Докладывает {rank} {surname} ({callsign}). Пост: КПП-1. Состояние: Код 1."
+    elseif fk == "mvd" then
+        tpl_radio = "/r [{callsign}] {rank} {fullname}, жетон #{badge}. Вышел{ended} в патруль. Состояние: стабильное."
+    elseif fk == "mz" then
+        tpl_radio = "/r [{subdiv}] {rank} {fullname}: заступил{ended} на дежурство в больнице."
+    elseif fk == "smi" then
+        tpl_radio = "/r [{subdiv}] {rank} {fullname}: начал{ended} обработку объявлений."
+    else
+        tpl_radio = "/r [{subdiv}] {rank} {fullname} ({callsign}): на связи."
+    end
+    local tpl_me = "/me достал{ended} из кармана удостоверение и показал{ended} его гражданину напротив"
+    local tpl_id = "Здравствуйте, я {rank} {subdiv} — {fullname}, жетон №{badge}."
+    local tpl_greet = (fk == "mo")
+        and "Здравия желаю! {rank} {surname}, назовите цель прибытия."
+        or "Здравствуйте! {rank} {fullname}, чем могу помочь?"
+
+    local ex_radio = P9_applyProfileTags(tpl_radio)
+    local ex_me = P9_applyProfileTags(tpl_me)
+    local ex_id = P9_applyProfileTags(tpl_id)
+    local ex_greet = P9_applyProfileTags(tpl_greet)
+
+    imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.55, 0.90, 1.0, 1.0))
+    imgui.TextUnformatted(u8"1. Доклад в рацию (/r):")
+    imgui.PopStyleColor()
+    imgui.PushTextWrapPos(0)
+    imgui.TextUnformatted(encodeCp1251Safe(ex_radio))
+    imgui.PopTextWrapPos()
+    imgui.Spacing()
+
+    imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.75, 0.65, 1.0, 1.0))
+    imgui.TextUnformatted(u8"2. Предъявление жетона / удостоверения (/me + чат):")
+    imgui.PopStyleColor()
+    imgui.PushTextWrapPos(0)
+    imgui.TextUnformatted(encodeCp1251Safe(ex_me))
+    imgui.TextUnformatted(encodeCp1251Safe(ex_id))
+    imgui.PopTextWrapPos()
+    imgui.Spacing()
+
+    imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.45, 1.0, 0.55, 1.0))
+    imgui.TextUnformatted(u8"3. Приветствие:")
+    imgui.PopStyleColor()
+    imgui.PushTextWrapPos(0)
+    imgui.TextUnformatted(encodeCp1251Safe(ex_greet))
+    imgui.PopTextWrapPos()
+    imgui.Spacing()
+
+    if imgui.Button(u8"Тест без чата##p9_prof_dry", imgui.ImVec2(145, 24)) then
+        local preview_lines = { ex_radio, ex_me, ex_id, ex_greet }
+        queueTask(function()
+            if type(P9_dryRunLines) == "function" then
+                P9_dryRunLines(preview_lines, "Профиль")
+            elseif isSampAvailable() then
+                for _, ln in ipairs(preview_lines) do
+                    sampAddChatMessage("[ТЕСТ БЕЗ ЧАТА] " .. ln, 0x70D6FF)
+                end
+            end
+        end)
+    end
+    imgui.EndChild()
+end
+
+function P9_drawDashboardUI()
+    if imgui.Button(u8"Обзор (Dashboard)##p9_dtab1", imgui.ImVec2(170, 25)) then P9.dash_tab = 1 end
+    imgui.SameLine()
+    if imgui.Button(u8"Профиль и RP-теги##p9_dtab2", imgui.ImVec2(170, 25)) then P9.dash_tab = 2 end
+    imgui.Separator()
+    imgui.Spacing()
+
+    if P9.dash_tab == 2 then
+        P9_drawProfileTab()
+    else
+        P9_drawOverviewTab()
+    end
+end
+
+-- Структурированные кодексы и уставы Advance RP Blue (строго изолированы от других серверов)
+P9.doc_meta = {
+    { key = "uk",        title = "УК (Уголовный кодекс)",            factions = { "mvd", "gov", "civ" } },
+    { key = "ak",        title = "АК (Административный кодекс)",     factions = { "mvd", "gov", "civ" } },
+    { key = "pdd",       title = "ПДД (Правила дорожного движения)", factions = { "mvd", "civ", "gov" } },
+    { key = "pk",        title = "ПК (Процессуальный кодекс)",       factions = { "mvd", "gov" } },
+    { key = "ustav_mvd", title = "Устав МВД",                       factions = { "mvd" } },
+    { key = "ustav_mo",  title = "Устав МО",                        factions = { "mo" } },
+    { key = "kpp_mo",    title = "Правила КПП (МО)",                 factions = { "mo" } },
+    { key = "oath_mo",   title = "Военная присяга",                  factions = { "mo" } },
+    { key = "ecp_mz",    title = "ЕЦП (Ценовая политика МЗ)",        factions = { "mz" } },
+    { key = "ustav_mz",  title = "Устав МЗ",                        factions = { "mz" } },
+    { key = "pro_smi",   title = "ПРО (Редактирование объявлений)",  factions = { "smi" } },
+    { key = "ppe_smi",   title = "ППЭ (Проведение эфиров)",          factions = { "smi" } },
+}
+
+function P9_buildBlueDocs()
+    return {
+        uk = {
+            title = "Уголовный кодекс (Blue)",
+            chapters = {
+                {
+                    title = "Глава 1. Преступления против жизни и здоровья",
+                    articles = {
+                        { code = "1.1", title = "Нападение на гражданское лицо", stars = 2, kind = "uk",
+                          keywords = "нападение удар избиение гражданский драка",
+                          rp = "/me открыл бортовой компьютер и объявил гражданина в розыск по ст. 1.1 УК",
+                          text = "Умышленное нанесение телесных повреждений гражданскому лицу без применения огнестрельного или холодного оружия. Наказание: 2 уровень розыска." },
+                        { code = "1.2", title = "Вооружённое нападение на гражданское лицо", stars = 4, kind = "uk",
+                          keywords = "вооружённое стрельба оружие нож пистолет дм",
+                          rp = "/me передал приметы вооружённого нападавшего диспетчеру по рации",
+                          text = "Применение огнестрельного, метательного или холодного оружия против гражданского лица, создающее угрозу жизни. Наказание: 4 уровень розыска." },
+                        { code = "1.3", title = "Убийство или причинение тяжкого вреда здоровью", stars = 6, kind = "uk",
+                          keywords = "убийство тяжкий вред смерть килл",
+                          rp = "/me объявил максимальный приоритет розыска по ст. 1.3 УК",
+                          text = "Умышленное лишение жизни гражданина либо нанесение смертельно опасных ранений. Наказание: 6 уровень розыска." },
+                        { code = "1.4", title = "Угроза убийством или тяжким вредом", stars = 3, kind = "uk",
+                          keywords = "угроза убийством расправа шантаж",
+                          rp = "/me внёс в базу розыска гражданина за угрозу жизни",
+                          text = "Высказывание прямых угроз убийством или тяжким вредом здоровью при наличии реальных оснований опасаться их осуществления. Наказание: 3 уровень розыска." },
+                    },
+                },
+                {
+                    title = "Глава 2. Посягательство на гос. служащих",
+                    articles = {
+                        { code = "2.1", title = "Нападение на сотрудника МВД / ФБР", stars = 4, kind = "uk",
+                          keywords = "мвд фбр коп полиция нападение сотрудник",
+                          rp = "/me доложил в рацию о нападении на сотрудника и внёс в базу розыска",
+                          text = "Применение физического насилия в отношении сотрудника полиции, ФБР или иного правоохранителя при исполнении служебных обязанностей. Наказание: 4 уровень розыска." },
+                        { code = "2.2", title = "Вооружённое нападение на гос. сотрудника", stars = 6, kind = "uk",
+                          keywords = "стрельба гос сотрудник полиция фбр армия оружие",
+                          rp = "/me активировал тревожный сигнал и передал данные стрелка в розыск",
+                          text = "Открытие огня или нападение с оружием на сотрудника МВД, ФБР, МО или руководства штата при исполнении. Разрешено применение табельного оружия на поражение. Наказание: 6 уровень розыска." },
+                        { code = "2.3", title = "Посягательство на военнослужащего, медика или сотрудника Мэрии", stars = 5, kind = "uk",
+                          keywords = "армия военный медик врач мэр правительство",
+                          rp = "/me зафиксировал посягательство на гос. служащего и выдал розыск",
+                          text = "Нападение на военнослужащего на посту/конвое, медработника на вызове или должностное лицо правительства. Наказание: 5 уровень розыска." },
+                    },
+                },
+                {
+                    title = "Глава 3. Собственность и общественный порядок",
+                    articles = {
+                        { code = "3.1", title = "Угон транспортного средства", stars = 2, kind = "uk",
+                          keywords = "угон авто машина транспорт кража",
+                          rp = "/me зафиксировал угон транспорта и передал ориентировку патрулям",
+                          text = "Неправомерное завладение автомобилем, мотоциклом или иным транспортом без согласия владельца. Наказание: 2 уровень розыска." },
+                        { code = "3.2", title = "Повреждение имущества и вандализм", stars = 1, kind = "uk",
+                          keywords = "порча вандализм имущество машина бить",
+                          rp = "/me оформил запись в бортовом компьютере о порче имущества",
+                          text = "Умышленное уничтожение или повреждение государственного либо частного имущества. Наказание: 1 уровень розыска." },
+                        { code = "3.3", title = "Хулиганство в общественных местах", stars = 1, kind = "uk",
+                          keywords = "хулиганство порядок срыв мероприятие",
+                          rp = "/me оформил розыск за нарушение общественного порядка",
+                          text = "Грубое нарушение общественного порядка, выражающее явное неуважение к обществу и срыв работы организаций. Наказание: 1 уровень розыска." },
+                        { code = "3.4", title = "Оскорбление сотрудника правоохранительных органов", stars = 2, kind = "uk",
+                          keywords = "оскорбление мат полиция мвд фбр хамство",
+                          rp = "/me зафиксировал оскорбление при исполнении и внёс в базу МВД",
+                          text = "Публичное или прямое оскорбление сотрудника МВД/ФБР при исполнении служебных обязанностей. Наказание: 2 уровень розыска." },
+                    },
+                },
+                {
+                    title = "Глава 4. Оружие и запрещённые вещества",
+                    articles = {
+                        { code = "4.1", title = "Незаконное ношение и хранение оружия", stars = 3, kind = "uk",
+                          keywords = "оружие ствол патроны лицензия ношение хранение",
+                          rp = "/me внёс данные о нелегальном оружии в базу розыска МВД",
+                          text = "Ношение или хранение огнестрельного оружия без действующей лицензии либо открытая демонстрация оружия в общественном месте. Наказание: 3 уровень розыска и изъятие." },
+                        { code = "4.2", title = "Незаконная продажа и сбыт оружия", stars = 4, kind = "uk",
+                          keywords = "продажа сбыт ган оружие торговля",
+                          rp = "/me передал в рацию ориентировку за нелегальный сбыт оружия",
+                          text = "Сбыт, передача или нелегальная торговля огнестрельным оружием и боеприпасами. Наказание: 4 уровень розыска." },
+                        { code = "4.3", title = "Хранение наркотических веществ", stars = 3, kind = "uk",
+                          keywords = "наркотики вещества трава порошок обыск",
+                          rp = "/me зафиксировал хранение запрещённых веществ и объявил в розыск",
+                          text = "Незаконное хранение при себе или в транспорте наркотических и психотропных веществ. Наказание: 3 уровень розыска и изъятие." },
+                        { code = "4.4", title = "Сбыт или перевозка наркотических веществ", stars = 5, kind = "uk",
+                          keywords = "сбыт перевозка наркотики барыга",
+                          rp = "/me передал данные о распространении наркотиков в федеральный розыск",
+                          text = "Распространение, продажа, перевозка в крупном размере наркотических средств. Наказание: 5 уровень розыска." },
+                    },
+                },
+                {
+                    title = "Глава 5. Против правосудия и режима",
+                    articles = {
+                        { code = "5.1", title = "Неподчинение законному требованию МВД", stars = 2, kind = "uk",
+                          keywords = "неподчинение требование отказ остановка приказ",
+                          rp = "/me передал по рации информацию о неподчинении гражданина",
+                          text = "Игнорирование или прямой отказ выполнить законное требование сотрудника полиции/ФБР (остановиться, выйти из авто, предъявить паспорт). Наказание: 2 уровень розыска." },
+                        { code = "5.2", title = "Попытка скрыться от преследования (побег)", stars = 3, kind = "uk",
+                          keywords = "побег погоня скрыться уход офф",
+                          rp = "/me передал ориентировку на скрывающегося нарушителя всем постам",
+                          text = "Бегство или попытка уйти на транспорте от преследования правоохранительных органов. Наказание: 3 уровень розыска." },
+                        { code = "5.3", title = "Дача или попытка дачи взятки", stars = 3, kind = "uk",
+                          keywords = "взятка подкуп деньги",
+                          rp = "/me зафиксировал попытку подкупа должностного лица и внёс в базу",
+                          text = "Предложение или передача денежных средств/ценностей должностному лицу за уход от ответственности. Наказание: 3 уровень розыска." },
+                        { code = "5.4", title = "Проникновение на охраняемую территорию", stars = 3, kind = "uk",
+                          keywords = "проникновение база кпп склад фбр пд территория",
+                          rp = "/me доложил о проникновении на закрытый объект и выдал розыск",
+                          text = "Незаконное нахождение на закрытых территориях МВД, ФБР, военных баз МО и служебных помещениях без пропуска. Наказание: 3 уровень розыска." },
+                        { code = "5.5", title = "Ложный вызов экстренных служб", stars = 2, kind = "uk",
+                          keywords = "ложный вызов 911 скорая полиция",
+                          rp = "/me зафиксировал ложный вызов в диспетчерской базе данных",
+                          text = "Заведомо ложное сообщение в полицию, скорую помощь или службу спасения. Наказание: 2 уровень розыска." },
+                    },
+                },
+                {
+                    title = "Глава 6. Особо тяжкие преступления",
+                    articles = {
+                        { code = "6.1", title = "Похищение человека или захват заложников", stars = 6, kind = "uk",
+                          keywords = "похищение заложник выкуп",
+                          rp = "/me объявил код перехвата по факту похищения и внёс в розыск",
+                          text = "Насильственное удержание гражданина или гос. служащего против его воли, требование выкупа. Наказание: 6 уровень розыска." },
+                        { code = "6.2", title = "Теракт и угроза общественной безопасности", stars = 6, kind = "uk",
+                          keywords = "теракт взрыв захват здание",
+                          rp = "/me передал экстренную ориентировку по факту угрозы теракта",
+                          text = "Организация взрывов, захвата зданий и иных действий, создающих массовую угрозу жизни граждан. Наказание: 6 уровень розыска." },
+                    },
+                },
+            },
+        },
+        pdd = {
+            title = "Правила дорожного движения (Blue)",
+            chapters = {
+                {
+                    title = "Глава 1. Скорость и проезд перекрёстков",
+                    articles = {
+                        { code = "ПДД 1.1", title = "Превышение установленной скорости", fine = 1500, kind = "pdd",
+                          keywords = "скорость радар превышение быстрая езда",
+                          rp = "/me заполнил бланк штрафа за превышение скорости и передал водителю",
+                          text = "Движение в населённом пункте свыше 60 км/ч или на трассе свыше установленного ограничения. Штраф: $1500." },
+                        { code = "ПДД 1.2", title = "Проезд на запрещающий сигнал светофора", fine = 1500, kind = "pdd",
+                          keywords = "светофор красный сигнал перекрёсток",
+                          rp = "/me заполнил квитанцию о нарушении сигнала светофора",
+                          text = "Выезд на перекрёсток при красном сигнале светофора. Штраф: $1500." },
+                        { code = "ПДД 1.3", title = "Движение без включённых фар в тёмное время", fine = 1000, kind = "pdd",
+                          keywords = "фары свет ночь тёмное время",
+                          rp = "/me выписал штраф за движение без ближнего света фар",
+                          text = "Управление транспортным средством в ночное время суток или в условиях плохой видимости без включённых фар. Штраф: $1000." },
+                    },
+                },
+                {
+                    title = "Глава 2. Остановка, парковка и пешеходы",
+                    articles = {
+                        { code = "ПДД 2.1", title = "Парковка в неположенном месте / на тротуаре", fine = 1000, kind = "pdd",
+                          keywords = "парковка тротуар остановка дорога",
+                          rp = "/me оформил штрафную квитанцию за нарушение правил парковки",
+                          text = "Стоянка автомобиля на проезжей части, тротуаре, у входов в гос. здания или на выездах. Штраф: $1000." },
+                        { code = "ПДД 2.2", title = "Создание помехи движению / езда по газонам", fine = 1200, kind = "pdd",
+                          keywords = "газон тротуар помеха епп обочина",
+                          rp = "/me выписал штраф за езду вне дороги и создание помехи движению",
+                          text = "Передвижение по газонам, тротуарам, парковым зонам или блокировка полосы движения. Штраф: $1200." },
+                        { code = "ПДД 2.3", title = "Переход проезжей части в неположенном месте", fine = 500, kind = "pdd",
+                          keywords = "пешеход дорога переход зебра",
+                          rp = "/me выписал предупредительный штраф пешеходу за нарушение ПДД",
+                          text = "Пересечение оживлённой дороги вне пешеходного перехода, создающее угрозу ДТП. Штраф: $500." },
+                    },
+                },
+                {
+                    title = "Глава 3. Грубые нарушения ПДД (лишение прав)",
+                    articles = {
+                        { code = "ПДД 3.1", title = "Выезд на полосу встречного движения", fine = 2500, takelic = true, kind = "pdd",
+                          keywords = "встречка встречная полоса лишение прав",
+                          rp = "/me выписал постановление о штрафе за выезд на встречную полосу",
+                          text = "Умышленный выезд на встречную полосу, создающий опасность лобового столкновения. Штраф: $2500 + основание для изъятия водительских прав (/takelic)." },
+                        { code = "ПДД 3.2", title = "Вождение в состоянии опьянения", fine = 3000, takelic = true, kind = "pdd",
+                          keywords = "пьяный алкоголь наркотики руль лишение",
+                          rp = "/me оформил протокол и выписал штраф за нетрезвое вождение",
+                          text = "Управление транспортом в состоянии алкогольного или наркотического опьянения. Штраф: $3000 + обязательное изъятие водительских прав (/takelic)." },
+                        { code = "ПДД 3.3", title = "Создание ДТП и скрытие с места аварии", fine = 3000, takelic = true, kind = "pdd",
+                          keywords = "дтп авария столкновение таран побег",
+                          rp = "/me составил протокол ДТП и вручил водителю штрафную квитанцию",
+                          text = "Умышленный таран, создание аварийной ситуации либо оставление места ДТП. Штраф: $3000 + изъятие водительских прав (/takelic)." },
+                        { code = "ПДД 3.4", title = "Игнорирование требования патруля об остановке", fine = 2500, takelic = true, kind = "pdd",
+                          keywords = "мегафон остановка погоня спецсигнал права",
+                          rp = "/me зафиксировал игнорирование требований патруля и составил протокол",
+                          text = "Продолжение движения после 2+ требований в мегафон /m или попытка уйти от ДПС. Штраф: $2500 + изъятие прав (/takelic) + 5.1/5.2 УК." },
+                    },
+                },
+            },
+        },
+        ak = {
+            title = "Административный кодекс (Blue)",
+            chapters = {
+                {
+                    title = "Глава 1. Общественный порядок",
+                    articles = {
+                        { code = "АК 1.1", title = "Мелкое хулиганство в общественном месте", fine = 1000, kind = "ak",
+                          keywords = "хулиганство брань мат поведение",
+                          rp = "/me оформил административный штраф за мелкое хулиганство",
+                          text = "Нецензурная брань, непристойное поведение или нарушение порядка в общественных местах. Штраф: $1000." },
+                        { code = "АК 1.2", title = "Оскорбление гражданского лица", fine = 1200, kind = "ak",
+                          keywords = "оскорбление хамство гражданин",
+                          rp = "/me выписал административный штраф за оскорбление гражданина",
+                          text = "Унижение чести и достоинства другого гражданина в грубой форме. Штраф: $1200." },
+                    },
+                },
+                {
+                    title = "Глава 2. Документы, маски и лицензии",
+                    articles = {
+                        { code = "АК 2.1", title = "Отказ от предъявления документов", fine = 2000, kind = "ak",
+                          keywords = "паспорт документы отказ проверка",
+                          rp = "/me оформил административный протокол за отказ предъявить документы",
+                          text = "Отказ гражданина предъявить паспорт по законному требованию уполномоченного сотрудника. Штраф: $2000." },
+                        { code = "АК 2.2", title = "Ношение маски в гос. учреждении после замечания", fine = 1500, kind = "ak",
+                          keywords = "маска балаклава мэрия больница участок",
+                          rp = "/me выписал штраф за отказ снять маску в общественном здании",
+                          text = "Нахождение в маске, скрывающей лицо, внутри гос. учреждений после предупреждения сотрудника. Штраф: $1500." },
+                        { code = "АК 2.3", title = "Нарушение правил обращения с оружием", fine = 2500, takelic = true, kind = "ak",
+                          keywords = "оружие стрельба воздух лицензия аннулирование",
+                          rp = "/me составил протокол нарушения правил ношения оружия",
+                          text = "Демонстрация или бесцельная стрельба из лицензированного оружия в городе. Штраф: $2500 + возможное лишение лицензий." },
+                    },
+                },
+            },
+        },
+        pk = {
+            title = "Процессуальный кодекс (Blue)",
+            chapters = {
+                {
+                    title = "Глава 1. Задержание и права гражданина",
+                    articles = {
+                        { code = "ПК 1.1", title = "Основания для задержания и проверки документов", kind = "info",
+                          keywords = "задержание паспорт основания ориентировка",
+                          text = "Сотрудник МВД обязан представиться (удостоверение/жетон), назвать причину обращения и проверить документы либо фоторобот до применения наручников, за исключением ситуаций угрозы жизни." },
+                        { code = "ПК 1.2", title = "Правило Миранды (обязательные права)", kind = "info",
+                          keywords = "миранда права адвокат молчание арест",
+                          rp = "Вы имеете право хранить молчание. Всё, что вы скажете, может быть использовано против вас. Вы имеете право на адвоката.",
+                          text = "После надевания наручников и до доставления в КПЗ сотрудник обязан зачитать задержанному правило Миранды: право хранить молчание и право на адвоката." },
+                    },
+                },
+                {
+                    title = "Глава 2. Обыск и доставление в КПЗ",
+                    articles = {
+                        { code = "ПК 2.1", title = "Личный обыск (/search) и изъятие", kind = "info",
+                          keywords = "обыск search оружие наркотики понятые",
+                          text = "Личный обыск проводится при наличии оснований (розыск, подозрение на оружие/наркотики, КПП) с обязательной РП-отыгровкой перчаток и фиксацией изъятых предметов." },
+                        { code = "ПК 2.2", title = "Конвоирование и помещение в КПЗ (/arrest)", kind = "info",
+                          keywords = "арест кпз допрос адвокат протокол",
+                          text = "Задержанный доставляется в участок на служебном транспорте (/putpl). Перед арестом сотрудник озвучивает статью обвинения и оформляет протокол." },
+                    },
+                },
+            },
+        },
+        ustav_mvd = {
+            title = "Устав МВД (Blue)",
+            chapters = {
+                {
+                    title = "Глава 1. Общие положения и субординация",
+                    articles = {
+                        { code = "УМВД 1.1", title = "Дисциплина, форма и обращение к гражданам", kind = "info",
+                          keywords = "устав мвд субординация форма вежливость",
+                          text = "Сотрудник МВД обязан соблюдать устав, носить установленную форму с жетоном, обращаться к гражданам на «Вы» и не допускать превышения полномочий." },
+                        { code = "УМВД 1.2", title = "Правила использования рации /r и /d", kind = "info",
+                          keywords = "рация тег департамент оос",
+                          text = "Служебные доклады в /r и /d ведутся строго по форме и без флуда. ООС информация допускается только в двойных скобках (( ))." },
+                    },
+                },
+                {
+                    title = "Глава 2. Патруль и применение силы",
+                    articles = {
+                        { code = "УМВД 2.1", title = "Стадии применения силы и табельное оружие", kind = "info",
+                          keywords = "оружие тайзер сила предупреждение огонь",
+                          text = "Огнестрельное оружие применяется лишь как крайняя мера: при вооружённом нападении, угрозе жизни сотрудника/граждан или при отказе остановиться после предупреждений." },
+                        { code = "УМВД 2.2", title = "Ведение патруля и коды", kind = "info",
+                          keywords = "патруль доклад код район напарник",
+                          text = "Во время патруля экипаж делает регулярные доклады с указанием позывного, состава, района и кода обстановки (Код 1/2/3)." },
+                    },
+                },
+            },
+        },
+        ustav_mo = {
+            title = "Устав МО — Армия (Blue)",
+            chapters = {
+                {
+                    title = "Глава 1. Воинская дисциплина и строй",
+                    articles = {
+                        { code = "УМО 1.1", title = "Субординация и выполнение приказов", kind = "info",
+                          keywords = "устав мо субординация звание приказ",
+                          text = "Обращение к старшим по званию строго на «Вы» и по форме «Товарищ [Звание]». Приказ командира выполняется точно и без обсуждения." },
+                        { code = "УМО 1.2", title = "Запрет самовольного оставления части (СОЧ)", kind = "info",
+                          keywords = "соч самовол база увольнительная",
+                          text = "Покидать территорию военной части без увольнительного билета, наряда на конвой или прямого приказа офицера категорически запрещено." },
+                    },
+                },
+                {
+                    title = "Глава 2. Служба, оружие и боеприпасы",
+                    articles = {
+                        { code = "УМО 2.1", title = "Применение оружия военнослужащим", kind = "info",
+                          keywords = "оружие огонь поражение периметр угроза",
+                          text = "Огонь на поражение открывается только при вооружённом нападении, попытке хищения БП либо после чёткого предупреждения и отсчёта 10 секунд на покидание КПП." },
+                        { code = "УМО 2.2", title = "Рация /r, /f и доставка БП (Конвой)", kind = "info",
+                          keywords = "рация тег св ввс вмф конвой бп склад",
+                          text = "В /r и /f обязателен тег подразделения ([СВ]/[ВВС]/[ВМФ]). При выезде за БП на Авианосец (Кит) боец докладывает выезд, загрузку, угрозу нападения и разгрузку на складе." },
+                    },
+                },
+            },
+        },
+        kpp_mo = {
+            title = "Правила КПП МО (Blue)",
+            chapters = {
+                {
+                    title = "Глава 1. Пропускной режим",
+                    articles = {
+                        { code = "КПП 1.1", title = "Проверка документов на КПП", kind = "info",
+                          keywords = "кпп паспорт документы проверка пропуск",
+                          text = "Постовой обязан поприветствовать прибывшего, проверить паспорт и уточнить цель визита. Без разрешения старших пропуск гражданских на территорию базы запрещён." },
+                        { code = "КПП 1.2", title = "Коды обстановки на посту", kind = "info",
+                          keywords = "код 1 код 2 код 3 доклад пост",
+                          text = "Код 1 — спокойно. Код 2 — подозрительные лица/авто у периметра. Код 3 — вооружённое нападение или ЧС на базе (немедленно подать /chs)." },
+                    },
+                },
+                {
+                    title = "Глава 2. Проникновение и тревога",
+                    articles = {
+                        { code = "КПП 2.1", title = "Отсчёт 10 секунд для посторонних", kind = "info",
+                          keywords = "посторонний предупреждение 10 секунд кпп",
+                          text = "Постороннему на запретной зоне у КПП выносится чёткое требование отойти на 15 метров с отсчётом 10 секунд до применения силы." },
+                        { code = "КПП 2.2", title = "Боевая тревога /chs и охрана склада", kind = "info",
+                          keywords = "тревога чс склад бп нападение",
+                          text = "При прорыве периметра или нападении на склад БП немедленно сообщить в /r (и /d при необходимости) координаты и количество нападавших." },
+                    },
+                },
+            },
+        },
+        oath_mo = {
+            title = "Военная присяга (Blue)",
+            chapters = {
+                {
+                    title = "Глава 1. Официальный текст Присяги",
+                    articles = {
+                        { code = "ПРС 1.1", title = "Текст Военной присяги", kind = "info",
+                          keywords = "присяга клятва мо армия новобранец",
+                          text = "«Я, [Имя Фамилия], торжественно присягаю на верность своему Отечеству и Вооружённым Силам. Клянусь свято соблюдать Конституцию и законы штата, строго выполнять требования воинских уставов, приказы командиров и начальников. Клянусь достойно исполнять воинский долг и мужественно защищать свободу и безопасность народа!»" },
+                        { code = "ПРС 1.2", title = "Порядок принятия присяги", kind = "info",
+                          keywords = "присяга строй офицер рядовой",
+                          text = "Новобранец выходит из строя по команде офицера, встаёт «Смирно», зачитывает текст присяги (доступен также в Лекторе) и докладывает о принятии." },
+                    },
+                },
+            },
+        },
+        ecp_mz = {
+            title = "Единая ценовая политика МЗ (Blue)",
+            chapters = {
+                {
+                    title = "Глава 1. Лечение пациентов",
+                    articles = {
+                        { code = "ЕЦП 1.1", title = "Обычное лечение в палате (/medhelp) — $500", kind = "info",
+                          keywords = "лечение палата medhelp 500",
+                          text = "Стандартное лечение гражданских лиц в стационаре больницы составляет $500." },
+                        { code = "ЕЦП 1.2", title = "Лечение в карете скорой (/heal) — $500", kind = "info",
+                          keywords = "карета скорая heal 500",
+                          text = "Оказание первой медицинской помощи на выезде в карете скорой помощи — $500." },
+                        { code = "ЕЦП 1.3", title = "Льготное лечение гос. служащих и новичков — $300", kind = "info",
+                          keywords = "льгота гос скидка 300",
+                          text = "Для сотрудников государственных организаций и граждан с малой пропиской действует льготный тариф $300." },
+                    },
+                },
+                {
+                    title = "Глава 2. Медкарты и анализы",
+                    articles = {
+                        { code = "ЕЦП 2.1", title = "Медкарта Тип 1 (Годен) — $1500", kind = "info",
+                          keywords = "медкарта тип 1 годен 1500",
+                          text = "Выдача медицинской карты 1-го типа по результатам полного медосмотра — $1500." },
+                        { code = "ЕЦП 2.2", title = "Медкарта Тип 2 (Наблюдение) — $2500", kind = "info",
+                          keywords = "медкарта тип 2 наблюдение 2500",
+                          text = "Выдача медицинской карты 2-го типа — $2500." },
+                        { code = "ЕЦП 2.3", title = "Медкарта Тип 3 (Ограничения) — $3500", kind = "info",
+                          keywords = "медкарта тип 3 3500",
+                          text = "Выдача медицинской карты 3-го типа — $3500." },
+                        { code = "ЕЦП 2.4", title = "Лабораторные анализы (/analysis) — $1000", kind = "info",
+                          keywords = "анализ осмотр analysis 1000",
+                          text = "Проведение осмотра и сдача лабораторных анализов — $1000." },
+                    },
+                },
+            },
+        },
+        ustav_mz = {
+            title = "Устав МЗ (Blue)",
+            chapters = {
+                {
+                    title = "Глава 1. Профессиональный долг врача",
+                    articles = {
+                        { code = "УМЗ 1.1", title = "Оказание помощи и запрет отказа по личным мотивам", kind = "info",
+                          keywords = "врач долг помощь пациент гиппократ",
+                          text = "Медработник обязан оказывать помощь любому пациенту независимо от его статуса или фракции, строго соблюдая РП-отыгровку осмотра." },
+                        { code = "УМЗ 1.2", title = "Соблюдение ЕЦП и запрет завышения цен", kind = "info",
+                          keywords = "ецп цена тариф нарушение",
+                          text = "Назначение цены выше или ниже установленной ЕЦП наказывается выговором или увольнением." },
+                    },
+                },
+                {
+                    title = "Глава 2. Кареты скорой и дисциплина",
+                    articles = {
+                        { code = "УМЗ 2.1", title = "Доклады при выезде на вызов", kind = "info",
+                          keywords = "карета вызов рация патруль мз",
+                          text = "При выезде на скорой помощи врач докладывает в /r принятие вызова, прибытие и возвращение в больницу." },
+                    },
+                },
+            },
+        },
+        pro_smi = {
+            title = "ПРО — Правила редактирования объявлений (Blue)",
+            chapters = {
+                {
+                    title = "Глава 1. Общие требования ПРО",
+                    articles = {
+                        { code = "ПРО 1.1", title = "Тег радиоцентра и грамотность", kind = "info",
+                          keywords = "про тег ls sf lv tv грамотность",
+                          text = "Каждое объявление начинается с тега своего подразделения (LS |, SF |, LV |, TV |), пишется грамотно и не превышает 128 символов." },
+                        { code = "ПРО 1.2", title = "Формат валюты и бюджетов", kind = "info",
+                          keywords = "про цена бюджет договорная кк",
+                          text = "Сокращения вида «кк», «к» заменяются точным числом с разделителями и знаком «$» (например: 1.500.000$), при отсутствии цены пишется «Цена: договорная» или «Бюджет: свободный»." },
+                    },
+                },
+                {
+                    title = "Глава 2. Недвижимость, транспорт, бизнес",
+                    articles = {
+                        { code = "ПРО 2.1", title = "Дома, квартиры и бизнесы", kind = "info",
+                          keywords = "про дом квартира бизнес класс место",
+                          text = "Обязательно указывается тип объекта (дом, квартира, бизнес/АЗС/24-7), класс/название и примерное расположение; сокращения «д», «кв», «б/з» разворачиваются." },
+                        { code = "ПРО 2.2", title = "Транспорт (а/м, м/ц)", kind = "info",
+                          keywords = "про авто транспорт марка ам мц фт",
+                          text = "Марка транспорта пишется в кавычках с префиксом а/м или м/ц (напр.: Продам а/м «Infernus». Цена: ...$)." },
+                    },
+                },
+                {
+                    title = "Глава 3. Запрещённые объявления",
+                    articles = {
+                        { code = "ПРО 3.1", title = "Недопустимые товары и ООС", kind = "info",
+                          keywords = "про запрет оружие наркотики оос мат",
+                          text = "Запрещены к публикации объявления о продаже оружия, наркотиков, аккаунтов/виртов, ООС-терминах, оскорблениях и рекламе несанкционированных сборов." },
+                    },
+                },
+            },
+        },
+        ppe_smi = {
+            title = "ППЭ — Правила проведения эфиров (Blue)",
+            chapters = {
+                {
+                    title = "Глава 1. Организация эфира",
+                    articles = {
+                        { code = "ППЭ 1.1", title = "Бронирование волны и интервалы", kind = "info",
+                          keywords = "ппэ эфир волна интервал бронь",
+                          text = "Перед началом эфира ведущий обязан занять волну в рации /f или /r, соблюдая установленный интервал между эфирами разных радиоцентров." },
+                        { code = "ППЭ 1.2", title = "Начало, заставка и завершение", kind = "info",
+                          keywords = "ппэ заставка приветствие конец эфира",
+                          text = "Эфир открывается музыкальной заставкой и представлением ведущего/темы и завершается объявлением итогов и отключением аппаратуры." },
+                    },
+                },
+                {
+                    title = "Глава 2. Викторины и звонки",
+                    articles = {
+                        { code = "ППЭ 2.1", title = "Викторины, анаграммы и призовой фонд", kind = "info",
+                          keywords = "ппэ викторина анаграмма приз sms",
+                          text = "Призовой фонд оглашается заранее; победитель определяется по первому точному ответу в SMS, а приз выдаётся по окончании эфира." },
+                    },
+                },
+            },
+        },
+    }
+end
+
+-- Вспомогательные функции Фазы 9: Кодексы, Изоляция серверов, /suw, /ticket, /takelic, /bl, Поиск и BYOK AI
+
+function P9_probeCapabilities()
+    if not ENV_CAPS or not ENV_CAPS.moonloader then
+        if type(P8_probeEnvironment) == "function" then
+            P8_probeEnvironment()
+        end
+    end
+    ENV_CAPS = ENV_CAPS or {}
+    local has_dl = (type(downloadUrlToFile) == "function")
+    ENV_CAPS.url_download = {
+        ok = has_dl,
+        ver = has_dl and "MoonLoader" or nil,
+        label = "MoonLoader downloadUrlToFile",
+    }
+
+    local has_ssl = pcall(require, "ssl.https")
+    local has_http = pcall(require, "socket.http")
+    local has_ps = false
+    if type(doesFileExist) == "function" then
+        local sysroot = os.getenv("SystemRoot") or "C:\\Windows"
+        local ps_path = sysroot .. "\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+        local ok_ps, ex_ps = pcall(doesFileExist, ps_path)
+        has_ps = (ok_ps and ex_ps == true)
+    end
+    local ok_net = has_ssl or has_http or has_ps
+    local ver_net = has_ssl and "LuaSec" or (has_http and "LuaSocket" or (has_ps and "PowerShell" or nil))
+    ENV_CAPS.https_or_http = {
+        ok = ok_net,
+        ver = ver_net,
+        has_ssl = has_ssl,
+        has_http = has_http,
+        has_ps = has_ps,
+        label = "HTTPS/HTTP транспорт",
+    }
+    P9.caps_probed = true
+end
+
+function P9_getActiveServerKey()
+    if not P9.laws.server_manual and P8 and P8.faction_ctx and P8.faction_ctx.server_id and P8.faction_ctx.server_id ~= "unknown" then
+        local det = P8.faction_ctx.server_id
+        for idx, k in ipairs(P9.server_keys) do
+            if k == det then
+                P9.laws.server_idx[0] = idx - 1
+                return k
+            end
+        end
+    end
+    local idx = (P9.laws.server_idx and P9.laws.server_idx[0] or 0) + 1
+    return P9.server_keys[idx] or "blue"
+end
+
+function P9_getServerLabel(srv_key)
+    for i, k in ipairs(P9.server_keys) do
+        if k == srv_key then return P9.server_labels[i] or srv_key end
+    end
+    return tostring(srv_key or "Blue")
+end
+
+function P9_getLawsPath(srv_key)
+    local sk = tostring(srv_key or "blue"):lower():gsub("[^a-z0-9_]", "")
+    if sk == "" then sk = "blue" end
+    return getWorkingDirectory() .. "/config/helper_laws_" .. sk .. ".json"
+end
+
+function P9_buildIsolatedSkeleton(srv_key)
+    local lbl = P9_getServerLabel(srv_key)
+    local docs = {}
+    for _, meta in ipairs(P9.doc_meta) do
+        docs[meta.key] = {
+            title = meta.title .. " (" .. lbl .. ")",
+            chapters = {
+                {
+                    title = "Пользовательские статьи (" .. lbl .. ")",
+                    articles = {},
+                },
+            },
+        }
+    end
+    return docs
+end
+
+function P9_mergeCustomArticles(docs, custom_tbl)
+    if type(docs) ~= "table" or type(custom_tbl) ~= "table" then return end
+    for doc_key, art_list in pairs(custom_tbl) do
+        if type(docs[doc_key]) == "table" and type(art_list) == "table" then
+            for _, art in ipairs(art_list) do
+                if type(art) == "table" and type(art.code) == "string" and art.code ~= "" and type(art.title) == "string" and art.title ~= "" then
+                    local ch_name = (type(art.chapter) == "string" and art.chapter ~= "") and art.chapter or "Пользовательские статьи"
+                    local target_ch = nil
+                    for _, ch in ipairs(docs[doc_key].chapters) do
+                        if ch.title == ch_name then target_ch = ch; break end
+                    end
+                    if not target_ch then
+                        target_ch = { title = ch_name, articles = {} }
+                        docs[doc_key].chapters[#docs[doc_key].chapters + 1] = target_ch
+                    end
+                    target_ch.articles[#target_ch.articles + 1] = {
+                        code = P4_sanitizeStr(art.code, 24),
+                        title = P4_sanitizeStr(art.title, 128),
+                        text = P4_sanitizeStr(art.text or art.title, 512),
+                        stars = art.stars and math.max(1, math.min(6, math.floor(tonumber(art.stars) or 1))) or nil,
+                        fine = art.fine and math.max(100, math.min(50000, math.floor(tonumber(art.fine) or 1000))) or nil,
+                        takelic = art.takelic == true,
+                        kind = type(art.kind) == "string" and art.kind or doc_key,
+                        rp = P4_sanitizeStr(art.rp or "", 256),
+                        keywords = P4_sanitizeStr(art.keywords or "", 128),
+                        custom = true,
+                    }
+                end
+            end
+        end
+    end
+end
+
+function P9_loadServerLaws(srv_key, force)
+    local sk = tostring(srv_key or P9_getActiveServerKey()):lower()
+    if not force and P9.laws.docs_cache[sk] then
+        return P9.laws.docs_cache[sk]
+    end
+
+    local docs
+    if sk == "blue" then
+        docs = P9_buildBlueDocs()
+    else
+        -- Строгая изоляция серверов Advance RP: статьи Blue НИКОГДА не подставляются на другие сервера!
+        docs = P9_buildIsolatedSkeleton(sk)
+    end
+
+    local path = P9_getLawsPath(sk)
+    local parsed = readJsonFile(path)
+    local custom_map = {}
+    if type(parsed) == "table" and type(parsed.docs) == "table" then
+        custom_map = parsed.docs
+        P9_mergeCustomArticles(docs, custom_map)
+    end
+    P9.laws.custom_docs[sk] = custom_map
+    P9.laws.docs_cache[sk] = docs
+    P9.laws.load_queued[sk] = true
+    return docs
+end
+
+function P9_getDocsForUi(srv_key)
+    local sk = tostring(srv_key or P9_getActiveServerKey()):lower()
+    if P9.laws.docs_cache[sk] then
+        return P9.laws.docs_cache[sk]
+    end
+    local base_docs = (sk == "blue") and P9_buildBlueDocs() or P9_buildIsolatedSkeleton(sk)
+    P9.laws.docs_cache[sk] = base_docs
+    if not P9.laws.load_queued[sk] then
+        P9.laws.load_queued[sk] = true
+        queueTask(function() P9_loadServerLaws(sk, true) end)
+    end
+    return base_docs
+end
+
+function P9_saveServerLaws(srv_key)
+    local sk = tostring(srv_key or P9_getActiveServerKey()):lower()
+    if not doesDirectoryExist(getWorkingDirectory() .. "/config") then
+        createDirectory(getWorkingDirectory() .. "/config")
+    end
+    local payload = {
+        server = sk,
+        docs = P9.laws.custom_docs[sk] or {},
+    }
+    local ok, err = writeJsonAtomic(P9_getLawsPath(sk), payload)
+    if not ok then
+        P9.laws.status_msg = "Ошибка сохранения " .. sk .. ": " .. tostring(err)
+    end
+    return ok
+end
+
+function P9_addCustomLawArticle(srv_key, doc_key, chapter_title, code, title, text, stars, fine, takelic, rp_line)
+    local sk = tostring(srv_key or P9_getActiveServerKey()):lower()
+    P9_loadServerLaws(sk, false)
+    local cmap = P9.laws.custom_docs[sk] or {}
+    cmap[doc_key] = cmap[doc_key] or {}
+    local entry = {
+        chapter = P4_sanitizeStr(chapter_title, 64),
+        code = P4_sanitizeStr(code, 24),
+        title = P4_sanitizeStr(title, 128),
+        text = P4_sanitizeStr(text, 512),
+        rp = P4_sanitizeStr(rp_line, 256),
+        takelic = takelic and true or false,
+    }
+    if doc_key == "uk" then
+        entry.stars = math.max(1, math.min(6, math.floor(tonumber(stars) or 2)))
+        entry.kind = "uk"
+    elseif doc_key == "pdd" or doc_key == "ak" then
+        entry.fine = math.max(100, math.min(50000, math.floor(tonumber(fine) or 1500)))
+        entry.kind = doc_key
+    else
+        entry.kind = "info"
+    end
+    cmap[doc_key][#cmap[doc_key] + 1] = entry
+    P9.laws.custom_docs[sk] = cmap
+    P9_saveServerLaws(sk)
+    P9_loadServerLaws(sk, true)
+    P9.laws.status_msg = "Добавлена статья " .. entry.code .. " (" .. P9_getServerLabel(sk) .. ")"
+end
+
+function P9_getDocOrderForFaction(fac_key, show_all)
+    local fk = tostring(fac_key or "civ")
+    local primary = {}
+    local secondary = {}
+    for _, meta in ipairs(P9.doc_meta) do
+        local matched = false
+        for _, mf in ipairs(meta.factions) do
+            if mf == fk then matched = true; break end
+        end
+        if matched then
+            primary[#primary + 1] = meta
+        elseif show_all then
+            secondary[#secondary + 1] = meta
+        end
+    end
+    if #primary == 0 then
+        for _, meta in ipairs(P9.doc_meta) do primary[#primary + 1] = meta end
+        return primary
+    end
+    for _, m in ipairs(secondary) do primary[#primary + 1] = m end
+    return primary
+end
+
+function P9_favKey(srv_key, doc_key, code)
+    return tostring(srv_key or "blue") .. ":" .. tostring(doc_key or "") .. ":" .. tostring(code or "")
+end
+
+function P9_isFavoriteArticle(srv_key, doc_key, code)
+    return P9.laws.favorites[P9_favKey(srv_key, doc_key, code)] == true
+end
+
+function P9_toggleFavoriteArticle(srv_key, doc_key, code)
+    local k = P9_favKey(srv_key, doc_key, code)
+    if P9.laws.favorites[k] then
+        P9.laws.favorites[k] = nil
+    else
+        P9.laws.favorites[k] = true
+    end
+    requestSaveSettings()
+end
+
+function P9_getCachedNickById(pid)
+    local tid = tonumber(pid)
+    if not tid or tid < 0 or tid > 1004 then return nil end
+    tid = math.floor(tid)
+    if online_ids_to_nicks and type(online_ids_to_nicks[tid]) == "string" and online_ids_to_nicks[tid] ~= "" then
+        return online_ids_to_nicks[tid]
+    end
+    if my_cached_id ~= nil and tid == my_cached_id and type(my_cached_nick) == "string" and my_cached_nick ~= "" then
+        return my_cached_nick
+    end
+    return nil
+end
+
+function P9_resolveNickById(pid)
+    local cached = P9_getCachedNickById(pid)
+    if cached then return cached end
+    local tid = tonumber(pid)
+    if not tid or tid < 0 or tid > 1004 then return nil end
+    tid = math.floor(tid)
+    if isSampAvailable() then
+        local ok_c, conn = pcall(sampIsPlayerConnected, tid)
+        if ok_c and conn then
+            local ok_n, nick = pcall(sampGetPlayerNickname, tid)
+            if ok_n and type(nick) == "string" and nick ~= "" then
+                return nick
+            end
+        end
+    end
+    return nil
+end
+
+function P9_jumpToSuw(art, tid_opt)
+    if tid_opt and tonumber(tid_opt) then
+        suw_target_id[0] = math.max(0, math.min(1004, math.floor(tonumber(tid_opt))))
+    end
+    if type(art) == "table" then
+        if art.stars then
+            suw_tab = 1
+            suw_custom_stars[0] = math.max(1, math.min(6, math.floor(tonumber(art.stars) or 2)))
+            safeStrCopy(suw_custom_reason, encodeCp1251Safe(art.code .. " УК"), ffi.sizeof(suw_custom_reason))
+        else
+            suw_tab = 2
+        end
+        safeStrCopy(suw_search_buf, encodeCp1251Safe(art.code or ""), ffi.sizeof(suw_search_buf))
+    end
+    suw_show[0] = true
+end
+
+function P9_jumpToTicket(art, tid_opt)
+    if tid_opt and tonumber(tid_opt) then
+        P9.ticket_target_id[0] = math.max(0, math.min(1004, math.floor(tonumber(tid_opt))))
+    end
+    if type(art) == "table" then
+        local fn = math.max(100, math.min(50000, math.floor(tonumber(art.fine) or 1500)))
+        P9.ticket_custom_fine[0] = fn
+        safeStrCopy(P9.ticket_custom_reason, encodeCp1251Safe(art.code or art.title or ""), ffi.sizeof(P9.ticket_custom_reason))
+        safeStrCopy(P9.ticket_search_buf, encodeCp1251Safe(art.code or ""), ffi.sizeof(P9.ticket_search_buf))
+    end
+    P9.ticket_show[0] = true
+end
+
+function P9_jumpToTakelic(art, tid_opt)
+    if tid_opt and tonumber(tid_opt) then
+        P9.takelic_target_id[0] = math.max(0, math.min(1004, math.floor(tonumber(tid_opt))))
+    end
+    if type(art) == "table" then
+        local rsn = tostring(art.code or "") .. (art.title and (" — " .. art.title) or "")
+        safeStrCopy(P9.takelic_reason_buf, encodeCp1251Safe(rsn), ffi.sizeof(P9.takelic_reason_buf))
+        local rp = (type(art.rp) == "string" and art.rp ~= "") and art.rp or ("/me составил протокол (" .. tostring(art.code or "ПДД") .. ") и изъял водительское удостоверение")
+        safeStrCopy(P9.takelic_rp_buf, encodeCp1251Safe(rp), ffi.sizeof(P9.takelic_rp_buf))
+    end
+    P9.takelic_show[0] = true
+end
+
+function P9_issueTakelic(pid, rp_line)
+    if not isSampAvailable() then return false end
+    local id_num = tonumber(pid)
+    if not id_num or id_num < 0 or id_num > 1004 then
+        sampAddChatMessage("[Helper МВД] Укажите корректный ID игрока (0-1004)", 0xFF4444)
+        return false
+    end
+    if not P4_canRunActionDebounce() then return false end
+    id_num = math.floor(id_num)
+    local cmd_str = string.format("/takelic %d", id_num)
+    if type(rp_line) == "string" and rp_line ~= "" then
+        P4_sendInternalChat(rp_line)
+        scheduleTask(350, function()
+            if isSampAvailable() then
+                P4_sendInternalChat(cmd_str)
+            end
+        end)
+    else
+        P4_sendInternalChat(cmd_str)
+    end
+    return true
+end
+
+function P9_getChapteredPoliceArticles(mode)
+    local sk = P9_getActiveServerKey()
+    local docs = P9_getDocsForUi(sk)
+    local chapters = {}
+
+    local function appendDoc(doc_key, filter_fn)
+        local doc = docs[doc_key]
+        if type(doc) ~= "table" or type(doc.chapters) ~= "table" then return end
+        for _, ch in ipairs(doc.chapters) do
+            local items = {}
+            for _, art in ipairs(ch.articles or {}) do
+                if not filter_fn or filter_fn(art) then
+                    items[#items + 1] = art
+                end
+            end
+            if #items > 0 then
+                chapters[#chapters + 1] = {
+                    doc_key = doc_key,
+                    title = ch.title,
+                    articles = items,
+                }
+            end
+        end
+    end
+
+    if mode == "uk" then
+        appendDoc("uk", nil)
+        -- На Blue добавляем пользовательские статьи из P4_codex.uk, если они не дублируют базовые
+        if sk == "blue" and type(P4_codex) == "table" and type(P4_codex.uk) == "table" then
+            local seen = {}
+            for _, ch in ipairs(chapters) do
+                for _, a in ipairs(ch.articles) do seen[a.code] = true end
+            end
+            local extra = {}
+            for _, a in ipairs(P4_codex.uk) do
+                if a.code and not seen[a.code] then
+                    extra[#extra + 1] = { code = a.code, title = a.title, stars = a.stars, rp = a.rp, text = a.title }
+                end
+            end
+            if #extra > 0 then
+                chapters[#chapters + 1] = { doc_key = "uk", title = "Дополнительные статьи УК", articles = extra }
+            end
+        end
+    elseif mode == "ticket" then
+        -- ПДД (Нарушения ПДД) ВСЕГДА идут первыми!
+        appendDoc("pdd", nil)
+        appendDoc("ak", nil)
+        if sk == "blue" and type(P4_codex) == "table" and type(P4_codex.ak) == "table" then
+            local seen = {}
+            for _, ch in ipairs(chapters) do
+                for _, a in ipairs(ch.articles) do seen[a.code] = true end
+            end
+            local extra = {}
+            for _, a in ipairs(P4_codex.ak) do
+                if a.code and not seen[a.code] then
+                    extra[#extra + 1] = { code = a.code, title = a.title, fine = a.fine, rp = a.rp, text = a.title }
+                end
+            end
+            if #extra > 0 then
+                chapters[#chapters + 1] = { doc_key = "ak", title = "Дополнительные штрафы АК", articles = extra }
+            end
+        end
+    elseif mode == "takelic" then
+        appendDoc("pdd", function(a) return a.takelic == true end)
+        appendDoc("ak", function(a) return a.takelic == true end)
+        if #chapters == 0 then
+            appendDoc("pdd", nil)
+        end
+    end
+    return chapters, sk
+end
+
+function P9_drawServerIsolationBanner(sk)
+    if sk == "blue" then return end
+    local lbl = P9_getServerLabel(sk)
+    imgui.PushStyleColor(imgui.Col.ChildBg, imgui.ImVec4(0.28, 0.17, 0.05, 0.72))
+    imgui.PushStyleColor(imgui.Col.Border, imgui.ImVec4(0.95, 0.65, 0.20, 0.90))
+    imgui.BeginChild("##p9_srv_iso", imgui.ImVec2(0, 46), true)
+    imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(1.0, 0.78, 0.30, 1.0))
+    imgui.PushTextWrapPos(0)
+    imgui.TextUnformatted(encodeCp1251Safe("[!] Изоляция серверов Advance RP (" .. lbl .. "): статьи Advance RP Blue НИКОГДА не подставляются на другие сервера. Загружен локальный профиль helper_laws_" .. sk .. ".json."))
+    imgui.PopTextWrapPos()
+    imgui.PopStyleColor()
+    imgui.EndChild()
+    imgui.PopStyleColor(2)
+end
+
+function P9_drawSuwContent()
+    imgui.PushItemWidth(110)
+    imgui.InputInt(u8"ID цели##suw_tid", suw_target_id)
+    if suw_target_id[0] < 0 then suw_target_id[0] = 0 end
+    if suw_target_id[0] > 1004 then suw_target_id[0] = 1004 end
+    imgui.PopItemWidth()
+    local tid = suw_target_id[0]
+    local tnick = P9_getCachedNickById(tid)
+    imgui.SameLine()
+    if tnick and tnick ~= "" then
+        imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.4, 1.0, 0.55, 1))
+        imgui.TextUnformatted(encodeCp1251Safe(tnick))
+        imgui.PopStyleColor()
+    else
+        imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.65, 0.65, 0.65, 1))
+        imgui.TextUnformatted(u8"(ник не в кэше / проверьте ID)")
+        imgui.PopStyleColor()
+    end
+    imgui.SameLine()
+    imgui.Checkbox(u8"РП-отыгровка##suw_rp_chk", suw_use_rp)
+
+    imgui.PushItemWidth(270)
+    imgui.InputText(u8"Поиск статьи##suw_search", suw_search_buf, ffi.sizeof(suw_search_buf))
+    imgui.PopItemWidth()
+    imgui.SameLine()
+    if imgui.SmallButton(u8"X##suw_clr_q") then
+        safeStrCopy(suw_search_buf, "", ffi.sizeof(suw_search_buf))
+    end
+    imgui.SameLine()
+    if imgui.SmallButton(u8"Кодекс /laws##suw_open_laws") then
+        P9.laws.show[0] = true
+    end
+
+    if imgui.Button(u8"УК — Розыск (/su)##suw_t1", imgui.ImVec2(155, 24)) then suw_tab = 1 end
+    imgui.SameLine()
+    if imgui.Button(u8"ПДД / АК — Штрафы##suw_t2", imgui.ImVec2(155, 24)) then suw_tab = 2 end
+    imgui.SameLine()
+    if imgui.Button(u8"Права /takelic##suw_t3", imgui.ImVec2(125, 24)) then
+        P9.takelic_target_id[0] = tid
+        P9.takelic_show[0] = true
+    end
+
+    local mode = (suw_tab == 1) and "uk" or "ticket"
+    local chapters, sk = P9_getChapteredPoliceArticles(mode)
+    imgui.SameLine()
+    imgui.TextUnformatted(encodeCp1251Safe("[" .. P9_getServerLabel(sk) .. "]"))
+
+    P9_drawServerIsolationBanner(sk)
+
+    local q = cp1251_lower(P4_sanitizeStr(decodeUtf8Safe(ffi.string(suw_search_buf)), 64))
+    local do_rp = suw_use_rp[0]
+
+    imgui.BeginChild("##suw_articles", imgui.ImVec2(0, 215), true)
+    local shown = 0
+    for ci, ch in ipairs(chapters) do
+        local ch_matches = {}
+        for ai, art in ipairs(ch.articles) do
+            local hay = cp1251_lower(tostring(art.code or "") .. " " .. tostring(art.title or "") .. " " .. tostring(art.keywords or ""))
+            if q == "" or hay:find(q, 1, true) then
+                ch_matches[#ch_matches + 1] = { ai = ai, art = art }
+            end
+        end
+        if #ch_matches > 0 then
+            local ch_flags = (ci == 1 or q ~= "") and imgui.TreeNodeFlags.DefaultOpen or 0
+            if imgui.CollapsingHeader(encodeCp1251Safe(ch.title .. " (" .. #ch_matches .. ")##suw_ch_" .. ci), ch_flags) then
+                for _, item in ipairs(ch_matches) do
+                    shown = shown + 1
+                    local art = item.art
+                    local tag_btn = (suw_tab == 1) and u8"Выдать" or u8"Штраф"
+                    local uid = "##suw_act_" .. ci .. "_" .. item.ai
+                    if imgui.SmallButton(tag_btn .. uid) then
+                        local p = tid
+                        if suw_tab == 1 then
+                            local st = art.stars or 1
+                            local rsn = tostring(art.code or ""):find("УК") and art.code or (tostring(art.code or "") .. " УК")
+                            local rp = do_rp and art.rp or nil
+                            queueTask(function() P4_issueWanted(p, st, rsn, rp) end)
+                        else
+                            local fn = art.fine or 1500
+                            local rsn = tostring(art.code or "")
+                            local rp = do_rp and art.rp or nil
+                            queueTask(function() P4_issueTicket(p, fn, rsn, rp) end)
+                        end
+                    end
+                    imgui.SameLine()
+                    local badge = (suw_tab == 1) and ("[" .. tostring(art.stars or 1) .. " зв.]") or ("[$" .. tostring(art.fine or 1500) .. "]")
+                    imgui.TextUnformatted(encodeCp1251Safe("[" .. tostring(art.code) .. "] " .. tostring(art.title) .. " " .. badge))
+                    if imgui.IsItemHovered() then
+                        imgui.BeginTooltip()
+                        imgui.PushTextWrapPos(380)
+                        imgui.TextUnformatted(encodeCp1251Safe(tostring(art.code) .. " — " .. tostring(art.title) .. "\n\n" .. tostring(art.text or art.title)))
+                        imgui.PopTextWrapPos()
+                        imgui.EndTooltip()
+                    end
+                end
+            end
+        end
+    end
+    if shown == 0 then
+        imgui.TextUnformatted(encodeCp1251Safe(sk == "blue" and "Подходящих статей не найдено." or ("Нет локальных статей для " .. P9_getServerLabel(sk) .. ". Добавьте в /laws или введите вручную ниже.")))
+    end
+    imgui.EndChild()
+
+    imgui.Separator()
+    imgui.TextUnformatted(u8"Быстрый произвольный /su:")
+    imgui.PushItemWidth(100)
+    imgui.SliderInt(u8"Зв.##suw_cst", suw_custom_stars, 1, 6)
+    imgui.PopItemWidth()
+    imgui.SameLine()
+    imgui.PushItemWidth(220)
+    imgui.InputText(u8"Причина##suw_crs", suw_custom_reason, ffi.sizeof(suw_custom_reason))
+    imgui.PopItemWidth()
+    imgui.SameLine()
+    if imgui.Button(u8"Выдать /su##suw_cs_go", imgui.ImVec2(100, 22)) then
+        local p = tid
+        local st = suw_custom_stars[0]
+        local rsn = P4_sanitizeStr(decodeUtf8Safe(ffi.string(suw_custom_reason)), 64)
+        local rp = do_rp and "/me открыл бортовой компьютер и объявил гражданина в розыск" or nil
+        queueTask(function() P4_issueWanted(p, st, rsn, rp) end)
+    end
+
+    imgui.Separator()
+    imgui.TextUnformatted(u8"Полицейский мегафон (/m):")
+    for mi, mline in ipairs(P4_megaphone_lines) do
+        if mi > 1 then imgui.SameLine() end
+        if imgui.Button(u8"/m " .. mi .. "##suw_m_" .. mi, imgui.ImVec2(75, 22)) then
+            local midx = mi
+            queueTask(function() P4_sendMegaphone(midx) end)
+        end
+        if imgui.IsItemHovered() then
+            imgui.BeginTooltip()
+            imgui.TextUnformatted(encodeCp1251Safe(mline))
+            imgui.EndTooltip()
+        end
+    end
+end
+
+function P9_drawTicketWindow()
+    imgui.PushItemWidth(110)
+    imgui.InputInt(u8"ID водителя##p9_tk_tid", P9.ticket_target_id)
+    if P9.ticket_target_id[0] < 0 then P9.ticket_target_id[0] = 0 end
+    if P9.ticket_target_id[0] > 1004 then P9.ticket_target_id[0] = 1004 end
+    imgui.PopItemWidth()
+    local tid = P9.ticket_target_id[0]
+    local tnick = P9_getCachedNickById(tid)
+    imgui.SameLine()
+    if tnick then
+        imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.4, 1.0, 0.55, 1))
+        imgui.TextUnformatted(encodeCp1251Safe(tnick))
+        imgui.PopStyleColor()
+    else
+        imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.65, 0.65, 0.65, 1))
+        imgui.TextUnformatted(u8"(ID не в кэше)")
+        imgui.PopStyleColor()
+    end
+    imgui.SameLine()
+    imgui.Checkbox(u8"РП##p9_tk_rp", P9.ticket_use_rp)
+
+    imgui.PushItemWidth(280)
+    imgui.InputText(u8"Поиск ПДД / АК##p9_tk_srch", P9.ticket_search_buf, ffi.sizeof(P9.ticket_search_buf))
+    imgui.PopItemWidth()
+    imgui.SameLine()
+    if imgui.SmallButton(u8"X##p9_tk_clr") then
+        safeStrCopy(P9.ticket_search_buf, "", ffi.sizeof(P9.ticket_search_buf))
+    end
+
+    local chapters, sk = P9_getChapteredPoliceArticles("ticket")
+    P9_drawServerIsolationBanner(sk)
+
+    local q = cp1251_lower(P4_sanitizeStr(decodeUtf8Safe(ffi.string(P9.ticket_search_buf)), 64))
+    local do_rp = P9.ticket_use_rp[0]
+
+    imgui.BeginChild("##p9_tk_list", imgui.ImVec2(0, 225), true)
+    local shown = 0
+    for ci, ch in ipairs(chapters) do
+        local ch_matches = {}
+        for ai, art in ipairs(ch.articles) do
+            local hay = cp1251_lower(tostring(art.code or "") .. " " .. tostring(art.title or "") .. " " .. tostring(art.keywords or ""))
+            if q == "" or hay:find(q, 1, true) then
+                ch_matches[#ch_matches + 1] = { ai = ai, art = art }
+            end
+        end
+        if #ch_matches > 0 then
+            local is_pdd = (ch.doc_key == "pdd")
+            local flags = (is_pdd or ci == 1 or q ~= "") and imgui.TreeNodeFlags.DefaultOpen or 0
+            if imgui.CollapsingHeader(encodeCp1251Safe(ch.title .. " (" .. #ch_matches .. ")##p9_tk_ch_" .. ci), flags) then
+                for _, item in ipairs(ch_matches) do
+                    shown = shown + 1
+                    local art = item.art
+                    if imgui.SmallButton(u8"Штраф##p9_tk_btn_" .. ci .. "_" .. item.ai) then
+                        local p = tid
+                        local fn = art.fine or 1500
+                        local rsn = tostring(art.code or "ПДД")
+                        local rp = do_rp and art.rp or nil
+                        queueTask(function() P4_issueTicket(p, fn, rsn, rp) end)
+                    end
+                    imgui.SameLine()
+                    local lic_tag = art.takelic and " [Лишение прав]" or ""
+                    imgui.TextUnformatted(encodeCp1251Safe("[" .. tostring(art.code) .. "] " .. tostring(art.title) .. " ($" .. tostring(art.fine or 1500) .. ")" .. lic_tag))
+                    if imgui.IsItemHovered() then
+                        imgui.BeginTooltip()
+                        imgui.PushTextWrapPos(380)
+                        imgui.TextUnformatted(encodeCp1251Safe(tostring(art.code) .. " — " .. tostring(art.title) .. "\n\n" .. tostring(art.text or art.title)))
+                        imgui.PopTextWrapPos()
+                        imgui.EndTooltip()
+                    end
+                end
+            end
+        end
+    end
+    if shown == 0 then
+        imgui.TextUnformatted(u8"Статьи ПДД/АК не найдены. Используйте ручной штраф ниже или добавьте статьи в /laws.")
+    end
+    imgui.EndChild()
+
+    imgui.Separator()
+    imgui.PushItemWidth(110)
+    imgui.InputInt(u8"Сумма $##p9_tk_cfine", P9.ticket_custom_fine)
+    if P9.ticket_custom_fine[0] < 100 then P9.ticket_custom_fine[0] = 100 end
+    if P9.ticket_custom_fine[0] > 50000 then P9.ticket_custom_fine[0] = 50000 end
+    imgui.PopItemWidth()
+    imgui.SameLine()
+    imgui.PushItemWidth(205)
+    imgui.InputText(u8"Причина##p9_tk_crsn", P9.ticket_custom_reason, ffi.sizeof(P9.ticket_custom_reason))
+    imgui.PopItemWidth()
+    imgui.SameLine()
+    if imgui.Button(u8"Выписать##p9_tk_go", imgui.ImVec2(95, 22)) then
+        local p = tid
+        local fn = P9.ticket_custom_fine[0]
+        local rsn = P4_sanitizeStr(decodeUtf8Safe(ffi.string(P9.ticket_custom_reason)), 64)
+        local rp = do_rp and "/me заполнил штрафную квитанцию и передал водителю" or nil
+        queueTask(function() P4_issueTicket(p, fn, rsn, rp) end)
+    end
+end
+
+function P9_drawTakelicWindow()
+    imgui.PushItemWidth(110)
+    imgui.InputInt(u8"ID игрока##p9_tl_tid", P9.takelic_target_id)
+    if P9.takelic_target_id[0] < 0 then P9.takelic_target_id[0] = 0 end
+    if P9.takelic_target_id[0] > 1004 then P9.takelic_target_id[0] = 1004 end
+    imgui.PopItemWidth()
+    local tid = P9.takelic_target_id[0]
+    local tnick = P9_getCachedNickById(tid)
+    imgui.SameLine()
+    if tnick then
+        imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.4, 1.0, 0.55, 1))
+        imgui.TextUnformatted(encodeCp1251Safe(tnick))
+        imgui.PopStyleColor()
+    else
+        imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.65, 0.65, 0.65, 1))
+        imgui.TextUnformatted(u8"(ID не в кэше)")
+        imgui.PopStyleColor()
+    end
+    imgui.SameLine()
+    imgui.Checkbox(u8"РП-отыгровка##p9_tl_rp", P9.takelic_use_rp)
+
+    local chapters, sk = P9_getChapteredPoliceArticles("takelic")
+    P9_drawServerIsolationBanner(sk)
+
+    imgui.TextUnformatted(u8"Законные основания для изъятия прав (ПДД / АК):")
+    imgui.BeginChild("##p9_tl_list", imgui.ImVec2(0, 155), true)
+    local cnt = 0
+    for ci, ch in ipairs(chapters) do
+        for ai, art in ipairs(ch.articles) do
+            cnt = cnt + 1
+            if imgui.Selectable(encodeCp1251Safe("[" .. tostring(art.code) .. "] " .. tostring(art.title) .. "##p9_tl_s_" .. ci .. "_" .. ai), false) then
+                safeStrCopy(P9.takelic_reason_buf, encodeCp1251Safe(tostring(art.code) .. " — " .. tostring(art.title)), ffi.sizeof(P9.takelic_reason_buf))
+                local rp_tpl = "/me составил протокол по ст. " .. tostring(art.code) .. " и изъял водительское удостоверение"
+                safeStrCopy(P9.takelic_rp_buf, encodeCp1251Safe(rp_tpl), ffi.sizeof(P9.takelic_rp_buf))
+            end
+            if imgui.IsItemHovered() then
+                imgui.BeginTooltip()
+                imgui.PushTextWrapPos(380)
+                imgui.TextUnformatted(encodeCp1251Safe(tostring(art.code) .. " — " .. tostring(art.title) .. "\n\n" .. tostring(art.text or art.title)))
+                imgui.PopTextWrapPos()
+                imgui.EndTooltip()
+            end
+        end
+    end
+    if cnt == 0 then
+        imgui.TextUnformatted(u8"Статьи с пометкой лишения прав не найдены для текущего сервера.")
+    end
+    imgui.EndChild()
+
+    imgui.PushItemWidth(-1)
+    imgui.InputText(u8"##p9_tl_rsn", P9.takelic_reason_buf, ffi.sizeof(P9.takelic_reason_buf))
+    imgui.TextUnformatted(u8"Редактируемая РП-отыгровка:")
+    imgui.InputText(u8"##p9_tl_rpbuf", P9.takelic_rp_buf, ffi.sizeof(P9.takelic_rp_buf))
+    imgui.PopItemWidth()
+
+    imgui.Spacing()
+    if imgui.Button(u8"РП + Изъять права (/takelic)##p9_tl_go", imgui.ImVec2(240, 28)) then
+        local p = tid
+        local rp = P9.takelic_use_rp[0] and P4_sanitizeStr(decodeUtf8Safe(ffi.string(P9.takelic_rp_buf)), 200) or nil
+        queueTask(function() P9_issueTakelic(p, rp) end)
+    end
+end
+
+-- ==================== МУЛЬТИ-ФРАКЦИОННЫЙ ЧЁРНЫЙ СПИСОК (/bl) ====================
+
+function P9_getFactionBlPath()
+    return getWorkingDirectory() .. "/config/helper_faction_bl.json"
+end
+
+function P9_blCatLabel(cat_key)
+    for i, k in ipairs(P9.bl.cat_keys) do
+        if k == cat_key then return P9.bl.cat_labels[i] or cat_key end
+    end
+    return tostring(cat_key or "ЧС")
+end
+
+function P9_rebuildBlNickIndex()
+    local idx = {}
+    for _, v in pairs(P9.bl.entries or {}) do
+        if type(v) == "table" and type(v.nick) == "string" and v.nick ~= "" then
+            idx[cp1251_lower(v.nick)] = {
+                nick = v.nick,
+                cat = v.cat,
+                reason = v.reason or "",
+                added = v.added or "",
+            }
+        end
+    end
+    P9.bl_entries = idx
+end
+
+function P9_loadFactionBl()
+    local parsed = readJsonFile(P9_getFactionBlPath())
+    local cleaned = {}
+    if type(parsed) == "table" then
+        for k, v in pairs(parsed) do
+            if type(k) == "string" and #k <= 80 and type(v) == "table" and type(v.nick) == "string" and v.nick ~= "" then
+                local cat = (v.cat == "mvd" or v.cat == "gov" or v.cat == "mo" or v.cat == "smi") and v.cat or "mvd"
+                cleaned[k] = {
+                    nick = P4_sanitizeStr(v.nick, 48),
+                    cat = cat,
+                    reason = P4_sanitizeStr(type(v.reason) == "string" and v.reason or "", 200),
+                    added = P4_sanitizeStr(type(v.added) == "string" and v.added or "", 32),
+                    source = P4_sanitizeStr(type(v.source) == "string" and v.source or "local", 24),
+                }
+            end
+        end
+    end
+    P9.bl.entries = cleaned
+    P9.bl.loaded = true
+    P9.bl.load_queued = true
+    P9.bl.dirty = false
+    P9_rebuildBlNickIndex()
+end
+
+function P9_saveFactionBl()
+    if not doesDirectoryExist(getWorkingDirectory() .. "/config") then
+        createDirectory(getWorkingDirectory() .. "/config")
+    end
+    local ok, err = writeJsonAtomic(P9_getFactionBlPath(), P9.bl.entries)
+    if ok then
+        P9.bl.dirty = false
+    else
+        P9.bl.status_msg = "Ошибка сохранения ЧС: " .. tostring(err)
+    end
+    return ok
+end
+
+function P9_addFactionBl(nick, cat, reason, source)
+    if not P9.bl.loaded then P9_loadFactionBl() end
+    local clean_nick = P4_sanitizeStr(tostring(nick or ""), 48)
+    if clean_nick == "" then return false end
+    local c = (cat == "mvd" or cat == "gov" or cat == "mo" or cat == "smi") and cat or "mvd"
+    local key = c .. ":" .. cp1251_lower(clean_nick)
+    P9.bl.entries[key] = {
+        nick = clean_nick,
+        cat = c,
+        reason = P4_sanitizeStr(tostring(reason or ""), 200),
+        added = os.date("%d.%m.%Y"),
+        source = source or "local",
+    }
+    P9.bl.dirty = true
+    P9_rebuildBlNickIndex()
+    P9_saveFactionBl()
+    return true
+end
+
+function P9_removeFactionBl(entry_key)
+    if not P9.bl.loaded then P9_loadFactionBl() end
+    if P9.bl.entries[entry_key] then
+        P9.bl.entries[entry_key] = nil
+        P9.bl.dirty = true
+        P9_rebuildBlNickIndex()
+        P9_saveFactionBl()
+        return true
+    end
+    return false
+end
+
+function P9_lookupBlacklist(nick_or_id)
+    if not P9.bl.loaded then P9_loadFactionBl() end
+    local raw = P4_sanitizeStr(tostring(nick_or_id or ""), 64)
+    local resolved_nick = raw
+    if raw:match("^%d+$") then
+        local rn = P9_resolveNickById(tonumber(raw))
+        if rn and rn ~= "" then
+            resolved_nick = rn
+        end
+    end
+    local q_low = cp1251_lower(resolved_nick)
+    local matches = {}
+    if q_low ~= "" then
+        for k, v in pairs(P9.bl.entries) do
+            if cp1251_lower(v.nick) == q_low or cp1251_lower(v.nick):find(q_low, 1, true) then
+                matches[#matches + 1] = {
+                    entry_key = k,
+                    cat = v.cat,
+                    cat_label = P9_blCatLabel(v.cat),
+                    nick = v.nick,
+                    reason = v.reason,
+                    added = v.added,
+                    source = v.source,
+                }
+            end
+        end
+        if type(blacklist_data) == "table" then
+            for bnick, bdata in pairs(blacklist_data) do
+                local bn_low = cp1251_lower(tostring(bnick))
+                if bn_low == q_low or bn_low:find(q_low, 1, true) then
+                    matches[#matches + 1] = {
+                        entry_key = "legacy:" .. tostring(bnick),
+                        cat = "smi",
+                        cat_label = "ЧС СМИ (база)",
+                        nick = tostring(bnick),
+                        reason = type(bdata) == "table" and tostring(bdata.reason or "") or "",
+                        added = type(bdata) == "table" and tostring(bdata.added or "") or "",
+                        source = "blacklist_data",
+                    }
+                end
+            end
+        end
+    end
+    return matches, resolved_nick
+end
+
+function P9_syncBlFromUrl()
+    if not P9.bl.url_sync_enabled[0] then
+        P9.bl.status_msg = "URL-синхронизация выключена (включите опцию выше)."
+        return
+    end
+    if type(downloadUrlToFile) ~= "function" then
+        P9.bl.status_msg = "downloadUrlToFile недоступен в текущем окружении."
+        return
+    end
+    local url = P4_sanitizeStr(decodeUtf8Safe(ffi.string(P9.bl.url_buf)), 256)
+    if not url:match("^https?://") then
+        P9.bl.status_msg = "Укажите корректный URL (http:// или https://)."
+        return
+    end
+    if P9.bl.sync_busy then return end
+    P9.bl.sync_busy = true
+    P9.bl.status_msg = "Загрузка списка ЧС по URL..."
+    local tmp_path = getWorkingDirectory() .. "/config/helper_faction_bl_dl.tmp"
+    os.remove(tmp_path)
+    pcall(downloadUrlToFile, url, tmp_path, function(dl_id, status, p1, p2)
+        if status == 58 or status == 6 then
+            P9.bl.sync_busy = false
+            local parsed = readJsonFile(tmp_path)
+            os.remove(tmp_path)
+            if type(parsed) ~= "table" then
+                P9.bl.status_msg = "Не удалось прочитать JSON по URL."
+                return
+            end
+            local added_cnt = 0
+            local list_src = type(parsed.entries) == "table" and parsed.entries or parsed
+            for k, v in pairs(list_src) do
+                if type(v) == "table" and type(v.nick) == "string" and v.nick ~= "" then
+                    local c = (v.cat == "mvd" or v.cat == "gov" or v.cat == "mo" or v.cat == "smi") and v.cat or "mvd"
+                    if P9_addFactionBl(v.nick, c, v.reason or "URL sync", "url") then
+                        added_cnt = added_cnt + 1
+                    end
+                elseif type(k) == "string" and type(v) == "table" and type(v.reason) == "string" then
+                    if P9_addFactionBl(k, v.cat or "mvd", v.reason, "url") then
+                        added_cnt = added_cnt + 1
+                    end
+                end
+            end
+            P9.bl.status_msg = "Синхронизация завершена: обновлено записей — " .. tostring(added_cnt)
+        end
+    end)
+end
+
+function P9_drawBlWindow()
+    if not P9.caps_probed and not P9.caps_queued then
+        P9.caps_queued = true
+        queueTask(P9_probeCapabilities)
+    end
+    if not P9.bl.loaded and not P9.bl.load_queued then
+        P9.bl.load_queued = true
+        queueTask(P9_loadFactionBl)
+    end
+
+    imgui.PushItemWidth(240)
+    imgui.InputText(u8"ID или Ник##p9_bl_q", P9.bl.search_buf, ffi.sizeof(P9.bl.search_buf))
+    imgui.PopItemWidth()
+    imgui.SameLine()
+    if imgui.Button(u8"Проверить##p9_bl_chk", imgui.ImVec2(95, 22)) then
+        local q_raw = P4_sanitizeStr(decodeUtf8Safe(ffi.string(P9.bl.search_buf)), 64)
+        queueTask(function()
+            local matches, rnick = P9_lookupBlacklist(q_raw)
+            if rnick ~= "" and rnick ~= q_raw then
+                safeStrCopy(P9.bl.search_buf, encodeCp1251Safe(rnick), ffi.sizeof(P9.bl.search_buf))
+            end
+            if #matches > 0 then
+                P9.bl.last_lookup_msg = "[НАЙДЕН В ЧС] " .. rnick .. " — совпадений: " .. #matches
+            elseif rnick ~= "" then
+                P9.bl.last_lookup_msg = "[ЧИСТ] " .. rnick .. " не числится в локальной базе ЧС."
+            else
+                P9.bl.last_lookup_msg = ""
+            end
+        end)
+    end
+    imgui.SameLine()
+    if imgui.SmallButton(u8"Сброс##p9_bl_clr") then
+        safeStrCopy(P9.bl.search_buf, "", ffi.sizeof(P9.bl.search_buf))
+        P9.bl.last_lookup_msg = ""
+    end
+
+    if P9.bl.last_lookup_msg ~= "" then
+        local is_hit = P9.bl.last_lookup_msg:find("НАЙДЕН", 1, true) ~= nil
+        imgui.PushStyleColor(imgui.Col.Text, is_hit and imgui.ImVec4(1.0, 0.35, 0.35, 1.0) or imgui.ImVec4(0.35, 0.95, 0.45, 1.0))
+        imgui.TextUnformatted(encodeCp1251Safe(P9.bl.last_lookup_msg))
+        imgui.PopStyleColor()
+    end
+
+    -- Фильтр категорий
+    for ci, lbl in ipairs(P9.bl.cat_labels) do
+        if ci > 1 then imgui.SameLine() end
+        if P9.bl.filter_cat == ci then
+            imgui.PushStyleColor(imgui.Col.Button, imgui.ImVec4(0.22, 0.48, 0.78, 0.95))
+            if imgui.SmallButton(encodeCp1251Safe(lbl) .. "##p9_bl_c_" .. ci) then P9.bl.filter_cat = ci end
+            imgui.PopStyleColor()
+        else
+            if imgui.SmallButton(encodeCp1251Safe(lbl) .. "##p9_bl_c_" .. ci) then P9.bl.filter_cat = ci end
+        end
+    end
+
+    local q_txt = cp1251_lower(P4_sanitizeStr(decodeUtf8Safe(ffi.string(P9.bl.search_buf)), 64))
+    local sel_cat = P9.bl.cat_keys[P9.bl.filter_cat] or "all"
+
+    imgui.BeginChild("##p9_bl_list", imgui.ImVec2(0, 195), true)
+    local shown = 0
+    for k, v in pairs(P9.bl.entries) do
+        local cat_ok = (sel_cat == "all" or v.cat == sel_cat)
+        local q_ok = (q_txt == "" or cp1251_lower(v.nick):find(q_txt, 1, true) or cp1251_lower(v.reason):find(q_txt, 1, true))
+        if cat_ok and q_ok then
+            shown = shown + 1
+            imgui.PushIDStr("p9bl_" .. k)
+            if imgui.SmallButton(u8"X") then
+                local del_k = k
+                queueTask(function() P9_removeFactionBl(del_k) end)
+                imgui.PopID()
+                break
+            end
+            imgui.SameLine()
+            imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(1.0, 0.65, 0.25, 1.0))
+            imgui.TextUnformatted(encodeCp1251Safe("[" .. P9_blCatLabel(v.cat) .. "]"))
+            imgui.PopStyleColor()
+            imgui.SameLine()
+            imgui.TextUnformatted(encodeCp1251Safe(v.nick .. " — " .. (v.reason ~= "" and v.reason or "без причины") .. (v.added ~= "" and (" (" .. v.added .. ")") or "")))
+            imgui.PopID()
+        end
+    end
+    if (sel_cat == "all" or sel_cat == "smi") and type(blacklist_data) == "table" then
+        for bnick, bdata in pairs(blacklist_data) do
+            local b_rsn = type(bdata) == "table" and tostring(bdata.reason or "") or ""
+            local q_ok = (q_txt == "" or cp1251_lower(tostring(bnick)):find(q_txt, 1, true) or cp1251_lower(b_rsn):find(q_txt, 1, true))
+            if q_ok then
+                shown = shown + 1
+                imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.65, 0.80, 1.0, 1.0))
+                imgui.TextUnformatted(u8"[ЧС СМИ (legacy)]")
+                imgui.PopStyleColor()
+                imgui.SameLine()
+                imgui.TextUnformatted(encodeCp1251Safe(tostring(bnick) .. " — " .. (b_rsn ~= "" and b_rsn or "без причины")))
+            end
+        end
+    end
+    if shown == 0 then
+        imgui.TextUnformatted(u8"Записей по текущему фильтру не найдено.")
+    end
+    imgui.EndChild()
+
+    imgui.Separator()
+    imgui.TextUnformatted(u8"Добавить в локальный ЧС (helper_faction_bl.json):")
+    imgui.PushItemWidth(135)
+    imgui.InputText(u8"Ник##p9_bl_an", P9.bl.add_nick_buf, ffi.sizeof(P9.bl.add_nick_buf))
+    imgui.PopItemWidth()
+    imgui.SameLine()
+    imgui.PushItemWidth(155)
+    imgui.ComboStr(u8"##p9_bl_acat", P9.bl.add_cat_idx, u8"ЧС МВД" .. "\0" .. u8"ЧС Федерации / Гос" .. "\0" .. u8"ЧС МО" .. "\0" .. u8"ЧС СМИ" .. "\0")
+    imgui.PopItemWidth()
+    imgui.SameLine()
+    imgui.PushItemWidth(175)
+    imgui.InputText(u8"Причина##p9_bl_arsn", P9.bl.add_reason_buf, ffi.sizeof(P9.bl.add_reason_buf))
+    imgui.PopItemWidth()
+    imgui.SameLine()
+    if imgui.Button(u8"Добавить##p9_bl_addbtn", imgui.ImVec2(85, 22)) then
+        local nn = P4_sanitizeStr(decodeUtf8Safe(ffi.string(P9.bl.add_nick_buf)), 48)
+        local c_idx = (P9.bl.add_cat_idx[0] or 0) + 2
+        local ck = P9.bl.cat_keys[c_idx] or "mvd"
+        local rs = P4_sanitizeStr(decodeUtf8Safe(ffi.string(P9.bl.add_reason_buf)), 128)
+        if nn ~= "" then
+            queueTask(function() P9_addFactionBl(nn, ck, rs, "local") end)
+            safeStrCopy(P9.bl.add_nick_buf, "", ffi.sizeof(P9.bl.add_nick_buf))
+            safeStrCopy(P9.bl.add_reason_buf, "", ffi.sizeof(P9.bl.add_reason_buf))
+        end
+    end
+
+    imgui.Separator()
+    if imgui.Checkbox(u8"Опциональная синхронизация ЧС по URL (выкл. по умолчанию)", P9.bl.url_sync_enabled) then
+        requestSaveSettings()
+    end
+    if P9.bl.url_sync_enabled[0] then
+        if type(P8_drawCapabilityBanner) == "function" then
+            P8_drawCapabilityBanner({{ cap = "url_download", label = "MoonLoader downloadUrlToFile", severity = "soft", hint = "Для загрузки внешнего JSON-реестра ЧС требуется функция downloadUrlToFile в MoonLoader." }})
+        end
+        imgui.PushItemWidth(340)
+        imgui.InputText(u8"URL JSON##p9_bl_url", P9.bl.url_buf, ffi.sizeof(P9.bl.url_buf))
+        imgui.PopItemWidth()
+        imgui.SameLine()
+        if imgui.Button(u8"Синхронизировать##p9_bl_sync", imgui.ImVec2(140, 22)) then
+            queueTask(function() P9_syncBlFromUrl() end)
+        end
+    end
+    if P9.bl.status_msg ~= "" then
+        imgui.TextUnformatted(encodeCp1251Safe(P9.bl.status_msg))
+    end
+end
+
+-- ==================== УМНЫЙ ОФФЛАЙН ПОИСК И ОПЦИОНАЛЬНЫЙ BYOK AI ====================
+
+function P9_splitWords(str)
+    local out = {}
+    local low = cp1251_lower(tostring(str or ""))
+    for w in low:gmatch("[a-z0-9%.%-\168\184\192-\255]+") do
+        if #w >= 2 then
+            out[#out + 1] = w
+        end
+    end
+    return out
+end
+
+function P9_searchLawsScored(query, max_results)
+    local sk = P9_getActiveServerKey()
+    local docs = P9_getDocsForUi(sk)
+    local q_raw = P4_sanitizeStr(tostring(query or ""), 200)
+    local q_low = cp1251_lower(q_raw)
+    local words = P9_splitWords(q_raw)
+    if q_low == "" or #words == 0 then return {} end
+
+    local active_fac = (P8 and P8.faction_ctx and P8.faction_ctx.active_faction) or "civ"
+    local doc_fac_map = {}
+    for _, m in ipairs(P9.doc_meta) do
+        for _, f in ipairs(m.factions) do
+            if f == active_fac then doc_fac_map[m.key] = true end
+        end
+    end
+
+    local results = {}
+    for _, meta in ipairs(P9.doc_meta) do
+        local doc = docs[meta.key]
+        if type(doc) == "table" and type(doc.chapters) == "table" then
+            for ci, ch in ipairs(doc.chapters) do
+                for ai, art in ipairs(ch.articles or {}) do
+                    local code_low = cp1251_lower(tostring(art.code or ""))
+                    local title_low = cp1251_lower(tostring(art.title or ""))
+                    local kw_low = cp1251_lower(tostring(art.keywords or ""))
+                    local text_low = cp1251_lower(tostring(art.text or ""))
+                    local score = 0
+                    if code_low ~= "" and q_low:find(code_low, 1, true) then
+                        score = score + 50
+                    end
+                    for _, w in ipairs(words) do
+                        if code_low == w then score = score + 40 end
+                        if title_low:find(w, 1, true) then score = score + 15 end
+                        if kw_low:find(w, 1, true) then score = score + 12 end
+                        if text_low:find(w, 1, true) then score = score + 6 end
+                        if #w >= 4 then
+                            local stem = w:sub(1, #w - 1)
+                            if title_low:find(stem, 1, true) or kw_low:find(stem, 1, true) then
+                                score = score + 4
+                            end
+                        end
+                    end
+                    if score > 0 then
+                        if doc_fac_map[meta.key] then score = score + 3 end
+                        results[#results + 1] = {
+                            score = score,
+                            doc_key = meta.key,
+                            doc_title = meta.title,
+                            ch_idx = ci,
+                            ch_title = ch.title,
+                            art_idx = ai,
+                            art = art,
+                        }
+                    end
+                end
+            end
+        end
+    end
+    table.sort(results, function(a, b) return a.score > b.score end)
+    local lim = tonumber(max_results) or 8
+    local trimmed = {}
+    for i = 1, math.min(#results, lim) do
+        trimmed[i] = results[i]
+    end
+    return trimmed
+end
+
+function P9_extractArticleCodes(text)
+    local sk = P9_getActiveServerKey()
+    local docs = P9_loadServerLaws(sk, false)
+    local s_low = cp1251_lower(tostring(text or ""))
+    local found = {}
+    local seen = {}
+    for _, meta in ipairs(P9.doc_meta) do
+        local doc = docs[meta.key]
+        if type(doc) == "table" and type(doc.chapters) == "table" then
+            for ci, ch in ipairs(doc.chapters) do
+                for ai, art in ipairs(ch.articles or {}) do
+                    local c = tostring(art.code or "")
+                    local c_low = cp1251_lower(c)
+                    local num_only = c_low:match("(%d+%.%d+)")
+                    local hit = false
+                    if c_low ~= "" and s_low:find(c_low, 1, true) then
+                        hit = true
+                    elseif num_only and s_low:find(num_only, 1, true) then
+                        hit = true
+                    end
+                    if hit and not seen[meta.key .. ":" .. c] then
+                        seen[meta.key .. ":" .. c] = true
+                        found[#found + 1] = { doc_key = meta.key, ch_idx = ci, art_idx = ai, art = art }
+                    end
+                end
+            end
+        end
+    end
+    return found
+end
+
+function P9_startAiRequest()
+    if not P9.ai_byok_enabled then
+        P9.ai.status_msg = "Режим BYOK AI выключен. Используйте оффлайн-поиск или включите тумблер BYOK AI."
+        return
+    end
+    if P9.ai.busy then
+        P9.ai.status_msg = "AI-запрос уже выполняется..."
+        return
+    end
+    local q_cp = P4_sanitizeStr(decodeUtf8Safe(ffi.string(P9.ai.query_buf)), 256)
+    local endpoint = P4_sanitizeStr(decodeUtf8Safe(ffi.string(P9.ai.endpoint_buf)), 256)
+    local model = P4_sanitizeStr(decodeUtf8Safe(ffi.string(P9.ai.model_buf)), 96)
+    local apikey = P4_sanitizeStr(decodeUtf8Safe(ffi.string(P9.ai.apikey_buf)), 256)
+    if q_cp == "" then
+        P9.ai.status_msg = "Введите вопрос для поиска или AI-помощника."
+        return
+    end
+    if not endpoint:match("^https?://") or apikey == "" then
+        P9.ai.status_msg = "Укажите корректный HTTPS/HTTP Endpoint и API-ключ."
+        return
+    end
+    if model == "" then model = "gpt-4o-mini" end
+
+    local snips = P9_searchLawsScored(q_cp, 5)
+    local ctx_parts = {}
+    for i, r in ipairs(snips) do
+        ctx_parts[#ctx_parts + 1] = string.format("%d) [%s] %s: %s", i, tostring(r.art.code), tostring(r.art.title), tostring(r.art.text or ""))
+    end
+    local ctx_cp = (#ctx_parts > 0) and table.concat(ctx_parts, "\n") or "Совпадений в локальном кодексе не найдено."
+
+    -- В сеть передаются ТОЛЬКО текст вопроса и 3-5 найденных фрагментов кодекса (без ника и паролей!)
+    local sys_utf8 = encodeCp1251Safe("Ты юридический ассистент игрока Advance RP. Отвечай кратко на русском по приведённым фрагментам кодекса и указывай номера статей.")
+    local usr_utf8 = encodeCp1251Safe("Вопрос: " .. q_cp .. "\n\nФрагменты активного кодекса:\n" .. ctx_cp)
+
+    local payload = {
+        model = model,
+        messages = {
+            { role = "system", content = sys_utf8 },
+            { role = "user", content = usr_utf8 },
+        },
+        temperature = 0.2,
+        max_tokens = 450,
+    }
+    local ok_enc, body_json = pcall(json.encode, payload)
+    if not ok_enc or type(body_json) ~= "string" then
+        P9.ai.status_msg = "Ошибка формирования JSON-запроса."
+        return
+    end
+
+    if not doesDirectoryExist(getWorkingDirectory() .. "/config") then
+        createDirectory(getWorkingDirectory() .. "/config")
+    end
+    local cfg_dir = getWorkingDirectory() .. "\\config"
+    local req_path = cfg_dir .. "\\helper_ai_req.json"
+    local key_path = cfg_dir .. "\\helper_ai_key.tmp"
+    local resp_path = cfg_dir .. "\\helper_ai_resp.json"
+    local done_path = cfg_dir .. "\\helper_ai_resp.done"
+    local ps_path = cfg_dir .. "\\helper_ai_call.ps1"
+
+    os.remove(resp_path)
+    os.remove(done_path)
+
+    local f_req = io.open(req_path, "wb")
+    if not f_req then
+        P9.ai.status_msg = "Не удалось создать временный файл запроса."
+        return
+    end
+    f_req:write(body_json)
+    f_req:close()
+
+    local f_key = io.open(key_path, "wb")
+    if not f_key then
+        os.remove(req_path)
+        P9.ai.status_msg = "Не удалось создать временный файл ключа."
+        return
+    end
+    f_key:write(apikey)
+    f_key:close()
+
+    local ps_lines = {
+        "$ErrorActionPreference = 'Stop'",
+        "$ProgressPreference = 'SilentlyContinue'",
+        "try {",
+        "  [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12",
+        "  $k = (Get-Content -Raw -Encoding UTF8 '" .. key_path:gsub("'", "''") .. "').Trim()",
+        "  $b = [System.IO.File]::ReadAllBytes('" .. req_path:gsub("'", "''") .. "')",
+        "  $hdr = @{ 'Authorization' = ('Bearer ' + $k); 'Content-Type' = 'application/json; charset=utf-8' }",
+        "  $r = Invoke-WebRequest -UseBasicParsing -Method Post -Uri '" .. endpoint:gsub("'", "''") .. "' -Headers $hdr -Body $b -TimeoutSec 18",
+        "  [System.IO.File]::WriteAllBytes('" .. resp_path:gsub("'", "''") .. "', [System.Text.Encoding]::UTF8.GetBytes($r.Content))",
+        "} catch {",
+        "  $errObj = @{ error = @{ message = $_.Exception.Message } } | ConvertTo-Json -Compress",
+        "  [System.IO.File]::WriteAllBytes('" .. resp_path:gsub("'", "''") .. "', [System.Text.Encoding]::UTF8.GetBytes($errObj))",
+        "} finally {",
+        "  Remove-Item -Force -ErrorAction SilentlyContinue '" .. key_path:gsub("'", "''") .. "'",
+        "  Remove-Item -Force -ErrorAction SilentlyContinue '" .. req_path:gsub("'", "''") .. "'",
+        "  Set-Content -Path '" .. done_path:gsub("'", "''") .. "' -Value '1'",
+        "}",
+    }
+    local f_ps = io.open(ps_path, "wb")
+    if not f_ps then
+        os.remove(key_path)
+        os.remove(req_path)
+        P9.ai.status_msg = "Не удалось создать скрипт транспорта."
+        return
+    end
+    f_ps:write(table.concat(ps_lines, "\r\n"))
+    f_ps:close()
+
+    P9.ai.busy = true
+    P9.ai.status_msg = "Отправка асинхронного BYOK-запроса..."
+    P9.ai.last_req_ts = os.clock()
+
+    lua_thread.create(function()
+        local cmd = 'start "" /B powershell -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "' .. ps_path .. '"'
+        pcall(os.execute, cmd)
+        local t0 = os.clock()
+        while not fileExists(done_path) and (os.clock() - t0) < 20.0 do
+            wait(150)
+        end
+        local raw_resp = nil
+        local f_in = io.open(resp_path, "rb")
+        if f_in then
+            raw_resp = f_in:read("*a")
+            f_in:close()
+        end
+        os.remove(key_path)
+        os.remove(req_path)
+        os.remove(resp_path)
+        os.remove(done_path)
+        os.remove(ps_path)
+
+        P9.ai.busy = false
+        if not raw_resp or raw_resp == "" then
+            P9.ai.status_msg = "Таймаут или пустой ответ от AI endpoint."
+            return
+        end
+        local ok_dec, parsed = pcall(json.decode, raw_resp)
+        if not ok_dec or type(parsed) ~= "table" then
+            P9.ai.status_msg = "Ошибка разбора JSON ответа AI."
+            return
+        end
+        if type(parsed.error) == "table" and type(parsed.error.message) == "string" then
+            P9.ai.status_msg = "Ошибка API: " .. decodeUtf8Safe(parsed.error.message)
+            return
+        end
+        local content_utf8 = nil
+        if type(parsed.choices) == "table" and type(parsed.choices[1]) == "table" and type(parsed.choices[1].message) == "table" then
+            content_utf8 = parsed.choices[1].message.content
+        elseif type(parsed.output_text) == "string" then
+            content_utf8 = parsed.output_text
+        elseif type(parsed.text) == "string" then
+            content_utf8 = parsed.text
+        end
+        if type(content_utf8) ~= "string" or content_utf8 == "" then
+            P9.ai.status_msg = "Ответ AI не содержит текста."
+            return
+        end
+        P9.ai.answer_text = decodeUtf8Safe(content_utf8)
+        P9.ai.parsed_articles = P9_extractArticleCodes(P9.ai.answer_text)
+        P9.ai.status_msg = "Ответ AI получен (найдено ссылок на статьи: " .. tostring(#P9.ai.parsed_articles) .. ")"
+    end)
+end
+
+function P9_drawArticleJumpButtons(art, suffix)
+    if type(art) ~= "table" then return end
+    if art.stars or art.kind == "uk" then
+        if imgui.SmallButton(u8"Выдать розыск (/suw)##" .. suffix .. "_suw") then
+            P9_jumpToSuw(art)
+        end
+        imgui.SameLine()
+    end
+    if art.fine or art.kind == "pdd" or art.kind == "ak" then
+        if imgui.SmallButton(u8"Выписать штраф (/ticket)##" .. suffix .. "_tk") then
+            P9_jumpToTicket(art)
+        end
+        imgui.SameLine()
+    end
+    if art.takelic or art.kind == "pdd" or art.kind == "ak" then
+        if imgui.SmallButton(u8"Изъять права (/takelic)##" .. suffix .. "_tl") then
+            P9_jumpToTakelic(art)
+        end
+    end
+end
+
+function P9_drawLawsAiTab()
+    if not P9.caps_probed and not P9.caps_queued then
+        P9.caps_queued = true
+        queueTask(P9_probeCapabilities)
+    end
+    local sk = P9_getActiveServerKey()
+    P9_drawServerIsolationBanner(sk)
+
+    imgui.TextUnformatted(u8"Умный оффлайн-поиск по кодексам и уставам (100% локально):")
+    imgui.PushItemWidth(390)
+    imgui.InputText(u8"##p9_ai_q", P9.ai.query_buf, ffi.sizeof(P9.ai.query_buf))
+    imgui.PopItemWidth()
+    imgui.SameLine()
+    if imgui.Button(u8"Найти (оффлайн)##p9_ai_off", imgui.ImVec2(145, 22)) then
+        local q_str = P4_sanitizeStr(decodeUtf8Safe(ffi.string(P9.ai.query_buf)), 256)
+        P9.ai.last_query = q_str
+        P9.ai.offline_results = P9_searchLawsScored(q_str, 8)
+    end
+
+    imgui.BeginChild("##p9_ai_off_res", imgui.ImVec2(0, 170), true)
+    if #P9.ai.offline_results == 0 then
+        imgui.TextUnformatted(u8"Введите ситуацию, ключевое слово или номер статьи (напр.: встречка, нападение, КПП, маска) и нажмите «Найти».")
+    else
+        for ri, res in ipairs(P9.ai.offline_results) do
+            local art = res.art
+            imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.45, 0.90, 1.0, 1.0))
+            imgui.TextUnformatted(encodeCp1251Safe("[" .. tostring(art.code) .. "] " .. tostring(art.title) .. " (" .. tostring(res.doc_title) .. ")"))
+            imgui.PopStyleColor()
+            imgui.PushTextWrapPos(0)
+            imgui.TextUnformatted(encodeCp1251Safe(tostring(art.text or "")))
+            imgui.PopTextWrapPos()
+            if imgui.SmallButton(u8"Открыть в кодексе##p9_aio_op_" .. ri) then
+                P9.laws.selected_doc = res.doc_key
+                P9.laws.selected_ch = res.ch_idx
+                P9.laws.selected_art = res.art_idx
+                P9.laws.tab = 1
+            end
+            imgui.SameLine()
+            P9_drawArticleJumpButtons(art, "p9aio_" .. ri)
+            imgui.Separator()
+        end
+    end
+    imgui.EndChild()
+
+    imgui.Separator()
+    if imgui.Checkbox(u8"Режим BYOK AI (внешний LLM, выкл. по умолчанию)", P9.ai.byok_chk) then
+        P9.ai_byok_enabled = P9.ai.byok_chk[0]
+        requestSaveSettings()
+    end
+
+    if P9.ai_byok_enabled then
+        if type(P8_drawCapabilityBanner) == "function" then
+            P8_drawCapabilityBanner({{ cap = "https_or_http", label = "HTTPS/HTTP транспорт", severity = "soft", hint = "Для асинхронного запроса к API нужен Windows PowerShell или LuaSocket ssl.https." }})
+        end
+        imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(1.0, 0.80, 0.30, 1.0))
+        imgui.PushTextWrapPos(0)
+        imgui.TextUnformatted(u8"Что передаётся в сеть: только текст вашего вопроса и 3-5 найденных фрагментов кодекса; игровой ник и пароли не отправляются.")
+        imgui.PopTextWrapPos()
+        imgui.PopStyleColor()
+
+        imgui.PushItemWidth(260)
+        imgui.InputText(u8"Endpoint##p9_byok_ep", P9.ai.endpoint_buf, ffi.sizeof(P9.ai.endpoint_buf))
+        imgui.SameLine()
+        imgui.PushItemWidth(140)
+        imgui.InputText(u8"Model##p9_byok_md", P9.ai.model_buf, ffi.sizeof(P9.ai.model_buf))
+        imgui.PopItemWidth()
+        imgui.PopItemWidth()
+
+        imgui.PushItemWidth(260)
+        imgui.InputText(u8"API Key (только в RAM)##p9_byok_key", P9.ai.apikey_buf, ffi.sizeof(P9.ai.apikey_buf), imgui.InputTextFlags.Password)
+        imgui.PopItemWidth()
+        imgui.SameLine()
+        if imgui.Button(P9.ai.busy and u8"Выполняется...##p9_byok_ask" or u8"Спросить AI (BYOK)##p9_byok_ask", imgui.ImVec2(170, 22)) then
+            if not P9.ai.busy then
+                queueTask(function() P9_startAiRequest() end)
+            end
+        end
+
+        if P9.ai.status_msg ~= "" then
+            imgui.TextUnformatted(encodeCp1251Safe(P9.ai.status_msg))
+        end
+
+        if P9.ai.answer_text ~= "" then
+            imgui.BeginChild("##p9_ai_ans", imgui.ImVec2(0, 120), true)
+            imgui.PushTextWrapPos(0)
+            imgui.TextUnformatted(encodeCp1251Safe(P9.ai.answer_text))
+            imgui.PopTextWrapPos()
+            if #P9.ai.parsed_articles > 0 then
+                imgui.Separator()
+                for pi, pa in ipairs(P9.ai.parsed_articles) do
+                    imgui.TextUnformatted(encodeCp1251Safe("-> " .. tostring(pa.art.code) .. " " .. tostring(pa.art.title)))
+                    imgui.SameLine()
+                    P9_drawArticleJumpButtons(pa.art, "p9aia_" .. pi)
+                end
+            end
+            imgui.EndChild()
+        end
+    end
+end
+
+function P9_drawLawsWindow()
+    if not P9.caps_probed and not P9.caps_queued then
+        P9.caps_queued = true
+        queueTask(P9_probeCapabilities)
+    end
+    -- Верхняя панель вкладок и выбора сервера
+    if imgui.Button(u8"Кодексы и Уставы##p9_lw_t1", imgui.ImVec2(170, 24)) then P9.laws.tab = 1 end
+    imgui.SameLine()
+    if imgui.Button(u8"Поиск и AI-помощник##p9_lw_t2", imgui.ImVec2(180, 24)) then P9.laws.tab = 2 end
+    imgui.SameLine()
+    imgui.PushItemWidth(115)
+    if imgui.ComboStr(u8"Сервер##p9_lw_srv", P9.laws.server_idx, u8"Blue" .. "\0" .. u8"Red" .. "\0" .. u8"Green" .. "\0" .. u8"Lime" .. "\0" .. u8"Chocolate" .. "\0") then
+        P9.laws.server_manual = true
+    end
+    imgui.PopItemWidth()
+
+    local sk = P9_getActiveServerKey()
+    if P9.laws.tab == 2 then
+        P9_drawLawsAiTab()
+        return
+    end
+
+    P9_drawServerIsolationBanner(sk)
+
+    local docs = P9_getDocsForUi(sk)
+    local active_fac = (P8 and P8.faction_ctx and P8.faction_ctx.active_faction) or "civ"
+    local ordered_docs = P9_getDocOrderForFaction(active_fac, P9.laws.show_all_factions[0])
+
+    local valid_sel = false
+    for _, dm in ipairs(ordered_docs) do
+        if dm.key == P9.laws.selected_doc then valid_sel = true; break end
+    end
+    if not valid_sel and #ordered_docs > 0 then
+        P9.laws.selected_doc = ordered_docs[1].key
+        P9.laws.selected_ch = 1
+        P9.laws.selected_art = 1
+    end
+
+    if imgui.Checkbox(u8"Все фракции##p9_lw_allf", P9.laws.show_all_factions) then requestSaveSettings() end
+    imgui.SameLine()
+    imgui.Checkbox(u8"Избранное [*]##p9_lw_fav", P9.laws.fav_only)
+    imgui.SameLine()
+    if imgui.Checkbox(u8"Крупный шрифт##p9_lw_lgf", P9.laws.large_font) then requestSaveSettings() end
+    imgui.SameLine()
+    imgui.PushItemWidth(190)
+    imgui.InputText(u8"Поиск##p9_lw_q", P9.laws.search_buf, ffi.sizeof(P9.laws.search_buf))
+    imgui.PopItemWidth()
+    imgui.SameLine()
+    if imgui.SmallButton(u8"+ Статья##p9_lw_addt") then
+        P9.laws.add_open = not P9.laws.add_open
+    end
+
+    if P9.laws.add_open then
+        imgui.BeginChild("##p9_lw_addbox", imgui.ImVec2(0, 125), true)
+        imgui.TextUnformatted(encodeCp1251Safe("Добавить пользовательскую статью в профиль " .. P9_getServerLabel(sk) .. " (" .. P9.laws.selected_doc .. "):"))
+        imgui.PushItemWidth(100)
+        imgui.InputText(u8"Код##p9_la_c", P9.laws.add_code_buf, ffi.sizeof(P9.laws.add_code_buf))
+        imgui.PopItemWidth()
+        imgui.SameLine()
+        imgui.PushItemWidth(180)
+        imgui.InputText(u8"Глава##p9_la_ch", P9.laws.add_ch_buf, ffi.sizeof(P9.laws.add_ch_buf))
+        imgui.PopItemWidth()
+        imgui.SameLine()
+        imgui.PushItemWidth(220)
+        imgui.InputText(u8"Название##p9_la_t", P9.laws.add_title_buf, ffi.sizeof(P9.laws.add_title_buf))
+        imgui.PopItemWidth()
+
+        imgui.PushItemWidth(340)
+        imgui.InputText(u8"Полный текст##p9_la_tx", P9.laws.add_text_buf, ffi.sizeof(P9.laws.add_text_buf))
+        imgui.PopItemWidth()
+        imgui.SameLine()
+        if P9.laws.selected_doc == "uk" then
+            imgui.PushItemWidth(90)
+            imgui.SliderInt(u8"Зв.##p9_la_st", P9.laws.add_stars, 1, 6)
+            imgui.PopItemWidth()
+        elseif P9.laws.selected_doc == "pdd" or P9.laws.selected_doc == "ak" then
+            imgui.PushItemWidth(95)
+            imgui.InputInt(u8"$##p9_la_fn", P9.laws.add_fine)
+            imgui.PopItemWidth()
+            imgui.SameLine()
+            imgui.Checkbox(u8"Лишение##p9_la_tl", P9.laws.add_takelic)
+        end
+        imgui.SameLine()
+        if imgui.Button(u8"Сохранить статью##p9_la_sv", imgui.ImVec2(125, 22)) then
+            local dkey = P9.laws.selected_doc
+            local c_ch = P4_sanitizeStr(decodeUtf8Safe(ffi.string(P9.laws.add_ch_buf)), 64)
+            local c_cd = P4_sanitizeStr(decodeUtf8Safe(ffi.string(P9.laws.add_code_buf)), 24)
+            local c_tt = P4_sanitizeStr(decodeUtf8Safe(ffi.string(P9.laws.add_title_buf)), 128)
+            local c_tx = P4_sanitizeStr(decodeUtf8Safe(ffi.string(P9.laws.add_text_buf)), 512)
+            local st = P9.laws.add_stars[0]
+            local fn = P9.laws.add_fine[0]
+            local tl = P9.laws.add_takelic[0]
+            if c_cd ~= "" and c_tt ~= "" then
+                queueTask(function()
+                    P9_addCustomLawArticle(sk, dkey, c_ch, c_cd, c_tt, c_tx, st, fn, tl, "")
+                end)
+                safeStrCopy(P9.laws.add_code_buf, "", ffi.sizeof(P9.laws.add_code_buf))
+                safeStrCopy(P9.laws.add_title_buf, "", ffi.sizeof(P9.laws.add_title_buf))
+                safeStrCopy(P9.laws.add_text_buf, "", ffi.sizeof(P9.laws.add_text_buf))
+            end
+        end
+        imgui.EndChild()
+    end
+
+    local q = cp1251_lower(P4_sanitizeStr(decodeUtf8Safe(ffi.string(P9.laws.search_buf)), 96))
+    local fav_only = P9.laws.fav_only[0]
+
+    -- Левая панель: документы + главы + статьи
+    imgui.BeginChild("##p9_lw_left", imgui.ImVec2(290, 355), true)
+    imgui.TextUnformatted(u8"Документы:")
+    for _, dm in ipairs(ordered_docs) do
+        local sel = (P9.laws.selected_doc == dm.key)
+        if sel then imgui.PushStyleColor(imgui.Col.Button, imgui.ImVec4(0.20, 0.48, 0.78, 0.95)) end
+        if imgui.Button(encodeCp1251Safe(dm.title) .. "##p9_ld_" .. dm.key, imgui.ImVec2(-1, 22)) then
+            P9.laws.selected_doc = dm.key
+            P9.laws.selected_ch = 1
+            P9.laws.selected_art = 1
+        end
+        if sel then imgui.PopStyleColor() end
+    end
+    imgui.Separator()
+    local cur_doc = docs[P9.laws.selected_doc]
+    if cur_doc and type(cur_doc.chapters) == "table" then
+        for ci, ch in ipairs(cur_doc.chapters) do
+            local filtered = {}
+            for ai, art in ipairs(ch.articles or {}) do
+                local fav_ok = (not fav_only) or P9_isFavoriteArticle(sk, P9.laws.selected_doc, art.code)
+                local hay = cp1251_lower(tostring(art.code or "") .. " " .. tostring(art.title or "") .. " " .. tostring(art.keywords or "") .. " " .. tostring(art.text or ""))
+                local q_ok = (q == "" or hay:find(q, 1, true))
+                if fav_ok and q_ok then
+                    filtered[#filtered + 1] = { ai = ai, art = art }
+                end
+            end
+            if #filtered > 0 then
+                local ch_flags = (ci == P9.laws.selected_ch or q ~= "") and imgui.TreeNodeFlags.DefaultOpen or 0
+                if imgui.CollapsingHeader(encodeCp1251Safe(ch.title .. "##p9_lch_" .. ci), ch_flags) then
+                    for _, item in ipairs(filtered) do
+                        local art = item.art
+                        local is_sel = (P9.laws.selected_ch == ci and P9.laws.selected_art == item.ai)
+                        local star_mark = P9_isFavoriteArticle(sk, P9.laws.selected_doc, art.code) and "[*] " or ""
+                        if imgui.Selectable(encodeCp1251Safe(star_mark .. tostring(art.code) .. " " .. tostring(art.title) .. "##p9_la_" .. ci .. "_" .. item.ai), is_sel) then
+                            P9.laws.selected_ch = ci
+                            P9.laws.selected_art = item.ai
+                        end
+                    end
+                end
+            end
+        end
+    end
+    imgui.EndChild()
+
+    imgui.SameLine()
+
+    -- Правая панель: полный текст статьи + Large Font + Копировать + Избранное + Jump-кнопки
+    imgui.BeginChild("##p9_lw_right", imgui.ImVec2(0, 355), true)
+    local sel_art = nil
+    local sel_ch_title = ""
+    if cur_doc and cur_doc.chapters and cur_doc.chapters[P9.laws.selected_ch] then
+        local ch = cur_doc.chapters[P9.laws.selected_ch]
+        sel_ch_title = ch.title or ""
+        sel_art = ch.articles and ch.articles[P9.laws.selected_art] or nil
+    end
+
+    if sel_art then
+        local is_fav = P9_isFavoriteArticle(sk, P9.laws.selected_doc, sel_art.code)
+        if imgui.SmallButton(is_fav and u8"Убрать из [*]##p9_lfav_b" or u8"В избранное [*]##p9_lfav_b") then
+            P9_toggleFavoriteArticle(sk, P9.laws.selected_doc, sel_art.code)
+        end
+        imgui.SameLine()
+        if imgui.SmallButton(u8"Копировать текст##p9_lcpy_b") then
+            local c_txt = tostring(sel_art.code or "") .. " — " .. tostring(sel_art.title or "") .. "\n" .. tostring(sel_art.text or "")
+            queueTask(function()
+                if type(setClipboardText) == "function" then
+                    pcall(setClipboardText, c_txt)
+                end
+            end)
+            P9.laws.status_msg = "Текст статьи скопирован в буфер."
+        end
+        imgui.Separator()
+
+        if P9.laws.large_font[0] then
+            imgui.SetWindowFontScale(1.22)
+        end
+        imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.45, 0.90, 1.0, 1.0))
+        imgui.PushTextWrapPos(0)
+        imgui.TextUnformatted(encodeCp1251Safe(tostring(sel_art.code) .. " — " .. tostring(sel_art.title)))
+        imgui.PopTextWrapPos()
+        imgui.PopStyleColor()
+
+        imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.65, 0.72, 0.80, 1.0))
+        imgui.TextUnformatted(encodeCp1251Safe(sel_ch_title))
+        imgui.PopStyleColor()
+        imgui.Spacing()
+
+        imgui.PushTextWrapPos(0)
+        imgui.TextUnformatted(encodeCp1251Safe(tostring(sel_art.text or sel_art.title or "")))
+        imgui.PopTextWrapPos()
+
+        if type(sel_art.rp) == "string" and sel_art.rp ~= "" then
+            imgui.Spacing()
+            imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.60, 0.95, 0.65, 1.0))
+            imgui.PushTextWrapPos(0)
+            imgui.TextUnformatted(encodeCp1251Safe("РП: " .. sel_art.rp))
+            imgui.PopTextWrapPos()
+            imgui.PopStyleColor()
+        end
+        -- Гарантированный сброс масштаба шрифта перед выходом!
+        imgui.SetWindowFontScale(1.0)
+
+        imgui.Spacing()
+        imgui.Separator()
+        P9_drawArticleJumpButtons(sel_art, "p9lw_jmp")
+    else
+        imgui.PushTextWrapPos(0)
+        if sk ~= "blue" then
+            imgui.TextUnformatted(encodeCp1251Safe("В профиле сервера " .. P9_getServerLabel(sk) .. " пока нет выбранной статьи. Нажмите «+ Статья» выше или заполните config/helper_laws_" .. sk .. ".json."))
+        else
+            imgui.TextUnformatted(u8"Выберите статью в списке слева.")
+        end
+        imgui.PopTextWrapPos()
+    end
+    imgui.EndChild()
+
+    if P9.laws.status_msg ~= "" then
+        imgui.TextUnformatted(encodeCp1251Safe(P9.laws.status_msg))
+    end
+end
+
+-- ==================== КОМАНДЫ И ФОНОВЫЙ ТИК ФАЗЫ 9 ====================
+
+function P9_cmdLaws(arg)
+    local raw = P4_sanitizeStr(tostring(arg or ""), 96)
+    if raw ~= "" then
+        safeStrCopy(P9.laws.search_buf, encodeCp1251Safe(raw), ffi.sizeof(P9.laws.search_buf))
+        P9.laws.show[0] = true
+    else
+        P9.laws.show[0] = not P9.laws.show[0]
+    end
+end
+
+function P9_cmdTicket(arg)
+    local raw = tostring(arg or ""):gsub("^%s+", ""):gsub("%s+$", "")
+    if raw == "" then
+        P9.ticket_show[0] = not P9.ticket_show[0]
+        return
+    end
+    if raw:match("^%d+$") then
+        local num = tonumber(raw)
+        if num and num >= 0 and num <= 1004 then
+            P9.ticket_target_id[0] = num
+            P9.ticket_show[0] = true
+        else
+            if isSampAvailable() then
+                sampAddChatMessage("[Helper МВД] Укажите корректный ID игрока (0-1004): " .. raw, 0xFF4444)
+            end
+        end
+        return
+    end
+    -- Если переданы аргументы вида /ticket <id> <сумма> <причина>, отправляем нативно на сервер
+    P4_sendInternalChat("/ticket " .. raw)
+end
+
+function P9_cmdTakelic(arg)
+    local raw = tostring(arg or ""):gsub("^%s+", ""):gsub("%s+$", "")
+    if raw ~= "" then
+        local num = raw:match("^%d+$") and tonumber(raw) or nil
+        if not num or num < 0 or num > 1004 then
+            if isSampAvailable() then
+                sampAddChatMessage("[Helper МВД] Укажите корректный ID игрока (0-1004): " .. raw, 0xFF4444)
+            end
+            return
+        end
+        P9.takelic_target_id[0] = num
+        P9.takelic_show[0] = true
+    else
+        P9.takelic_show[0] = not P9.takelic_show[0]
+    end
+end
+
+function P9_cmdBl(arg)
+    if not P9.bl.loaded then P9_loadFactionBl() end
+    local raw = P4_sanitizeStr(tostring(arg or ""), 64)
+    if raw == "" then
+        P9.bl.show[0] = not P9.bl.show[0]
+        return
+    end
+    local matches, rnick = P9_lookupBlacklist(raw)
+    safeStrCopy(P9.bl.search_buf, encodeCp1251Safe(rnick), ffi.sizeof(P9.bl.search_buf))
+    if #matches > 0 then
+        P9.bl.last_lookup_msg = "[НАЙДЕН В ЧС] " .. rnick .. " — совпадений: " .. #matches
+        if isSampAvailable() then
+            sampAddChatMessage("[Helper ЧС] " .. rnick .. " НАЙДЕН В ЧС (" .. #matches .. "):", 0xFF4444)
+            for i = 1, math.min(#matches, 5) do
+                local m = matches[i]
+                sampAddChatMessage("  [" .. m.cat_label .. "] " .. m.nick .. " — " .. (m.reason ~= "" and m.reason or "без причины"), 0xFFAA44)
+            end
+        end
+    else
+        P9.bl.last_lookup_msg = "[ЧИСТ] " .. rnick .. " не числится в локальной базе ЧС."
+        if isSampAvailable() then
+            sampAddChatMessage("[Helper ЧС] " .. rnick .. " не найден в чёрных списках.", 0x00FF90)
+        end
+    end
+    P9.bl.show[0] = true
+end
+
+function P9_tickLawsAndCombat()
+    if not P9.caps_probed then
+        P9_probeCapabilities()
+    end
+    if not P9.bl.loaded then
+        P9_loadFactionBl()
+    end
+    if P8 and P8.faction_ctx and P8.faction_ctx.server_id ~= "unknown" and P8.faction_ctx.server_id ~= P9.last_srv_sync then
+        P9.last_srv_sync = P8.faction_ctx.server_id
+        if not P9.laws.server_manual then
+            for idx, k in ipairs(P9.server_keys) do
+                if k == P8.faction_ctx.server_id then
+                    P9.laws.server_idx[0] = idx - 1
+                    break
+                end
+            end
+        end
+    end
+end
+
+-- ============================================================================
+-- Фаза 9 (v4.0): QoL, Визуальный редактор колеса СКМ, /stoprp, Dry-Run, Auto-SS, /hexit
+-- ============================================================================
+
+function P9_radialTypeToIdx(kind)
+    for i, k in ipairs(P9.radial_type_keys) do
+        if k == kind then return i - 1 end
+    end
+    return 0
+end
+
+function P9_radialFacToIdx(fac)
+    for i, f in ipairs(P9.radial_fac_keys) do
+        if f == fac then return i - 1 end
+    end
+    return 0
+end
+
+function P9_sanitizeRadialSlot(raw, fallback)
+    local fb = fallback or { label = "Слот", kind = "cmd", payload = "/c 60", rp_chapter = 1, rp_index = 1, faction = "all" }
+    if type(raw) ~= "table" then
+        return {
+            label = fb.label,
+            kind = fb.kind,
+            payload = fb.payload,
+            rp_chapter = fb.rp_chapter or 1,
+            rp_index = fb.rp_index or 1,
+            faction = fb.faction or "all",
+        }
+    end
+    local valid_kind = { cmd = true, rp = true, faction = true, info = true }
+    local valid_fac = { all = true, mo = true, mvd = true, mz = true, smi = true, gov = true, crime = true, civ = true }
+    local kind = valid_kind[raw.kind] and raw.kind or fb.kind
+    local fac = valid_fac[raw.faction] and raw.faction or (fb.faction or "all")
+    local lbl = type(raw.label) == "string" and raw.label ~= "" and raw.label or fb.label
+    local pay = type(raw.payload) == "string" and raw.payload or fb.payload
+    local ch = math.max(1, math.min(3, math.floor(tonumber(raw.rp_chapter) or fb.rp_chapter or 1)))
+    local idx = math.max(1, math.min(500, math.floor(tonumber(raw.rp_index) or fb.rp_index or 1)))
+    return {
+        label = lbl:sub(1, 32),
+        kind = kind,
+        payload = pay:sub(1, 240),
+        rp_chapter = ch,
+        rp_index = idx,
+        faction = fac,
+    }
+end
+
+function P9_buildDefaultRadialSlots()
+    local defaults = {
+        { label = "Точное время", kind = "cmd", payload = "/c 60", rp_chapter = 1, rp_index = 1, faction = "all" },
+        { label = "Скрин /ss", kind = "cmd", payload = "/ss", rp_chapter = 1, rp_index = 1, faction = "all" },
+        { label = "Маска /mask", kind = "cmd", payload = "/mask", rp_chapter = 1, rp_index = 1, faction = "all" },
+        { label = "Аптечка", kind = "cmd", payload = "/healme", rp_chapter = 1, rp_index = 1, faction = "all" },
+        { label = "Замок /lock", kind = "cmd", payload = "/lock", rp_chapter = 1, rp_index = 1, faction = "all" },
+        { label = "Двигатель /e", kind = "cmd", payload = "/e", rp_chapter = 1, rp_index = 1, faction = "all" },
+        { label = "Пост МО", kind = "faction", payload = "/post", rp_chapter = 1, rp_index = 1, faction = "mo" },
+        { label = "Патруль МВД", kind = "faction", payload = "/patrol", rp_chapter = 1, rp_index = 1, faction = "mvd" },
+    }
+    -- Подхватываем существующие избранные РП-слоты из P2 (wheel_fav_slots), если они заданы
+    local favs = (type(wheel_fav_slots) == "table") and wheel_fav_slots or {}
+    local sets = (rp_settings and rp_settings.set) or {}
+    for i = 1, math.min(6, #favs) do
+        local fav = favs[i]
+        if type(fav) == "table" then
+            local ch = math.max(1, math.min(3, math.floor(tonumber(fav.chapter) or 1)))
+            local idx = math.max(1, math.min(500, math.floor(tonumber(fav.index) or 1)))
+            local rp = sets[ch] and sets[ch][idx]
+            local nm = (rp and type(rp.name) == "string" and rp.name ~= "") and rp.name or ("РП #" .. idx)
+            defaults[i] = {
+                label = nm:sub(1, 24),
+                kind = "rp",
+                payload = tostring(ch) .. ":" .. tostring(idx),
+                rp_chapter = ch,
+                rp_index = idx,
+                faction = "all",
+            }
+        end
+    end
+    return defaults
+end
+
+function P9_initDefaultRadialSlots(force_reset)
+    if force_reset or type(P9.radial_slots) ~= "table" or #P9.radial_slots < 8 then
+        local defs = P9_buildDefaultRadialSlots()
+        local out = {}
+        for i = 1, 8 do
+            local existing = (not force_reset and type(P9.radial_slots) == "table") and P9.radial_slots[i] or nil
+            out[i] = P9_sanitizeRadialSlot(existing, defs[i])
+        end
+        P9.radial_slots = out
+    end
+    P2 = P2 or {}
+    P2.radial_slots = P9.radial_slots
+end
+
+function P9_syncRadialToP2()
+    P9_initDefaultRadialSlots(false)
+    P2 = P2 or {}
+    P2.radial_slots = P9.radial_slots
+    -- Синхронизируем RP-слоты с legacy wheel_fav_slots (до 6 штук) для совместимости с P2
+    local new_favs = {}
+    for i = 1, 8 do
+        local sl = P9.radial_slots[i]
+        if sl and sl.kind == "rp" then
+            new_favs[#new_favs + 1] = {
+                chapter = math.max(1, math.min(3, math.floor(tonumber(sl.rp_chapter) or 1))),
+                index = math.max(1, math.min(500, math.floor(tonumber(sl.rp_index) or 1))),
+            }
+            if #new_favs >= 6 then break end
+        end
+    end
+    if #new_favs > 0 then
+        wheel_fav_slots = new_favs
+    end
+    if type(requestSaveSettings) == "function" then
+        requestSaveSettings()
+    end
+end
+
+function P9_loadRadialEditorSlot(slot_i)
+    P9_initDefaultRadialSlots(false)
+    local idx = math.max(1, math.min(8, math.floor(tonumber(slot_i) or 1)))
+    P9.radial_sel = idx
+    P9.radial_edit_loaded_idx = idx
+    local sl = P9.radial_slots[idx]
+    safeStrCopy(P9.radial_label_buf, encodeCp1251Safe(sl.label or ""), ffi.sizeof(P9.radial_label_buf))
+    safeStrCopy(P9.radial_payload_buf, encodeCp1251Safe(sl.payload or ""), ffi.sizeof(P9.radial_payload_buf))
+    P9.radial_type_idx[0] = P9_radialTypeToIdx(sl.kind)
+    P9.radial_fac_idx[0] = P9_radialFacToIdx(sl.faction)
+    P9.radial_rp_ch[0] = math.max(0, math.min(2, (tonumber(sl.rp_chapter) or 1) - 1))
+    P9.radial_rp_idx[0] = math.max(0, (tonumber(sl.rp_index) or 1) - 1)
+end
+
+function P9_saveRadialEditorSlot()
+    P9_initDefaultRadialSlots(false)
+    local idx = math.max(1, math.min(8, math.floor(tonumber(P9.radial_sel) or 1)))
+    local kind = P9.radial_type_keys[P9.radial_type_idx[0] + 1] or "cmd"
+    local fac = P9.radial_fac_keys[P9.radial_fac_idx[0] + 1] or "all"
+    local lbl = decodeUtf8Safe(ffi.string(P9.radial_label_buf)):gsub("^%s+", ""):gsub("%s+$", "")
+    if lbl == "" then lbl = "Слот " .. idx end
+    local pay = decodeUtf8Safe(ffi.string(P9.radial_payload_buf))
+    local ch = math.max(1, math.min(3, (P9.radial_rp_ch[0] or 0) + 1))
+    local rpi = math.max(1, (P9.radial_rp_idx[0] or 0) + 1)
+    if kind == "rp" and (pay == "" or pay:match("^%d+:%d+$")) then
+        pay = tostring(ch) .. ":" .. tostring(rpi)
+        safeStrCopy(P9.radial_payload_buf, encodeCp1251Safe(pay), ffi.sizeof(P9.radial_payload_buf))
+    end
+    P9.radial_slots[idx] = P9_sanitizeRadialSlot({
+        label = lbl,
+        kind = kind,
+        payload = pay,
+        rp_chapter = ch,
+        rp_index = rpi,
+        faction = fac,
+    }, P9.radial_slots[idx])
+    P9_syncRadialToP2()
+end
+
+function P9_getVisibleRadialSlots()
+    P9_initDefaultRadialSlots(false)
+    local active_fac = (P8 and P8.faction_ctx and P8.faction_ctx.active_faction) or "civ"
+    local show_all = P8 and P8.faction_ctx and P8.faction_ctx.show_all_modules and P8.faction_ctx.show_all_modules[0]
+    local out = {}
+    for i = 1, 8 do
+        local sl = P9.radial_slots[i]
+        if sl and (show_all or sl.faction == "all" or sl.faction == active_fac) then
+            out[#out + 1] = { index = i, slot = sl }
+        end
+    end
+    return out
+end
+
+-- Выполнять строго из главного цикла или queueTask()!
+function P9_executeRadialSlot(sl)
+    if type(sl) ~= "table" then return end
+    local kind = sl.kind or "cmd"
+    local pay = tostring(sl.payload or "")
+    if kind == "rp" then
+        local ch = tonumber(sl.rp_chapter) or 1
+        local idx = tonumber(sl.rp_index) or 1
+        local c_p, i_p = pay:match("^(%d+):(%d+)$")
+        if c_p and i_p then
+            ch = tonumber(c_p) or ch
+            idx = tonumber(i_p) or idx
+        end
+        local list = (rp_settings and rp_settings.set and rp_settings.set[ch]) or {}
+        local rp = list[idx]
+        if rp and type(rp.text) == "string" and rp.text ~= "" then
+            if rp_settings and rp_settings.setList then rp_settings.setList[0] = ch - 1 end
+            if type(playRp) == "function" then playRp(rp.text, false) end
+        elseif pay ~= "" and type(playRp) == "function" then
+            playRp(pay, false)
+        elseif isSampAvailable() then
+            sampAddChatMessage("[Колесо] РП-сценарий не найден в слоте '" .. tostring(sl.label or "") .. "'.", 0xFFAA00)
+        end
+    elseif kind == "info" then
+        if isSampAvailable() then
+            local msg = (pay ~= "") and pay or (sl.label or "Инфо")
+            if type(P9_applyProfileTags) == "function" then
+                local ok_t, res_t = pcall(P9_applyProfileTags, msg)
+                if ok_t and type(res_t) == "string" then msg = res_t end
+            end
+            sampAddChatMessage("[Колесо Инфо] " .. msg, 0x70D6FF)
+        end
+    elseif kind == "faction" then
+        if pay == "/post" and type(P8_sendArmyPostReport) == "function" then
+            P8_sendArmyPostReport()
+        elseif pay == "/patrol" then
+            if P7 and P7.patrol_show then P7.patrol_show[0] = not P7.patrol_show[0] end
+        elseif pay == "/suw" then
+            if suw_show then suw_show[0] = not suw_show[0] end
+        elseif pay == "/medui" then
+            if medui_show then medui_show[0] = not medui_show[0] end
+        elseif pay == "/chs" and type(P8_sendArmyAlarm) == "function" then
+            P8_sendArmyAlarm("База")
+        elseif pay ~= "" and isSampAvailable() then
+            if pay:sub(-1) == " " then
+                pcall(sampSetChatInputEnabled, true)
+                pcall(sampSetChatInputText, pay)
+            else
+                sampSendChat(pay)
+            end
+        end
+    else
+        if pay == "/ss" and type(P2_runQuickScreenshot) == "function" then
+            P2_runQuickScreenshot()
+        elseif pay ~= "" and isSampAvailable() then
+            if pay:sub(-1) == " " then
+                pcall(sampSetChatInputEnabled, true)
+                pcall(sampSetChatInputText, pay)
+            else
+                sampSendChat(pay)
+            end
+        end
+    end
+end
+
+function P9_drawWheelCustomSlots()
+    local vis = P9_getVisibleRadialSlots()
+    if #vis == 0 then return end
+    imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.45, 0.88, 1.0, 1.0))
+    imgui.TextUnformatted(u8"Настроенные слоты колеса (1-8):")
+    imgui.PopStyleColor()
+    for vi, entry in ipairs(vis) do
+        local sl = entry.slot
+        local lbl = encodeCp1251Safe(sl.label or ("#" .. entry.index)) .. "##p9_wrun_" .. entry.index
+        if imgui.Button(lbl, imgui.ImVec2(148, 24)) then
+            local sl_copy = {
+                label = sl.label,
+                kind = sl.kind,
+                payload = sl.payload,
+                rp_chapter = sl.rp_chapter,
+                rp_index = sl.rp_index,
+                faction = sl.faction,
+            }
+            queueTask(function() P9_executeRadialSlot(sl_copy) end)
+            if wheel_menu_show then wheel_menu_show[0] = false end
+        end
+        if (vi % 2 == 1) and (vi < #vis) then
+            imgui.SameLine()
+        end
+    end
+end
+
+function P9_drawRadialEditorUI()
+    P9_initDefaultRadialSlots(false)
+    if P9.radial_edit_loaded_idx ~= P9.radial_sel then
+        P9_loadRadialEditorSlot(P9.radial_sel)
+    end
+
+    imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.4, 0.9, 1.0, 1.0))
+    imgui.TextUnformatted(u8"Визуальный редактор колеса СКМ (8 слотов, автосохранение в P2):")
+    imgui.PopStyleColor()
+    imgui.Spacing()
+
+    -- Левая панель: визуальный предпросмотр колеса через ImDrawList
+    imgui.BeginChild("##p9_rad_left", imgui.ImVec2(288, 316), true)
+    local p0 = imgui.GetCursorScreenPos()
+    local cx = p0.x + 136
+    local cy = p0.y + 146
+    local r_out = 114
+    local r_in = 42
+    local r_node = 80
+    local dl = imgui.GetWindowDrawList()
+
+    local function colU32(r, g, b, a)
+        if type(imgui.U32) == "function" then
+            return imgui.U32(r, g, b, a or 1.0)
+        end
+        return imgui.ColorConvertFloat4ToU32(imgui.ImVec4(r, g, b, a or 1.0))
+    end
+
+    local c_bg = colU32(0.10, 0.13, 0.19, 0.92)
+    local c_ring = colU32(0.28, 0.62, 0.95, 0.85)
+    local c_inner = colU32(0.15, 0.20, 0.28, 1.0)
+    local c_div = colU32(0.32, 0.42, 0.56, 0.65)
+    local c_node = colU32(0.16, 0.22, 0.31, 0.95)
+    local c_node_ring = colU32(0.42, 0.54, 0.70, 0.85)
+    local c_sel = colU32(0.16, 0.52, 0.88, 0.98)
+    local c_sel_ring = colU32(0.40, 0.92, 1.0, 1.0)
+    local c_txt = colU32(0.95, 0.97, 1.0, 1.0)
+    local c_txt_dim = colU32(0.70, 0.78, 0.88, 1.0)
+
+    dl:AddCircleFilled(imgui.ImVec2(cx, cy), r_out, c_bg, 48)
+    dl:AddCircle(imgui.ImVec2(cx, cy), r_out, c_ring, 48, 2.0)
+    dl:AddCircleFilled(imgui.ImVec2(cx, cy), r_in, c_inner, 36)
+    dl:AddCircle(imgui.ImVec2(cx, cy), r_in, c_ring, 36, 1.5)
+
+    local step_a = (math.pi * 2) / 8
+    for i = 1, 8 do
+        local a0 = ((i - 1) * step_a) - (math.pi * 0.5) - (step_a * 0.5)
+        local amid = a0 + (step_a * 0.5)
+        local x1 = cx + math.cos(a0) * r_in
+        local y1 = cy + math.sin(a0) * r_in
+        local x2 = cx + math.cos(a0) * r_out
+        local y2 = cy + math.sin(a0) * r_out
+        dl:AddLine(imgui.ImVec2(x1, y1), imgui.ImVec2(x2, y2), c_div, 1.2)
+
+        local nx = cx + math.cos(amid) * r_node
+        local ny = cy + math.sin(amid) * r_node
+        local is_sel = (P9.radial_sel == i)
+        if is_sel then
+            dl:AddCircleFilled(imgui.ImVec2(nx, ny), 23, c_sel, 24)
+            dl:AddCircle(imgui.ImVec2(nx, ny), 24, c_sel_ring, 24, 2.2)
+        else
+            dl:AddCircleFilled(imgui.ImVec2(nx, ny), 19, c_node, 20)
+            dl:AddCircle(imgui.ImVec2(nx, ny), 19, c_node_ring, 20, 1.0)
+        end
+
+        local sl = P9.radial_slots[i] or {}
+        local short_lbl = tostring(sl.label or ("#" .. i))
+        if #short_lbl > 7 then short_lbl = short_lbl:sub(1, 6) .. "." end
+        dl:AddText(imgui.ImVec2(nx - 4, ny - 13), c_txt, tostring(i))
+        dl:AddText(imgui.ImVec2(nx - 20, ny + 1), is_sel and c_txt or c_txt_dim, encodeCp1251Safe(short_lbl))
+
+        imgui.SetCursorScreenPos(imgui.ImVec2(nx - 21, ny - 21))
+        if imgui.InvisibleButton("##p9_wheel_node_" .. i, imgui.ImVec2(42, 42)) then
+            P9_loadRadialEditorSlot(i)
+        end
+    end
+
+    dl:AddText(imgui.ImVec2(cx - 14, cy - 14), c_txt, u8"СКМ")
+    dl:AddText(imgui.ImVec2(cx - 18, cy + 2), c_sel_ring, u8"Слот #" .. tostring(P9.radial_sel))
+    imgui.SetCursorScreenPos(p0)
+    imgui.Dummy(imgui.ImVec2(272, 296))
+    imgui.EndChild()
+
+    imgui.SameLine()
+
+    -- Правая панель: редактор выбранного слота
+    imgui.BeginChild("##p9_rad_right", imgui.ImVec2(0, 316), true)
+    imgui.TextUnformatted(u8"Выбор слота (1-8):")
+    for i = 1, 8 do
+        if i > 1 then imgui.SameLine() end
+        local sel = (P9.radial_sel == i)
+        if sel then imgui.PushStyleColor(imgui.Col.Button, imgui.ImVec4(0.18, 0.52, 0.86, 1.0)) end
+        if imgui.SmallButton(tostring(i) .. "##p9_rsel_" .. i) then
+            P9_loadRadialEditorSlot(i)
+        end
+        if sel then imgui.PopStyleColor() end
+    end
+    imgui.Separator()
+    imgui.Spacing()
+
+    local cur_sl = P9.radial_slots[P9.radial_sel] or {}
+    imgui.PushItemWidth(220)
+    if imgui.InputText(u8"Название##p9_rlbl", P9.radial_label_buf, ffi.sizeof(P9.radial_label_buf)) then
+        P9_saveRadialEditorSlot()
+    end
+
+    local type_items = u8"Команда чата" .. "\0" .. u8"РП-сценарий" .. "\0" .. u8"Действие фракции" .. "\0" .. u8"Локальная инфо" .. "\0"
+    if imgui.ComboStr(u8"Тип##p9_rtype", P9.radial_type_idx, type_items) then
+        P9_saveRadialEditorSlot()
+    end
+    imgui.PopItemWidth()
+
+    local kind_idx = P9.radial_type_idx[0]
+    if kind_idx == 1 then
+        -- Выбор RP-сценария из rp_settings.set
+        local ch_items = u8"Общие" .. "\0" .. u8"Мои отыгровки" .. "\0" .. u8"Для цели" .. "\0"
+        imgui.PushItemWidth(145)
+        if imgui.ComboStr(u8"Глава##p9_rrp_ch", P9.radial_rp_ch, ch_items) then
+            P9.radial_rp_idx[0] = 0
+            P9_saveRadialEditorSlot()
+        end
+        imgui.PopItemWidth()
+
+        local ch = math.max(1, math.min(3, P9.radial_rp_ch[0] + 1))
+        local list = (rp_settings and rp_settings.set and rp_settings.set[ch]) or {}
+        if P9.radial_rp_idx[0] >= #list then P9.radial_rp_idx[0] = 0 end
+        local rp_item = list[P9.radial_rp_idx[0] + 1]
+        local rp_preview = rp_item and encodeCp1251Safe(rp_item.name ~= "" and rp_item.name or ("#" .. (P9.radial_rp_idx[0] + 1))) or u8"(пусто)"
+
+        imgui.SameLine()
+        imgui.PushItemWidth(175)
+        if imgui.BeginCombo(u8"Скрипт##p9_rrp_it", rp_preview) then
+            for ridx, rp in ipairs(list) do
+                local rname = encodeCp1251Safe(rp.name ~= "" and rp.name or ("#" .. ridx))
+                if imgui.Selectable(rname .. "##p9_rrp_pick_" .. ridx, P9.radial_rp_idx[0] == (ridx - 1)) then
+                    P9.radial_rp_idx[0] = ridx - 1
+                    safeStrCopy(P9.radial_payload_buf, tostring(ch) .. ":" .. tostring(ridx), ffi.sizeof(P9.radial_payload_buf))
+                    if decodeUtf8Safe(ffi.string(P9.radial_label_buf)) == "" and rp.name and rp.name ~= "" then
+                        safeStrCopy(P9.radial_label_buf, encodeCp1251Safe(rp.name:sub(1, 24)), ffi.sizeof(P9.radial_label_buf))
+                    end
+                    P9_saveRadialEditorSlot()
+                end
+            end
+            imgui.EndCombo()
+        end
+        imgui.PopItemWidth()
+    elseif kind_idx == 2 then
+        imgui.TextUnformatted(u8"Быстрые действия фракции:")
+        local fac_presets = {
+            { lbl = "/post", pay = "/post" },
+            { lbl = "/chs", pay = "/chs" },
+            { lbl = "/patrol", pay = "/patrol" },
+            { lbl = "/suw", pay = "/suw" },
+            { lbl = "/medui", pay = "/medui" },
+        }
+        for fi, fp in ipairs(fac_presets) do
+            if fi > 1 then imgui.SameLine() end
+            if imgui.SmallButton(fp.lbl .. "##p9_rfp_" .. fi) then
+                safeStrCopy(P9.radial_payload_buf, fp.pay, ffi.sizeof(P9.radial_payload_buf))
+                P9_saveRadialEditorSlot()
+            end
+        end
+    end
+
+    imgui.PushItemWidth(-1)
+    if imgui.InputText(u8"Содержимое / команда##p9_rpay", P9.radial_payload_buf, ffi.sizeof(P9.radial_payload_buf)) then
+        P9_saveRadialEditorSlot()
+    end
+    imgui.PopItemWidth()
+
+    local fac_items = u8"Все фракции (all)" .. "\0" .. u8"МО Армия (mo)" .. "\0" .. u8"МВД / ФБР (mvd)" .. "\0" .. u8"МЗ Больница (mz)" .. "\0" .. u8"СМИ (smi)" .. "\0" .. u8"Мэрия (gov)" .. "\0" .. u8"Крайм (crime)" .. "\0" .. u8"Гражданский (civ)" .. "\0"
+    imgui.PushItemWidth(220)
+    if imgui.ComboStr(u8"Фракция##p9_rfac", P9.radial_fac_idx, fac_items) then
+        P9_saveRadialEditorSlot()
+    end
+    imgui.PopItemWidth()
+
+    imgui.Spacing()
+    if imgui.Button(u8"Тест без чата##p9_rad_dry", imgui.ImVec2(140, 26)) then
+        local sl_copy = {
+            label = cur_sl.label or "",
+            kind = cur_sl.kind or "cmd",
+            payload = cur_sl.payload or "",
+            rp_chapter = cur_sl.rp_chapter or 1,
+            rp_index = cur_sl.rp_index or 1,
+        }
+        queueTask(function()
+            local lines = {}
+            if sl_copy.kind == "rp" then
+                local ch = tonumber(sl_copy.rp_chapter) or 1
+                local idx = tonumber(sl_copy.rp_index) or 1
+                local list = (rp_settings and rp_settings.set and rp_settings.set[ch]) or {}
+                local rp = list[idx]
+                if rp and type(rp.text) == "string" and rp.text ~= "" then
+                    lines = rp.text
+                else
+                    lines = { sl_copy.payload }
+                end
+            else
+                lines = { sl_copy.payload }
+            end
+            P9_dryRunLines(lines, "Колесо #" .. tostring(P9.radial_sel) .. " (" .. tostring(sl_copy.label) .. ")")
+        end)
+    end
+    imgui.SameLine()
+    if imgui.Button(u8"Сбросить колесо##p9_rad_rst", imgui.ImVec2(140, 26)) then
+        P9_initDefaultRadialSlots(true)
+        P9_loadRadialEditorSlot(P9.radial_sel)
+        P9_syncRadialToP2()
+    end
+    imgui.EndChild()
+end
+
+-- ============================================================================
+-- /stoprp: Универсальная мгновенная остановка всех РП-потоков и очередей
+-- ============================================================================
+
+function P9_stopAllRp(silent)
+    P9.rp_cancel_seq = (P9.rp_cancel_seq or 0) + 1
+
+    if type(stopRp) == "function" then
+        pcall(stopRp)
+    end
+    if rp_settings then
+        if rp_settings.active then rp_settings.active[0] = false end
+        rp_settings.wait = false
+        if rp_settings.window then rp_settings.window.is = -1 end
+    end
+
+    if type(P3_stopLecturer) == "function" then
+        pcall(P3_stopLecturer)
+    end
+
+    if P8 then
+        P8.rp_pending = {}
+        P8.rp_bypass_once = false
+    end
+
+    if type(rp_sending_internal) ~= "nil" then
+        rp_sending_internal = false
+    end
+
+    if type(scheduled_tasks) == "table" and #scheduled_tasks > 0 then
+        local kept = {}
+        for i = 1, #scheduled_tasks do
+            local item = scheduled_tasks[i]
+            if item and not item.is_rp then
+                kept[#kept + 1] = item
+            end
+        end
+        scheduled_tasks = kept
+    end
+
+    if not silent then
+        if isSampAvailable() then
+            sampAddChatMessage("[Helper] Все РП-отыгровки, лектор и очереди РП остановлены (/stoprp).", 0xFFAA00)
+        end
+        if type(P9_pushIslandToast) == "function" then
+            pcall(P9_pushIslandToast, "РП остановлено (/stoprp)", { 1.0, 0.65, 0.2, 1.0 }, 3.0)
+        end
+    end
+end
+
+-- ============================================================================
+-- Dry-Run тестер («Тест без чата»): локальный предпросмотр строк без sampSendChat
+-- ============================================================================
+
+function P9_expandFallbackTags(line)
+    local out = tostring(line or "")
+    if type(P9_applyProfileTags) == "function" then
+        local ok_t, res_t = pcall(P9_applyProfileTags, out)
+        if ok_t and type(res_t) == "string" then
+            out = res_t
+        end
+    else
+        local prof = P9 and P9.profile or {}
+        local full = (user and user.fullName) or ""
+        local nm = (prof.name and ffi.string and prof.name ~= "") and decodeUtf8Safe(ffi.string(prof.name)) or ""
+        local sn = (prof.surname and ffi.string and prof.surname ~= "") and decodeUtf8Safe(ffi.string(prof.surname)) or ""
+        if nm == "" and full ~= "" then nm = full:match("^(%S+)") or "" end
+        if sn == "" and full ~= "" then sn = full:match("^%S+%s+(.+)$") or "" end
+        local fn = (nm ~= "" or sn ~= "") and ((nm .. " " .. sn):gsub("^%s+", ""):gsub("%s+$", "")) or full
+        local rk = (user and user.rangName) or (P8 and P8.faction_ctx and P8.faction_ctx.rank_name) or ""
+        local sd = (user and user.podr) or (P8 and P8.faction_ctx and P8.faction_ctx.sub_division) or ""
+        out = out:gsub("{name}", tostring(nm):gsub("%%", "%%%%"))
+        out = out:gsub("{surname}", tostring(sn):gsub("%%", "%%%%"))
+        out = out:gsub("{fullname}", tostring(fn):gsub("%%", "%%%%"))
+        out = out:gsub("{rank}", tostring(rk):gsub("%%", "%%%%"))
+        out = out:gsub("{subdiv}", tostring(sd):gsub("%%", "%%%%"))
+        out = out:gsub("{callsign}", tostring(decodeUtf8Safe(P7 and P7.patrol_callsign_buf and ffi.string(P7.patrol_callsign_buf) or "")):gsub("%%", "%%%%"))
+        out = out:gsub("{badge}", "001")
+        out = out:gsub("{ended}", "")
+    end
+    if user then
+        out = out:gsub("<myFio>", tostring(user.fullName or ""):gsub("%%", "%%%%"))
+        out = out:gsub("<myName>", tostring(user.name or ""):gsub("%%", "%%%%"))
+        out = out:gsub("<myRang>", tostring(user.rangName or ""):gsub("%%", "%%%%"))
+        out = out:gsub("<myPodr>", tostring(user.podr or ""):gsub("%%", "%%%%"))
+        out = out:gsub("<myId>", tostring(my_cached_id or 0))
+        out = out:gsub("<myPhone>", tostring(user.phone or ""):gsub("%%", "%%%%"))
+    end
+    out = out:gsub("<time>", os.date("%H:%M:%S"))
+    out = out:gsub("<date>", os.date("%d.%m.%Y"))
+    return out
+end
+
+function P9_dryRunLines(lines, source_label)
+    if not isSampAvailable() then return 0 end
+    local arr = {}
+    if type(lines) == "string" then
+        for ln in (lines .. "\n"):gmatch("(.-)\n") do
+            local clean = ln:gsub("\r", "")
+            if clean ~= "" then arr[#arr + 1] = clean end
+        end
+    elseif type(lines) == "table" then
+        for _, v in ipairs(lines) do
+            if type(v) == "string" then
+                for ln in (v .. "\n"):gmatch("(.-)\n") do
+                    local clean = ln:gsub("\r", "")
+                    if clean ~= "" then arr[#arr + 1] = clean end
+                end
+            end
+        end
+    end
+
+    local src_tag = (type(source_label) == "string" and source_label ~= "") and (" [" .. source_label .. "]") or ""
+    if #arr == 0 then
+        sampAddChatMessage("[ТЕСТ БЕЗ ЧАТА]" .. src_tag .. " (пусто — нет строк для вывода)", 0x70D6FF)
+        return 0
+    end
+
+    sampAddChatMessage("[ТЕСТ БЕЗ ЧАТА]" .. src_tag .. " --- Предпросмотр (" .. #arr .. " строк, в чат не отправляется) ---", 0x70D6FF)
+    local shown = 0
+    for _, raw_line in ipairs(arr) do
+        local ms = raw_line:match("^<(%d+)>$")
+        if ms then
+            sampAddChatMessage("[ТЕСТ БЕЗ ЧАТА]   (пауза " .. ms .. " мс)", 0x70D6FF)
+        elseif raw_line:find("^#input:") or raw_line:find("^#list:") or raw_line:find("^#close:") then
+            sampAddChatMessage("[ТЕСТ БЕЗ ЧАТА]   (интерактив: " .. raw_line .. ")", 0x70D6FF)
+        else
+            local expanded = P9_expandFallbackTags(raw_line)
+            sampAddChatMessage("[ТЕСТ БЕЗ ЧАТА] " .. expanded, 0x70D6FF)
+            shown = shown + 1
+        end
+    end
+    return shown
+end
+
+function P9_dryRunKeybind(bind)
+    if type(bind) ~= "table" then return end
+    local title = tostring(bind.name or "Бинд")
+    if bind.action_type == "rp" then
+        local ch = (rp_settings and rp_settings.set and rp_settings.set[bind.rp_chapter or 1]) or {}
+        local rp = ch[bind.rp_index or 1]
+        if rp and type(rp.text) == "string" then
+            P9_dryRunLines(rp.text, "Бинд: " .. title)
+        else
+            P9_dryRunLines({}, "Бинд: " .. title)
+        end
+    else
+        P9_dryRunLines({ tostring(bind.command or "") }, "Бинд: " .. title)
+    end
+end
+
+function P9_dryRunPatrolSample()
+    local cs = (P7 and P7.patrol_callsign_buf) and decodeUtf8Safe(ffi.string(P7.patrol_callsign_buf)):gsub("^%s+", ""):gsub("%s+$", "") or ""
+    if cs == "" then cs = "А-1" end
+    local post = (P7 and P7.patrol_post_buf) and decodeUtf8Safe(ffi.string(P7.patrol_post_buf)):gsub("^%s+", ""):gsub("%s+$", "") or ""
+    if post == "" then post = "Патруль" end
+    local chan = (type(P7_patrolChanCmd) == "function") and P7_patrolChanCmd() or "/r"
+    local ok_pos, px, py = pcall(getCharCoordinates, PLAYER_PED)
+    local z_txt = (ok_pos and type(px) == "number" and type(P7_getSanAndreasZone) == "function")
+        and (" | Район: " .. P7_getSanAndreasZone(px, py)) or " | Район: Округ SA"
+    local line = (chan .. " [" .. cs .. "] Доклад: " .. post .. z_txt .. ". Состояние: стабильное."):sub(1, 128)
+    P9_dryRunLines({ line }, "Патруль МВД (P7)")
+end
+
+function P9_dryRunArmyPostSample()
+    local tpl = (P8 and P8.army and P8.army.post_tpl) and decodeUtf8Safe(ffi.string(P8.army.post_tpl)):gsub("^%s+", ""):gsub("%s+$", "") or ""
+    if tpl == "" then
+        tpl = "[{tag}] Докладывает пост: {post}. Состояние: {code}. Состав: {crew}. Район: {zone}."
+    end
+    local ok_p, px, py = pcall(getCharCoordinates, PLAYER_PED)
+    local z_txt = (ok_p and type(px) == "number" and type(P7_getSanAndreasZone) == "function")
+        and P7_getSanAndreasZone(px, py) or "База"
+    local body = (type(P8_formatArmyReport) == "function") and P8_formatArmyReport(tpl, z_txt) or tpl
+    local line = ("/r " .. body):sub(1, 128)
+    P9_dryRunLines({ line }, "Пост МО (P8)")
+end
+
+function P9_drawDryRunButton(id_suffix, source_label, text_or_fn, btn_label)
+    local lbl = (type(btn_label) == "string" and btn_label ~= "") and btn_label or u8"Тест без чата"
+    if imgui.SmallButton(lbl .. "##p9_dry_" .. tostring(id_suffix)) then
+        local src_lbl = source_label
+        local payload = text_or_fn
+        queueTask(function()
+            local resolved = (type(payload) == "function") and payload() or payload
+            P9_dryRunLines(resolved, src_lbl)
+        end)
+    end
+end
+
+function P9_drawKeybindDryRunBtn(bind_idx, bind)
+    if type(bind) ~= "table" then return end
+    if imgui.SmallButton(u8"Тест##p9_kbdry_" .. tostring(bind_idx)) then
+        local b_copy = {
+            name = bind.name,
+            action_type = bind.action_type,
+            rp_chapter = bind.rp_chapter,
+            rp_index = bind.rp_index,
+            command = bind.command,
+        }
+        queueTask(function() P9_dryRunKeybind(b_copy) end)
+    end
+end
+
+function P9_drawRpDryRunBtn(id_suffix, text_str)
+    P9_drawDryRunButton("rp_" .. tostring(id_suffix), "РП-движок", text_str, u8"Тест без чата")
+end
+
+function P9_drawPatrolDryRunBtn()
+    if imgui.SmallButton(u8"Тест доклада без чата##p9_pat_dry") then
+        queueTask(P9_dryRunPatrolSample)
+    end
+end
+
+function P9_drawArmyPostDryRunBtn()
+    if imgui.SmallButton(u8"Тест доклада без чата##p9_arm_dry") then
+        queueTask(P9_dryRunArmyPostSample)
+    end
+end
+
+-- ============================================================================
+-- Авто-скриншот после доклада патруля (P7) и поста МО (P8) (по умолчанию ВЫКЛ)
+-- ============================================================================
+
+function P9_autoSsAfterReport()
+    if not P9.auto_ss_reports then return end
+    if not isSampAvailable() then return end
+    local now_c = os.clock()
+    if (now_c - (P9.auto_ss_last_ts or 0)) < 1.5 then return end
+    P9.auto_ss_last_ts = now_c
+
+    local delay_ms = math.max(300, math.min(3000, math.floor(tonumber(P9.auto_ss_delay_ms and P9.auto_ss_delay_ms[0]) or 900)))
+    local send_c60 = (P9.auto_ss_c60 == true)
+
+    local function pressF8()
+        if not isSampAvailable() then return end
+        pcall(setVirtualKeyDown, 0x77, true)
+        scheduleTask(80, function()
+            pcall(setVirtualKeyDown, 0x77, false)
+        end)
+    end
+
+    if send_c60 then
+        scheduleTask(350, function()
+            if not isSampAvailable() then return end
+            sampSendChat("/c 60")
+            scheduleTask(delay_ms, pressF8)
+        end)
+    else
+        scheduleTask(delay_ms, pressF8)
+    end
+end
+
+function P9_drawAutoSsSettings(id_suffix)
+    local sfx = tostring(id_suffix or "p9")
+    P9.auto_ss_reports_buf[0] = (P9.auto_ss_reports == true)
+    if imgui.Checkbox(u8"Авто-скрин (F8) после доклада##p9_ass_" .. sfx, P9.auto_ss_reports_buf) then
+        P9.auto_ss_reports = P9.auto_ss_reports_buf[0]
+        if type(requestSaveSettings) == "function" then requestSaveSettings() end
+    end
+    if P9.auto_ss_reports then
+        P9.auto_ss_c60_buf[0] = (P9.auto_ss_c60 ~= false)
+        imgui.SameLine()
+        if imgui.Checkbox(u8"Отправлять /c 60##p9_ac60_" .. sfx, P9.auto_ss_c60_buf) then
+            P9.auto_ss_c60 = P9.auto_ss_c60_buf[0]
+            if type(requestSaveSettings) == "function" then requestSaveSettings() end
+        end
+        imgui.PushItemWidth(170)
+        if imgui.SliderInt(u8"Задержка F8 (мс)##p9_ass_d_" .. sfx, P9.auto_ss_delay_ms, 300, 3000) then
+            if type(requestSaveSettings) == "function" then requestSaveSettings() end
+        end
+        imgui.PopItemWidth()
+    end
+end
+
+-- ============================================================================
+-- /hexit: Безопасное сохранение и мягкая выгрузка скрипта
+-- ============================================================================
+
+function P9_softUnload()
+    if P9.unload_scheduled then return end
+    P9.unload_scheduled = true
+
+    P9_stopAllRp(true)
+    if cam_active and type(P5_exitFreeCam) == "function" then pcall(P5_exitFreeCam) end
+    if gnews_active and type(stopGnews) == "function" then pcall(stopGnews) end
+    call_active = false
+    call_worker_running = false
+    aad_active = false
+    aad_next_scheduled = false
+
+    if settings_dirty then settings_dirty = false; if type(saveSettings) == "function" then pcall(saveSettings) end end
+    if db_dirty then db_dirty = false; if type(saveDatabase) == "function" then pcall(saveDatabase) end end
+    if rules_dirty then rules_dirty = false; if type(saveRules) == "function" then pcall(saveRules) end end
+    if corrections_dirty then corrections_dirty = false; if type(saveCorrections) == "function" then pcall(saveCorrections) end end
+    if ad_history_dirty then ad_history_dirty = false; if type(saveAdHistory) == "function" then pcall(saveAdHistory) end end
+    if rp_settings_dirty then rp_settings_dirty = false; if type(saveRpSettings) == "function" then pcall(saveRpSettings) end end
+    if blacklist_dirty then blacklist_dirty = false; if type(saveBlacklist) == "function" then pcall(saveBlacklist) end end
+    if P9 and P9.bl and P9.bl.dirty and type(P9_saveFactionBl) == "function" then P9.bl.dirty = false; pcall(P9_saveFactionBl) end
+    if P9 and P9.laws and P9.laws.dirty and type(P9_saveServerLaws) == "function" then P9.laws.dirty = false; pcall(P9_saveServerLaws) end
+    if P4_codex and type(P4_saveCodex) == "function" then pcall(P4_saveCodex) end
+    if P7 and P7.market_dirty and type(P7_saveMarket) == "function" then P7.market_dirty = false; pcall(P7_saveMarket) end
+    if P3 and P3.lecturer_loaded and type(P3_saveLecturer) == "function" then pcall(P3_saveLecturer) end
+    if P6_loc_registry and type(P6_saveLocations) == "function" then pcall(P6_saveLocations) end
+
+    if isSampAvailable() then
+        sampAddChatMessage("[Helper] Настройки сохранены, скрипт выгружается...", 0x00FF90)
+    end
+
+    scheduleTask(150, function()
+        pcall(function()
+            if type(thisScript) == "function" then
+                local scr = thisScript()
+                if scr and type(scr.unload) == "function" then
+                    scr:unload()
+                end
+            end
+        end)
+    end)
+end
+
+function P9_drawSoftUnloadButton(id_suffix)
+    if imgui.Button(u8"Выгрузить скрипт (/hexit)##p9_hexit_" .. tostring(id_suffix or "ui"), imgui.ImVec2(205, 26)) then
+        queueTask(P9_softUnload)
+    end
 end
 
 function P5_cleanImportValue(val, depth, state)
@@ -14630,7 +18666,7 @@ end
 end
 
 sampAddChatMessage("Helper Core " .. SCRIPT_VERSION .. " загружен. Меню: F11", 0x00FF00)
-sampAddChatMessage("Стробы: J/N | Круиз: C | /hud, /wp, /quiz, /price, /patrol, /loc, /cam, /calc | Меню: F11", 0xFFFFFF)
+sampAddChatMessage("Стробы: J/N | Круиз: C | /laws, /island, /stoprp, /patrol, /post, /loc, /price, /hexit | Меню: F11", 0xFFFFFF)
 
 -- Регистрируем команду открытия меню
 
@@ -14895,6 +18931,16 @@ end
 sampRegisterChatCommand('army', function() P8_openModuleById('army_tools') end)
 sampRegisterChatCommand('post', function() P8_sendArmyPostReport() end)
 sampRegisterChatCommand('chs', function(arg) P8_sendArmyAlarm(arg) end)
+sampRegisterChatCommand('island', function()
+    if type(P9_toggleIslandCmd) == "function" then P9_toggleIslandCmd() end
+end)
+sampRegisterChatCommand('laws', P9_cmdLaws)
+sampRegisterChatCommand('sus', function(arg) P4_openSuMenu(arg) end)
+sampRegisterChatCommand('ticket', P9_cmdTicket)
+sampRegisterChatCommand('takelic', P9_cmdTakelic)
+sampRegisterChatCommand('bl', P9_cmdBl)
+sampRegisterChatCommand('stoprp', function() P9_stopAllRp(false) end)
+sampRegisterChatCommand('hexit', function() P9_softUnload() end)
 sampRegisterChatCommand('tvlf', cmdTvlift)
 sampRegisterChatCommand('uninv', cmdUninvite)
 sampRegisterChatCommand('mmefir', cmdEfir)
@@ -15143,6 +19189,7 @@ if hud_now ~= hud_cache.last_update then
     P5_tickSession1s()
     if type(P7_tickPatrol1s) == "function" then P7_tickPatrol1s() end
     if type(P8_tick) == "function" then P8_tick() end
+    if type(P9_tick) == "function" then P9_tick() end
     if finance_enabled[0] and isSampAvailable() then
         local ok_m, cur_m = pcall(getPlayerMoney, PLAYER_HANDLE)
         if ok_m and type(cur_m) == "number" then
@@ -17662,6 +21709,8 @@ imgui.OnFrame(
                 local testText = decodeUtf8Safe(ffi.string(rp_settings.temp.text))
                 queueTask(function() playRp(testText, true) end)
             end
+            imgui.SameLine()
+            if type(P9_drawRpDryRunBtn) == "function" then P9_drawRpDryRunBtn("ed", decodeUtf8Safe(ffi.string(rp_settings.temp.text))) end
         else
             imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.5, 0.5, 0.5, 1))
             imgui.TextUnformatted(u8"Выберите отыгровку слева или нажмите '+ Добавить'")
@@ -18155,6 +22204,66 @@ local hud_f = imgui.OnFrame(
 hud_f.HideCursor = true
 end
 
+-- ФАЗА 9 (v4.0): Dynamic Island HUD (верхняя пилюля + тосты + радар)
+do
+local p9_island_f = imgui.OnFrame(
+    function() return P9 and P9.island_enabled and P9.island_enabled[0] end,
+    function()
+        local display = imgui.GetIO().DisplaySize
+        imgui.SetNextWindowPos(imgui.ImVec2(display.x * 0.5, 10), imgui.Cond.Always, imgui.ImVec2(0.5, 0.0))
+        local isl_flags = imgui.WindowFlags.NoTitleBar + imgui.WindowFlags.NoResize + imgui.WindowFlags.NoMove + imgui.WindowFlags.AlwaysAutoResize + imgui.WindowFlags.NoSavedSettings
+        if not show_main_window[0] then
+            isl_flags = isl_flags + imgui.WindowFlags.NoInputs
+        end
+        imgui.PushStyleVarFloat(imgui.StyleVar.WindowRounding, 14.0)
+        imgui.Begin("##p9_dynamic_island", nil, isl_flags)
+
+        local z_txt = (P9.island and P9.island.zone_str ~= "") and P9.island.zone_str or "San Andreas (—)"
+        local pd_txt = (hud_cache and hud_cache.payday_str ~= "") and hud_cache.payday_str or "00м 00с"
+
+        imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.88, 0.96, 1.0, 1.0))
+        imgui.TextUnformatted(encodeCp1251Safe(z_txt))
+        imgui.PopStyleColor()
+
+        imgui.SameLine()
+        imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.55, 0.85, 0.95, 1.0))
+        imgui.TextUnformatted("| PayDay: " .. encodeCp1251Safe(pd_txt))
+        imgui.PopStyleColor()
+
+        if P9.island and P9.island.status_str ~= "" then
+            local sc = P9.island.status_col or { 0.45, 0.90, 1.0, 1.0 }
+            imgui.SameLine()
+            imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(sc[1] or 0.45, sc[2] or 0.9, sc[3] or 1.0, sc[4] or 1.0))
+            imgui.TextUnformatted("| " .. encodeCp1251Safe(P9.island.status_str))
+            imgui.PopStyleColor()
+        end
+
+        if P9.prox_enabled and P9.prox_enabled[0] then
+            imgui.SameLine()
+            imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.45, 1.0, 0.65, 1.0))
+            imgui.TextUnformatted(u8"[Радар]")
+            imgui.PopStyleColor()
+        end
+
+        if P9.island and type(P9.island.toasts) == "table" and #P9.island.toasts > 0 then
+            local now_clk = os.clock()
+            for _, toast in ipairs(P9.island.toasts) do
+                if (toast.expires_at or 0) >= now_clk then
+                    local tc = toast.col or { 0.45, 0.90, 1.0, 1.0 }
+                    imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(tc[1] or 0.45, tc[2] or 0.9, tc[3] or 1.0, tc[4] or 1.0))
+                    imgui.TextUnformatted(encodeCp1251Safe(toast.text))
+                    imgui.PopStyleColor()
+                end
+            end
+        end
+
+        imgui.End()
+        imgui.PopStyleVar()
+    end
+)
+p9_island_f.HideCursor = true
+end
+
 -- Меню взаимодействия с игроком по прицелу (ПКМ + X)
 imgui.OnFrame(
     function() return target_menu_show[0] end,
@@ -18446,6 +22555,11 @@ imgui.OnFrame(
             end
         end
 
+        if type(P9_drawWheelCustomSlots) == "function" then
+            imgui.Separator()
+            P9_drawWheelCustomSlots()
+        end
+
         imgui.Separator()
         local fac = selected_faction and selected_faction[0] or 0
         imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.4, 0.85, 1.0, 1.0))
@@ -18653,115 +22767,8 @@ imgui.OnFrame(
         imgui.SetNextWindowPos(imgui.ImVec2(display.x / 2, display.y / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
         imgui.Begin(u8"МВД: Розыск, Штрафы и Мегафон (/suw)##p4_suw_win", suw_show, imgui.WindowFlags.NoCollapse)
 
-        imgui.PushItemWidth(110)
-        imgui.InputInt(u8"ID цели##suw_tid", suw_target_id)
-        if suw_target_id[0] < 0 then suw_target_id[0] = 0 end
-        if suw_target_id[0] > 1004 then suw_target_id[0] = 1004 end
-        imgui.PopItemWidth()
-        local tid = suw_target_id[0]
-        local tnick = online_ids_to_nicks and online_ids_to_nicks[tid]
-        if tid == my_cached_id and my_cached_nick ~= "" then tnick = my_cached_nick end
-        imgui.SameLine()
-        if tnick and tnick ~= "" then
-            imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.4, 1.0, 0.55, 1))
-            imgui.TextUnformatted(encodeCp1251Safe(tnick))
-            imgui.PopStyleColor()
-        else
-            imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.65, 0.65, 0.65, 1))
-            imgui.TextUnformatted(u8"(ник не в кэше / проверьте ID)")
-            imgui.PopStyleColor()
-        end
-        imgui.SameLine()
-        imgui.Checkbox(u8"РП-отыгровка##suw_rp_chk", suw_use_rp)
-
-        imgui.PushItemWidth(300)
-        imgui.InputText(u8"Поиск по статье / слову##suw_search", suw_search_buf, ffi.sizeof(suw_search_buf))
-        imgui.PopItemWidth()
-        imgui.SameLine()
-        if imgui.SmallButton(u8"X##suw_clr_q") then
-            safeStrCopy(suw_search_buf, "", ffi.sizeof(suw_search_buf))
-        end
-
-        if imgui.Button(u8"УК — Розыск (/su)##suw_t1", imgui.ImVec2(170, 24)) then suw_tab = 1 end
-        imgui.SameLine()
-        if imgui.Button(u8"АК — Штрафы (/ticket)##suw_t2", imgui.ImVec2(170, 24)) then suw_tab = 2 end
-        imgui.SameLine()
-        imgui.TextUnformatted(encodeCp1251Safe("[" .. (P4_codex.server_name or "Blue") .. "]"))
-
-        local q = cp1251_lower(P4_sanitizeStr(decodeUtf8Safe(ffi.string(suw_search_buf)), 64))
-        local do_rp = suw_use_rp[0]
-
-        imgui.BeginChild("##suw_articles", imgui.ImVec2(0, 215), true)
-        local shown = 0
-        if suw_tab == 1 then
-            for idx, art in ipairs(P4_codex.uk) do
-                local hay = cp1251_lower(art.code .. " " .. art.title)
-                if q == "" or hay:find(q, 1, true) then
-                    shown = shown + 1
-                    if imgui.SmallButton(u8"Выдать##suw_u_" .. idx) then
-                        local p = tid
-                        local st = art.stars or 1
-                        local rsn = art.code:find("УК") and art.code or (art.code .. " УК")
-                        local rp = do_rp and art.rp or nil
-                        queueTask(function() P4_issueWanted(p, st, rsn, rp) end)
-                    end
-                    imgui.SameLine()
-                    imgui.TextUnformatted(encodeCp1251Safe("[" .. art.code .. "] " .. art.title .. " (" .. tostring(art.stars) .. " зв.)"))
-                end
-            end
-        else
-            for idx, art in ipairs(P4_codex.ak) do
-                local hay = cp1251_lower(art.code .. " " .. art.title)
-                if q == "" or hay:find(q, 1, true) then
-                    shown = shown + 1
-                    if imgui.SmallButton(u8"Штраф##suw_a_" .. idx) then
-                        local p = tid
-                        local fn = art.fine or 1500
-                        local rsn = art.code:find("АК") and art.code or (art.code .. " АК")
-                        local rp = do_rp and art.rp or nil
-                        queueTask(function() P4_issueTicket(p, fn, rsn, rp) end)
-                    end
-                    imgui.SameLine()
-                    imgui.TextUnformatted(encodeCp1251Safe("[" .. art.code .. "] " .. art.title .. " (" .. tostring(art.fine) .. "$)"))
-                end
-            end
-        end
-        if shown == 0 then
-            imgui.TextUnformatted(u8"Подходящих статей не найдено.")
-        end
-        imgui.EndChild()
-
-        imgui.Separator()
-        imgui.TextUnformatted(u8"Быстрый произвольный /su:")
-        imgui.PushItemWidth(110)
-        imgui.SliderInt(u8"Зв.##suw_cst", suw_custom_stars, 1, 6)
-        imgui.PopItemWidth()
-        imgui.SameLine()
-        imgui.PushItemWidth(220)
-        imgui.InputText(u8"Причина##suw_crs", suw_custom_reason, ffi.sizeof(suw_custom_reason))
-        imgui.PopItemWidth()
-        imgui.SameLine()
-        if imgui.Button(u8"Выдать /su##suw_cs_go", imgui.ImVec2(100, 22)) then
-            local p = tid
-            local st = suw_custom_stars[0]
-            local rsn = P4_sanitizeStr(decodeUtf8Safe(ffi.string(suw_custom_reason)), 64)
-            local rp = do_rp and "/me открыл бортовой компьютер и объявил гражданина в розыск" or nil
-            queueTask(function() P4_issueWanted(p, st, rsn, rp) end)
-        end
-
-        imgui.Separator()
-        imgui.TextUnformatted(u8"Полицейский мегафон (/m):")
-        for mi, mline in ipairs(P4_megaphone_lines) do
-            if mi > 1 then imgui.SameLine() end
-            if imgui.Button(u8"/m " .. mi .. "##suw_m_" .. mi, imgui.ImVec2(75, 22)) then
-                local midx = mi
-                queueTask(function() P4_sendMegaphone(midx) end)
-            end
-            if imgui.IsItemHovered() then
-                imgui.BeginTooltip()
-                imgui.TextUnformatted(encodeCp1251Safe(mline))
-                imgui.EndTooltip()
-            end
+        if type(P9_drawSuwContent) == "function" then
+            P9_drawSuwContent()
         end
 
         imgui.Spacing()
@@ -18939,6 +22946,79 @@ imgui.OnFrame(
     end
 )
 
+-- ФАЗА 9 (v4.0): Плавающие окна /laws, /ticket, /takelic, /bl
+imgui.OnFrame(
+    function() return P9 and P9.laws and P9.laws.show and P9.laws.show[0] end,
+    function()
+        local display = imgui.GetIO().DisplaySize
+        imgui.SetNextWindowSize(imgui.ImVec2(760, 520), imgui.Cond.FirstUseEver)
+        imgui.SetNextWindowPos(imgui.ImVec2(display.x * 0.5, display.y * 0.5), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
+        imgui.Begin(u8"Кодексы, Уставы и Поиск (/laws)##p9_laws_win", P9.laws.show, imgui.WindowFlags.NoCollapse)
+        if type(P9_drawLawsWindow) == "function" then
+            P9_drawLawsWindow()
+        end
+        imgui.Spacing()
+        if imgui.Button(u8"Закрыть##p9_laws_close", imgui.ImVec2(110, 24)) then
+            P9.laws.show[0] = false
+        end
+        imgui.End()
+    end
+)
+
+imgui.OnFrame(
+    function() return P9 and P9.ticket_show and P9.ticket_show[0] end,
+    function()
+        local display = imgui.GetIO().DisplaySize
+        imgui.SetNextWindowSize(imgui.ImVec2(580, 440), imgui.Cond.FirstUseEver)
+        imgui.SetNextWindowPos(imgui.ImVec2(display.x * 0.52, display.y * 0.5), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
+        imgui.Begin(u8"Умные штрафы — ПДД и АК (/ticket)##p9_ticket_win", P9.ticket_show, imgui.WindowFlags.NoCollapse)
+        if type(P9_drawTicketWindow) == "function" then
+            P9_drawTicketWindow()
+        end
+        imgui.Spacing()
+        if imgui.Button(u8"Закрыть##p9_ticket_close", imgui.ImVec2(110, 24)) then
+            P9.ticket_show[0] = false
+        end
+        imgui.End()
+    end
+)
+
+imgui.OnFrame(
+    function() return P9 and P9.takelic_show and P9.takelic_show[0] end,
+    function()
+        local display = imgui.GetIO().DisplaySize
+        imgui.SetNextWindowSize(imgui.ImVec2(540, 380), imgui.Cond.FirstUseEver)
+        imgui.SetNextWindowPos(imgui.ImVec2(display.x * 0.48, display.y * 0.52), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
+        imgui.Begin(u8"Изъятие прав (/takelic)##p9_takelic_win", P9.takelic_show, imgui.WindowFlags.NoCollapse)
+        if type(P9_drawTakelicWindow) == "function" then
+            P9_drawTakelicWindow()
+        end
+        imgui.Spacing()
+        if imgui.Button(u8"Закрыть##p9_takelic_close", imgui.ImVec2(110, 24)) then
+            P9.takelic_show[0] = false
+        end
+        imgui.End()
+    end
+)
+
+imgui.OnFrame(
+    function() return P9 and P9.bl and P9.bl.show and P9.bl.show[0] end,
+    function()
+        local display = imgui.GetIO().DisplaySize
+        imgui.SetNextWindowSize(imgui.ImVec2(620, 450), imgui.Cond.FirstUseEver)
+        imgui.SetNextWindowPos(imgui.ImVec2(display.x * 0.5, display.y * 0.48), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
+        imgui.Begin(u8"Мульти-ЧС организаций (/bl)##p9_bl_win", P9.bl.show, imgui.WindowFlags.NoCollapse)
+        if type(P9_drawBlWindow) == "function" then
+            P9_drawBlWindow()
+        end
+        imgui.Spacing()
+        if imgui.Button(u8"Закрыть##p9_bl_close", imgui.ImVec2(110, 24)) then
+            P9.bl.show[0] = false
+        end
+        imgui.End()
+    end
+)
+
 function onScriptTerminate(script, quitGame)
     if script ~= thisScript() then return end
     if settings_dirty then settings_dirty = false; pcall(saveSettings) end
@@ -18949,6 +23029,7 @@ function onScriptTerminate(script, quitGame)
     if rp_settings_dirty then rp_settings_dirty = false; pcall(saveRpSettings) end
     if blacklist_dirty then blacklist_dirty = false; pcall(saveBlacklist) end
     if P7 and P7.market_dirty and type(P7_saveMarket) == "function" then P7.market_dirty = false; pcall(P7_saveMarket) end
+    if P9 and P9.bl and P9.bl.dirty and type(P9_saveFactionBl) == "function" then P9.bl.dirty = false; pcall(P9_saveFactionBl) end
     pcall(setGameKeyState, 16, 0)
     pcall(function()
         if isCharInAnyCar(PLAYER_PED) then

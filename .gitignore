@@ -1,5 +1,6 @@
 # Exclude scratch scripts, backups, and temporary files
 scratch/
+donor/
 *.log
 *.bak*
 *.tmp

@@ -1,4 +1,4 @@
-# Universal Helper Platform v3.0
+# Universal Helper Platform v4.0
 
 Universal game helper for **GTA San Andreas — SA-MP** (Advance RP servers).  
 Built on **MoonLoader** (Lua) with **mimgui** GUI, **SAMP.Lua** events, and **SAMPFUNCS**.
@@ -8,6 +8,13 @@ Built on **MoonLoader** (Lua) with **mimgui** GUI, **SAMP.Lua** events, and **SA
 ---
 
 ## Features
+
+### v4.0 — Home Dashboard, Dynamic Island, `/laws` Codex, Smart Police/Blacklist & Visual Radial Editor
+- **Home Dashboard (`dashboard`, default landing tab) & Unified Profile:** session telemetry, faction quick-actions, `ENV_CAPS` readiness badges, and shared character profile tags (`{name}`, `{surname}`, `{fullname}`, `{rank}`, `{callsign}`, `{subdiv}`, `{badge}`, `{ended}`) with live RP preview.
+- **Dynamic Island HUD (`/island`) & Opt-in Proximity Alerts:** rounded top status pill (SA zone, PayDay, active patrol/post timer, toast queue, `HideCursor` + `NoInputs`) plus opt-in (OFF by default) nearby friend/blacklist alerts.
+- **Structured `/laws` Codex, Offline Search & Opt-in BYOK AI:** Advance RP Blue codex/charters with **strict server isolation** (Red/Green/Lime/Chocolate load isolated `helper_laws_<server>.json`, never substituting Blue articles), large-font reader, offline scored search, and opt-in BYOK AI (OFF by default, RAM-only key, explicit network disclosure).
+- **Upgraded `/sus`, `/ticket` (PDD-first), `/takelic` & Multi-Faction Blacklist (`/bl`):** chaptered police UIs with tooltips, native `/ticket <id> <sum> <reason>` pass-through, local `helper_faction_bl.json` with opt-in URL sync (OFF by default).
+- **Visual Radial Wheel Editor, `/stoprp`, Dry-Run Tester, Auto-SS & `/hexit`:** 8-slot `ImDrawList` radial preview editor, universal `/stoprp` halt, local `[ТЕСТ БЕЗ ЧАТА]` dry-run preview, opt-in Auto-Screenshot after reports (OFF by default), and clean `/hexit` soft unload.
 
 ### Faction-Adaptive Platform, Army Module (`МО`) & Dependency Badges (`v3.0`)
 - **Faction-Adaptive UI (`F11` Header + Auto-Detect):** sidebar, quick-access top bar, MMB wheel, Target Menu (`RMB+X`), command guide, and `/hud` automatically tailor themselves for **Army / МО (`СВ` / `ВВС` / `ВМФ`)**, **MVD / FBI**, **Medic (`МЗ`)**, **News (`СМИ`)**, **Gov**, **Crime**, or **Civilian**, with a 1-click **"Show all modules"** toggle.

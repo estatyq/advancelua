@@ -8,6 +8,7 @@ import argparse
 import contextlib
 import hashlib
 import io
+import subprocess
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -527,6 +528,26 @@ def check_onframe_safety(src: str):
         "P8_drawCapabilityBanner",
         "P8_drawEnvDiagnostics",
         "P8_drawContextQuickBar",
+        "P9_drawOverviewTab",
+        "P9_drawProfileTab",
+        "P9_drawDashboardUI",
+        "P9_drawServerIsolationBanner",
+        "P9_drawSuwContent",
+        "P9_drawTicketWindow",
+        "P9_drawTakelicWindow",
+        "P9_drawBlWindow",
+        "P9_drawArticleJumpButtons",
+        "P9_drawLawsAiTab",
+        "P9_drawLawsWindow",
+        "P9_drawRadialEditorUI",
+        "P9_drawWheelCustomSlots",
+        "P9_drawDryRunButton",
+        "P9_drawKeybindDryRunBtn",
+        "P9_drawRpDryRunBtn",
+        "P9_drawPatrolDryRunBtn",
+        "P9_drawArmyPostDryRunBtn",
+        "P9_drawAutoSsSettings",
+        "P9_drawSoftUnloadButton",
         "drawGnewsSettings",
         "drawMmEditorSettings",
         "P2_drawWheelFavSelector",
@@ -538,9 +559,9 @@ def check_onframe_safety(src: str):
         assert m, f"UI draw function {fn_name} not found!"
         _assert_render_safe(extract_lua_block(src, m.start()), f"{fn_name}()")
 
-    # 3. Audit inline drawSettings closures inside modules (including vehicle_visuals & qol_tools)
+    # 3. Audit inline drawSettings closures inside modules (including dashboard, vehicle_visuals & qol_tools)
     audited_mods = []
-    for m_id in ("vehicle_visuals", "qol_tools", "autocall_db", "auto_ad", "auto_rp", "keybinds", "commands_guide", "rp_engine", "smi_tools", "lecturer", "faction_tools", "location_builder", "army_tools"):
+    for m_id in ("dashboard", "vehicle_visuals", "qol_tools", "autocall_db", "auto_ad", "auto_rp", "keybinds", "commands_guide", "rp_engine", "smi_tools", "lecturer", "faction_tools", "location_builder", "army_tools"):
         m_mod = re.search(rf'id\s*=\s*"{re.escape(m_id)}".*?drawSettings\s*=\s*(function\s*\()', src, re.S)
         assert m_mod, f"drawSettings closure missing for module {m_id!r}"
         _assert_render_safe(extract_lua_block(src, m_mod.start(1)), f"modules[{m_id}].drawSettings")
@@ -1055,12 +1076,12 @@ def test_v19_features(src: str):
 
 def test_v20_features(src: str):
     # 1. Version & README sync (checkGithubUpdates regex)
-    assert "local SCRIPT_VERSION = 'v3.0 (27.11.2026)'" in src
-    assert "local SCRIPT_VER_NUM = '3.0'" in src
+    assert "local SCRIPT_VERSION = 'v4.0 (28.11.2026)'" in src
+    assert "local SCRIPT_VER_NUM = '4.0'" in src
     for doc_name in ("README.md", "README_RU.md", "README_EN.md", "INSTRUCTION_RU.md"):
         doc_txt = (TARGET.parent / doc_name).read_text(encoding="utf-8")
         m_ver = re.search(r"Universal Helper Platform v(\d+\.\d+)", doc_txt)
-        assert m_ver and m_ver.group(1) == "3.0", f"{doc_name} header mismatch: {m_ver}"
+        assert m_ver and m_ver.group(1) == "4.0", f"{doc_name} header mismatch: {m_ver}"
 
     # 2. /find vs /gps dialog gating
     assert "sampRegisterChatCommand('find'" not in src and 'sampRegisterChatCommand("find"' not in src, "Must not shadow /find!"
@@ -1285,7 +1306,8 @@ def test_cross_phase_contracts(src: str):
     mod_tbl = src[pos_mod_start:mod_end]
     mod_ids = re.findall(r'id\s*=\s*"([^"]+)"', mod_tbl)
     draw_entries = re.findall(r"drawSettings\s*=\s*([^\n,]+)", mod_tbl)
-    assert len(mod_ids) == 15, f"Expected 15 modules, got {len(mod_ids)}: {mod_ids}"
+    assert len(mod_ids) == 16, f"Expected 16 modules, got {len(mod_ids)}: {mod_ids}"
+    assert mod_ids[0] == "dashboard", f"Expected 'dashboard' as first module, got {mod_ids[0]!r}"
     assert len(draw_entries) == len(mod_ids), f"drawSettings count mismatch: {len(draw_entries)} vs {len(mod_ids)}"
     assert all(d.strip() != "nil" and d.strip() != "" for d in draw_entries), f"Nil drawSettings found: {draw_entries}"
 
@@ -1293,7 +1315,7 @@ def test_cross_phase_contracts(src: str):
     for direct_fn in ("drawGnewsSettings", "drawMmEditorSettings"):
         pos_fn = src.find(f"function {direct_fn}(")
         assert 0 < pos_fn < pos_mod_start, f"{direct_fn} must be defined BEFORE modules table!"
-    for deferred_fn in ("P3_drawLecturerUI", "P4_drawFactionUI", "P6_drawLocationModuleSettings", "P8_drawArmyUI"):
+    for deferred_fn in ("P3_drawLecturerUI", "P4_drawFactionUI", "P6_drawLocationModuleSettings", "P8_drawArmyUI", "P9_drawDashboardUI"):
         m_def = re.search(rf"drawSettings\s*=\s*function\s*\(\).*?{re.escape(deferred_fn)}", mod_tbl, re.S)
         assert m_def, f"Module drawSettings for {deferred_fn} must wrap lookup in a closure!"
 
@@ -1472,7 +1494,7 @@ def build_snapshot(target: Path):
     sampev_hooks = []
     chat_cmds = []
     for idx, line in enumerate(lines, 1):
-        mp = re.match(r"^(P[2-8]|ENV_CAPS)\s*=", line)
+        mp = re.match(r"^(P[2-9]|ENV_CAPS)\s*=", line)
         if mp:
             phase_tables.append({"name": mp.group(1), "line": idx})
         ms = re.match(r"^\s*function\s+sampev\.(\w+)\s*\(", line)
@@ -1530,6 +1552,31 @@ def run_deploy_check(target: Path, deploy_path: Path):
     }
 
 
+def check_luajit_compile(target: Path):
+    """Run real LuaJIT loadfile() bytecode compile check when donor luajit.exe is present."""
+    luajit_exe = REPO_ROOT / "donor" / "moonloader" / "luajit" / "bin" / "luajit.exe"
+    if not luajit_exe.exists():
+        print("LuaJIT compile check skipped (donor/moonloader/luajit/bin/luajit.exe not found)")
+        return
+    lua_path = str(target).replace("\\", "/")
+    expr = (
+        f"local fn, err = loadfile({lua_path!r}); "
+        "if not fn then io.stderr:write(tostring(err)..'\\n'); os.exit(1) "
+        "else print('LUAJIT_LOADFILE_OK') end"
+    )
+    proc = subprocess.run(
+        [str(luajit_exe), "-e", expr],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    assert proc.returncode == 0 and "LUAJIT_LOADFILE_OK" in proc.stdout, (
+        f"LuaJIT loadfile compile failed (rc={proc.returncode}):\n{proc.stderr}\n{proc.stdout}"
+    )
+    print(f"LuaJIT bytecode compile OK ({luajit_exe.name}: LUAJIT_LOADFILE_OK)")
+
+
 def run_verification(target: Path, fast: bool = False):
     raw, src_lf = _read_helper_checked(target)
     tokens = lex_lua(src_lf)
@@ -1539,6 +1586,7 @@ def run_verification(target: Path, fast: bool = False):
 
     _extract_static_checks(src_lf)
     check_onframe_safety(src_lf)
+    check_luajit_compile(target)
 
     if fast:
         test_audit_regressions(src_lf)
@@ -1555,6 +1603,7 @@ def run_verification(target: Path, fast: bool = False):
     test_audit_regressions(src_lf)
     test_v27_features(src_lf)
     test_v30_features(src_lf)
+    test_v40_features(src_lf)
     print("ALL VERIFICATION CHECKS PASSED 100%!")
     return {"lines": len(src_lf.splitlines()), "bytes": len(raw), "tokens": len(tokens), "mode": "full"}
 
@@ -1873,6 +1922,93 @@ def test_v30_features(src_lf: str):
     assert m_rad and "%[R%]" in m_rad.group(0) and "clean_msg:find(my_nick, 1, true)" in m_rad.group(0) and "%[D%]" not in m_rad.group(0)
 
     print("v3.0 checks OK (ENV_CAPS probe & banners, Faction-Adaptive UI, army_tools МО, /sp confirmed RP, P8_tick hoisted)")
+
+
+def test_v40_features(src_lf: str):
+    """Verify v4.0 (Phase 9) features: Dashboard, Profile/tags, Dynamic Island, Proximity opt-in OFF, /laws isolation, /sus+/ticket+/takelic, /bl, Offline+BYOK AI, Radial editor, /stoprp, Dry-Run, Auto-SS opt-in OFF, /hexit."""
+    # 1. Core Phase 9 symbols & hoisted P9_tick
+    for sym in (
+        "P9 = P9 or {}",
+        "function P9_applyProfileTags(",
+        "function P9_pushIslandToast(",
+        "function P9_pollProximityAlerts(",
+        "function P9_tick(",
+        "function P9_drawDashboardUI(",
+        "function P9_buildIsolatedSkeleton(",
+        "function P9_loadServerLaws(",
+        "function P9_drawLawsWindow(",
+        "function P9_drawSuwContent(",
+        "function P9_drawTicketWindow(",
+        "function P9_drawTakelicWindow(",
+        "function P9_drawBlWindow(",
+        "function P9_searchLawsScored(",
+        "function P9_startAiRequest(",
+        "function P9_drawRadialEditorUI(",
+        "function P9_stopAllRp(",
+        "function P9_dryRunLines(",
+        "function P9_autoSsAfterReport(",
+        "function P9_softUnload(",
+    ):
+        assert sym in src_lf, f"Missing v4.0 symbol: {sym}"
+
+    assert 'if type(P9_tick) == "function" then P9_tick() end' in src_lf, "P9_tick() not called from mainFrameTick!"
+
+    # 2. Dashboard module #16 first in modules, factions = {"all"}
+    m_dash = re.search(r'(?m)^modules\s*=\s*\{\s*\{\s*id\s*=\s*"dashboard"\s*,\s*factions\s*=\s*\{"all"\}', src_lf, re.S)
+    assert m_dash, "Module 'dashboard' must be first in modules with factions = {'all'}!"
+
+    # 3. Unified Profile & all 8 RP tags
+    m_tags = re.search(r"function P9_applyProfileTags\(.*?\nend\n", src_lf, re.S)
+    assert m_tags, "P9_applyProfileTags body missing!"
+    for tag in ("name", "surname", "fullname", "rank", "callsign", "subdiv", "badge", "ended"):
+        assert tag in m_tags.group(0), f"Missing profile tag {tag} in P9_applyProfileTags"
+
+    # 4. Dynamic Island HideCursor + NoInputs when F11 closed + WindowRounding + Proximity opt-in OFF
+    m_isl = re.search(r"local\s+(\w+)\s*=\s*imgui\.OnFrame\(.*?##p9_dynamic_island.*?\1\.HideCursor = true", src_lf, re.S)
+    assert m_isl, "Dynamic Island OnFrame must set .HideCursor = true!"
+    assert "WindowFlags.NoInputs" in m_isl.group(0), "Dynamic Island must set NoInputs when F11 closed!"
+    assert "WindowRounding" in m_isl.group(0), "Dynamic Island must set rounded pill style!"
+    assert "P9.prox_enabled = imgui.new.bool(false)" in src_lf, "Proximity alerts MUST default to OFF!"
+
+    # 5. /laws strict server isolation (non-Blue never substitutes Blue articles) & Large Font reset
+    m_load_laws = re.search(r"function P9_loadServerLaws\(.*?\nend\n", src_lf, re.S)
+    assert m_load_laws and 'if sk == "blue" then' in m_load_laws.group(0) and "P9_buildIsolatedSkeleton(sk)" in m_load_laws.group(0), (
+        "/laws must isolate non-Blue servers without substituting Blue articles!"
+    )
+    assert "helper_laws_" in src_lf
+    m_laws_ui = re.search(r"function P9_drawLawsWindow\(.*?\nend\n", src_lf, re.S)
+    assert m_laws_ui and "imgui.SetWindowFontScale(1.22)" in m_laws_ui.group(0) and "imgui.SetWindowFontScale(1.0)" in m_laws_ui.group(0)
+
+    # 6. /sus + /ticket (ПДД first before АК) + /takelic + /bl (URL sync opt-in OFF)
+    m_pol = re.search(r"function P9_getChapteredPoliceArticles\(.*?\nend\n", src_lf, re.S)
+    assert m_pol, "P9_getChapteredPoliceArticles missing!"
+    pos_pdd = m_pol.group(0).find('appendDoc("pdd", nil)')
+    pos_ak = m_pol.group(0).find('appendDoc("ak", nil)')
+    assert 0 < pos_pdd < pos_ak, "/ticket must present ПДД chapters before АК!"
+    assert "helper_faction_bl.json" in src_lf
+    assert "url_sync_enabled = imgui.new.bool(false)" in src_lf, "/bl URL sync MUST default to OFF!"
+
+    # 7. Offline search + BYOK AI opt-in OFF + explicit network disclosure
+    assert "P9.ai_byok_enabled = false" in src_lf, "BYOK AI MUST default to OFF!"
+    assert "Что передаётся в сеть:" in src_lf, "BYOK AI network disclosure missing!"
+
+    # 8. Radial visual editor (ImDrawList primitives), /stoprp, Dry-Run tester, Auto-SS opt-in OFF, /hexit
+    m_rad = re.search(r"function P9_drawRadialEditorUI\(.*?\nend\n", src_lf, re.S)
+    assert m_rad and "GetWindowDrawList()" in m_rad.group(0) and "AddCircle" in m_rad.group(0) and "AddLine" in m_rad.group(0) and "AddText" in m_rad.group(0)
+    m_stop = re.search(r"function P9_stopAllRp\(.*?\nend\n", src_lf, re.S)
+    assert m_stop and "stopRp" in m_stop.group(0) and "P3_stopLecturer" in m_stop.group(0) and "P8.rp_pending" in m_stop.group(0)
+    m_dry = re.search(r"function P9_dryRunLines\(.*?\nend\n", src_lf, re.S)
+    assert m_dry and "[ТЕСТ БЕЗ ЧАТА]" in m_dry.group(0) and "sampSendChat" not in m_dry.group(0), "P9_dryRunLines must NEVER call sampSendChat!"
+    assert "P9.auto_ss_reports = false" in src_lf, "Auto-SS after reports MUST default to OFF!"
+    m_exit = re.search(r"function P9_softUnload\(.*?\nend\n", src_lf, re.S)
+    assert m_exit and "scheduleTask(150" in m_exit.group(0) and "thisScript()" in m_exit.group(0)
+
+    # 9. All 8 new v4.0 chat commands registered & zero raw imgui.Combo( (must use ComboStr)
+    for cmd_nm in ("'laws'", "'sus'", "'ticket'", "'takelic'", "'bl'", "'island'", "'stoprp'", "'hexit'"):
+        assert f"sampRegisterChatCommand({cmd_nm}" in src_lf, f"Missing v4.0 command {cmd_nm}"
+    assert "imgui.Combo(" not in src_lf, "Use imgui.ComboStr(...) instead of imgui.Combo(...) for \\0-delimited strings!"
+
+    print("v4.0 checks OK (Dashboard, Profile/tags, Dynamic Island, Proximity OFF, /laws isolation, /sus+/ticket(ПДД)+/takelic, /bl, Offline+BYOK AI OFF, Radial editor, /stoprp, Dry-Run, Auto-SS OFF, /hexit)")
 
 
 
